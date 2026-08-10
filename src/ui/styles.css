@@ -1,0 +1,31 @@
+/* Theme tokens. Define the full palette here; override only what changes. */
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --text: #e6e8ee;
+  --muted: #8b93a7;
+  --line: #262b36;
+
+  /* Indicator bands. Colour is never the ONLY signal — always pair with a
+     label or an icon, or the gauges are unreadable to ~8% of men. */
+  --ok: #4a9d7f;
+  --warn: #c9a227;
+  --danger: #c25450;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 var(--mono);
+}
+
+/* Wide content scrolls inside its own container; the page body never scrolls
+   sideways. */
+#charts, #pipeline { overflow-x: auto; }
+
+/* TODO(you): grid for #app — three columns desktop, stacked mobile.
+   See the wireframe in docs/03-architecture.md. */

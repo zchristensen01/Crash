@@ -1,0 +1,20 @@
+{
+  "name": "crash",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A real-time economy simulator that teaches macro cause and effect.",
+  "scripts": {
+    "params": "python3 tools/gen_params.py",
+    "build": "npm run params && node tools/build.mjs",
+    "test": "npm run params && node --test test/*.test.js",
+    "check": "npm run params && node tools/build.mjs && node --test test/*.test.js",
+    "dev": "npm run build && echo '\\nBuilt index.html \u2014 open it in a browser.'",
+    "demo": "npm run params --silent && node tools/demo.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20"
+  }
+}
