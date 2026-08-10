@@ -68,7 +68,7 @@ credit gap climbs past the BIS danger line. It is the best teaching tool here.
 
 | Path | |
 |---|---|
-| `docs/` | The design. Read `00-design-brief.md`, then `02-causal-map.md`. |
+| `docs/` | The design. Read `00-design-brief.md`, then `02-causal-map.md`. `06-model-audit-brief.md` is the open work. |
 | `parameters.py` | **The research record.** 108 parameters, each with a range, a confidence level and a citation. The authority for every number. |
 | `src/rules/` | The model — 12 rules, run in causal order. |
 | `src/game/`, `src/ui/` | Game layer and interface. |
