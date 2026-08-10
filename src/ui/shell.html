@@ -1,31 +1,41 @@
-<!-- Static DOM skeleton. Widgets mount into these containers; the build
-     inlines this file into index.html. Structural only — no content. -->
+<!-- Structural only. Widgets mount into these containers. -->
 <div id="app">
   <header id="topbar">
     <h1>CRASH</h1>
     <div id="clock-readout"></div>
-    <div id="speed-controls"></div>
+    <div id="transport"></div>
     <div id="seed-readout"></div>
   </header>
 
+  <div id="alerts"></div>
+
   <main>
-    <section id="left">
-      <section id="gauges" aria-label="Headline indicators"></section>
-      <h2 class="watched-head">The two nobody watches</h2>
-      <section id="watched" aria-label="Credit gap and credibility"></section>
-      <section id="regime" aria-label="Regime quadrant"></section>
+    <section id="col-status">
+      <h2>Where you stand</h2>
+      <div id="gauges" aria-label="Headline indicators"></div>
+      <h2 class="watched-head" id="watched-head">The two nobody watches</h2>
+      <div id="watched" aria-label="Credit gap and credibility"></div>
     </section>
 
-    <section id="charts" aria-label="History"></section>
+    <section id="col-charts">
+      <h2>History</h2>
+      <div id="charts" aria-label="History"></div>
+    </section>
 
-    <section id="right">
-      <div id="warnings" aria-label="Status and ending countdowns"></div>
+    <section id="col-side">
+      <h2>Where you are</h2>
+      <div id="regime" aria-label="Regime quadrant"></div>
       <h2>In the pipeline</h2>
-      <aside id="pipeline" aria-label="Effects not yet landed"></aside>
+      <div id="pipeline" aria-label="Effects not yet landed"></div>
     </section>
   </main>
 
-  <section id="dials" aria-label="Policy controls"></section>
+  <section id="controls">
+    <h2>Your dials <span class="controls-hint">— drag one, then watch the pipeline</span></h2>
+    <div id="dials" aria-label="Policy controls"></div>
+  </section>
+
   <footer id="keys"></footer>
 </div>
 <dialog id="why-panel"></dialog>
+<dialog id="over-panel"></dialog>

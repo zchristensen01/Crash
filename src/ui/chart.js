@@ -55,49 +55,90 @@ function strokeSeries(ctx, values, p, color, width, dashed) {
 }
 
 /**
- * Line chart with an optional ghost overlay.
- * @param {HTMLCanvasElement} canvas
- * @param {{values:number[], ghost?:number[], range:[number,number],
- *          label:string, zero?:boolean, marker?:number}} opts
+ * Line chart with a shaded danger zone, a labelled reference line, the
+ * current value called out, and an optional ghost overlay.
  *
- * `ghost` is the previous run on the same seed, drawn faint BEHIND the current
- * line. It is what turns a restart into a controlled experiment.
+ * The first version drew a bare line on a fixed -3..15 axis, so inflation at
+ * 2.5% was a flat line pinned to the bottom of an empty box with no
+ * indication of what "good" was. Three things fix that: shade where trouble
+ * is, name the line you are trying to sit on, and print the number.
+ *
+ * @param {{values:number[], ghost?:number[], range:[number,number],
+ *          label:string, marker?:number, markerLabel?:string,
+ *          danger?:{above?:number, below?:number}, fmt?:Function}} opts
  */
 export function drawLine(canvas, opts) {
   const { ctx, w, h } = fitCanvas(canvas);
-  const pad = { l: 34, r: 6, t: 16, b: 14 };
+  const pad = { l: 38, r: 58, t: 18, b: 16 };
   const count = Math.max(opts.values.length, opts.ghost?.length || 0, 2);
   const p = projector(opts.range, w, h, pad, count);
   const [lo, hi] = opts.range;
+  const plotL = pad.l, plotR = w - pad.r;
 
+  // Danger zone first, so everything else sits on top of it. A band of colour
+  // says "you do not want to be up here" faster than any axis label.
+  if (opts.danger?.above !== undefined && opts.danger.above < hi) {
+    ctx.fillStyle = 'rgba(194, 84, 80, 0.10)';
+    const yTop = p.y(hi), yCut = p.y(opts.danger.above);
+    ctx.fillRect(plotL, yTop, plotR - plotL, yCut - yTop);
+  }
+  if (opts.danger?.below !== undefined && opts.danger.below > lo) {
+    ctx.fillStyle = 'rgba(194, 84, 80, 0.10)';
+    const yCut = p.y(opts.danger.below), yBot = p.y(lo);
+    ctx.fillRect(plotL, yCut, plotR - plotL, yBot - yCut);
+  }
+
+  ctx.font = '10px ui-monospace, monospace';
   ctx.strokeStyle = CHART_COLORS.line;
   ctx.lineWidth = 1;
   ctx.fillStyle = CHART_COLORS.muted;
-  ctx.font = '10px ui-monospace, monospace';
   ctx.textAlign = 'right';
-  for (const v of [lo, (lo + hi) / 2, hi]) {
+  for (const v of [lo, hi]) {
     const y = Math.round(p.y(v)) + 0.5;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
-    ctx.fillText(v.toFixed(0), pad.l - 5, y + 3);
+    ctx.beginPath(); ctx.moveTo(plotL, y); ctx.lineTo(plotR, y); ctx.stroke();
+    ctx.fillText(v.toFixed(0), plotL - 5, y + 3);
   }
 
-  // A reference line — the inflation target, the danger threshold, whatever
-  // the number is being judged against. A series without one is just a shape.
+  // Year gridlines, so the horizontal axis means something.
+  ctx.strokeStyle = 'rgba(38,43,54,0.7)';
+  for (let m = 12; m < count; m += 12) {
+    const x = Math.round(p.x(m)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, h - pad.b); ctx.stroke();
+  }
+
+  // The reference line, NAMED. An unlabelled dashed line is a mystery.
   if (opts.marker !== undefined && opts.marker >= lo && opts.marker <= hi) {
+    const y = Math.round(p.y(opts.marker)) + 0.5;
     ctx.save();
     ctx.strokeStyle = CHART_COLORS.warn;
-    ctx.setLineDash([2, 4]);
-    const y = Math.round(p.y(opts.marker)) + 0.5;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(plotL, y); ctx.lineTo(plotR, y); ctx.stroke();
     ctx.restore();
+    ctx.fillStyle = CHART_COLORS.warn;
+    ctx.textAlign = 'left';
+    ctx.fillText(opts.markerLabel || 'target', plotR + 4, y + 3);
   }
 
   if (opts.ghost?.length) strokeSeries(ctx, opts.ghost, p, CHART_COLORS.ghost, 1, true);
-  strokeSeries(ctx, opts.values, p, opts.color || CHART_COLORS.series, 1.75, false);
+  strokeSeries(ctx, opts.values, p, opts.color || CHART_COLORS.series, 1.9, false);
+
+  // The current value, at the end of its own line.
+  const last = opts.values[opts.values.length - 1];
+  if (last !== undefined) {
+    const y = p.y(last);
+    ctx.beginPath();
+    ctx.fillStyle = opts.color || CHART_COLORS.series;
+    ctx.arc(p.x(opts.values.length - 1), y, 2.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.textAlign = 'left';
+    ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText((opts.fmt || ((v) => v.toFixed(1)))(last), plotR + 4, y + 4);
+  }
 
   ctx.fillStyle = CHART_COLORS.muted;
+  ctx.font = '10px ui-monospace, monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(opts.label, pad.l, 11);
+  ctx.fillText(opts.label, plotL, 12);
 }
 
 /** Inline sparkline for a gauge row. Same data, no axes, no labels. */

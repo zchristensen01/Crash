@@ -61,10 +61,11 @@ function descend(root) {
 
 function matchSimple(n, s) {
   const parts = s.split('.').filter(Boolean);
-  if (s.startsWith('.')) return parts.every((c) => n._classes.includes(c));
+  const classes = n._classes || [];
+  if (s.startsWith('.')) return parts.every((c) => classes.includes(c));
   const [tag, ...cls] = parts;
   if (tag && n.tagName !== tag.toUpperCase()) return false;
-  return cls.every((c) => n._classes.includes(c));
+  return cls.every((c) => classes.includes(c));
 }
 
 /** Supports comma lists and descendant combinators — '.gauge-bar i'. */
@@ -85,7 +86,10 @@ function matchSel(n, sel) {
 /** Naive but sufficient for the flat, well-formed fragments the widgets use. */
 function parseHTML(html, parent) {
   const out = [];
-  const stack = [{ el: { children: out } }];
+  // Root of the stack carries the REAL parent, so ancestor walks in
+  // descendant selectors don't hit a synthetic object with no classes.
+  const stack = [{ el: { children: out, parentNode: parent?.parentNode ?? null,
+                         _classes: parent?._classes ?? [], tagName: parent?.tagName ?? 'ROOT' } }];
   const re = /<(\/)?([a-zA-Z][\w-]*)([^>]*?)(\/)?>|([^<]+)/g;
   let m;
   while ((m = re.exec(html))) {
@@ -94,7 +98,7 @@ function parseHTML(html, parent) {
     if (closing) { if (stack.length > 1) stack.pop(); continue; }
     const el = new El(tag);
     for (const a of (attrs || '').matchAll(/([\w-]+)\s*=\s*"([^"]*)"/g)) el.setAttribute(a[1], a[2]);
-    el.parentNode = stack[stack.length - 1].el;
+    el.parentNode = stack.length === 1 ? (parent ?? null) : stack[stack.length - 1].el;
     stack[stack.length - 1].el.children.push(el);
     const VOID = ['input', 'br', 'img', 'hr', 'meta', 'link'];
     if (!selfClose && !VOID.includes(tag.toLowerCase())) stack.push({ el });

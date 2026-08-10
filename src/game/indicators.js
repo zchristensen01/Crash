@@ -16,8 +16,10 @@ import { yoyGrowth } from '../units.js';
 export const INDICATORS = [
   {
     key: 'growth', label: 'Growth', tier: 'headline',
+    badness: (v) => -v, trendEpsilon: 0.3,
     historyKey: 'growth', traceKey: 'output_gap',
-    get: (s) => yoyGrowth(s.history.output),
+    // NaN until a full year exists; the gauge renders that as 'gathering data'.
+    get: (s) => (s.history.output.length > 12 ? yoyGrowth(s.history.output) : NaN),
     fmt: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`,
     range: [-8, 8],
     verdict: (v) => (v > 4 ? 'booming' : v > 1 ? 'healthy' : v > 0 ? 'sluggish' : 'SHRINKING'),
@@ -26,6 +28,7 @@ export const INDICATORS = [
   },
   {
     key: 'inflation', label: 'Inflation', tier: 'headline',
+    badness: (v) => Math.abs(v - 2), trendEpsilon: 0.2,
     historyKey: 'inflation', traceKey: 'inflation', param: 'PHILLIPS_KAPPA_ANCHORED',
     get: (s) => s.inflation,
     fmt: (v) => `${v.toFixed(1)}%`,
@@ -37,6 +40,7 @@ export const INDICATORS = [
   },
   {
     key: 'unemployment', label: 'Unemployment', tier: 'headline',
+    badness: (v) => v, trendEpsilon: 0.2,
     historyKey: 'unemployment', traceKey: 'unemployment', param: 'OKUN_BETA',
     get: (s) => s.unemployment,
     fmt: (v) => `${v.toFixed(1)}%`,
@@ -48,18 +52,20 @@ export const INDICATORS = [
   },
   {
     key: 'govt_debt', label: 'Govt debt', tier: 'headline',
+    badness: (v) => v, trendEpsilon: 1.0,
     historyKey: 'govt_debt', traceKey: 'govt_debt', param: 'BOND_YIELD_DEBT_SLOPE',
     get: (s) => s.govt_debt,
     fmt: (v) => `${v.toFixed(0)}%`,
     range: [0, 250],
-    verdict: (v) => (v < 60 ? 'low' : v < 100 ? 'fine' : v < 160 ? 'heavy' : 'DANGEROUS'),
-    band: (v) => (v < 100 ? 'ok' : v < 160 ? 'warn' : 'danger'),
+    verdict: (v) => (v < 70 ? 'low' : v < 120 ? 'normal' : v < 170 ? 'heavy' : 'DANGEROUS'),
+    band: (v) => (v < 120 ? 'ok' : v < 170 ? 'warn' : 'danger'),
     help: 'Everything the government owes, as a share of one year of the ' +
       'economy. What matters is not the level but whether interest is ' +
       'growing faster than the economy.',
   },
   {
     key: 'approval', label: 'Approval', tier: 'headline',
+    badness: (v) => -v, trendEpsilon: 1.5,
     historyKey: 'approval', traceKey: 'approval', param: 'APPROVAL_MISERY_WEIGHT',
     get: (s) => s.approval,
     fmt: (v) => v.toFixed(0),
@@ -72,6 +78,7 @@ export const INDICATORS = [
   // --- the two that matter and nobody watches ---
   {
     key: 'credit_to_gdp_gap', label: 'Credit gap', tier: 'watched',
+    badness: (v) => v, trendEpsilon: 0.3,
     historyKey: 'credit_gap', traceKey: 'credit_to_gdp_gap', param: 'CRISIS_PROB_PER_SD_CREDIT',
     get: (s) => s.credit_to_gdp_gap,
     fmt: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}pp`,
@@ -87,6 +94,7 @@ export const INDICATORS = [
   },
   {
     key: 'credibility', label: 'Credibility', tier: 'watched',
+    badness: (v) => -v, trendEpsilon: 0.02,
     historyKey: 'credibility', traceKey: 'credibility', param: 'CREDIBILITY_DECAY',
     get: (s) => s.credibility,
     fmt: (v) => v.toFixed(2),

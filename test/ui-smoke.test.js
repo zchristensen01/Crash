@@ -18,6 +18,7 @@ const dom = installDOM(shell);
 const { boot } = await import('../src/ui/app.js');
 const { INDICATORS } = await import('../src/game/indicators.js');
 const { DIALS, applyDialChange } = await import('../src/game/dials.js');
+const glossaryMod = await import('../src/game/glossary.js');
 const restartMod = await import('../src/game/session.js');
 const { newSession, sessionTick } = restartMod;
 const { LagPipeline } = await import('../src/lags.js');
@@ -27,9 +28,9 @@ test('the whole UI boots without throwing', () => {
 });
 
 test('every shell container the app needs exists', () => {
-  for (const id of ['#topbar', '#clock-readout', '#speed-controls', '#seed-readout',
+  for (const id of ['#topbar', '#clock-readout', '#transport', '#seed-readout',
     '#gauges', '#watched', '#charts', '#regime', '#dials', '#pipeline',
-    '#warnings', '#why-panel', '#keys']) {
+    '#alerts', '#why-panel', '#over-panel', '#keys']) {
     assert.ok(document.querySelector(id), `shell.html is missing ${id}`);
   }
 });
@@ -96,3 +97,63 @@ test('restarting on the same seed keeps the previous run as a ghost', () => {
 });
 
 function require_restart() { return restartMod; }
+
+// --- behaviours that regressed in the first playtest -------------------
+
+test('the game starts paused, at 1x, with play as the visible action', () => {
+  const s = newSession(1, 'calm');
+  assert.equal(s.playing, false, 'should start paused so you can read the situation');
+  assert.equal(s.speed, '1x', 'speed should default to 1x, not to "paused"');
+});
+
+test('pausing does not throw away the chosen speed', () => {
+  // The first version had one row of four buttons, so pausing meant losing
+  // your speed and there was never a visible play button.
+  const s = newSession(1, 'calm');
+  s.speed = '10x';
+  s.playing = true;
+  s.playing = false;
+  assert.equal(s.speed, '10x', 'speed must survive a pause');
+});
+
+test('every gauge and every dial has a plain-English definition', () => {
+  const { define } = require_glossary();
+  for (const ind of INDICATORS) {
+    assert.ok(define(ind.label), `no glossary entry for the gauge "${ind.label}"`);
+  }
+  for (const d of DIALS) {
+    assert.ok(define(d.label), `no glossary entry for the dial "${d.label}"`);
+  }
+});
+
+test('every gauge can say whether it is getting worse', () => {
+  for (const ind of INDICATORS) {
+    assert.equal(typeof ind.badness, 'function', `${ind.key} has no badness()`);
+    // Higher badness must mean a worse situation, or the trend arrow lies.
+    const worse = ind.key === 'inflation' ? 9 : ind.key === 'approval' ? 5
+      : ind.key === 'growth' ? -4 : ind.key === 'credibility' ? 0.1 : 99;
+    const better = ind.key === 'inflation' ? 2 : ind.key === 'approval' ? 80
+      : ind.key === 'growth' ? 3 : ind.key === 'credibility' ? 0.95 : 0;
+    assert.ok(ind.badness(worse) > ind.badness(better),
+      `${ind.key}: badness() does not increase as the situation deteriorates`);
+  }
+});
+
+test('a passive calm run reaches the end of the term and is scored', () => {
+  // "You never seem to win or lose" — the win path has to actually arrive.
+  const s = newSession(40317, 'calm');
+  for (let i = 0; i < 200 && !s.over; i++) sessionTick(s);
+  assert.ok(s.over, 'a calm run never ended');
+  assert.equal(s.over.kind, 'survived', `calm ended in ${s.over.ending?.title}`);
+  assert.ok(Number.isFinite(s.scored.total), 'survived without a score');
+});
+
+test('a losing run reaches a named ending with a lesson', () => {
+  const s = newSession(7, 'stagflation');
+  for (let i = 0; i < 200 && !s.over; i++) sessionTick(s);
+  assert.equal(s.over.kind, 'lost', 'stagflation with no policy should not survive');
+  assert.ok(s.over.ending.title && s.over.ending.lesson.length > 40,
+    'an ending must carry the lesson — that is the whole point of losing');
+});
+
+function require_glossary() { return glossaryMod; }

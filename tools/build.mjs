@@ -57,6 +57,7 @@ const BUILD_ORDER = [
 
   'src/engine.js',
 
+  'src/game/glossary.js',
   'src/game/scenarios.js',
   'src/game/autopilot.js',
   'src/game/dials.js',
@@ -67,6 +68,9 @@ const BUILD_ORDER = [
   'src/game/session.js',
 
   'src/ui/chart.js',
+  'src/ui/widgets/tooltip.js',
+  'src/ui/widgets/transport.js',
+  'src/ui/widgets/gameover.js',
   'src/ui/widgets/gauge.js',
   'src/ui/widgets/dial.js',
   'src/ui/widgets/pipeline.js',

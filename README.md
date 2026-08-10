@@ -39,16 +39,27 @@ npm run demo bubble 42 taylor   # ...seeded, played by a Taylor-rule bank
 
 | Key | |
 |---|---|
-| `space` | pause / play |
-| `+` `−` | speed — 1×, 3×, 10× (one month per 2s, 0.7s, 0.2s) |
+| `space` | play / pause |
+| `1` `2` `3` | speed — 1×, 3×, 10× (one month per 2s, 0.7s, 0.2s) |
 | `w` | why panel |
-| `r` | restart on the same seed |
-| `n` | new seed |
+| `r` | restart the same world |
+| `n` | new world |
 
-Click any number to see the maths behind it. Drag a dial and watch the
-consequence appear in the pipeline panel — it lands *months* later, and that
-lag is the entire game. Restart on the same seed and your previous run stays
-on the charts as a ghost, so every retry is a controlled experiment.
+**Hover anything** — every gauge, dial and regime name has a plain-English
+definition written for someone who has never taken an economics class.
+
+**Click any number** to see the exact terms that produced it, as a waterfall
+that sums to the total.
+
+**Drag a dial** and watch the consequence appear in the pipeline panel. It
+lands *months* later, and that lag is the entire game.
+
+**A red ▲ next to a gauge means it is deteriorating**, which is a different
+situation from a bad number holding steady. It shows up long before any
+ending countdown starts.
+
+Restart the same world and your previous run stays on the charts as a ghost,
+so every retry is a controlled experiment with one variable: what you did.
 
 **Start with the Bubble scenario.** Every visible gauge stays healthy while the
 credit gap climbs past the BIS danger line. It is the best teaching tool here.
