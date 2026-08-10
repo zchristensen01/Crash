@@ -59,7 +59,6 @@ const BUILD_ORDER = [
 
   'src/game/scenarios.js',
   'src/game/autopilot.js',
-  'src/game/endings.js',
   'src/game/dials.js',
   'src/game/events.js',
   'src/game/endings.js',

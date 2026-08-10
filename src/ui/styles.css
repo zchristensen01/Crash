@@ -1,31 +1,153 @@
-/* Theme tokens. Define the full palette here; override only what changes. */
+/* Theme tokens. Full palette defined here; nothing depends on a media query
+   for its only definition. */
 :root {
   --bg: #0f1115;
   --panel: #171a21;
+  --panel-2: #1d222b;
   --text: #e6e8ee;
   --muted: #8b93a7;
   --line: #262b36;
+  --accent: #6ea8fe;
 
-  /* Indicator bands. Colour is never the ONLY signal — always pair with a
-     label or an icon, or the gauges are unreadable to ~8% of men. */
+  /* Bands. Colour is NEVER the only signal — every band is paired with a
+     verdict word, because roughly 8% of men cannot separate these two. */
   --ok: #4a9d7f;
   --warn: #c9a227;
   --danger: #c25450;
 
-  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --radius: 6px;
 }
 
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.5 var(--mono);
+  font: 14px/1.5 var(--mono);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Wide content scrolls inside its own container; the page body never scrolls
-   sideways. */
-#charts, #pipeline { overflow-x: auto; }
+#app { display: flex; flex-direction: column; min-height: 100vh; gap: 10px; padding: 10px; }
 
-/* TODO(you): grid for #app — three columns desktop, stacked mobile.
-   See the wireframe in docs/03-architecture.md. */
+/* ---- header ---- */
+#topbar {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+#topbar h1 { margin: 0; font-size: 15px; letter-spacing: 0.22em; }
+#clock-readout { color: var(--muted); }
+#speed-controls { display: flex; gap: 4px; margin-left: auto; }
+#speed-controls button, .restart {
+  font: inherit; color: var(--muted); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 4px; padding: 3px 10px; cursor: pointer;
+}
+#speed-controls button[data-active="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+#speed-controls button:hover, .restart:hover { color: var(--text); }
+#seed-readout { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+.scenario-picker {
+  font: inherit; background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px;
+}
+
+/* ---- layout: three columns, stacking on narrow screens ---- */
+main { display: grid; grid-template-columns: minmax(340px, 1.1fr) minmax(280px, 1fr) minmax(240px, 0.8fr); gap: 10px; align-items: start; }
+@media (max-width: 1100px) { main { grid-template-columns: 1fr 1fr; } #right { grid-column: 1 / -1; } }
+@media (max-width: 720px)  { main { grid-template-columns: 1fr; } }
+
+#left, #charts, #right { display: flex; flex-direction: column; gap: 8px; }
+section#gauges, section#watched, section#regime, #charts, #right {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px;
+}
+h2 { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; font-weight: 500; }
+.watched-head { margin: 4px 0 0; }
+
+/* ---- gauges ---- */
+.gauge {
+  display: grid; grid-template-columns: 8.5em 4.6em 1fr 60px auto;
+  gap: 8px; align-items: center; width: 100%; padding: 5px 4px;
+  background: none; border: 0; border-radius: 4px; color: inherit;
+  font: inherit; text-align: left; cursor: pointer;
+}
+.gauge:hover, .gauge:focus-visible { background: var(--panel-2); outline: none; }
+.gauge-label { color: var(--muted); }
+.gauge-value { text-align: right; font-variant-numeric: tabular-nums; }
+.gauge-bar { height: 7px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
+.gauge-bar i { display: block; height: 100%; background: var(--ok); transition: width .25s ease; }
+.gauge[data-band="warn"] .gauge-bar i { background: var(--warn); }
+.gauge[data-band="danger"] .gauge-bar i { background: var(--danger); }
+.gauge[data-band="warn"] .gauge-verdict { color: var(--warn); }
+.gauge[data-band="danger"] .gauge-verdict { color: var(--danger); font-weight: 600; }
+.gauge-verdict { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.gauge-spark { width: 60px; height: 18px; }
+
+/* ---- charts ---- */
+#charts figure { margin: 0; }
+#charts canvas { width: 100%; height: 128px; display: block; }
+
+/* ---- regime ---- */
+.regime-canvas { width: 100%; height: 168px; display: block; }
+.regime-caption { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.regime-caption[data-regime="STAGFLATION"] { color: var(--danger); }
+.regime-caption[data-regime="OVERHEATING"] { color: var(--warn); }
+
+/* ---- dials ---- */
+#dials {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 18px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px;
+}
+.dial { display: grid; grid-template-columns: 4.2em 5.4em 1fr; gap: 8px; align-items: center; }
+.dial-label { color: var(--muted); }
+.dial-value { text-align: right; font-variant-numeric: tabular-nums; }
+.dial[data-stance="loose"] .dial-value { color: var(--accent); }
+.dial[data-stance="tight"] .dial-value { color: var(--warn); }
+.dial-track { position: relative; display: block; }
+.dial-input { width: 100%; margin: 0; accent-color: var(--accent); cursor: grab; }
+.dial-input:active { cursor: grabbing; }
+/* The neutral marker: without it you cannot tell if 3% is loose or tight. */
+.dial-neutral { position: absolute; top: -3px; width: 1px; height: 16px; background: var(--muted); opacity: .65; pointer-events: none; }
+
+/* ---- pipeline ---- */
+.pipeline-empty { color: var(--muted); font-size: 12px; margin: 0; }
+.pipe { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 12px; }
+.pipe:first-child { border-top: 0; }
+.pipe-target { color: var(--muted); text-align: right; }
+.pipe-bar { grid-column: 1 / -1; height: 5px; background: var(--panel-2); border-radius: 3px; overflow: hidden; }
+.pipe-bar i { display: block; height: 100%; background: var(--accent); transition: width .3s ease; }
+.pipe[data-state="landing"] .pipe-bar i { background: var(--ok); }
+.pipe-when { grid-column: 1 / -1; color: var(--muted); font-size: 11px; }
+
+/* ---- banner + warnings ---- */
+.banner { margin: 0 0 6px; font-size: 12px; color: var(--muted); }
+.banner[data-kind="lost"] { color: var(--danger); font-weight: 600; }
+.banner[data-kind="won"] { color: var(--ok); font-weight: 600; }
+.banner[data-kind="error"] { color: var(--danger); }
+.warn { margin: 3px 0; color: var(--warn); font-size: 12px; font-weight: 600; }
+
+/* ---- why panel ---- */
+.why {
+  color: var(--text); background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px; max-width: 620px; width: calc(100% - 32px);
+}
+.why::backdrop { background: rgba(0,0,0,.62); }
+.why header { display: flex; align-items: baseline; gap: 12px; }
+.why h2 { margin: 0; font-size: 14px; letter-spacing: .1em; color: var(--text); }
+.why-close { margin-left: auto; font: inherit; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.why-help { color: var(--muted); font-size: 12px; }
+.why-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.why-table td { padding: 4px 6px; border-top: 1px solid var(--line); }
+.why-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.why-num[data-sign="pos"] { color: var(--ok); }
+.why-num[data-sign="neg"] { color: var(--danger); }
+.why-run { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.why-total td { border-top: 2px solid var(--line); font-weight: 700; }
+.why-extra { color: var(--warn); font-size: 12px; }
+.why-note { color: var(--muted); font-size: 11px; margin-bottom: 0; }
+
+/* ---- footer ---- */
+#keys { color: var(--muted); font-size: 11px; text-align: center; padding-bottom: 6px; }
+
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+#charts, #pipeline { overflow-x: auto; }

@@ -11,6 +11,7 @@
  * Conversion to monthly happens inside rules, via units.js, never in state.
  */
 import { START, P } from './params.js';
+import { yoyGrowth } from './units.js';
 
 export function newState(overrides = {}) {
   const s = { ...START, ...overrides };
@@ -105,8 +106,9 @@ export function newState(overrides = {}) {
   s.velocity_v0 = P.VELOCITY_INTEREST_SEMIELAST.value * Math.log(1 + s.policy_rate / 100);
 
   // Histories for charts and YoY
-  s.history = { output: [], inflation: [], unemployment: [], approval: [],
-                credit_gap: [], output_gap: [], real_income: [] };
+  s.history = { output: [], growth: [], inflation: [], unemployment: [],
+                approval: [], credit_gap: [], output_gap: [], real_income: [],
+                govt_debt: [], credibility: [] };
 
   // Explicit overrides win over anything derived above. Without this a
   // scenario cannot set credit_trend, asset_fundamental or any other field
@@ -125,6 +127,9 @@ export function pushHistory(s) {
   h.credit_gap.push(s.credit_to_gdp_gap);
   h.output_gap.push(s.output_gap);
   h.real_income.push(s.disposable_income * s.output / 100);
+  h.govt_debt.push(s.govt_debt);
+  h.credibility.push(s.credibility);
+  h.growth.push(yoyGrowth(h.output));
   for (const k of Object.keys(h)) if (h[k].length > MAX) h[k].shift();
 }
 

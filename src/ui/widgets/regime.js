@@ -1,21 +1,29 @@
 /**
- * REGIME widget — the four-quadrant box from docs/02 Part 4, live.
- * WHO WRITES THIS: you.
+ * REGIME — the four-quadrant box from docs/02 Part 4, live.
  */
+import { drawRegimeScatter } from '../chart.js';
+import { regime } from '../../state.js';
 
-/**
- * @param {HTMLElement} mount @param {Object} props { history }
- * @returns {{update:Function}}
- *
- * Not a label reading "OVERHEATING" — a scatter with inflation on one axis
- * and the output gap on the other, a dot for now, and a fading trail of the
- * last 24 months.
- *
- * Three of the four boxes have an answer. Stagflation doesn't: every tool
- * makes one problem worse while fixing the other, and you are choosing which
- * group of people to hurt. Name that in the readout when the dot is in that
- * quadrant — it is the most honest thing in the design.
- */
 export function mountRegime(mount, props) {
-  throw new Error('regime.mountRegime: not implemented');
+  const canvas = document.createElement('canvas');
+  canvas.className = 'regime-canvas';
+  const caption = document.createElement('p');
+  caption.className = 'regime-caption';
+  mount.append(canvas, caption);
+
+  return {
+    update(state) {
+      drawRegimeScatter(canvas, state.history);
+      const r = regime(state);
+      caption.dataset.regime = r;
+      // Three of the four boxes have an answer. One doesn't, and saying so is
+      // the most honest thing in the design.
+      caption.textContent = {
+        GOLDILOCKS: 'GOLDILOCKS — do nothing. Seriously.',
+        OVERHEATING: 'OVERHEATING — hike, tighten fiscal, take the pain early.',
+        RECESSION: 'RECESSION — cut rates and spend. Both dials point the same way.',
+        STAGFLATION: 'STAGFLATION — no good answer. The dials point in opposite directions.',
+      }[r];
+    },
+  };
 }

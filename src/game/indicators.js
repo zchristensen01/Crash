@@ -16,6 +16,7 @@ import { yoyGrowth } from '../units.js';
 export const INDICATORS = [
   {
     key: 'growth', label: 'Growth', tier: 'headline',
+    historyKey: 'growth', traceKey: 'output_gap',
     get: (s) => yoyGrowth(s.history.output),
     fmt: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`,
     range: [-8, 8],
@@ -25,6 +26,7 @@ export const INDICATORS = [
   },
   {
     key: 'inflation', label: 'Inflation', tier: 'headline',
+    historyKey: 'inflation', traceKey: 'inflation', param: 'PHILLIPS_KAPPA_ANCHORED',
     get: (s) => s.inflation,
     fmt: (v) => `${v.toFixed(1)}%`,
     range: [-3, 15],
@@ -35,6 +37,7 @@ export const INDICATORS = [
   },
   {
     key: 'unemployment', label: 'Unemployment', tier: 'headline',
+    historyKey: 'unemployment', traceKey: 'unemployment', param: 'OKUN_BETA',
     get: (s) => s.unemployment,
     fmt: (v) => `${v.toFixed(1)}%`,
     range: [0, 18],
@@ -45,6 +48,7 @@ export const INDICATORS = [
   },
   {
     key: 'govt_debt', label: 'Govt debt', tier: 'headline',
+    historyKey: 'govt_debt', traceKey: 'govt_debt', param: 'BOND_YIELD_DEBT_SLOPE',
     get: (s) => s.govt_debt,
     fmt: (v) => `${v.toFixed(0)}%`,
     range: [0, 250],
@@ -56,6 +60,7 @@ export const INDICATORS = [
   },
   {
     key: 'approval', label: 'Approval', tier: 'headline',
+    historyKey: 'approval', traceKey: 'approval', param: 'APPROVAL_MISERY_WEIGHT',
     get: (s) => s.approval,
     fmt: (v) => v.toFixed(0),
     range: [0, 100],
@@ -67,6 +72,7 @@ export const INDICATORS = [
   // --- the two that matter and nobody watches ---
   {
     key: 'credit_to_gdp_gap', label: 'Credit gap', tier: 'watched',
+    historyKey: 'credit_gap', traceKey: 'credit_to_gdp_gap', param: 'CRISIS_PROB_PER_SD_CREDIT',
     get: (s) => s.credit_to_gdp_gap,
     fmt: (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}pp`,
     range: [-5, 15],
@@ -81,6 +87,7 @@ export const INDICATORS = [
   },
   {
     key: 'credibility', label: 'Credibility', tier: 'watched',
+    historyKey: 'credibility', traceKey: 'credibility', param: 'CREDIBILITY_DECAY',
     get: (s) => s.credibility,
     fmt: (v) => v.toFixed(2),
     range: [0, 1],

@@ -359,14 +359,21 @@ sit at, so the drift was a symptom. Patching it would have treated the symptom.
 | 6 | `credit`, `fiscal`, `crisis` | Claude | **done** |
 | 7 | Stability check | Claude | **done** — core block stable; debt loop divergent by design |
 | 8 | `scenarios`, `endings`, `autopilot` (econ-consistent data) | Claude | **done** |
-| 9 | `dials`, `events`, `indicators`, `clock`, `session` | **you** | not started |
-| 10 | UI: shell, gauges, dials, `chart.js`, pipeline + why panels | **you** | not started |
+| 9 | `dials`, `events`, `indicators`, `clock`, `session` | Claude | **done** |
+| 10 | UI: shell, gauges, dials, `chart.js`, pipeline + why panels | Claude | **done** |
 | 11 | **Tune until each scenario is hard but winnable** | both | open-ended |
 
-Steps 1–8 are complete and 28 tests pass. What remains for you is the game and
-interface layer, which contains no economics: reading `INDICATORS` and `DIALS`
-into DOM, a Canvas line chart, the fixed-timestep clock, and the two panels
-that do the teaching.
+**Steps 1–10 are complete and 41 tests pass.** The interface is a single
+self-contained `index.html`: gauges, draggable dials with neutral markers,
+three Canvas charts with ghost overlay, the live regime scatter, the pipeline
+panel and the click-to-open `why` waterfall.
+
+The UI is regression-tested without a browser. `test/dom-shim.mjs` is a ~120
+line DOM implementation — enough to boot the app, mount every widget and catch
+the failures that actually happen when wiring: a selector matching nothing, a
+method called on null, a gauge whose `traceKey` names nothing.
+`test/bundle.test.js` then runs the *built* `index.html`, because concatenating
+modules into one scope can break in ways the module tests cannot see.
 
 ### What the finished model does
 

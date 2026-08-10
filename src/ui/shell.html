@@ -1,5 +1,5 @@
 <!-- Static DOM skeleton. Widgets mount into these containers; the build
-     inlines this file into index.html. Keep it structural — no content. -->
+     inlines this file into index.html. Structural only — no content. -->
 <div id="app">
   <header id="topbar">
     <h1>CRASH</h1>
@@ -9,15 +9,23 @@
   </header>
 
   <main>
-    <section id="gauges" aria-label="Headline indicators"></section>
-    <section id="watched" aria-label="Credit gap and credibility"></section>
-    <section id="charts"></section>
-    <section id="regime" aria-label="Regime quadrant"></section>
-    <section id="dials" aria-label="Policy controls"></section>
-    <aside id="pipeline" aria-label="Effects not yet landed"></aside>
-    <aside id="warnings" aria-label="Ending countdowns"></aside>
+    <section id="left">
+      <section id="gauges" aria-label="Headline indicators"></section>
+      <h2 class="watched-head">The two nobody watches</h2>
+      <section id="watched" aria-label="Credit gap and credibility"></section>
+      <section id="regime" aria-label="Regime quadrant"></section>
+    </section>
+
+    <section id="charts" aria-label="History"></section>
+
+    <section id="right">
+      <div id="warnings" aria-label="Status and ending countdowns"></div>
+      <h2>In the pipeline</h2>
+      <aside id="pipeline" aria-label="Effects not yet landed"></aside>
+    </section>
   </main>
 
-  <dialog id="why-panel"></dialog>
+  <section id="dials" aria-label="Policy controls"></section>
   <footer id="keys"></footer>
 </div>
+<dialog id="why-panel"></dialog>

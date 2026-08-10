@@ -1,36 +1,84 @@
 # Crash
 
 A real-time economy simulator that runs in a browser. Time runs continuously,
-you hold a handful of policy dials, and numbers move according to equations you
-can open up and inspect. You either survive your term or you break the country.
+you hold four policy dials, and every number can be opened up to show the exact
+terms that produced it. You either survive your eight-year term or you break
+the country.
 
 The point is not to win. The point is that after twenty failed runs you
 understand why central bankers look tired.
 
-## Run it
+## Play it
+
+```
+npm start
+```
+
+Then open **http://localhost:8123**. That's it — no dependencies, no
+`node_modules`, no build tooling. Node 20+ and Python 3 (only to regenerate
+parameters from the research file).
+
+`index.html` is fully self-contained, so you can also just open the file
+directly, or send it to someone:
 
 ```
 npm run build     # writes index.html
-npm test          # node --test, no framework
-npm run check     # params + build + tests
+npm run open      # builds and opens it (Windows/WSL, macOS, Linux)
 ```
 
-No dependencies. No `node_modules`. Node 20+ and Python 3 are all you need,
-and Python only to regenerate parameters.
+Prefer the terminal? The model runs headless:
+
+```
+npm run demo                    # calm, 8 years, you touch nothing
+npm run demo bubble             # calm, bubble, recession, overheating,
+npm run demo stagflation        #   stagflation, debt_trap
+npm run demo bubble 42 taylor   # ...seeded, played by a Taylor-rule bank
+```
+
+## How to play
+
+| Key | |
+|---|---|
+| `space` | pause / play |
+| `+` `−` | speed — 1×, 3×, 10× (one month per 2s, 0.7s, 0.2s) |
+| `w` | why panel |
+| `r` | restart on the same seed |
+| `n` | new seed |
+
+Click any number to see the maths behind it. Drag a dial and watch the
+consequence appear in the pipeline panel — it lands *months* later, and that
+lag is the entire game. Restart on the same seed and your previous run stays
+on the charts as a ghost, so every retry is a controlled experiment.
+
+**Start with the Bubble scenario.** Every visible gauge stays healthy while the
+credit gap climbs past the BIS danger line. It is the best teaching tool here.
 
 ## Where things are
 
-| Path | What |
+| Path | |
 |---|---|
-| `docs/` | The design. Read `00-design-brief.md` first, then `03-architecture.md`. |
+| `docs/` | The design. Read `00-design-brief.md`, then `02-causal-map.md`. |
 | `parameters.py` | **The research record.** 108 parameters, each with a range, a confidence level and a citation. The authority for every number. |
-| `src/` | Source, authored as ES modules. |
-| `tools/` | `gen_params.py` projects parameters into JS; `build.mjs` concatenates `src/` into `index.html`. |
-| `test/` | Tests. `params.test.js` passes today; the rest fail until their module exists. |
-| `reference/` | The retired prototype, kept to read, not to run. |
+| `src/rules/` | The model — 12 rules, run in causal order. |
+| `src/game/`, `src/ui/` | Game layer and interface. |
+| `tools/` | `gen_params.py`, `build.mjs`, `serve.mjs`, `demo.mjs`. |
+| `test/` | 41 tests, `node --test`, no framework. |
 
-Two files are **generated and gitignored** — never edit them:
-`index.html` (from `src/`) and `src/params.js` (from `parameters.py`).
+`index.html` and `src/params.js` are **generated and gitignored** — never edit
+them.
+
+## Extending it
+
+Everything the player sees is data. Adding things never touches rendering code:
+
+- **a gauge** → one entry in `src/game/indicators.js`
+- **a dial** → one entry in `src/game/dials.js`
+- **a shock** → one entry in `src/game/events.js`
+- **a way to lose** → one entry in `src/game/endings.js`
+- **a scenario** → one entry in `src/game/scenarios.js`
+- **a mechanism** → one function in `src/rules/`, one line in `rules/index.js`
+
+Then `npm test`. New file? Add it to `BUILD_ORDER` in `tools/build.mjs`.
 
 ## The rules that keep it honest
 
@@ -38,26 +86,13 @@ Two files are **generated and gitignored** — never edit them:
    good the evidence is, and where it came from. Where confidence is `weak` or
    `contested`, the UI shows the range rather than pretending to a point
    estimate.
-2. **No rule may modify state without recording why.** The `why` panel is not
-   a feature, it is the difference between a black box and a teaching tool.
+2. **No rule may modify state without recording why.** `trace.record` throws if
+   the terms don't sum to the total — the `why` panel is not decoration, it is
+   the difference between a black box and a teaching tool.
 3. **Never average away a real dispute.** Mark it `contested`, give both camps,
-   code one as default and say which. Economists disagreeing is a feature.
-4. **The steady state must hold.** 200 ticks of no input and nothing drifts.
-   A model that will not sit still is unplayable, and every bug you find later
-   will be that bug.
-5. **Randomness is seeded.** Ghost runs and same-seed restarts are how anyone
-   learns from a failed run. One `Math.random()` destroys them silently.
-6. **Time conversion lives in `units.js`.** Nowhere else.
-
-## Status
-
-**The model is complete and tested — 28 tests pass.** 200 ticks of no input
-produce exactly zero drift in every variable. All six scenarios run a full
-term without absurd numbers, and the two that should lose, lose.
-
-What remains is the game and interface layer, which contains no economics:
-`src/game/{dials,events,indicators,clock,session}.js` and everything under
-`src/ui/`. Each is stubbed with its contract. See the build order at the end
-of `docs/03-architecture.md`.
-
-Next milestone: gauges and dials on screen.
+   code one as default and say which.
+4. **The steady state must hold.** 200 ticks of no input, zero drift. A model
+   that will not sit still is unplayable.
+5. **Randomness is seeded.** One `Math.random()` silently breaks ghost runs and
+   seed sharing. A test greps for it.
+6. **Time conversion lives in `units.js`.** Nowhere else. Also grep-enforced.

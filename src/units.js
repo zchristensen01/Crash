@@ -22,6 +22,10 @@
  * test/steady-state.test.js is what holds this honest.
  */
 
+/** Calendar arithmetic, not a rate conversion. Named so the grep guard in
+ *  test/determinism.test.js can tell the two apart. */
+export const MONTHS_PER_YEAR = 12;
+
 /** Compounding annual percent -> monthly fraction. 3.5%/yr -> 0.002871/mo. */
 export function annualToMonthlyCompound(annualPct) {
   return Math.pow(1 + annualPct / 100, 1 / 12) - 1;
