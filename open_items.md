@@ -161,6 +161,30 @@ published 0.02 and recorded rather than tuned. Consequence: the model delivers
 **0.94% of a 4.60% level response at 12 months** — correct in the long run,
 slow to get there. Phase 6.3 (separate housing from equities) is the real fix.
 
+### B5. `HAND_TO_MOUTH_SHARE`'s wiring is designed and measured but not shipped — `PARTIAL`
+Task 5.5 asks for it to be wired or deferred, because it is currently read only
+to be printed into a trace — satisfying the DEFERRED register's grep without
+doing any work. **5.1 designed the wiring and it is correct**: interest income
+accrues to bondholders, who by definition hold assets and are not hand-to-mouth,
+so it is consumed at
+
+```
+apc_bondholder = (apc_ss − HAND_TO_MOUTH_SHARE) / (1 − HAND_TO_MOUTH_SHARE)
+```
+
+with no new parameter and the steady state closing exactly (`apc_ss` re-derived
+to 0.692945 by solving `C = apc_ss·(YD − interest) + apc_bondholder·interest`).
+It went back on the shelf only because it rides on 5.1, which A4 blocks. **When
+A4 lands, 5.5 gets this for free.** Do not invent a different wiring.
+
+### B6. `debt_trap` was already fragile before 5.1 touched it — `OPEN`
+While measuring the D1 revert, two of `debt_trap`'s own tests were seen to sit
+on very thin margins — *"the real economy responds to the yield at all"* passed
+on an output gap of 0.63 and failed at −0.11 under a change that was not aimed
+at it. A scenario whose central claim survives on a tenth of a percentage point
+is one that will keep breaking. Worth re-deriving its vector deliberately rather
+than discovering it again. Related to 4.3's scenario sweep, which passed it.
+
 ---
 
 ## C. Deliberate omissions — decided against, with reasons
@@ -251,7 +275,8 @@ third generated artefact appears, it needs one too.
   but the response is slow rather than absent — 0.0586 at 12m, 0.1227 at 24m,
   0.1756 at 36m, **0.2192 at 48m, inside the published 0.2–0.4.** Its `todo`
   message still carries the old text.
-- **Phases 5–10** — untouched.
+- **Phase 5** — 5.1 is blocked (A4). 5.2–5.6 untouched.
+- **Phases 6–10** — untouched.
 - **Two claims flagged READ-NOT-MEASURED in `docs/13` Phase 0:** the
   `credit.js:218` EMA comment was checked in 3.2 and **the brief was right**.
   **D3's numeric-literal counts have still never been checked** — Phase 5.3
