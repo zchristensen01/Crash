@@ -42,8 +42,44 @@ function sourceOfRules() {
     .replace(/(^|[^:])\/\/.*$/gm, '$1');       // named only in prose is unread
 }
 
+/**
+ * A READ INSIDE A TRACE IS NOT A WIRING [4th audit 5.5].
+ *
+ * `trace.record(...)` and `trace.note(...)` are DISPLAY. A parameter mentioned
+ * only there is printed and never multiplied by anything, so it satisfies the
+ * register's grep while doing no work — which is exactly what
+ * HAND_TO_MOUTH_SHARE was doing: one appearance, in consumption.js's trace
+ * extras, and the register called it wired. It is the same carve-out
+ * `tools/lint.mjs` checks (e) and (f) already make, for the same reason.
+ *
+ * Removed by paren-matching rather than by regex, because the argument list
+ * spans lines and contains nested calls.
+ *
+ * NOT A LICENCE TO BREAK THE OTHER KIND OF INDIRECT CONSUMPTION.
+ * RATE_PASSTHROUGH_TO_BORROWERS is read in `parameters.py` to build
+ * `LAGS_MONTHS['rate_to_borrowing_cost']`, and the SS_* anchors are consumed
+ * via START. Those are live structural inputs with a DEFERRED entry saying so,
+ * and they are unaffected: they were never read from `src/` at all.
+ */
+function stripTraceCalls(src) {
+  let out = '', i = 0;
+  for (;;) {
+    const m = src.slice(i).match(/trace\.(record|note)\(/);
+    if (!m) return out + src.slice(i);
+    const start = i + m.index;
+    out += src.slice(i, start);
+    let j = start + m[0].length, depth = 1;
+    while (j < src.length && depth > 0) {
+      if (src[j] === '(') depth++;
+      else if (src[j] === ')') depth--;
+      j++;
+    }
+    i = j;
+  }
+}
+
 test('the DEFERRED register matches the code, in both directions', () => {
-  const src = sourceOfRules();
+  const src = stripTraceCalls(sourceOfRules());
   const isRead = (name) => new RegExp(`P\\.\\s*${name}\\b`).test(src);
 
   const unreadAndUnlisted = Object.keys(P).filter((n) => !isRead(n) && !(n in DEFERRED));

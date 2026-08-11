@@ -169,7 +169,12 @@ export function newState(overrides = {}) {
   s.asset_prices_ss = s.asset_prices;
   s.leverage = 1.0;
   s.leverage_ss = 1.0;
-  s.leverage_max = 1.35;                   // fire-sale gate: 35% above normal
+  // The fire-sale gate: leverage 35% above wherever this scenario opened.
+  // Was a bare 1.35 here, under a note in CREDIT_GAP_CRISIS_THRESHOLD falsely
+  // claiming that parameter served as it (4th audit 5.5). It could not have —
+  // that one is 9pp of credit/GDP above trend and this is a dimensionless
+  // debt-to-collateral ratio.
+  s.leverage_max = P.FIRESALE_LEVERAGE_TRIGGER.value;
   // The MARKET real rate, which includes the spread, has its own baseline.
   // Comparing it to r* (a policy-rate concept) leaves a permanent 1.5pp wedge
   // and credit shrinks forever. Built from NEUTRAL, for the same reason as

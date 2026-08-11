@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Fourteen corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Fifteen corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1311,6 +1311,66 @@ correct the note. And `HAND_TO_MOUTH_SHARE` is read **only to be printed into a
 trace `extra`**, which satisfies the DEFERRED register's grep without doing any
 work. Wire it or defer it — **and tighten the register so a trace-only read does
 not count.**
+
+> #### As built — the note is false, and the repair the task name suggests would have been a unit error.
+>
+> ### CORRECTION 15 — "wire it or correct the note" offers a repair that cannot be right.
+>
+> `CREDIT_GAP_CRISIS_THRESHOLD`'s note ended *"Also serves as `leverage_max`
+> in the asset-price fire-sale term."* It never did — `leverage_max` was a bare
+> `1.35` in `state.js:172` — and **the two could not have been the same number
+> under any wiring**. `CREDIT_GAP_CRISIS_THRESHOLD` is **9 percentage points of
+> credit/GDP above trend**; `leverage_max` is a **dimensionless ratio of debt
+> to collateral**, both normalised to the scenario's own opening state. There
+> is no conversion. Taking the "wire it" branch would have set a leverage gate
+> to 9.0 — a gate the model can never reach — and it is the same class of error
+> as B2's semi-elasticity: two quantities with the same *feel* and different
+> *units*.
+>
+> Note corrected in place, with the false claim quoted and why it is false, and
+> the literal promoted to its own **`FIRESALE_LEVERAGE_TRIGGER`** = 1.35,
+> [1.15, 1.60], `judgement` — the third of the three fire-sale numbers to carry
+> that label, which is itself worth seeing in one place.
+>
+> #### `HAND_TO_MOUTH_SHARE`: deferred, and the register now makes that the only
+> #### available answer
+>
+> The plan says *"wire it or defer it — and tighten the register so a trace-only
+> read does not count."* Both halves done, and the order matters: **the
+> tightening is what makes the deferral honest.** The parameter was read once,
+> at `consumption.js:104`, inside `trace.record`'s extras — printed and never
+> multiplied by anything — which satisfied the register's grep while doing no
+> work at all.
+>
+> `sourceOfRules()` now paren-matches `trace.record(...)` and `trace.note(...)`
+> out of the source before deciding, which is the same carve-out
+> `tools/lint.mjs` checks (e) and (f) already make. **Measured before making
+> the change, `HAND_TO_MOUTH_SHARE` is the ONLY parameter in the model read
+> solely inside a trace** — so the tightening catches exactly what it was aimed
+> at and has no blast radius. The plan's warning was heeded and is worth
+> restating: `RATE_PASSTHROUGH_TO_BORROWERS` and the `SS_*` anchors are
+> untouched, because they are consumed in `parameters.py` and were never read
+> from `src/` in the first place.
+>
+> Its `DEFERRED` entry carries **B5's recipe verbatim** — `apc_bondholder =
+> (apc_ss − HAND_TO_MOUTH_SHARE) / (1 − HAND_TO_MOUTH_SHARE)`, `apc_ss`
+> re-deriving to 0.692945 — so the design travels with the parameter rather
+> than only with `open_items.md`. Both directions of the tightened register
+> verified to fire.
+>
+> **Behaviour-neutral**: six scenarios x 96 months x 22 fields identical.
+>
+> #### Found on the way: check (f) has a blind spot, and this is how it showed
+>
+> `leverage_max` escaped 5.3's sweep because check (f) walks `src/rules/` only.
+> **254 undeclared literals sit outside that scope** — `ui/chart.js` 53,
+> `game/scenarios.js` **49**, `game/indicators.js` 42, `invariants.js` **21**,
+> `game/events.js` 16, `game/dials.js` 13. Most of `ui/` is presentation and
+> should stay out. The two that matter are `scenarios.js`, which is DATA the
+> model is calibrated against, and `invariants.js`, which holds the bounds
+> `updateConsumption` and `updateInvestment` duplicate on purpose (D2).
+> Recorded as open_items E6 rather than swept here: it needs a scope decision
+> and a triage the size of 5.3's.
 
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.

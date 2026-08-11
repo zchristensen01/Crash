@@ -406,7 +406,16 @@ ASSET_WEALTH_TO_GDP = P(
 
 HAND_TO_MOUTH_SHARE = P(
     0.30, 0.20, 0.40, "fraction of households with no buffer",
-    "moderate", "HANK literature")
+    "moderate", "HANK literature (Kaplan, Moll & Violante 2018 and the "
+    "wealthy-hand-to-mouth literature: roughly a quarter to a third of "
+    "advanced-economy households hold negligible liquid assets)",
+    "[4TH AUDIT 5.5] DEFERRED, AND THE WIRING IS ALREADY DESIGNED AND "
+    "MEASURED — see DEFERRED's entry, open_items B5, and TASKS 5.1. It was "
+    "read in exactly one place, to be printed into a trace, which satisfied "
+    "the DEFERRED register's grep without doing any work. The register now "
+    "strips trace scope before deciding, so a display-only read no longer "
+    "counts as wired, and this became the first and only parameter that "
+    "tightening caught.")
 
 # --- Investment (question A2) ---
 INVESTMENT_RATE_ELASTICITY = P(
@@ -690,6 +699,25 @@ FIRESALE_TOTAL_CAPACITY = P(
     "not a bust, it is annihilation. Distressed holders have a finite amount "
     "to sell. This is that amount, spent down over an episode and refilled "
     "slowly once leverage is back below the line.")
+
+FIRESALE_LEVERAGE_TRIGGER = P(
+    1.35, 1.15, 1.60, "x — leverage, relative to the scenario's own start, at which forced selling begins",
+    "judgement", "Margin-maintenance and LTV-covenant practice: a broker "
+    "margin call and a mortgage covenant both bite at a fixed fraction of "
+    "collateral value, so the trigger is a level of debt-to-collateral rather "
+    "than a rate of change. Brunnermeier & Pedersen 2009 on margin spirals.",
+    "[4TH AUDIT 5.5] THE NUMBER CREDIT_GAP_CRISIS_THRESHOLD'S NOTE FALSELY "
+    "CLAIMED TO BE. That note said it 'also serves as leverage_max in the "
+    "asset-price fire-sale term'. It never did, and it could not have: "
+    "CREDIT_GAP_CRISIS_THRESHOLD is 9 PERCENTAGE POINTS OF CREDIT/GDP ABOVE "
+    "TREND and this is a DIMENSIONLESS RATIO of debt to collateral, both "
+    "normalised to the scenario's own opening state. There is no conversion "
+    "between them; wiring one to the other would have been a unit error of "
+    "the same class as B2. The literal 1.35 lived in state.js, which check "
+    "(f)'s literal sweep does not cover because it walks src/rules/ only. "
+    "Judgement: 35% above wherever the scenario opens is a reading of when "
+    "covenants bite, not an estimate of one, and it is the third of the three "
+    "fire-sale numbers that carries that label.")
 
 FIRESALE_REFILL_MONTHS = P(
     48.0, 24.0, 96.0, "months for distressed-selling capacity to rebuild once the constraint clears",
@@ -983,9 +1011,20 @@ CREDIT_GAP_CRISIS_THRESHOLD = P(
     9.0, 3.0, 10.0, "pp of credit/GDP above trend",
     "strong", "BIS Aldasoro, Borio & Drehmann 2018",
     "Optimal threshold 9pp captures ~66% of crises. Basel III maxes the "
-    "countercyclical buffer at 10pp. A lower 3pp threshold captures ~76% over "
-    "3 years with more false positives. THIS IS YOUR CRASH METER. Also serves "
-    "as leverage_max in the asset-price fire-sale term.")
+    "countercyclical buffer at 10pp. THIS IS YOUR CRASH METER, and it is the "
+    "DANGER line; the 3pp warning line that captures ~76% over 3 years with "
+    "more false positives is CREDIT_GAP_WARNING, promoted out of credit.js in "
+    "5.3 and now the zero point of the probability curve.\n"
+    "\n"
+    "[4TH AUDIT 5.5] THIS NOTE USED TO END 'Also serves as leverage_max in "
+    "the asset-price fire-sale term.' IT NEVER DID. leverage_max was a bare "
+    "1.35 in state.js, now FIRESALE_LEVERAGE_TRIGGER — and the two could not "
+    "have been the same number in any case: this is 9 PERCENTAGE POINTS OF "
+    "CREDIT/GDP ABOVE TREND and that is a DIMENSIONLESS DEBT-TO-COLLATERAL "
+    "RATIO. Recorded rather than quietly deleted, because a false claim in a "
+    "parameter's own note is the kind of thing a later pass builds on: the "
+    "obvious repair was to WIRE the two together, and that would have been a "
+    "unit error of the same class as the asset-price semi-elasticity's.")
 
 BANK_WOBBLE_FRAGILITY_GAIN = P(
     3.0, 1.5, 5.0, "x — extra severity of a bank scare at the BIS danger line versus at trend credit",
@@ -1903,6 +1942,21 @@ DEFERRED = {
         "generates is scheduled by applyDialChange on every policy_rate move, "
         "so this is a live structural input, not an idle one — it is listed "
         "here for the same reason the SS_* anchors are.",
+
+    # --- designed, measured, and BLOCKED on another defect
+    "HAND_TO_MOUTH_SHARE":
+        "deferred, and NOT for want of a design. 5.1 derived the wiring and "
+        "measured it: government interest income accrues to bondholders, who "
+        "by definition hold assets and are not hand-to-mouth, so it must be "
+        "consumed at apc_bondholder = (apc_ss - HAND_TO_MOUTH_SHARE) / "
+        "(1 - HAND_TO_MOUTH_SHARE), with no new parameter and the steady "
+        "state closing exactly (apc_ss re-derives to 0.692945). It is shelved "
+        "because it rides on 5.1, which open_items A4 blocks: updateBondYield "
+        "has no expected-inflation term, so under a pegged rate the interest "
+        "bill FALLS as inflation rises and recycling it stopped `overheating` "
+        "hyperinflating — inverting the one lesson that scenario exists for. "
+        "Fix A4, then 5.1, and this lands with them. DO NOT INVENT A "
+        "DIFFERENT WIRING.",
 
     # --- deferred levers: real mechanisms, no dial yet
     "GOVT_INVESTMENT_MULT_SPLIT_PLACEHOLDER": None,   # removed below; see cleanup

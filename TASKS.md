@@ -408,13 +408,37 @@ guard green. Phase 6 is unblocked.
       Reaching 14.5 needs 0.05-0.06, which the derivation does not support and
       rule 3 forbids reaching for.
 
-- [ ] 5.5 Fix `CREDIT_GAP_CRISIS_THRESHOLD`'s note and `HAND_TO_MOUTH_SHARE`
-      **WATCH ONE THING WHEN TIGHTENING THE REGISTER:** 2.1 added
-      `RATE_PASSTHROUGH_TO_BORROWERS` to `DEFERRED` with the reason "consumed
-      via `LAGS_MONTHS`" — it is read in `parameters.py` to build the kernel,
-      not in `src/`. That is a legitimate consumption, the same shape as the
-      `SS_*` anchors' "consumed via START", and a tightening aimed at
-      trace-only reads must not break it.
+- [x] 5.5 Fix `CREDIT_GAP_CRISIS_THRESHOLD`'s note and `HAND_TO_MOUTH_SHARE`
+      **THE NOTE WAS FALSE AND THE OBVIOUS REPAIR WOULD HAVE BEEN A UNIT
+      ERROR.** It claimed the parameter "also serves as `leverage_max` in the
+      asset-price fire-sale term". It never did — `leverage_max` was a bare
+      `1.35` in `state.js` — and the two **could not be the same number**:
+      `CREDIT_GAP_CRISIS_THRESHOLD` is **9 percentage points of credit/GDP
+      above trend** and `leverage_max` is a **dimensionless debt-to-collateral
+      ratio**. Wiring them together, which is what "wire it or correct the
+      note" invites, would have been B2's error again. Note corrected with the
+      reason recorded, and the literal promoted to its own
+      **`FIRESALE_LEVERAGE_TRIGGER`** = 1.35 [1.15, 1.60], `judgement` — the
+      third of the three fire-sale numbers to carry that label.
+      **`HAND_TO_MOUTH_SHARE`: DEFERRED, and the register is tightened so it
+      could not have been anything else.** It was read in exactly one place —
+      `consumption.js:104`, inside `trace.record`'s extras — which satisfied
+      the register's grep while doing no work. `sourceOfRules()` now
+      paren-matches out `trace.record(...)` and `trace.note(...)` before
+      deciding, the same carve-out lint checks (e) and (f) make. Measured, it
+      is **the only parameter in the model read solely inside a trace**, so the
+      tightening caught exactly what it was aimed at and nothing else.
+      `RATE_PASSTHROUGH_TO_BORROWERS` and the `SS_*` anchors are unaffected —
+      they are consumed in `parameters.py` and were never read from `src/`.
+      The DEFERRED entry carries **B5's recipe verbatim** so 5.1 can pick it up.
+      **Behaviour-neutral:** six scenarios x 96 months x 22 fields identical.
+      Both directions of the tightened register verified to fire.
+      **Found on the way — check (f) has a blind spot:** it walks `src/rules/`
+      only, which is why `leverage_max` escaped it. **254 literals sit outside
+      that scope**, the largest blocks being `ui/chart.js` (53),
+      `game/scenarios.js` (49) and `game/indicators.js` (42). Most are
+      presentation, but `scenarios.js` is DATA the model is calibrated against
+      and `invariants.js` (21) holds the bounds. Recorded as open_items E6.
 - [ ] 5.6 Wire or defer `participation` and `gdp_growth_annual`
 
 ## Phase 6 — What to add

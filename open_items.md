@@ -196,7 +196,7 @@ published 0.02 and recorded rather than tuned. Consequence: the model delivers
 **0.94% of a 4.60% level response at 12 months** — correct in the long run,
 slow to get there. Phase 6.3 (separate housing from equities) is the real fix.
 
-### B5. `HAND_TO_MOUTH_SHARE`'s wiring is designed and measured but not shipped — `PARTIAL`
+### B5. `HAND_TO_MOUTH_SHARE`'s wiring is designed and measured but not shipped — `PARTIAL`, now formally DEFERRED
 Task 5.5 asks for it to be wired or deferred, because it is currently read only
 to be printed into a trace — satisfying the DEFERRED register's grep without
 doing any work. **5.1 designed the wiring and it is correct**: interest income
@@ -211,6 +211,16 @@ with no new parameter and the steady state closing exactly (`apc_ss` re-derived
 to 0.692945 by solving `C = apc_ss·(YD − interest) + apc_bondholder·interest`).
 It went back on the shelf only because it rides on 5.1, which A4 blocks. **When
 A4 lands, 5.5 gets this for free.** Do not invent a different wiring.
+
+**5.5 HAS NOW RUN, and it made the deferral honest rather than accidental.**
+The parameter was read in exactly one place — `consumption.js:104`, inside
+`trace.record`'s extras — so the DEFERRED register's grep called it wired while
+it did no work. The register now paren-matches `trace.record(...)` and
+`trace.note(...)` out of the source before deciding, and `HAND_TO_MOUTH_SHARE`
+is **the only parameter in the model that read solely inside a trace**, so the
+tightening caught what it was aimed at and nothing else. The recipe above is
+copied verbatim into its `DEFERRED` entry, so it travels with the parameter
+rather than only with this file.
 
 ### B6. `debt_trap` was already fragile before 5.1 touched it — `OPEN`
 While measuring the D1 revert, two of `debt_trap`'s own tests were seen to sit
@@ -305,6 +315,33 @@ were taken on a tree with this hazard live.
 ### E2. `npm run check` and `npm test` had drifted apart — `FIXED`
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
+
+### E6. Lint check (f) walks `src/rules/` only, and 254 literals sit outside it — `OPEN`
+5.3 took `src/rules/` from 71 undeclared numeric literals to zero. Everywhere
+else in `src/` is unpoliced, and that is how `leverage_max`'s bare `1.35`
+survived to be found by 5.5 instead:
+
+```
+node tools/lint.mjs      # clean — and it never looks at src/game/ or src/ui/
+```
+
+| file | literals |
+|---|---|
+| `src/ui/chart.js` | 53 |
+| `src/game/scenarios.js` | **49** |
+| `src/game/indicators.js` | 42 |
+| `src/invariants.js` | **21** |
+| `src/game/events.js` | 16 |
+| `src/game/dials.js` | 13 |
+| everything else | 60 |
+
+Most of `ui/` is presentation and does not want a source. **The two that
+matter are `scenarios.js` and `invariants.js`**: the first is DATA the model is
+calibrated against and whose vectors 4.3 had to re-derive, and the second holds
+the bounds that `updateConsumption` and `updateInvestment` deliberately
+duplicate (D2). `game/events.js` and `game/endings.js` decide what happens to
+the player. Extending the check needs a scope decision — probably `src/game/`
+in and `src/ui/` out — and a triage the size of 5.3's.
 
 ### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
 Surfaced by 5.3's literal sweep rather than fixed by it. Four of the six terms
