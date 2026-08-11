@@ -106,6 +106,7 @@ export function newState(overrides = {}) {
   s.confidence_residual = 0;
   s.business_confidence = 60;
   s.misery = s.inflation + s.unemployment;
+  s.fiscal_space = 100;                    // set by updateBudget
   s.approval_base = s.approval;
   s.hiring_momentum = 0;
 

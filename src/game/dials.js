@@ -80,6 +80,18 @@ export const PIPELINE_TARGETS = new Set([
 ]);
 
 /**
+ * What each transmitted driver is called on screen. The pipeline panel is
+ * written for someone who has never taken an economics class, and
+ * `-> policy_rate_demand` is a field name, not an explanation.
+ */
+export const TRANSMISSION_LABELS = {
+  policy_rate_demand: 'what businesses pay to borrow',
+  policy_rate_markets: 'stock and house prices',
+  tax_rate_effective: 'what comes out of pay packets',
+  qe_stock: 'long-term borrowing costs',
+};
+
+/**
  * Apply a dial change. THIS IS WHERE THE LAG LIVES.
  *
  * The dial's own value moves immediately — that is just the setting. What is

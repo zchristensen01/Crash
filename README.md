@@ -1,7 +1,7 @@
 # Crash
 
 A real-time economy simulator that runs in a browser. Time runs continuously,
-you hold four policy dials, and every number can be opened up to show the exact
+you hold five policy dials, and every number can be opened up to show the exact
 terms that produced it. You either survive your eight-year term or you break
 the country.
 
@@ -68,12 +68,12 @@ credit gap climbs past the BIS danger line. It is the best teaching tool here.
 
 | Path | |
 |---|---|
-| `docs/` | The design. Read `00-design-brief.md`, then `02-causal-map.md`. `06-model-audit-brief.md` is the open work. |
-| `parameters.py` | **The research record.** 108 parameters, each with a range, a confidence level and a citation. The authority for every number. |
-| `src/rules/` | The model — 12 rules, run in causal order. |
+| `docs/` | The design and the record. Start at [`docs/10-state-of-the-project.md`](docs/10-state-of-the-project.md); [`docs/README.md`](docs/README.md) is the map and says which files are living and which are history. |
+| `parameters.py` | **The research record.** 121 parameters, each with a range, a confidence level and a citation. The authority for every number. Anything no rule reads must be listed in `DEFERRED` with a reason, and a test enforces that both ways. |
+| `src/rules/` | The model — 23 rules, run in causal order. `index.js` IS that order, and documents which reads are deliberately a month stale. |
 | `src/game/`, `src/ui/` | Game layer and interface. |
-| `tools/` | `gen_params.py`, `build.mjs`, `serve.mjs`, `demo.mjs`. |
-| `test/` | 41 tests, `node --test`, no framework. |
+| `tools/` | `gen_params.py`, `build.mjs`, `serve.mjs`, `demo.mjs`, and `audit/` — sweeps and probes for going looking. |
+| `test/` | 94 tests, `node --test`, no framework. Two are `todo` by design: they record where the model disagrees with a published estimate. |
 
 `index.html` and `src/params.js` are **generated and gitignored** — never edit
 them.
@@ -107,3 +107,16 @@ Then `npm test`. New file? Add it to `BUILD_ORDER` in `tools/build.mjs`.
 5. **Randomness is seeded.** One `Math.random()` silently breaks ghost runs and
    seed sharing. A test greps for it.
 6. **Time conversion lives in `units.js`.** Nowhere else. Also grep-enforced.
+7. **A dial only moves through `applyDialChange`.** That is where the lag is
+   scheduled. Assigning `s.policy_rate` moves the setting and nothing else —
+   the economy feels `policy_rate_demand`, which the pipeline walks toward the
+   dial. The engine throws if anything schedules into a field a rule owns.
+8. **A regime has to be DRIVEN, not asserted.** Setting `unemployment: 9` does
+   nothing; the labour rule pulls it back within months.
+9. **State dependence is checked with two measurements, never one.** Every
+   defect the model audit found was a statement about how a response CHANGES
+   with the state, and every one passed a suite that checked levels. Where a
+   lever might behave differently across a range, sweep the range.
+10. **Where the model disagrees with the literature, say so in a test.** Tuning
+    a coefficient to close the gap is the failure mode this project keeps
+    rediscovering.

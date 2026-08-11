@@ -5,6 +5,8 @@
  * players conclude the model is broken; with it they learn to plan ahead.
  */
 
+import { TRANSMISSION_LABELS } from '../../game/dials.js';
+
 export function mountPipeline(mount, props) {
   const list = document.createElement('div');
   list.className = 'pipeline-list';
@@ -32,7 +34,8 @@ export function mountPipeline(mount, props) {
           <span class="pipe-bar"><i style="width:${(p.fractionLanded * 100).toFixed(1)}%"></i></span>
           <span class="pipe-when"></span>`;
         row.querySelector('.pipe-label').textContent = p.label;
-        row.querySelector('.pipe-target').textContent = `→ ${p.target}`;
+        row.querySelector('.pipe-target').textContent =
+          `→ ${TRANSMISSION_LABELS[p.target] ?? p.target}`;
         row.querySelector('.pipe-when').textContent = when;
         row.dataset.state = p.monthsToPeak > 0 ? 'waiting' : 'landing';
         list.appendChild(row);

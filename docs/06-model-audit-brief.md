@@ -1,5 +1,14 @@
 # 06 — Model Audit Brief
 
+> **ANSWERED AND CLOSED.** This brief was carried out: the findings are in
+> `07-model-audit-findings.md`, with a checked-in reproduction for each under
+> `tools/audit/`, and every one is fixed — see `08-post-audit-revisions.md`.
+> Kept as the record of what was asked for, because the SHAPE of the
+> instruction turned out to matter as much as the answer: "measure, don't
+> read", "the tests are a floor, not a ceiling", and "do not tune to make
+> something pass" are why the pass found six inverted lessons instead of six
+> tidy explanations.
+
 ## What this is
 
 An instruction to tear the implemented model apart and find where it does not

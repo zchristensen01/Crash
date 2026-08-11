@@ -15,6 +15,7 @@ const ENDS = {
   tax_rate: ['people keep more', 'government takes more'],
   govt_spending: ['government spends less', 'government spends more'],
   money_printed: ['borrow it', 'print it'],
+  qe: ['no bond buying', 'buy more bonds'],
 };
 
 export function mountDial(mount, props) {
@@ -56,7 +57,7 @@ export function mountDial(mount, props) {
     'this setting neither speeds the economy up nor slows it down.';
 
   let dragging = false;
-  const fmt = (v) => `${v.toFixed(2)}%`;      // all four dials are percentages
+  const fmt = (v) => `${v.toFixed(2)}%`;      // every dial is a percentage
 
   input.addEventListener('input', () => {
     dragging = true;

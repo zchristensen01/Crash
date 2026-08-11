@@ -237,3 +237,25 @@ Where a number in these docs disagrees with `parameters.py`, the parameters
 file wins. It carries the ranges, confidence levels and sources; these
 documents carry the explanation. Where the *prototype* disagrees with either,
 the prototype is wrong.
+
+---
+
+## A later audit, and where to read what happened next
+
+The six defects above are the ones found in the PYTHON PROTOTYPE, before the
+port. They were fixed. The ported model was then audited against these same
+documents in its own right (`06-model-audit-brief.md`), and that pass found
+fourteen more — six of which again inverted a lesson this brief says the game
+exists to teach, and all fourteen of which passed the 47-test suite that
+existed at the time.
+
+That is the pattern worth carrying forward: **a model can be self-consistent,
+sit at an exact steady state, produce sensible arcs and pass every test it has,
+and still teach the opposite of what it is for.** What the second audit added
+was tests shaped for the actual failure mode — comparisons and sweeps rather
+than levels, because every finding was a statement about how a response
+*changes* with the state.
+
+- `07-model-audit-findings.md` — what was wrong, measured, with reproductions
+- `08-post-audit-revisions.md` — what changed and why, in this section's style
+- `10-state-of-the-project.md` — what exists today and what is still missing

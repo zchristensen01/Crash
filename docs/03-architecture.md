@@ -1,5 +1,13 @@
 # 03 — Architecture
 
+> **PART HISTORICAL, PART LIVING.** This document was written BEFORE the port,
+> so the sections about choosing a browser, rejecting alternatives and "the one
+> real cost of porting" are a record of a decision already taken — read them
+> for the reasoning, not for what exists. The file tree, the rule list and the
+> screen sketch below have been corrected to match the code; `09-interface.md`
+> is the current description of the screen and `10-state-of-the-project.md` is
+> the current description of everything else.
+
 ## The interface: one HTML file, no build step
 
 The target is a **single self-contained `.html` file**. Open it by
@@ -68,6 +76,11 @@ git history, not in the directory.
 ---
 
 ## Screen layout
+
+> Superseded by [`09-interface.md`](09-interface.md), which describes the built
+> screen. The sketch below is the original design intent and is kept because
+> the three notes under it are still the argument. It shows four dials; there
+> are five, QE having been added when the lower bound was implemented.
 
 Three columns on desktop, stacked on mobile. Dark by default.
 
@@ -160,19 +173,39 @@ crash/
 │           ├── regime.js
 │           └── why.js
 │
-├── build.mjs                   # concatenates src/ → index.html. ~40 lines.
-├── gen-params.mjs              # parameters.py → src/params.js. ~20 lines.
+├── tools/
+│   ├── build.mjs               # concatenates src/ → index.html. Not a bundler.
+│   ├── gen_params.py           # parameters.py → src/params.js
+│   ├── serve.mjs               # `npm start`
+│   ├── demo.mjs                # headless run, any scenario, any seed
+│   └── audit/                  # sweeps and probes from the docs/07 audit
 ├── parameters.py               # THE RESEARCH RECORD. Ranges + citations.
-├── docs/                       # these files
+├── docs/                       # these files — see docs/README.md
 └── test/                       # node --test, no framework
+    ├── harness.mjs             # shared: world(), advance(), compare(). Not a test.
     ├── params.test.js          # every P valid; kernels peak on the documented month
     ├── steady-state.test.js    # no input for 200 ticks → NOTHING drifts
-    ├── conservation.test.js    # debt accounting balances every tick
+    ├── conservation.test.js    # every identity balances every tick
     ├── determinism.test.js     # same seed → byte-identical 96-tick history
     ├── stability.test.js       # no eigenvalue > 1 around the steady state
     ├── multipliers.test.js     # assembled model lands inside published ranges
-    └── scenarios.test.js       # each scenario survivable by SOME policy
+    ├── scenarios.test.js       # each scenario driven, in-regime and survivable
+    ├── lags.test.js            # scheduled effects actually arrive; no rule
+    │                           #   assigns to a transmitted driver
+    ├── events.test.js          # no shock breaks an identity or gets overwritten
+    ├── transmission.test.js    # every state-dependent conditional, plus sweeps
+    ├── crisis.test.js          # the whole crash chain, including that it ENDS
+    ├── validation.test.js      # reduced forms; the DEFERRED register, both ways
+    ├── docs.test.js            # the living documents still match the code
+    ├── bundle.test.js          # index.html builds and is self-contained
+    └── ui-smoke.test.js        # every widget mounts; a full term plays
 ```
+
+The four test files after `scenarios` were added by the `docs/07` audit, and
+what they have in common is the shape of the thing they check. Every defect
+that audit found was a statement about how a response CHANGES with the state —
+not a level — and the 47-test suite that existed at the time checked levels.
+See `08-post-audit-revisions.md`.
 
 `build.mjs` exists only so you can work in real files instead of one 3,000-line
 document. It is a concatenation, not a bundler — no dependencies, no
@@ -206,23 +239,25 @@ Failing loudly on tick 3 beats debugging silent drift on tick 300.
 ### 1. Rules are a list
 
 ```js
-// src/rules/index.js
+// src/rules/index.js — the 23 rules, in execution order
 export const RULES = [
-  supply.updatePotential,
-  demand.computeComponents,
-  demand.applyMultiplier,
-  supply.constrainOutput,
-  labour.updateEmployment,
-  prices.updateInflation,
-  prices.updateExpectations,
-  prices.updateCredibility,
-  credit.updateAssetPrices,
-  credit.updateLeverage,
-  fiscal.updateBudget,
-  sentiment.updateConfidence,
-  fragility.updateCreditGap,
+  updatePotentialOutput, updateCrisisRecovery,          // the ceiling, and the crash
+  updateConsumption, updateInvestment, aggregateDemand, // demand
+  updateEmployment, updateWages,                        // labour
+  updateVelocity, updateMonetisation, updateInflation,  // money and prices
+  updateExpectations, updateCredibility,
+  updateDefaults, updateCreditGap, updateAssetPrices,   // credit and assets
+  updateLeverage, updateCreditSpread, updateCrisisRisk,
+  updateBondYield, updateAutoStabilisers, updateBudget, // government
+  updateConfidence, updateApproval,                     // reads the world
 ];
 ```
+
+**The order decides which reads are stale, and that is a modelling decision.**
+Nobody had written down which ones until the audit; `index.js` now carries the
+full list of deliberate one-month lags, with the reason for each and a note on
+the one that was wrong. `tools/audit/07-producer-consumer-graph.mjs`
+regenerates the graph — run it after any reorder.
 
 Every rule has the same shape:
 
@@ -233,21 +268,26 @@ export function updateInflation(s, trace) {
                      P.PHILLIPS_KAPPA_UNANCHORED.value,
                      1 - s.credibility);
   const terms = {
-    'expectations carried over': s.expectedInflation,
-    'demand above capacity':     kappa * s.outputGap * 100,
-    'import prices':             P.ERPT_CPI.value * s.fxChange,
-    'money printing':            P.PRINT_TO_INFLATION.value * s.moneyPrinted
-                                   * slackMultiplier(s),
+    'what people already expect':          s.expected_inflation,
+    'demand above what we can make':       kappa * s.output_gap,
+    'wage costs beyond productivity':      ulcPressure,
+    'supply shocks (oil, war, shortages)': s.supply_shock,
+    'money printing':                      s.monetisation_passthrough,
   };
-  s.inflation = sum(terms);
+  s.inflation = Math.max(-4, sum(terms));
   trace.record('inflation', terms, s.inflation, { slope: kappa });
 }
 ```
 
+*(Sketch, close to the real `rules/prices.js`. The import-price term in the
+original version of this document is not there: v1 is closed by decision A5.
+The printing term is gated by credibility AND slack inside `money.js` rather
+than by a multiplier here — see defect 2 below.)*
+
 Adding a mechanism = write one function, add one line to the list. Order in
 the list *is* the causal order — which is itself documentation.
 
-Note `slackMultiplier(s)` on the printing term. It is not optional decoration;
+Note that the printing term arrives pre-gated. It is not optional decoration;
 see defect 2 below.
 
 ### 2. Everything the player sees or triggers is data
@@ -288,18 +328,32 @@ destroys all three. Lint for it.
 
 ```js
 class LagPipeline {
-  // Effects queued to land N ticks from now, spread over a gamma kernel
-  // peaking at LAGS_MONTHS[key]. Peak, not onset — see doc 00.
-  schedule(target, amount, key, label) {}
-  collect() {}   // effects landing this tick; called once per tick by engine
-  pending() {}   // for the pipeline panel — this is what makes lag visible
+  // Deltas of a policy DRIVER, queued to land over a gamma kernel peaking at
+  // LAGS_MONTHS[channel]. Peak, not onset — see doc 00.
+  schedule(target, amount, channel, label, nowTick) {}
+  collect(nowTick) {}   // landing this tick; called once per tick by the engine
+  pending(nowTick) {}   // for the pipeline panel — what makes lag visible
 }
 ```
 
+**Targets are transmitted DRIVERS, not effect sizes, and this is the single
+most important correction the audit made.** The pipeline originally scheduled
+an *effect* into `s.consumption` and `s.investment` — fields the rules assign
+from scratch a few lines later, so every scheduled effect was overwritten
+before it could act. The model had no lags at all and nobody noticed for its
+whole life.
+
+A driver exists once. `policy_rate_demand` is the rate the demand side has
+actually felt; kernels sum to 1, so scheduling the dial's delta walks the
+transmitted field to the new value and stops there. No rule may assign to one,
+the engine throws if anything schedules into a rule-owned field, and
+`test/lags.test.js` greps every rule statically. An effect size, by contrast,
+has to be estimated twice — once here and once in the rule — and then kept from
+double-counting.
+
 When the player drags the rate dial, nothing happens immediately except the
-things that genuinely are immediate (bond yields, asset prices, FX). The
-investment and hiring effects get scheduled months out. That queue is both the
-mechanic and the lesson.
+things that genuinely are immediate. Markets reprice in a month; the real
+economy takes three quarters. That queue is both the mechanic and the lesson.
 
 **Effects are humps, not steps.** `LAGS_MONTHS` gives the month of *peak*
 effect; the kernel spreads the impulse around it. The prototype applied the
@@ -363,7 +417,9 @@ sit at, so the drift was a symptom. Patching it would have treated the symptom.
 | 10 | UI: shell, gauges, dials, `chart.js`, pipeline + why panels | Claude | **done** |
 | 11 | **Tune until each scenario is hard but winnable** | both | open-ended |
 
-**Steps 1–10 are complete and 41 tests pass.** The interface is a single
+**Steps 1–10 are complete.** 41 tests at the time this table was written; 94
+now, after the `docs/07` audit found fourteen defects that all 41 had passed —
+see `08-post-audit-revisions.md`. The interface is a single
 self-contained `index.html`: gauges, draggable dials with neutral markers,
 three Canvas charts with ghost overlay, the live regime scatter, the pipeline
 panel and the click-to-open `why` waterfall.
