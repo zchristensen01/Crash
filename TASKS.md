@@ -92,8 +92,9 @@ number from any document.
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. Nine corrections to the plan so
-far; all live in `docs/13` as "As built" blocks under the task that produced them.
+Recorded here and against the individual tasks. **Seventeen** corrections to the
+plan so far; all live in `docs/13` as "As built" blocks under the task that
+produced them.
 
 | # | correction | where it bites |
 |---|---|---|
@@ -103,10 +104,17 @@ far; all live in `docs/13` as "As built" blocks under the task that produced the
 | 7 | **Phase 0's own Correction 1 table is wrong** — every "dial max 40" row was measured through a hidden clamp at 25 | closed, but shows Phase 0 is not above re-verification |
 | 8 | The plan's shape for A1 violates a rule `dials.js` already states (an effect size is not a driver) | closed |
 | 9 | 2.2's acceptance criterion is grid-dependent and ranks the smoothest curve worst | closed |
+| 12 | **The transmitted Taylor response has been 1.96 since 3.1**; `docs/02` said 1.83, `TAYLOR_INFLATION` said 1.80, and the Phase 4 HARD GATE passed over both | closed |
+| 13 | 5.2 is TWO defects — a dial read (21x) and a maturity error (25x); and `docs/11` §1/§3-§7 had never been regenerated | closed |
+| 14 | D3's literal counts were read, not run — `crisis.js` is out by 8x | closed |
+| 15 | 5.5's "wire it or correct the note" offers a repair that would have been a unit error | closed |
+| 16 | D5 names two dead START fields; there are four | closed |
+| 17 | **`supply.js` adds a percent-of-potential flow to a capital STOCK** — capacity grows at 0.93%/yr against a stated 1.5 | **OPEN — open_items A5** |
 
-**Two claims docs/13 flagged as READ, NOT MEASURED are still unverified:**
-`credit.js:218`'s EMA comment (needed by **3.2**) and D3's numeric-literal
-counts (needed by **5.3**). Neither has been checked. Do not quote either.
+**Both claims docs/13 flagged as READ, NOT MEASURED are now checked.**
+`credit.js:218`'s EMA comment was measured in 3.2 and the brief was right.
+D3's numeric-literal counts were measured in 5.3 and **the brief is wrong** —
+credit 21 not 23, prices 10 not 16, **crisis 2 not 16**.
 
 **The standing rule earned its place twice, and the second time it caught me.**
 `docs/12` measured a real bifurcation and attributed it to the expectations
@@ -585,7 +593,8 @@ guard green. Phase 6 is unblocked.
       fingerprint asserts the doc was generated against this model; it does not
       assert every sentence was re-read.
 - [~] 10.3 Regenerate `TEST-RESULTS.md` — done repeatedly, redo at the end
-      `node tools/report.mjs`. Currently 160 tests, 143 pass, 0 fail, 17 open.
+      `node tools/report.mjs`. Currently **162 tests, 146 pass, 0 fail, 16
+      open** — 5.2 closed one `todo` and added two assertions, 5.6 added one.
 - [ ] 10.4 Update `docs/02`
       **PARTLY DONE:** 2.3 added a new section, "THE MOST IMPORTANT SINGLE FACT
       ABOUT THIS MODEL'S DYNAMICS", carrying the 0.37 → **1.96** transmitted
@@ -616,4 +625,8 @@ guard green. Phase 6 is unblocked.
       constant, macropru bounds, every literal promoted in 5.3, the two
       crisis-constant notes (4.2), and `CREDIT_GAP_CRISIS_THRESHOLD`'s false
       note.
-- [ ] 10.10 Write `docs/14` — the report
+- [x] 10.10 Write `docs/14` — the report
+      `docs/14-fourth-audit-report.md`, indexed in `docs/README.md`. Opens with
+      the three documents still teaching the pre-Phase-2/3 model, then A5, then
+      what was built and what was deliberately not. Covers Phase 5 and the
+      verification of Phases 0-4.
