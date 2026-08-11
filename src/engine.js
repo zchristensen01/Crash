@@ -47,11 +47,15 @@ export function tick(s, trace, pipeline, rng, opts = {}) {
   // starting above target diverges — correctly (see game/autopilot.js).
   // It is handed the pipeline because a rule-following central bank faces
   // exactly the same transmission lags the player does.
-  // Cleared BEFORE policy runs, so what survives the month is either this
-  // month's autopilot truncation or the player's move since the last tick.
-  s.dial_truncated = null;
   if (opts.autopilot) opts.autopilot(s, pipeline);
   if (opts.chaos) chaosPolicy(s, pipeline, rng);
+
+  // A dial request the dial's own bounds refused. Noted BEFORE it is cleared,
+  // and cleared at the END of the tick rather than the start — the player
+  // moves a dial BETWEEN ticks, so clearing first threw their truncation away
+  // before the trace could ever see it and only the autopilot's was ever
+  // recorded. The state field is what the UI reads on the spot; this is what
+  // the why panel reads afterwards, and both paths have to work.
   if (s.dial_truncated) {
     const t = s.dial_truncated;
     trace.note(`${t.key} request truncated by the dial's own bound`,
@@ -108,6 +112,10 @@ export function tick(s, trace, pipeline, rng, opts = {}) {
   if (opts.endings !== false) checkEndings(s);
 
   if (opts.assertEveryTick !== false) checkInvariants(s, prev, s.tick);
+
+  // Last, so the record spans exactly one month and the next thing to write it
+  // is the player. dial_truncated_count is cumulative and is NOT cleared.
+  s.dial_truncated = null;
 }
 
 /**

@@ -230,7 +230,7 @@ decision each time:
 |---|---|
 | `fired_event` | The shock that landed this month, or null |
 | `ending_counters` | Months-so-far per ending. A broken condition resets its counter, which is what makes the on-screen countdown beatable |
-| `dial_truncated` | The most recent dial request the dial's own bounds refused — `{key, requested, applied, at}` — or null. Cleared at the start of each tick, so it holds either this month's autopilot truncation or the player's move since the last one |
+| `dial_truncated` | The most recent dial request the dial's own bounds refused — `{key, requested, applied, at}` — or null. Cleared at the END of each tick, after the trace has noted it: the player moves a dial *between* ticks, so clearing at the start would throw their truncation away before anything could record it |
 | `dial_truncated_count` | How many requests have been refused over the run. The count is the load-bearing half: one truncation is a player pushing a slider into its stop, 87 of them is a benchmark that spent 91% of the game against its own ceiling, and nothing else in the run says so |
 | `history` | Capped ring buffers for the charts and year-over-year |
 | `labour_hoarding_policy` | Optional override: `false` disables the Okun hoarding ramp |

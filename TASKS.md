@@ -38,6 +38,15 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       hidden 25 clamp, so every "dial max 40" row in it is wrong. 2.4 must not
       use it.
 
+### Phase 1 verification (after the fact)
+
+- [x] V1 `index.html` staleness guard — `tools/build.mjs --check`, wired into
+      `npm test`. `test/bundle.test.js` was running a bundle three commits
+      behind `src/` and passing.
+- [x] V2 The truncation trace note never fired for a PLAYER move — the engine
+      cleared the record at the start of the tick, before `trace.note` saw it.
+      Cleared at the END now; test covers both movers.
+
 ## Phase 2 — Section A: the transmission lag
 
 - [ ] 2.1 Split the rate lag from the investment-response lag

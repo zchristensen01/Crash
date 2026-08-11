@@ -223,3 +223,47 @@ test('the Taylor rule loses stagflation to the CEILING, not to the supply shock'
     rate.max = original;
   }
 });
+
+/**
+ * BOTH PATHS REACH THE TRACE, and only one of them used to.
+ *
+ * The player moves a dial BETWEEN ticks; the autopilot moves it inside one.
+ * The first version of this cleared s.dial_truncated at the START of the tick,
+ * which threw the player's truncation away before trace.note could see it — so
+ * the only truncations ever recorded were the benchmark's, and the case the
+ * feature exists for was the one it missed. Found by verification, not by the
+ * suite, because the state field alone still looked right.
+ */
+test('a truncation reaches the trace whether the player or the autopilot caused it', () => {
+  const seenBy = (mover) => {
+    const s = newState();
+    const trace = new Trace(true);
+    const pipeline = new LagPipeline();
+    const rng = makeRng(1);
+    const opts = { events: false, endings: false, assertEveryTick: false };
+    mover(s, pipeline, opts);
+    tick(s, trace, pipeline, rng, opts);
+    const notes = [...trace.entries.keys()].filter((k) => k.includes('truncated'));
+    return { notes, cleared: s.dial_truncated };
+  };
+
+  // The player: a dial move made between ticks, before the tick runs.
+  const player = seenBy((s, pipeline) => {
+    applyDialChange(s, pipeline, 'policy_rate', 99);
+  });
+  assert.equal(player.notes.length, 1,
+    'a truncated PLAYER move left no trace entry. The player is the only one ' +
+    'who moves a dial in the real game, so this is the case that matters.');
+
+  // The autopilot: a dial move made inside the tick.
+  const auto = seenBy((s, _p, opts) => {
+    s.inflation = 400;
+    opts.autopilot = applyAutopilot;
+  });
+  assert.equal(auto.notes.length, 1, 'a truncated AUTOPILOT move left no trace entry');
+
+  // And the record spans exactly one month.
+  assert.equal(player.cleared, null,
+    'dial_truncated survived the tick that reported it, so next month it would ' +
+    'be reported a second time');
+});

@@ -155,6 +155,40 @@ ${chunks.join('\n')}
 </html>
 `;
 
-writeFileSync(join(ROOT, 'index.html'), html);
+const OUT = join(ROOT, 'index.html');
 const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
-console.log(`wrote index.html — ${BUILD_ORDER.length} modules, ${seen.size} top-level names, ${kb} kB`);
+
+/**
+ * --check: verify index.html matches src/ and write nothing.
+ *
+ * index.html is generated and gitignored, so it is never stale in the repo —
+ * but it is stale on disk the moment you edit src/ without rebuilding, and
+ * `test/bundle.test.js` RUNS IT. That test is the only one that exercises the
+ * real deliverable rather than the ES modules, and against a stale bundle it
+ * happily passes on code that no longer exists: the one test written to catch
+ * what the module tests cannot see, reporting on last week's model.
+ *
+ * Measured during the fourth audit: after three commits of Phase 1 changes to
+ * src/game/autopilot.js, the on-disk bundle still contained the pre-audit
+ * autopilot, and `npm test` was green.
+ *
+ * This is a tripwire rather than an implicit rebuild on purpose. `npm test`
+ * must not rewrite a 352 kB file as a side effect — a test command that
+ * mutates the working tree is its own kind of surprise. `npm run build` fixes
+ * it, and the message says so.
+ */
+if (process.argv.includes('--check')) {
+  const current = existsSync(OUT) ? readFileSync(OUT, 'utf8') : null;
+  if (current !== html) {
+    console.error(
+      `\nbuild: index.html is STALE — it does not match src/.\n\n` +
+      `  index.html is the deliverable and it is committed, so a stale one ` +
+      `ships the\n  old model while passing every test in the suite. Run ` +
+      `\`npm run build\`.\n`);
+    process.exit(1);
+  }
+  console.log(`build: index.html is current (${BUILD_ORDER.length} modules, ${kb} kB)`);
+} else {
+  writeFileSync(OUT, html);
+  console.log(`wrote index.html — ${BUILD_ORDER.length} modules, ${seen.size} top-level names, ${kb} kB`);
+}
