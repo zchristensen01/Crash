@@ -3,6 +3,11 @@
 Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
 **`docs/13-fourth-audit-plan.md`**. Source brief: `4th-audit-brief.md`.
 
+**Anything found and NOT fixed, not finished, or not understood is in
+[`open_items.md`](open_items.md)** — concerns, deliberate omissions, things a
+later phase must re-verify, and tooling hazards. Read it before trusting a
+number from any document.
+
 `[ ]` todo `[~]` in progress `[x]` done `[-]` deliberately not doing
 
 ---
