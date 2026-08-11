@@ -541,15 +541,28 @@ a slow spending decision (`INVESTMENT_ADJUSTMENT_SPEED`), the same measurement
 now gives:
 
 ```
-effective response         1.83     <- above unity
-real rate felt at m12    -2.03%     (was -14.50%)
+effective response         1.96     <- above unity
+real rate felt at m12    -1.77%     (was -14.50%)
 ```
 
 `test/transmission.test.js` re-measures this on every run, so it cannot go
-quiet again. **Raising `TAYLOR_INFLATION` was never the answer**: at 1.0, the
-top of its sourced range, `stagflation` still reached 177.62% at month 48
-against 242.34% as built. A transmission problem does not have a coefficient
-solution.
+quiet again. **It did not stop the number going stale in this document.** 2.3
+recorded 1.80 and this section recorded 1.83 — two documents citing the same
+measurement with different numbers — and then 3.1's asset-units fix moved the
+real value to 1.96 while Phase 4's "re-measure everything" gate passed over
+both. Corrected in Phase 5 verification. A test that prints a number is not a
+test that the number written elsewhere is still right.
+
+**Raising `TAYLOR_INFLATION` was never the answer, but not for the reason
+originally given here.** The claim used to be that the coefficient is powerless
+— measured at 177.62% at month 48 against 242.34% as built. Both of those
+numbers were taken while transmission was still broken, when the economy
+hyperinflated either way. Re-measured after Phases 2–4, raising it to 1.0 (the
+top of its sourced range) takes `stagflation` under the rule from **7.12% to
+3.24% at month 48** and **3.15% to 1.42% at month 96**. The coefficient has
+plenty of traction now. The reason to leave it alone is that the defect *was*
+transmission, fixing transmission fixed it, and moving a sourced coefficient to
+cover a structural error is the reduced-form-as-structural-input error.
 
 ---
 

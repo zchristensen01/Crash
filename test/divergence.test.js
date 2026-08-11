@@ -218,6 +218,12 @@ test('E1: no permanent dial move diverges through an undeclared loop', () => {
  *
  *     after Phase 2 (transmission)   A/F 1.323e11   gap 631.38
  *     after 3.1     (asset units)    A/F      1.12  gap    6.79
+ *     after 5.4     (trend speed)    A/F      1.12  gap   11.79   <- current
+ *
+ * The last row is bookkeeping, not a regression: 5.4 slowed the credit TREND
+ * from 0.20/yr to the derived 0.127, and the gap is credit minus trend, so a
+ * slower trend leaves a larger standing gap at the same credit stock. A/F did
+ * not move at all, which is the quantity this guard is about.
  *
  * Section A halved it and did not fix it, which is how the two sections were
  * confirmed independent. What closed it was one unit error: the asset-price

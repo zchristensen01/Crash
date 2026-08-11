@@ -287,7 +287,7 @@ test('THE CRASH ARC: the unemployment cost of a banking crisis', {
 test('THE CRASH ARC: the five-year loss against trend', {
   todo: 'PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.25% below ' +
     'trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after ' +
-    'CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.196. It CANNOT be closed ' +
+    'CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.1855. It CANNOT be closed ' +
     'by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside ' +
     'its published [2.0, 4.5], and would make the exogenous capacity cut supply ' +
     '7.9-9.5 of the 10 while the model supplies almost nothing — destroying the ' +
@@ -301,7 +301,7 @@ test('THE CRASH ARC: the five-year loss against trend', {
     'THE SECOND ASSERTION HERE IS OPEN #1, AND IT MOVED THE OPPOSITE WAY TO ' +
     'THE PLAN\'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be ' +
     'downstream of Section B, so fixing B should have slowed it. Measured, it ' +
-    'sped up: output is back to -4.37% of trend by month 96 against a required ' +
+    'sped up: output is back to -4.63% of trend by month 96 against a required ' +
     '-5. That is not a new defect — it is the same shallower crisis, since a ' +
     'crash that digs a 5.97% hole instead of a 10% one has less to climb out ' +
     'of. Both numbers should move together when the constant is re-solved, and ' +
@@ -329,8 +329,11 @@ test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', 
     'observed loss endogenously and the exogenous cut is only the remainder — ' +
     'and forcing it there would load the missing propagation onto an exogenous ' +
     'constant, which is rule 4 and is the defect the deconvolution was built ' +
-    'to remove. MEASURED: with no exogenous scar at all the model used to ' +
-    'produce 8.4% of the 10 by itself and now produces 3.22%. That is a ' +
+    'to remove. MEASURED, with CRISIS_HYSTERESIS_SCAR set to 0 so there is no ' +
+    'exogenous scar at all: the model used to produce 8.4% of the 10 by itself ' +
+    'and now produces 3.65% (this message said 3.22% until Phase 5 ' +
+    'verification re-ran it; the crash-arc test above always said 3.65 and the ' +
+    'two disagreed for four commits). That is a ' +
     'demand-block finding and the fourth independent sighting of it, alongside ' +
     'the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity ' +
     'paradox. Re-solve when the demand block has been addressed.',

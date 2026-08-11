@@ -62,10 +62,25 @@ The most important thing in this audit and it is not in the original brief.
 
 | | model | literature |
 |---|---|---|
-| UK 1979-83 sacrifice ratio | 0.38 | Ball 1994: 2–4 |
-| `TAX_SHOCK_TO_GDP` | 0.46 | Romer-Romer: 2–3 |
+| UK 1979-83 sacrifice ratio | **0.35** | Ball 1994: 2–4 |
+| `TAX_SHOCK_TO_GDP` | **0.487** | Romer-Romer: 2–3 |
 | austerity paradox | absent at every playable gap | — |
 | endogenous crisis propagation | 3.65% | was 8.4% of Cerra-Saxena's 10% |
+| post-crisis rebound | 46% of the trough, both amplifiers off | Cerra-Saxena: none |
+
+> **The first two cells were wrong when this table was written, and this
+> document is the one that promises "measured, not read".** It said 0.38 and
+> 0.46. Measured: 0.38 was the sacrifice ratio at 2.5 and 3.1 moved it to
+> **0.35**; `TAX_SHOCK_TO_GDP` has been **0.487** since 3.1 and was 0.492
+> before — it has never been 0.46 anywhere in this pass, and the number was
+> copied from the brief rather than run. Corrected in Phase 5 verification.
+> Reproduce:
+> ```
+> node --test test/episodes.test.js  2>&1 | grep -o "sacrifice ratio [0-9.]*"
+> node --test test/validation.test.js 2>&1 | grep -o "model [0-9.]*, literature 2-3"
+> ```
+> **The finding is unharmed** — every cell still misses its literature by the
+> same order — which is exactly why nobody re-ran them.
 
 **Every real quantity moves too little for the price change that caused it.**
 These are not four findings; they are one, in the demand block, and it is not a
@@ -257,6 +272,32 @@ were taken on a tree with this hazard live.
 ### E2. `npm run check` and `npm test` had drifted apart — `FIXED`
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
+
+### E4. Every generated artefact has a `--check`; every number re-typed into prose has none — `OPEN`
+Found by Phase 5 verification, which turned up **five** stale prose numbers and
+**one inverted claim** in one afternoon of re-measuring — see docs/13
+Correction 12. The worst was the transmitted Taylor response: `docs/02` calls it
+*"the most important single fact about this model's dynamics"*, it has been
+**1.96** since 3.1, and the document said 1.83 while `TAYLOR_INFLATION`'s note
+said 1.80. Two documents, one measurement, two wrong numbers, past a HARD GATE
+whose stated job was to re-measure everything.
+
+`test/transmission.test.js` prints the live value on every run and asserts only
+`> 1.0`. **A test that prints a number does not test the number written down
+somewhere else.** The three tripwires this pass added — `build --check`,
+`cause-effect --check`, `sys.dont_write_bytecode` — cover `index.html`,
+`docs/11` and `params.js`. Nothing covers a sentence, and every defect found in
+this verification was in a sentence.
+
+Reproduce the class:
+```
+node --test test/transmission.test.js 2>&1 | grep "stagflation m3"
+grep -n "1\.83" docs/02-causal-map.md          # was 1.83
+```
+Not obviously fixable by a tool: prose numbers have no schema. The cheapest
+partial guard would be a convention — quote a number in prose ONLY with the
+command that regenerates it beside it — which `open_items.md` already claims to
+follow and did not.
 
 ### E3. Generated artefacts are gitignored, so staleness is local-only — `WATCH`
 `index.html` and `src/params.js` are both generated and both gitignored. That is

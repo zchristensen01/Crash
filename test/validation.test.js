@@ -202,8 +202,11 @@ test('CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published r
 });
 
 test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
-  todo: 'KNOWN. A 1% of GDP tax rise costs ~0.33% of output over 30 months ' +
-        'against a published 2.0-3.0. The Romer-Romer narrative multiplier is ' +
+  todo: 'KNOWN. A 1% of GDP tax rise costs 0.487% of output over 30 months ' +
+        'against a published 2.0-3.0. (This message said ~0.33% until Phase 5 ' +
+        'verification re-ran it; the model has been at 0.487 since 3.1 and was ' +
+        '0.492 before, so 0.33 was never right in this pass.) ' +
+        'The Romer-Romer narrative multiplier is ' +
         'the largest in the literature and famously larger than structural ' +
         'models produce; the model also has a responding central bank and a ' +
         'crowding-out term that works in the opposite direction on a tax rise. ' +

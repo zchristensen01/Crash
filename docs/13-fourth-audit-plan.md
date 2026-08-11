@@ -9,11 +9,13 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Eleven corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twelve corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
-> Phase 0 table**, and **Correction 10, in which I made the exact error the
-> standing rule exists to prevent**. Neither the verification pass nor the
-> auditor is above being re-verified.
+> Phase 0 table**, **Correction 10, in which I made the exact error the
+> standing rule exists to prevent**, and **Correction 12, in which the number
+> `docs/02` calls the most important single fact about this model was wrong for
+> nine commits and the Phase 4 HARD GATE passed over it**. Neither the
+> verification pass nor the auditor is above being re-verified.
 > `TASKS.md` is the checklist; this file is the reasoning.
 
 ---
@@ -1023,6 +1025,90 @@ the response beyond the 24-month window.
 ### PHASE 5 — CORRECTNESS AND HYGIENE
 *Cheap, independent of each other, and 5.3 protects the one thing that makes
 this project different from everything else in the field.*
+
+> #### As built — Phase 5 verification, before any 5.x work
+>
+> Four handover claims re-measured, not read. Three reproduce exactly: A/F at
+> m480 under a permanent 1pp cut is **1.120e+0**; the bubble loop's gain is
+> below one at all four operating points (**7.639e-3 / 9.741e-3 / 8.943e-3 /
+> 7.108e-3**); the steady state after 200 calm ticks is `output_gap`
+> **0.000000000**, `inflation` **2.000000000**, `consumption` **55.500000000**.
+> `npm test` gives 160/143/0/17 with lint, `build --check` and
+> `cause-effect --check` clean, and all 17 `todo`s fail (no stale passes).
+>
+> ### CORRECTION 12 — the number `docs/02` calls the most important fact about this model has been wrong since 3.1, and the HARD GATE did not catch it.
+>
+> The transmitted Taylor response is **1.96**. Bisected across the pass by
+> checking out each commit, regenerating `params.js` and re-running
+> `test/transmission.test.js`:
+>
+> | commit | | transmitted | real rate felt @m12 |
+> |---|---|---|---|
+> | `aa8febc` | 2.3, which recorded it | **1.80** | −2.21% |
+> | `07342c0` | carry-forward | **1.83** | −2.03% |
+> | `4fa7a9a` | **3.1, asset units** | **1.96** | **−1.77%** |
+> | `3e49d40` … `HEAD` | 4.1 onward | 1.96 | −1.77% |
+>
+> Two things went wrong and they are different failures. **First, 2.3 and the
+> carry-forward commit disagreed with each other** — 1.80 in
+> `TAYLOR_INFLATION`'s note against 1.83 in `docs/02` — for one measurement,
+> from the moment both were written. **Second, 3.1 moved it and neither was
+> updated**, and Phase 4, whose entire job was *"re-measure everything"* and
+> which is recorded as a green HARD GATE, went straight past. The brief written
+> for the next auditor then carried 1.83 forward as fact.
+>
+> `test/transmission.test.js` prints the live value on every run and asserts
+> only `> 1.0`. **A test that prints a number does not test the number written
+> down somewhere else.** That is the same class as V1's stale bundle and 4.3's
+> `docs/11` fingerprint, and the tripwire that would catch it does not exist:
+> there is no `--check` over numbers quoted in prose.
+>
+> **The claim under it had also inverted, which is worse than being stale.**
+> `TAYLOR_INFLATION`'s note and `docs/02` both said raising the coefficient
+> "does not work anyway", citing 177.62% at m48 against 242.34%. Both figures
+> were measured with transmission still broken and a dial ceiling of 20 — the
+> economy hyperinflated either way, so the comparison was between two failures.
+> Re-measured on the current tree:
+>
+> | `TAYLOR_INFLATION` | total response | `stagflation` @m48 | @m96 |
+> |---|---|---|---|
+> | 0.50 (as built) | 1.50 | 7.12% | 3.15% |
+> | 1.00 (top of range) | 2.00 | **3.24%** | **1.42%** |
+>
+> The coefficient has plenty of traction now. The reason to leave it at 0.5 is
+> **rule 4** — the defect was structural, fixing the structure fixed it, and
+> moving a sourced coefficient to cover a structural error is the error the
+> rule names. That argument is stronger than the one it replaces and it does
+> not depend on a measurement that has expired. Both documents rewritten.
+>
+> #### The same class, four more times
+>
+> - **`open_items.md` A2's table**, the pass's headline finding, had two cells
+>   that were copied rather than run: sacrifice ratio 0.38 (**0.35** since 3.1;
+>   0.38 was the 2.5 value) and `TAX_SHOCK_TO_GDP` 0.46 (**0.487** since 3.1,
+>   0.492 before — 0.46 matches no commit in this pass). In the document whose
+>   header says *"Where a number is quoted it was measured, not read."* **The
+>   finding survives untouched, which is precisely why nobody re-ran them.**
+> - **Four stale numbers inside live `todo` messages**, which `report.mjs`
+>   copies verbatim into `TEST-RESULTS.md`, so they are published: the tax
+>   shock said 0.33; the UK episode said m11 / 8.63% / 16.38% / 0.64pp / 0.38
+>   against m10 / 7.59% / 16.17% / 0.66pp / 0.35.
+> - **`crisis.test.js` states one measurement as two different numbers** —
+>   endogenous propagation with no exogenous scar, given as 3.22% in one `todo`
+>   and 3.65% in the next. Re-measured with `CRISIS_HYSTERESIS_SCAR = 0`:
+>   **3.6468%**. The same message cites `CRISIS_IMPULSE_AMPLIFICATION = 2.196`
+>   — the value 4.1 explicitly rejected for failing to reconcile. It is 2.1855.
+> - **`test/divergence.test.js`'s history table stopped at 3.1.** 5.4's slower
+>   credit trend took the m480 gap **6.79 → 11.79** while A/F stayed at 1.12.
+>   Row added with the reason, because a bare jump in a divergence guard's own
+>   comment reads as a regression when it is arithmetic: the gap is credit
+>   minus trend, and 5.4 slowed the trend.
+>
+> **The pattern, and it is the one this pass keeps rediscovering:** every
+> generated artefact in this project now has a `--check`, and every number
+> re-typed into prose has none. All five defects above are in prose. The three
+> tripwires cover `index.html`, `docs/11` and `params.js`; nothing covers a
+> sentence.
 
 **5.1 — Recycle government interest income to households (D1).**
 `interest_cost` is subtracted in `updateBudget` and appears in **no income

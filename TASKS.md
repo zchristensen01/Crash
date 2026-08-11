@@ -71,6 +71,10 @@ number from any document.
       Into `docs/02` (new section), `TAYLOR_INFLATION`'s note, and a test.
       2.1 moved it: **0.37 -> 1.80**, and it now clears unity. Real rate felt
       at m12 of stagflation: -14.50% -> -2.21%.
+      **SUPERSEDED — see Phase 5 verification.** 3.1 moved it again, to
+      **1.96 / -1.77%**, and neither `docs/02` (which said 1.83) nor
+      `TAYLOR_INFLATION`'s note (1.80) was updated. Phase 4's hard gate passed
+      over both.
 - [x] 2.4 Derive the dial ceiling
       `max: 20` -> `max: 50`, derived as a FIXED POINT over 360 runs with
       events on. **The Taylor rule now WINS stagflation**: 5.69% @m48,
@@ -186,6 +190,8 @@ experiment that isolates it.
       fix it, which is how the two sections were confirmed independent.
       Done ahead of 3.3/3.4 because leaving false numbers in a passing test is
       the staleness this pass keeps finding elsewhere. **Re-verify after 3.4.**
+      **Re-verified in Phase 5 verification: A/F is still 1.12; the credit gap
+      is now 11.79**, moved by 5.4's slower trend, not by anything in the loop.
 
 ## Phase 4 — Re-measure everything **(HARD GATE)**
 
@@ -258,6 +264,48 @@ experiment that isolates it.
 guard green. Phase 6 is unblocked.
 
 ## Phase 5 — Correctness and hygiene
+
+### Phase 5 verification (before continuing) — **five stale numbers, one inverted claim**
+
+- [x] V3 Re-verify the handover claims. **Three of four reproduce; one does not.**
+      `npm test` 160/143/0/17, lint + `build --check` + `cause-effect --check`
+      clean, all 17 `todo`s failing (none stale-passing). Steady state exact:
+      output_gap `0.000000000`, inflation `2.000000000`, consumption
+      `55.500000000`. A/F at m480 under a permanent 1pp cut **1.120e+0** ✓.
+      Loop gain below one at all four operating points (7.639e-3, 9.741e-3,
+      8.943e-3, 7.108e-3) ✓.
+      **The transmitted Taylor response is 1.96, not 1.83.** Bisected: 2.3
+      measured **1.80** and wrote it into `TAYLOR_INFLATION`'s note; the
+      carry-forward commit measured **1.83** and wrote it into `docs/02` — two
+      documents citing one measurement with different numbers — and **3.1
+      moved the real value to 1.96 / −1.77%** with neither updated. Phase 4's
+      "re-measure everything" HARD GATE passed over both. See **Correction 12**.
+- [x] V4 **`TAYLOR_INFLATION`'s note had inverted.** It said raising the
+      coefficient "does not work anyway (177.62% at m48 against 242.34%)".
+      Both numbers were taken while transmission was broken. Re-measured:
+      raising it to 1.0 takes `stagflation` under the rule from **7.12% →
+      3.24% at m48** and **3.15% → 1.42% at m96**. The coefficient now has
+      plenty of traction; the reason to leave it alone is rule 4, not
+      impotence. `docs/02` carried the same inverted claim. Both rewritten.
+- [x] V5 **`open_items.md` A2 — the headline table — had two cells that were
+      never measured.** It said sacrifice ratio 0.38 (real: **0.35** since 3.1;
+      0.38 was the 2.5 value) and `TAX_SHOCK_TO_GDP` 0.46 (real: **0.487**
+      since 3.1, 0.492 before — 0.46 matches no commit in this pass). In the
+      document whose header promises "measured, not read". The finding is
+      unharmed, which is why nobody re-ran them.
+- [x] V6 Four stale numbers inside live `todo` messages, which `report.mjs`
+      copies verbatim into `TEST-RESULTS.md`: `TAX_SHOCK_TO_GDP` said 0.33
+      (0.487); the UK episode said peak m11 / 8.63% at 4y / 16.38% / 0.64pp /
+      ratio 0.38 (m10 / 7.59% / 16.17% / 0.66pp / 0.35); `crisis.test.js` gave
+      the SAME endogenous-propagation measurement as 3.22% in one message and
+      3.65% in another (re-measured with `CRISIS_HYSTERESIS_SCAR = 0`:
+      **3.6468%**) and cited `CRISIS_IMPULSE_AMPLIFICATION = 2.196`, the value
+      4.1 explicitly REJECTED (it is 2.1855); and the m96 rebound said −4.37%
+      (**−4.63%**). All corrected.
+- [x] V7 `test/divergence.test.js`'s history table stopped at 3.1. 5.4's
+      slower credit trend moved the m480 gap **6.79 → 11.79** with A/F
+      unchanged at 1.12. Row added with the reason, since a bare jump in a
+      divergence guard reads as a regression.
 
 - [~] 5.1 Recycle government interest income to households
       **BUILT, MEASURED, AND REVERTED. It is blocked on a defect nobody knew
@@ -434,8 +482,10 @@ guard green. Phase 6 is unblocked.
       `node tools/report.mjs`. Currently 160 tests, 143 pass, 0 fail, 17 open.
 - [ ] 10.4 Update `docs/02`
       **PARTLY DONE:** 2.3 added a new section, "THE MOST IMPORTANT SINGLE FACT
-      ABOUT THIS MODEL'S DYNAMICS", carrying the 0.37 → 1.83 transmitted Taylor
-      response. STILL OUTSTANDING: Part 5's bracketed months-to-peak
+      ABOUT THIS MODEL'S DYNAMICS", carrying the 0.37 → **1.96** transmitted
+      Taylor response (it said 1.83 until Phase 5 verification re-ran it, and
+      the counterfactual sentence under it had inverted — raising
+      `TAYLOR_INFLATION` DOES work now). STILL OUTSTANDING: Part 5's bracketed months-to-peak
       (re-measure after Phase 3), the interest-income leg from 5.1, the
       macropru chain if 6.1 lands, and the "Corrections from this pass"
       section.
