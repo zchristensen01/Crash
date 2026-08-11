@@ -152,14 +152,13 @@ experiment that isolates it.
 
 - [ ] 3.3 Bound consumption physically
 - [ ] 3.4 Replace the +12%/month asset growth clamp
-- [ ] 3.5 Turn the divergence guard green
-      **CURRENT STATE:** a 1pp cut reaches **A/F 1.323e11** at m480 (was
-      2.873e11 pre-Phase-2 — Section A halved it and did not fix it, confirming
-      the two sections are independent).
-      Note the frontier printout changed when 2.4 raised the ceiling: the rate
-      dial now shows 14/19 settings diverging rather than 13/19, because the
-      declared range now extends to 50 and the extra settings diverge through
-      the **declared** `debt_service_spiral`. That is not a regression.
+- [x] 3.5 Turn the divergence guard green — **closed by 3.1 alone**
+      Both tests are hard passes; the `todo` markers are gone and the messages
+      now record what closed it. A permanent 1pp cut: A/F **2.873e11 -> 1.12**,
+      credit gap **647.89 -> 6.79**. Phase 2 halved it (1.323e11) and did not
+      fix it, which is how the two sections were confirmed independent.
+      Done ahead of 3.3/3.4 because leaving false numbers in a passing test is
+      the staleness this pass keeps finding elsewhere. **Re-verify after 3.4.**
 
 ## Phase 4 — Re-measure everything **(HARD GATE)**
 

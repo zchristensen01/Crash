@@ -64,16 +64,17 @@
  *
  * THE ASSERTION is therefore narrow and it is the right one: a divergence
  * caused by a loop that parameters.py's UNBALANCED_LOOPS does not declare is
- * a defect. The bubble loop is not in that register — credit.js:200 claims in
- * a comment that it is deliberate ("their product is the gain of the bubble
- * loop, and it has no balancing counterpart — that is the whole point of it")
- * while the register that is supposed to hold that claim does not list it.
+ * a defect. The bubble loop is not in that register, and it does not need to
+ * be: Phase 3.2 measured its gain at four operating points and it is below one
+ * at all of them, so it has no business in a register of loops that diverge on
+ * purpose. (credit.js used to assert in a comment that the loop "has no
+ * balancing counterpart — that is the whole point of it". It has one, it is
+ * sourced, and that comment is now corrected in place.)
  *
  * A LATER PASS MUST NOT GO GREEN BY ADDING THE BUBBLE LOOP TO THE REGISTER.
- * Phase 3.2 allows declaring it only together with a demonstration that loop
- * gain is below one at the central values — and a loop with gain below one
- * does not diverge, so it would never reach this assertion. Declaring it while
- * it still runs away is the failure this file exists to prevent.
+ * That was the live risk while this guard was failing. It is closed the right
+ * way — the loop stopped diverging — and the same rule still applies to
+ * whatever diverges next.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -182,18 +183,7 @@ function sweep() {
   return rows;
 }
 
-test('E1: no permanent dial move diverges through an undeclared loop', {
-  todo: 'FAILS BY DESIGN UNTIL PHASE 3.5. This is the guard whose absence let ' +
-    'Section B survive three audits, and it is written before the fix so that ' +
-    'the fix has something to turn green. Measured today: a permanent policy ' +
-    'rate of 1.5% — a one-point cut from neutral, the most ordinary move in ' +
-    'the game — sends asset/fundamental to 2.87e11 and the credit gap to +648 ' +
-    'by month 480, and setting ASSET_PRICE_CREDIT_CHANNEL to 0 makes the same ' +
-    'run settle at A/F 1.38 with a gap of -7.4. The loop is therefore isolated, ' +
-    'not inferred. It is not in parameters.py UNBALANCED_LOOPS, though ' +
-    'credit.js:200 asserts in a comment that it is deliberate. Phase 3.2 ' +
-    'closes it.',
-}, () => {
+test('E1: no permanent dial move diverges through an undeclared loop', () => {
   const rows = sweep();
   const declared = new Set(UNBALANCED_LOOPS);
   const undeclared = rows.filter((r) => !r.bounded && !declared.has(r.cause)
@@ -219,11 +209,24 @@ test('E1: no permanent dial move diverges through an undeclared loop', {
       `(switching that loop off makes the same run bounded)`).join('\n'));
 });
 
-test('E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F', {
-  todo: 'THE PHASE 3.5 GATE, stated as its own test so the general guard above ' +
-    'cannot be satisfied by reclassifying the cause. Section B1\'s exact ' +
-    'repro: calm, policy_rate -> 1.5 at month 0, nothing else, 480 ticks.',
-}, () => {
+/**
+ * THE PHASE 3.5 GATE, and what closed it.
+ *
+ * Section B1's exact repro: `calm`, policy_rate -> 1.5 at month 0, nothing
+ * else, 480 ticks. When this guard was written it produced A/F = 2.873e11 and
+ * a credit gap of +647.89 — no steady state anywhere.
+ *
+ *     after Phase 2 (transmission)   A/F 1.323e11   gap 631.38
+ *     after 3.1     (asset units)    A/F      1.12  gap    6.79
+ *
+ * Section A halved it and did not fix it, which is how the two sections were
+ * confirmed independent. What closed it was one unit error: the asset-price
+ * semi-elasticity is a LEVEL response and was being applied as a persistent
+ * growth rate, so the equilibrium was set by ASSET_PRICE_MEANREVERSION rather
+ * than by the elasticity, and overshot by 4.59x. Neither coefficient of the
+ * credit loop was touched; both sit at their published central values.
+ */
+test('E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F', () => {
   const s = newState();
   const trace = new Trace(false);
   const pipeline = new LagPipeline();
