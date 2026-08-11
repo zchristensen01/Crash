@@ -391,3 +391,52 @@ test('A-TABLE: the A1 split made the response curve measurably smoother', () => 
     `it was 149.2 — above 200 means the rate is being lagged on the investment ` +
     `response again.`);
 });
+
+/**
+ * THE EFFECTIVE TRANSMITTED TAYLOR RESPONSE.
+ *
+ * The single most important fact about this model's dynamics, and nothing
+ * anywhere recorded it until the fourth audit.
+ *
+ * The Taylor principle says the response to inflation must exceed one or
+ * inflation is unstable. On the DIAL the model satisfies it by construction:
+ * 1 + TAYLOR_INFLATION = 1.5. But the principle is about the rate the economy
+ * FEELS, and before the A1 split those were different numbers: over months
+ * 3-12 of `stagflation` under the rule, inflation rose 9.92pp while the
+ * transmitted rate rose 3.67pp — an effective response of 0.37, far below
+ * unity. THE DIAL SATISFIED THE PRINCIPLE AND TRANSMISSION VIOLATED IT. That
+ * is the whole of why the model bifurcated, and it is invisible from the dial.
+ *
+ * A rule can be above unity on paper and below it in effect. Only the effect
+ * stabilises anything.
+ */
+test('the TRANSMITTED Taylor response clears unity, not just the dial one', () => {
+  const w = world({ assert: false, taylor: true,
+                    overrides: SCENARIOS.stagflation.overrides });
+  const h = [];
+  for (let m = 1; m <= 24; m++) {
+    advance(w, 1);
+    h.push({ inflation: w.s.inflation, dial: w.s.policy_rate,
+             felt: w.s.policy_rate_demand, expected: w.s.expected_inflation });
+  }
+  const at = (m) => h[m - 1];
+  const dPi = at(12).inflation - at(3).inflation;
+  const onTheDial = (at(12).dial - at(3).dial) / dPi;
+  const transmitted = (at(12).felt - at(3).felt) / dPi;
+  const realFelt = at(12).felt - at(12).expected;
+
+  console.log(`  stagflation m3->m12: inflation +${dPi.toFixed(2)}pp; response on the ` +
+    `DIAL ${onTheDial.toFixed(2)}, TRANSMITTED ${transmitted.toFixed(2)} ` +
+    `(0.37 before the A1 split); real rate felt at m12 ${realFelt.toFixed(2)}% (-14.50 before)`);
+
+  assert.ok(dPi > 0,
+    `inflation fell ${(-dPi).toFixed(2)}pp over months 3-12 of stagflation, so ` +
+    `there is no rising-inflation window to measure the response over. Pick a ` +
+    `different window rather than reporting a ratio with a negative denominator.`);
+  assert.ok(transmitted > 1.0,
+    `the TRANSMITTED response to inflation is ${transmitted.toFixed(2)}, below ` +
+    `unity, while the dial's is ${onTheDial.toFixed(2)}. The Taylor principle is ` +
+    `satisfied where it is announced and violated where it acts — that is the ` +
+    `mechanism behind the whole of Section A, and it was 0.37 before the ` +
+    `transmission lag was split off the rate.`);
+});

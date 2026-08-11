@@ -600,6 +600,35 @@ Report the curve; do not assert a step size.
 > against regression above 200pp/pp, which would mean the rate had been put back
 > on the investment response kernel.
 
+**2.3 — Record the effective transmitted Taylor response (0.37). — DONE**
+
+> #### As built — `docs/02` gains a section, `TAYLOR_INFLATION` gains the number, and a test re-measures it every run.
+>
+> **The number has moved, because 2.1 moved it.** 0.37 was the *diagnosis*;
+> recording it as the model's current behaviour would have been wrong within a
+> day. Both are now on the record. Measured over months 3–12 of `stagflation`
+> under the rule:
+>
+> | | inflation rose | transmitted rate rose | effective response | real rate felt @ m12 |
+> |---|---|---|---|---|
+> | before A1 | 9.92pp | 3.67pp | **0.37** | **−14.50%** |
+> | after A1 | 6.58pp | 11.87pp | **1.80** | **−2.21%** |
+>
+> **The transmitted response has crossed unity**, so the Taylor principle now
+> holds where it acts and not only where it is announced. That is the clearest
+> single statement of what 2.1 bought, and it is a 4.9× move in the quantity the
+> brief called the most important fact about the model's dynamics.
+>
+> Recorded in three places: a new section in `docs/02` ahead of its corrections
+> list, `TAYLOR_INFLATION`'s note in `parameters.py`, and a test that prints both
+> the dial response and the transmitted one on every run. The test asserts
+> `transmitted > 1.0` — the principle itself — rather than a magnitude.
+>
+> **One measurement guard worth keeping.** The ratio is only meaningful over a
+> window where inflation is *rising*; in `overheating` the same window has
+> inflation falling and the "response" comes out at −3.90, which is arithmetic,
+> not economics. The test asserts a positive denominator before reporting.
+
 **2.3 — Record the effective transmitted Taylor response (0.37).**
 The Taylor principle is satisfied on the dial (1 + 0.5 = 1.5) and violated in
 transmission: between months 3 and 12 of `stagflation`, inflation rises 9.92pp

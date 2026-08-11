@@ -62,7 +62,10 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       ranks the smoothest curve worst — replaced by steepest local
       sensitivity. Knife-edge -366.7 -> -149.2pp/pp (A1), -22.5 with the
       wealth channel off. Residual is Section B; `todo` until Phase 3.
-- [ ] 2.3 Record the effective transmitted Taylor response (0.37)
+- [x] 2.3 Record the effective transmitted Taylor response (0.37)
+      Into `docs/02` (new section), `TAYLOR_INFLATION`'s note, and a test.
+      2.1 moved it: **0.37 -> 1.80**, and it now clears unity. Real rate felt
+      at m12 of stagflation: -14.50% -> -2.21%.
 - [ ] 2.4 Derive the dial ceiling
 - [ ] 2.5 Re-run the four historical episodes and re-report
 - [ ] 2.6 Rewrite OPEN #6's message

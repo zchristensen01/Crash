@@ -507,6 +507,52 @@ depending only on whether there was slack.
 
 ---
 
+## THE MOST IMPORTANT SINGLE FACT ABOUT THIS MODEL'S DYNAMICS
+
+**The Taylor principle is about the rate the economy FEELS, not the rate on the
+dial, and until the fourth audit those were different numbers.**
+
+The rule announces a response to inflation of `1 + TAYLOR_INFLATION = 1.5`,
+comfortably above the unity the principle requires. What the economy felt was
+something else entirely. Measured over months 3–12 of `stagflation` under the
+rule, before the fourth audit's A1 split:
+
+```
+inflation rose        9.92pp
+the transmitted rate rose  3.67pp
+                      -----------
+effective response         0.37     <- far below unity
+```
+
+**The dial satisfied the Taylor principle and transmission violated it.** That
+is the whole mechanism behind the bifurcation `docs/12` found and attributed to
+a missing expectations channel. A rule can be above unity on paper and below it
+in effect, and only the effect stabilises anything.
+
+The cause was structural, not a coefficient: `policy_rate_demand` — the rate
+borrowers pay — was scheduled on `rate_to_investment`, the published impulse
+response *of investment* to a monetary shock, mean lag 14.74 months. A price was
+being delayed by a quantity's response time, and `updateInvestment` then applied
+the rate elasticity to that already-lagged rate, using the same reduced form
+twice.
+
+Split into a fast pass-through (`RATE_PASSTHROUGH_TO_BORROWERS`, ~1 quarter) and
+a slow spending decision (`INVESTMENT_ADJUSTMENT_SPEED`), the same measurement
+now gives:
+
+```
+effective response         1.80     <- above unity
+real rate felt at m12    -2.21%     (was -14.50%)
+```
+
+`test/transmission.test.js` re-measures this on every run, so it cannot go
+quiet again. **Raising `TAYLOR_INFLATION` was never the answer**: at 1.0, the
+top of its sourced range, `stagflation` still reached 177.62% at month 48
+against 242.34% as built. A transmission problem does not have a coefficient
+solution.
+
+---
+
 ## Corrections from the audit pass
 
 `docs/07` measured every chain above against the code. Six of them ran

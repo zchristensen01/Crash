@@ -321,7 +321,23 @@ MAX_CAPACITY_OVERHEAT = P(
 # The player is the central bank; this is what a rule-follower would have done.
 TAYLOR_INFLATION = P(0.5, 0.5, 1.0, "coefficient", "strong", "Taylor 1993",
                      "Total response to inflation is 1+A = 1.5. Must exceed "
-                     "1.0 or inflation is unstable (the Taylor principle).")
+                     "1.0 or inflation is unstable (the Taylor principle). "
+                     "BUT THE PRINCIPLE IS ABOUT THE RATE THE ECONOMY FEELS, "
+                     "NOT THE ONE ON THE DIAL, and the two are not the same "
+                     "number. Measured over months 3-12 of `stagflation` under "
+                     "the rule, d(felt rate)/d(inflation) was 0.37 before the "
+                     "4th audit's A1 split: inflation rose 9.92pp while the "
+                     "transmitted rate rose 3.67pp. The dial satisfied the "
+                     "principle and TRANSMISSION VIOLATED IT, which is why the "
+                     "model bifurcated — a rule can be above unity on paper and "
+                     "below it in effect, and only the effect stabilises "
+                     "anything. It is now 1.80 over the same window, and the "
+                     "real rate felt at month 12 went from -14.50% to -2.21%. "
+                     "Do not raise this coefficient to fix a transmission "
+                     "problem; 1.5 is outside the sourced range and it does not "
+                     "work anyway (measured: 177.62% at m48 against 242.34%). "
+                     "test/transmission.test.js measures the transmitted "
+                     "response on every run.")
 TAYLOR_OUTPUT    = P(0.5, 0.25, 1.0, "coefficient", "strong", "Taylor 1993")
 TAYLOR_SMOOTHING = P(0.85, 0.75, 0.90, "AR(1) on the rate", "strong",
                      "standard central bank practice",
