@@ -33,7 +33,17 @@ export function updateConsumption(s, trace) {
 
   const permanent = s.apc_ss * s.yd_permanent;
   const transitory = mpc * (s.disposable_income - s.yd_permanent);
-  const wealth = P.WEALTH_EFFECT.value * (s.asset_prices - s.asset_fundamental);
+
+  // WEALTH_EFFECT is cents of consumption per DOLLAR OF WEALTH, and this used
+  // to apply it straight to a difference in INDEX POINTS — the unit
+  // conversion was simply missing, and the magnitude was right only by
+  // coincidence (docs/07 hygiene). ASSET_WEALTH_TO_GDP is that conversion:
+  // years of output of paper wealth per 100 index points. It is 1.0, so the
+  // numbers are unchanged; what changes is that the scale is now stated,
+  // sourced and testable rather than implied by an accident.
+  const paperWealth = (s.asset_prices - s.asset_fundamental) *
+                      P.ASSET_WEALTH_TO_GDP.value;
+  const wealth = P.WEALTH_EFFECT.value * paperWealth;
   const mood = P.CONFIDENCE_INDEP_PREDICTIVE.value * s.confidence_residual;
 
   const terms = {

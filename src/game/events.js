@@ -9,6 +9,14 @@
  * Phillips curve. The prototype poked expected_inflation directly, which
  * bypasses the whole transmission mechanism and makes an oil shock behave
  * like a credibility shock — a different thing with a different cure.
+ *
+ * AN EVENT MAY ONLY TOUCH A FIELD THAT NO RULE ASSIGNS. Events fire at the
+ * START of the tick now (engine.js), so a rule downstream will see the shock
+ * and price it in the same month — but if the event writes a field a rule
+ * recomputes from scratch, the shock is discarded and, worse, the accounting
+ * identity breaks between the two. `export_slump` did exactly that with
+ * `consumption`, and it killed 38.8% of real 8-year sessions with a thrown
+ * invariant error (docs/07 M1). test/events.test.js checks every event.
  */
 import { P } from '../params.js';
 
@@ -19,8 +27,17 @@ export const EVENTS = [
     chance: 12,
     when: () => true,
     apply: (s) => {
-      // ENERGY_TO_CPI: 0.04pp of headline CPI per 10% energy rise. A ~60%
-      // spike is roughly 2.4pp, arriving fast (1-2 months).
+      // 2.4pp of headline CPI, arriving fast (1-2 months), for a ~60% spike.
+      //
+      // NOT derived from ENERGY_TO_CPI, and that is deliberate. The parameter
+      // says 0.04pp per 10% energy rise, which makes a 60% spike worth
+      // 0.24pp — a tenth of this. Energy is roughly 7% of an advanced-economy
+      // CPI basket, so 0.04 looks like a transcription error for 0.4, which
+      // would give exactly 2.4. Resolving that needs the source, not a
+      // keystroke, and this project's standing rule is that a parameter
+      // disagreement is a finding to surface rather than a number to bend to
+      // fit the model. Registered in parameters.py CONFLICTS['ENERGY_TO_CPI']
+      // and asserted still-open by test/validation.test.js.
       s.supply_shock += 2.4;
       s.approval -= 4;
     },
@@ -65,6 +82,14 @@ export const EVENTS = [
       s.crisis_active = true;
       s.crisis_months = 0;
       s.recap_promptness = 0;
+      // Snapshot the fiscal stance AT the crash. Everything spent above this
+      // inside RECAP_WINDOW_MONTHS counts as recapitalising the banks and
+      // shrinks the permanent scar (crisis.js). Recorded here rather than on
+      // the first tick of the crisis, because a player who reacts within the
+      // same month would otherwise have their own response baked into the
+      // baseline and score zero for it.
+      s.crisis_spending_baseline = s.govt_spending + s.money_printed;
+      s.potential_at_crisis = s.potential_output;
       s.asset_prices *= 0.7;
       s.credit_spread += 3.0;
       s.approval -= 15;
@@ -80,7 +105,13 @@ export const EVENTS = [
     chance: 12,
     when: () => true,
     apply: (s) => {
-      s.consumption -= 1.2;
+      // Foreign demand, not domestic consumption. v1 is closed by decision
+      // A5 so net_exports rests at zero, but a trading partner falling into
+      // recession is exactly an external demand shock — and net_exports is
+      // the one demand component no rule recomputes, so the shock survives
+      // the tick and the C+I+G identity still closes. It fades on
+      // FOREIGN_DEMAND_SHOCK_HALFLIFE in aggregate.js.
+      s.net_exports -= 1.2;
       s.approval -= 4;
     },
     text: 'Your biggest trading partner hits a recession and stops buying.',

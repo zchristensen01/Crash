@@ -55,6 +55,14 @@ def main():
         "// [PASS2 FIX] note in parameters.py.\n"
         f"export const KERNELS = {js(kernels)};\n")
     out.append(f"export const UNKNOWNS = {js(K.UNKNOWNS)};\n")
+    out.append(
+        "// Parameters deliberately not read by any rule, and why.\n"
+        "// test/params.test.js enforces this register in both directions.\n"
+        f"export const DEFERRED = {js(K.DEFERRED)};\n")
+    out.append(
+        "// Stated values that disagree with how the model behaves, where\n"
+        "// resolving the disagreement needs research, not wiring.\n"
+        f"export const CONFLICTS = {js(K.CONFLICTS)};\n")
     out.append(f"export const CREDIT_GAP_HP_LAMBDA = {K.CREDIT_GAP_HP_LAMBDA};\n")
     out.append(f"export const UNBALANCED_LOOPS = {js(K.UNBALANCED_LOOPS)};\n")
 

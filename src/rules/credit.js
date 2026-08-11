@@ -25,7 +25,11 @@ import { clamp, annualRateToMonthlyLinear, annualToMonthlyFlow } from '../units.
  * evidence. Keep them labelled.
  */
 export function updateAssetPrices(s, trace) {
-  const realRate = s.policy_rate - s.expected_inflation;
+  // policy_rate_markets, not policy_rate: markets reprice in about a month
+  // (rate_to_asset_prices), which is a genuinely different chain from the
+  // three quarters the real economy takes. QE pushes the whole curve down and
+  // works at the lower bound, which is what it is for.
+  const realRate = s.policy_rate_markets - s.qe_rate_relief - s.expected_inflation;
   const A = P.ASSET_PRICE_EQUITY_WEIGHT.value * P.ASSET_PRICE_RATE_SEMIELAST_EQUITY.value +
             (1 - P.ASSET_PRICE_EQUITY_WEIGHT.value) * P.ASSET_PRICE_RATE_SEMIELAST_HOUSING.value;
 
@@ -37,8 +41,21 @@ export function updateAssetPrices(s, trace) {
   const reversion = -P.ASSET_PRICE_MEANREVERSION.value * 100 *
                     Math.log(s.asset_prices / s.asset_fundamental);
 
+  // FORCED SELLING IS DONE BY SOMEONE, AND THEY RUN OUT. The rate is
+  // ASSET_PRICE_FIRESALE per point of excess leverage, but the TOTAL a
+  // deleveraging episode can deliver is FIRESALE_TOTAL_CAPACITY, spent down
+  // as the selling happens and refilled slowly once leverage is back under
+  // the line. Without the budget the loop cannot terminate: prices are in
+  // leverage's denominator, so falling prices raise leverage, which sells
+  // harder (docs/07 M4 follow-on).
   const overLeveraged = Math.max(0, s.leverage - s.leverage_max);
-  const fireSale = -P.ASSET_PRICE_FIRESALE.value * 100 * overLeveraged;
+  const wanted = P.ASSET_PRICE_FIRESALE.value * 100 * overLeveraged;
+  const room = Math.max(0, P.FIRESALE_TOTAL_CAPACITY.value - s.fire_sale_spent);
+  const fireSale = -Math.min(wanted, room);
+  s.fire_sale_spent = overLeveraged > 0
+    ? s.fire_sale_spent - fireSale
+    : Math.max(0, s.fire_sale_spent -
+        P.FIRESALE_TOTAL_CAPACITY.value / P.FIRESALE_REFILL_MONTHS.value);
 
   const terms = {
     'cheap money chasing returns': discount,
@@ -48,8 +65,9 @@ export function updateAssetPrices(s, trace) {
   };
   const gPct = Object.values(terms).reduce((a, b) => a + b, 0);
   trace.record('asset price change (%)', terms, gPct, {
-    fire_sale_active: overLeveraged > 0,
-    note: overLeveraged > 0
+    fire_sale_active: fireSale < 0,
+    selling_capacity_left: Math.max(0, P.FIRESALE_TOTAL_CAPACITY.value - s.fire_sale_spent),
+    note: fireSale < 0
       ? 'forced sales are driving prices down, which forces more sales'
       : 'no forced selling — the fire-sale term is off',
   });
@@ -69,14 +87,31 @@ export function updateAssetPrices(s, trace) {
   // consumption and the credit impulse — three channels, one unit error.
 }
 
+/**
+ * Debt against the value of what backs it, normalised to 1.0 at whatever
+ * state the scenario STARTED in, so leverage_max = 1.35 means "35% above
+ * where you began" everywhere.
+ *
+ * Both anchors have to come from the same place. The numerator used the
+ * canonical START while the denominator used the scenario's own asset level,
+ * which put the bubble scenario at leverage 0.75 — further BELOW the
+ * fire-sale gate than any other scenario, when it is the one built to reach
+ * it. Forced selling never fired once in any of the six over a full term
+ * (docs/07 M4).
+ */
 export function updateLeverage(s, trace) {
   const before = s.leverage;
   s.leverage = (s.private_credit / s.credit_ss) /
-               (s.asset_prices / s.asset_fundamental);
+               (s.asset_prices / s.asset_prices_ss);
   trace.record('leverage', {
     'where it was': before,
     'debt vs the value of what backs it': s.leverage - before,
-  }, s.leverage, { threshold: s.leverage_max });
+  }, s.leverage, {
+    threshold: s.leverage_max,
+    note: s.leverage > s.leverage_max
+      ? 'past the line — forced selling has started'
+      : 'inflated collateral flatters this all the way up',
+  });
 }
 
 /**
@@ -105,13 +140,27 @@ export function updateDefaults(s, trace) {
   s.loan_losses = s.default_rate / 100 * P.LOSS_GIVEN_DEFAULT.value * s.private_credit;
   const excessLosses = annualToMonthlyFlow(s.loan_losses - s.loan_losses_ss);
   s.bank_capital_ratio = clamp(
-    s.bank_capital_ratio - excessLosses + 0.02 * (13 - s.bank_capital_ratio), 0, 30);
+    s.bank_capital_ratio - excessLosses +
+      0.02 * (s.bank_capital_ss - s.bank_capital_ratio), 0, 30);
+
+  // How far below the floor banks are defending. Positive means they are
+  // cutting lending to get back above it, which is the quantity leg of the
+  // doom loop — see updateCreditGap. BANK_CAPITAL_DELEVER_TRIGGER is 0,
+  // meaning deleveraging starts exactly AT the minimum, not below it.
+  s.bank_capital_shortfall = Math.max(0,
+    P.BANK_CAPITAL_MINIMUM.value + P.BANK_CAPITAL_DELEVER_TRIGGER.value -
+    s.bank_capital_ratio);
 }
 
 /**
- * THE DOOM LOOP needs no extra scripting:
- *   bank capital below the minimum -> banks cut lending -> asset prices fall
+ * THE DOOM LOOP, and it needed more than the price channel:
+ *   bank capital below the minimum -> banks cut LENDING -> asset prices fall
  *   -> spreads widen -> more defaults -> repeat.
+ *
+ * The quantity leg is in updateCreditGap (forced deleveraging). This is the
+ * price leg. BANK_CAPITAL_TO_LOAN_RATE is 13bp on loan rates per 1pp of
+ * capital, sourced to BIS 2010; the code used an invented 0.15 in its place
+ * and left the parameter unread (docs/07 M5).
  */
 export function updateCreditSpread(s, trace) {
   const terms = {
@@ -120,7 +169,8 @@ export function updateCreditSpread(s, trace) {
     'collateral values': -0.5 * (s.asset_prices / s.asset_fundamental - 1),
     'unemployment': P.CREDIT_SPREAD_UNEMP.value * (s.unemployment - s.natural_unemployment),
     'loans going bad': 0.3 * (s.default_rate - 1.0),
-    'how much capital banks hold': -0.15 * (s.bank_capital_ratio - 13),
+    'how much capital banks hold':
+      -(P.BANK_CAPITAL_TO_LOAN_RATE.value / 100) * (s.bank_capital_ratio - s.bank_capital_ss),
   };
   const target = Object.values(terms).reduce((a, b) => a + b, 0);
   s.credit_spread = Math.max(0.2, s.credit_spread + 0.3 * (target - s.credit_spread));
@@ -161,14 +211,35 @@ export function updateCreditGap(s, trace) {
   // Credit demand is a flow that fades back toward trend rather than a level
   // that ratchets. Without this the impulse integrates and credit/GDP has no
   // finite equilibrium under any sustained policy.
-  s.credit_impulse = 0.85 * (s.credit_impulse || 0) + 0.15 * rawImpulse;
-  s.credit_growth_annual = nominalGrowth + clamp(s.credit_impulse, -12, 12);
+  s.credit_impulse = 0.85 * s.credit_impulse + 0.15 * rawImpulse;
+
+  // FORCED DELEVERAGING — the quantity leg of the doom loop, and the piece
+  // that was missing. A bank below its capital floor cuts lending rather than
+  // raising equity in a crisis, which drops asset prices, which raises
+  // leverage, which forces more selling. Supply, not demand: it does not fade
+  // and it does not care what borrowers want.
+  const forcedDelever = -P.BANK_DELEVER_STRENGTH.value * s.bank_capital_shortfall;
+  s.credit_growth_annual = nominalGrowth +
+    clamp(s.credit_impulse + forcedDelever, -25, 12);
+
+  // WRITE-OFFS. Debt that defaults leaves the credit stock, and that is what
+  // finally ENDS a deleveraging spiral: the fire sale drives prices down,
+  // which raises leverage, which drives more selling, and nothing in the loop
+  // stops until the debt itself is gone. Without this the bust had no exit —
+  // asset prices ran to their floor with leverage at 36 and stayed there.
+  //
+  // Only defaults ABOVE the normal-times rate are netted off, exactly as
+  // updateDefaults only charges losses above the baseline to bank capital.
+  // Ordinary churn is already inside credit_growth_annual.
+  s.write_offs = annualRateToMonthlyLinear((s.default_rate - 1.0) / 100) *
+                 s.private_credit;
 
   const beforeCredit = s.private_credit;
   // credit/GDP moves only by the DIFFERENCE between credit growth and nominal
   // GDP growth — this is what keeps the ratio stationary at the steady state.
   s.private_credit = Math.max(20, beforeCredit *
-    (1 + annualRateToMonthlyLinear((s.credit_growth_annual - nominalGrowth) / 100)));
+    (1 + annualRateToMonthlyLinear((s.credit_growth_annual - nominalGrowth) / 100))
+    - s.write_offs);
 
   const trendSpeed = annualRateToMonthlyLinear(0.20);
   s.credit_trend += trendSpeed * (s.private_credit - s.credit_trend);
@@ -179,7 +250,11 @@ export function updateCreditGap(s, trace) {
     'its own slow trend': -s.credit_trend,
   }, s.credit_to_gdp_gap, {
     warning_at: 3, danger_at: P.CREDIT_GAP_CRISIS_THRESHOLD.value,
-    note: 'the only gauge that sees a crash coming — the others look fine',
+    credit_growth: s.credit_growth_annual,
+    banks_forced_to_delever: forcedDelever < 0 ? -forcedDelever : 0,
+    note: forcedDelever < 0
+      ? 'banks are below their capital floor and cutting lending to get back'
+      : 'the only gauge that sees a crash coming — the others look fine',
   });
 }
 

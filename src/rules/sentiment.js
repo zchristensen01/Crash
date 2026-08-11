@@ -32,11 +32,26 @@ export function updateConfidence(s, trace) {
   s.confidence_residual = (1 - P.CONFIDENCE_FUNDAMENTAL_LOAD.value) *
                           (s.consumer_confidence - fundamentals);
 
+  // Firms read a different economy from households: order books and the cost
+  // of credit rather than jobs and the price of food. docs/01 lists it;
+  // nothing computed it. It is a gauge, like consumer_confidence — the
+  // orthogonal residual is the only part with causal power and that is
+  // wired to consumption above.
+  s.business_confidence = clamp(60 + 4.0 * s.output_gap
+    - 6.0 * (s.credit_spread - s.credit_spread_ss)
+    - 2.0 * (s.user_cost - s.market_real_rate_ss), 0, 100);
+
+  // The misery index, as docs/01 defines it. NOT what approval is driven off:
+  // Di Tella, MacCulloch & Oswald reject the 1:1 weighting, so approval uses
+  // APPROVAL_MISERY_WEIGHT and this is a display quantity only.
+  s.misery = Math.max(0, s.inflation) + s.unemployment;
+
   trace.record('consumer_confidence', {
     'where it was': before,
     'catching up with the actual economy': s.consumer_confidence - before,
   }, s.consumer_confidence, {
     orthogonal_residual: s.confidence_residual,
+    business_confidence: s.business_confidence,
     note: 'mostly an echo of the real numbers — treat as near-decoration',
   });
 }

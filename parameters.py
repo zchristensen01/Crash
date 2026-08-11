@@ -274,7 +274,22 @@ OKUN_LABOUR_HOARDING = P(
     "moderate", "post-Covid euro-area estimates; Japan structural",
     "[PASS2 NEW] Switch condition: a sharp output fall combined with "
     "short-time-work or job-retention policy support. Firms hold labour "
-    "through the trough and unemployment barely moves.")
+    "through the trough and unemployment barely moves. [AUDIT docs/07 L5, "
+    "L6] Coded as a HARD switch at output_gap < -2, which did two bad "
+    "things: stimulus that carried the gap across -2 doubled beta and RAISED "
+    "unemployment, and an equal-sized boom moved employment three times "
+    "further than a slump, inverting 'firms fire fast and hire slowly'. Now "
+    "a smooth ramp in |output_gap| over OKUN_HOARDING_GAP, symmetric, so the "
+    "asymmetry lives in HIRING_SPEED vs FIRING_SPEED where the evidence is.")
+
+OKUN_HOARDING_GAP = P(
+    4.0, 2.0, 6.0, "|output gap| at which beta reaches the full hoarding value",
+    "judgement", "Shape assumption, not an estimate",
+    "The hoarding regime is a description of a state, not a threshold, and "
+    "nothing in the literature dates its onset to a specific gap. Symmetric "
+    "in the gap: firms that hold staff through a trough also do not hire "
+    "hard in the recovery, and at very low unemployment the labour-supply "
+    "constraint flattens Okun again. TUNING DIAL.")
 
 # --- Phillips curve:  pi = E[pi] + KAPPA * output_gap + shocks ---
 # THE most important parameter in the model. It is not a constant.
@@ -291,6 +306,16 @@ PHILLIPS_KAPPA_UNANCHORED = P(
     "Once expectations unanchor the slope steepens sharply. KAPPA is a "
     "function of CREDIBILITY, not a constant. This single switch is the "
     "difference between a toy and a model that teaches something.")
+
+MAX_CAPACITY_OVERHEAT = P(
+    4.0, 2.0, 6.0, "% above potential that can physically be produced",
+    "judgement", "Peak-to-trough capacity utilisation swings of 4-6pp in "
+    "advanced economies (Fed G.17, euro-area survey series)",
+    "The hard ceiling in aggregate.js: demand above this cannot become "
+    "output and flows entirely into prices. [AUDIT docs/07 M2] It was a bare "
+    "4.0 in the rule, and it is the model's single sharpest nonlinearity — "
+    "the audit brief read its effect as a zero lower bound on the rate dial, "
+    "because low rates and a hot economy coincide. Named so it is visible.")
 
 # --- Taylor rule --- kept as an AUTOPILOT / comparison opponent only.
 # The player is the central bank; this is what a rule-follower would have done.
@@ -319,6 +344,37 @@ MPC_UNEMPLOYMENT_SLOPE = P(
 WEALTH_EFFECT = P(
     0.04, 0.03, 0.05, "cents of consumption per $1 of housing wealth",
     "moderate", "standard range", "Judgement on the exact value.")
+
+SUPPLY_SHOCK_INCOME_LOSS = P(
+    1.0, 0.7, 1.2, "pp of real disposable income lost per pp of cost-push inflation",
+    "strong", "Accounting: an unmatched price rise is a real income cut, "
+    "one-for-one. Terms-of-trade losses from the 1973 and 1979 oil shocks ran "
+    "2-4% of GDP in net-importing advanced economies",
+    "[AUDIT docs/07 L4 follow-on] docs/02 Self-correction 1 — the PRICE BRAKE: "
+    "'demand > capacity -> prices up -> real incomes down -> demand down'. It "
+    "was not in the model at all. supply_shock entered the Phillips curve and "
+    "nothing else, so an oil shock was purely inflationary and the stagflation "
+    "scenario boomed straight out of its own regime: unemployment fell from "
+    "8% to 4.5% in six months while inflation climbed. A cost-push shock "
+    "raises prices without raising anybody's income, which is a real income "
+    "cut by definition, and it is what makes a supply shock STAGflationary "
+    "rather than merely inflationary. Below 1.0 because wages recover part of "
+    "it through WAGE_PC_EXPECTED_INFL; not far below, because that recovery "
+    "is slow and partial.")
+
+ASSET_WEALTH_TO_GDP = P(
+    1.0, 0.5, 5.0, "years of output of paper wealth per 100 index points of asset_prices",
+    "judgement", "Scale convention for the model's asset index",
+    "[AUDIT docs/07 hygiene] WEALTH_EFFECT is cents per DOLLAR OF WEALTH and "
+    "consumption.js applied it straight to a difference in INDEX POINTS, so "
+    "the unit conversion was missing and the magnitude was right only by "
+    "coincidence. This supplies it explicitly. 1.0 means one index point of "
+    "overvaluation is 1% of a year's output of paper wealth — about a fifth "
+    "of true household net worth in an advanced economy, standing in for the "
+    "much lower propensity to spend UNREALISED paper gains than the realised "
+    "housing wealth WEALTH_EFFECT is estimated on. The high end of the range "
+    "is the literal net-worth reading; taking it would multiply the wealth "
+    "channel by five. Kept at 1.0 so this fix changes units, not behaviour.")
 
 HAND_TO_MOUTH_SHARE = P(
     0.30, 0.20, 0.40, "fraction of households with no buffer",
@@ -455,7 +511,19 @@ ZLB_RATE_EFFECTIVENESS = P(
     0.0, 0.0, 0.2, "fraction of normal effect at the lower bound",
     "strong", "2009-2015 experience",
     "SIGN/SIZE FLIP. Rate cuts do almost nothing. Fiscal takes over. This is "
-    "the whole reason QE exists.")
+    "the whole reason QE exists. [AUDIT docs/07 M2] Was unread: the rate "
+    "transmission had NO dependence on the level of the rate, and the "
+    "damping the audit brief attributed to a lower bound was the capacity "
+    "cap. Now applied in rules/investment.js:monetaryEasingScale.")
+
+ZLB_EFFECTIVE_BAND = P(
+    1.5, 1.0, 2.5, "pp above the ELB over which easing regains its full effect",
+    "judgement", "Shape assumption, not an estimate",
+    "ZLB_RATE_EFFECTIVENESS gives the endpoint (nothing works AT the bound) "
+    "and the literature is clear that policy is fully effective well away "
+    "from it, but nothing pins the shape in between. A linear ramp over "
+    "1.5pp puts half effect at roughly a zero policy rate, which matches the "
+    "2009-2015 experience. TUNING DIAL, not evidence.")
 
 
 # =====================================================================
@@ -501,6 +569,29 @@ ASSET_PRICE_FIRESALE = P(
     "takes ~1yr against ~5yr of inflation. THIS ONE-SIDED TERM IS WHAT MAKES "
     "THE CRASH ASYMMETRIC, and a symmetric model cannot teach a bubble. "
     "TUNING DIAL — keep it visibly labelled as such.")
+
+FIRESALE_TOTAL_CAPACITY = P(
+    40.0, 20.0, 60.0, "cumulative % fall in real asset prices that forced selling can deliver in one episode",
+    "judgement", "Peak-to-trough real falls of 35-55% in credit-financed "
+    "housing busts (Ireland, Spain, US 2006-11); Shleifer & Vishny 2011 on "
+    "the finite capacity of distressed sellers",
+    "[AUDIT docs/07 M4 follow-on] FORCED SELLING IS DONE BY SOMEONE, AND "
+    "THEY RUN OUT. ASSET_PRICE_FIRESALE is a monthly RATE keyed on leverage, "
+    "and leverage has asset prices in its denominator — so falling prices "
+    "raise leverage, which raises the rate, forever. That is the doom loop "
+    "and it is meant to be unbalanced, but an unbalanced loop still has to "
+    "END: uncapped, once the audit made the gate reachable at all, the asset "
+    "index ran to its floor with leverage at 36 and stayed there, which is "
+    "not a bust, it is annihilation. Distressed holders have a finite amount "
+    "to sell. This is that amount, spent down over an episode and refilled "
+    "slowly once leverage is back below the line.")
+
+FIRESALE_REFILL_MONTHS = P(
+    48.0, 24.0, 96.0, "months for distressed-selling capacity to rebuild once the constraint clears",
+    "judgement", "Post-crisis releveraging takes years (Jorda, Schularick & "
+    "Taylor credit cycles)",
+    "Slow, so a second bust inside a term hits an economy that has not "
+    "reloaded — which is the right shape for back-to-back crises.")
 
 ASSET_PRICE_EQUITY_WEIGHT = P(
     0.4, 0.3, 0.5, "weight on equities in the combined index; housing = 1 - w",
@@ -575,9 +666,27 @@ BANK_CAPITAL_DELEVER_TRIGGER = P(
     "cut lending rather than raise capital in a crisis — this is what arms "
     "the doom loop.")
 
+BANK_CAPITAL_MINIMUM = P(
+    10.5, 8.0, 13.0, "% capital ratio: the regulatory floor banks defend",
+    "strong", "Basel III: 8% total capital + 2.5% conservation buffer",
+    "[AUDIT docs/07 M5] BANK_CAPITAL_DELEVER_TRIGGER is stated as pp BELOW "
+    "the regulatory minimum, and the minimum itself was never given a value, "
+    "so the trigger could not be implemented and the doom loop had no "
+    "forced-selling engine.")
+
+BANK_DELEVER_STRENGTH = P(
+    3.0, 1.0, 6.0, "pp off annual credit growth per 1pp of capital shortfall",
+    "judgement", "Calibrated so a 2pp shortfall roughly halts credit growth",
+    "[AUDIT docs/07 M5] Banks below the buffer cut lending rather than raise "
+    "capital. No clean identification exists for the quantity response — the "
+    "BIS work is on loan RATES, which is BANK_CAPITAL_TO_LOAN_RATE. TUNING "
+    "DIAL, and it is the gain of the doom loop, so treat it as such.")
+
 BANK_CAPITAL_TO_LOAN_RATE = P(
     13.0, 10.0, 16.0, "bp on loan rates per 1pp of capital requirement",
-    "moderate", "BIS 2010 LEI")
+    "moderate", "BIS 2010 LEI",
+    "[AUDIT docs/07 M5] Was unread: credit.js used an invented 0.15 in its "
+    "place. Now the spread's bank-capital term, at value/100 pp per pp.")
 
 BANK_CAPITAL_TO_GDP = P(
     -10.0, -16.0, -9.0, "bp on the GDP level per 1pp of capital requirement",
@@ -613,7 +722,14 @@ FINANCIAL_ACCELERATOR_STRENGTH = P(
     "weak", "Christensen & Dib 2008",
     "Estimated models find amplification SIGNIFICANT for investment but "
     "'relatively minor' for total output. DO NOT code a large output "
-    "multiplier here — that's a common modelling error.")
+    "multiplier here — that's a common modelling error. [AUDIT docs/07 "
+    "section C] SUPERSEDED, and deliberately unread. investment.js carried "
+    "this as a second coefficient on (credit_spread - spread_ss) alongside "
+    "the spread's entry into user_cost, i.e. the same regressor twice, "
+    "adding 89% to the credit channel. In Bernanke-Gertler-Gilchrist the "
+    "external finance premium IS the spread, so it enters once, through "
+    "user_cost. Deleting the second term is the de-duplication; re-adding "
+    "any coefficient on the spread inside investment.js re-creates the bug.")
 
 CRISIS_OUTPUT_TROUGH = P(
     -9.0, -15.0, -6.0, "% peak-to-trough real GDP per capita fall in a financial-crisis recession",
@@ -643,7 +759,24 @@ RECAP_RECOVERY_MULTIPLIER = P(
     0.5, 0.3, 0.7, "fraction by which prompt recapitalisation shrinks the permanent scar",
     "weak", "DeLong & Summers 2012; Cerra, Fatas & Saxena JEL 2020",
     "[PASS2 NEW] Hysteresis logic: prompt policy reduces scarring. Magnitude "
-    "is judgement. TUNING DIAL.")
+    "is judgement. TUNING DIAL. [AUDIT docs/07 L7] Was dead: recap_promptness "
+    "was only ever set to 0 and nothing could raise it, so the decision this "
+    "parameter exists to create did not exist. See RECAP_FULL_RESPONSE.")
+
+RECAP_FULL_RESPONSE = P(
+    5.0, 3.0, 8.0, "pp of GDP of extra public spending in year one that counts as a full recapitalisation",
+    "moderate", "2008-09 public capital injections: US TARP ~5% of GDP, "
+    "Ireland ~40%, UK ~6%, euro-area median ~5%",
+    "[AUDIT docs/07 L7] Recapitalisation IS a fiscal operation, so the game "
+    "does not need a separate dial for it: extra government spending inside "
+    "RECAP_WINDOW after a crash is read as the recapitalisation response. "
+    "This is the amount that earns the full RECAP_RECOVERY_MULTIPLIER.")
+
+RECAP_WINDOW_MONTHS = P(
+    12.0, 6.0, 18.0, "months after a crash during which the scar is still being set",
+    "moderate", "Cerra, Fatas & Saxena JEL 2020: 'prompt' is about a year",
+    "[AUDIT docs/07 L7] The scar used to be fixed on the first tick of a "
+    "crisis, which left no window in which a response could matter.")
 
 # The three loops with no balancing counterpart. These generate crises.
 # A model with only balancing loops can never teach one.
@@ -779,10 +912,22 @@ AUTOSTAB_TAX_ELASTICITY = P(
     "countries between 2005 and 2015.")
 
 AUTOSTAB_BENEFIT_ELASTICITY = P(
-    -3.0, -5.0, -2.0, "elasticity of unemployment-benefit spending to the number unemployed",
+    3.0, 2.0, 5.0, "elasticity of unemployment-benefit spending to the number unemployed",
     "strong", "OECD ECO/WKP(2020)43; Girouard & Andre 2005",
     "[PASS2 NEW; low/high order corrected] The MOST TIMELY channel — it fires "
-    "immediately on job loss (~0.15 of the 0.60 total).")
+    "immediately on job loss (~0.15 of the 0.60 total). [AUDIT docs/07 "
+    "hygiene] SIGN CORRECTED, -3 -> +3. Benefit spending RISES when "
+    "unemployment rises, so the elasticity is positive; fiscal.js negated it "
+    "back, which is two compensating errors and hid the third — an invented "
+    "0.1 factor converting an elasticity into a level coefficient. That is "
+    "now UNEMPLOYMENT_BENEFIT_SHARE.")
+
+UNEMPLOYMENT_BENEFIT_SHARE = P(
+    1.0, 0.5, 1.5, "% of GDP spent on unemployment benefits at the natural rate",
+    "moderate", "OECD Social Expenditure Database, out-of-work income support",
+    "[AUDIT docs/07 hygiene] The base that AUTOSTAB_BENEFIT_ELASTICITY is an "
+    "elasticity OF. Without it the code multiplied an elasticity by an "
+    "invented 0.1 and produced roughly half the intended stabiliser.")
 
 AUTOSTAB_TAX_LAG = P(
     3.0, 1.0, 6.0, "months lag on the tax stabiliser",
@@ -932,6 +1077,15 @@ ENERGY_TO_CPI = P(
 
 # Retained but UNUSED in v1 — the model is closed-economy. See decision A5 in
 # docs/05-handoff.md. Wire these in only when the FX block is built.
+FOREIGN_DEMAND_SHOCK_HALFLIFE = P(
+    9.0, 6.0, 18.0, "months for an external demand shock to half-decay",
+    "moderate", "Trading-partner recessions run 3-5 quarters (NBER/CEPR "
+    "chronologies); export orders recover on a similar timescale",
+    "[AUDIT docs/07 M1] v1 is closed by decision A5, so net_exports is zero "
+    "at rest — but a trading partner falling into recession is still a real "
+    "external demand shock, and it is the honest home for the export-slump "
+    "event. It has to fade, or one event permanently reprices the economy.")
+
 ERPT_IMPORT_PRICES = P(
     0.50, 0.30, 0.60, "pass-through of the exchange rate to import prices",
     "moderate", "Campa & Goldberg; ECB",
@@ -1134,6 +1288,115 @@ UNKNOWNS = {
 CONFIDENCE_LEVELS = {"strong", "moderate", "weak", "contested", "judgement"}
 
 
+# =====================================================================
+# DELIBERATELY UNREAD PARAMETERS
+#
+# [AUDIT docs/07 F1] 46 of 108 parameters were never read by any rule, with
+# no way to tell "not built yet" from "quietly dropped on the floor". Every
+# such parameter must now be listed here with a reason, and
+# test/params.test.js enforces the register in BOTH directions:
+#
+#   - a parameter unread in src/ but missing from this list        -> FAIL
+#   - a parameter listed here but actually read by a rule          -> FAIL
+#
+# So wiring one up forces you to delete its entry, and dropping one forces
+# you to justify it. Categories, deliberately few:
+#
+#   validation target  a reduced form the assembled model is CHECKED against
+#                      (test/validation.test.js), never a model term. Using
+#                      it as a term alongside the structural block would
+#                      count the same channel twice — decision A3.
+#   consumed via START the value reaches the model through the START vector;
+#                      test/params.test.js asserts the two agree.
+#   deferred lever     a real mechanism the design has postponed. Named in
+#                      docs, no dial yet.
+#   superseded         the mechanism exists, carried by a different term.
+# =====================================================================
+
+DEFERRED = {
+    # --- validation targets (decision A3; checked in test/validation.test.js)
+    "FISCAL_MULT_EXPANSION": "validation target",
+    "FISCAL_MULT_NORMAL": "validation target",
+    "FISCAL_MULT_RECESSION": "validation target",
+    "TAX_MULT_ACCOMMODATIVE": "validation target",
+    "TAX_MULT_TIGHT": "validation target",
+    "TRANSFER_MULT_RECESSION": "validation target",
+    "TRANSFER_MULT_EXPANSION": "validation target",
+    "TAX_SHOCK_TO_GDP": "validation target",
+    "PERSONAL_TAX_RATE_TO_GDP": "validation target",
+    "RATE_TO_OUTPUT": "validation target",
+    "RATE_TO_INFLATION": "validation target",
+    "AUTO_STABILISER_ABSORPTION": "validation target",
+    "QE_TO_GDP":
+        "validation target — QE reaches the model through QE_TO_YIELD and the "
+        "portfolio-balance channel, not through a direct output coefficient",
+    "BANK_CAPITAL_TO_GDP": "validation target",
+    "CORPORATE_TAX_RATE_TO_GDP":
+        "validation target for a deferred lever — there is one tax dial, and "
+        "it is the personal rate. A corporate rate is the natural second one "
+        "because it moves investment rather than consumption.",
+    "GOVT_INVESTMENT_MULT_IMPACT": "validation target for a deferred lever",
+    "GOVT_INVESTMENT_MULT_MEDIUM": "validation target for a deferred lever",
+
+    # --- consumed via START
+    "SS_POTENTIAL_GROWTH": "consumed via START",
+    "SS_R_STAR": "consumed via START",
+    "SS_NAIRU": "consumed via START",
+    "SS_POLICY_RATE": "consumed via START",
+    "SS_TERM_PREMIUM": "consumed via START",
+    "SS_YIELD_10Y": "consumed via START",
+    "SS_CREDIT_GDP": "consumed via START",
+    "SS_LABOUR_SHARE": "consumed via START",
+    "SS_K_OVER_Y": "consumed via START",
+    "SS_DEPRECIATION": "consumed via START (DEPRECIATION_RATE is the law of motion)",
+
+    # --- deferred levers: real mechanisms, no dial yet
+    "GOVT_INVESTMENT_MULT_SPLIT_PLACEHOLDER": None,   # removed below; see cleanup
+    "MIN_WAGE_OWN_WAGE_ELASTICITY": "deferred lever: minimum wage",
+    "MIN_WAGE_BITE_THRESHOLD": "deferred lever: minimum wage",
+    "IMMIGRATION_WAGE_EFFECT": "deferred lever: immigration",
+    "IMMIGRATION_SUBSTITUTION_ELASTICITY": "deferred lever: immigration",
+    "TARIFF_PASSTHROUGH": "deferred lever: tariffs (also needs the open economy)",
+    "TARIFF_TO_GDP": "deferred lever: tariffs (also needs the open economy)",
+    "VAT_TO_CPI": "deferred lever: indirect tax",
+    "EDUCATION_RETURN": "deferred lever: education spending (20-year lag)",
+    "PUBLIC_RD_TO_PRODUCTIVITY": "deferred lever: public R&D (7-year lag)",
+    "HOUSING_SUPPLY_ELASTICITY": "deferred lever: housing supply",
+    "ERPT_IMPORT_PRICES": "deferred: open economy, decision A5",
+    "ERPT_CPI": "deferred: open economy, decision A5",
+
+    # --- superseded
+    "FINANCIAL_ACCELERATOR_STRENGTH":
+        "superseded — the external finance premium enters investment once, "
+        "through credit_spread in user_cost. See docs/07 section C.",
+
+    # --- open conflict, deliberately left unwired
+    "ENERGY_TO_CPI":
+        "CONFLICT, see CONFLICTS below — wiring it as stated would shrink the "
+        "oil shock tenfold, and which of the two numbers is wrong is a "
+        "research decision, not a wiring one.",
+}
+DEFERRED.pop("GOVT_INVESTMENT_MULT_SPLIT_PLACEHOLDER")
+
+
+# Parameters whose stated value disagrees with how the model behaves, where
+# resolving the disagreement needs research rather than wiring. Never a
+# licence to leave the disagreement unstated: it is surfaced in docs/07 and
+# test/validation.test.js asserts each entry is still unresolved.
+CONFLICTS = {
+    "ENERGY_TO_CPI":
+        "0.04pp of headline CPI per 10% energy rise makes the ~60% spike in "
+        "the oil-shock event worth 0.24pp. events.js has always used 2.4pp — "
+        "exactly 10x more. Energy is roughly 7% of an advanced-economy CPI "
+        "basket, so a 60% spike is several pp of direct headline effect, "
+        "which says 0.04 is a transcription error for 0.4. It is NOT "
+        "corrected here, because this project's standing rule is that a "
+        "parameter disagreement is a finding to surface rather than a number "
+        "to adjust to fit the model. The event keeps its 2.4pp and points at "
+        "this entry; resolving it needs a look at the source.",
+}
+
+
 def validate():
     """Check every P in this module. Returns a list of problem strings."""
     problems = []
@@ -1153,6 +1416,14 @@ def validate():
     for channel in KERNEL_SHAPE_K:
         if channel not in LAGS_MONTHS:
             problems.append(f"KERNEL_SHAPE_K['{channel}'] has no entry in LAGS_MONTHS")
+    for name in sorted(DEFERRED):
+        if not isinstance(globals().get(name), P):
+            problems.append(f"DEFERRED lists '{name}', which is not a parameter")
+        if not (DEFERRED[name] or "").strip():
+            problems.append(f"DEFERRED['{name}'] has no reason")
+    for name in sorted(CONFLICTS):
+        if not isinstance(globals().get(name), P):
+            problems.append(f"CONFLICTS lists '{name}', which is not a parameter")
     return problems
 
 

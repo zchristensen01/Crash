@@ -72,6 +72,23 @@ sustained cheap money
 there's slack creates jobs. The identical cut at full employment creates only
 inflation. Same action, opposite result. Everything hinges on `output_gap`.
 
+> **Correction from the audit pass (docs/07 F5, L2).** The `IF output_gap < 0 /
+> IF output_gap ≥ 0` above is the right lesson stated as the wrong mechanism,
+> and stating it as a binary is what stopped anyone noticing the model had it
+> backwards. What the model does — and what the evidence supports — is a
+> CONTINUOUS SHIFT IN THE SPLIT. The same cut buys 91% output and 9% prices at a
+> −3% gap, and 71/29 at potential. There is no switch at zero.
+>
+> There is exactly one hard switch, and it is at `MAX_CAPACITY_OVERHEAT` (+4%),
+> not at 0: demand above what can physically be produced cannot become output at
+> all, so it goes entirely to prices. That cliff is real and it is where "output
+> flat, prices ↑" actually lives.
+>
+> Read the two together and the lesson survives intact: stimulus into slack is
+> mostly jobs, stimulus into a hot economy is mostly prices, and stimulus into
+> an economy already at the ceiling is *only* prices. It is a dial, not a
+> switch, right up until the ceiling.
+
 ---
 
 ### The inflation slope is not one number
@@ -230,6 +247,20 @@ sometimes you should. The constraint isn't the money — it's real goods and
 labour. Printing when factories sit idle puts them to work. Printing when
 everyone's already employed just raises prices. The inflation is a tax; it
 falls hardest on savers and people on fixed incomes, and nobody voted for it.
+
+> **Correction from the audit pass (docs/07 L3).** "Puts them to work" only
+> means anything if the printed money BUYS something, and for the model's whole
+> life it did not: `money_printed` reduced the deficit and reached demand
+> nowhere else. Since reduced deficits crowd investment IN, and crowding out is
+> switched off by slack, the dial did nothing with idle factories and worked at
+> full employment — the exact inverse of this paragraph.
+>
+> Printing is now monetised SPENDING. It appears twice in the budget identity
+> and cancels, which is what "spends without taxing or borrowing" means: you get
+> the goods, the debt does not rise. The `credibility × slack` gate still
+> governs the direct pass-through to prices on top of that, and velocity
+> multiplies it once expected inflation clears the flight threshold — the ⟲ in
+> the chain above, which was computed and ignored.
 
 ---
 
@@ -444,3 +475,44 @@ Two things this table can't show that matter as much as the signs:
 
 The `~` cells are where the real learning is. Same lever, opposite outcome,
 depending only on whether there was slack.
+
+---
+
+## Corrections from the audit pass
+
+`docs/07` measured every chain above against the code. Six of them ran
+backwards. What changed in the model is in `docs/08`; what changed in THIS
+DOCUMENT is here, because a map that disagrees with the territory is worse than
+no map.
+
+1. **The slack conditional is a split, not a switch** (DIAL 1, and the `~` cells
+   in the matrix above). Corrected inline. The only true switch is the capacity
+   ceiling at +4%.
+2. **Printing is spending** (DIAL 5). Corrected inline.
+3. **Tax → assets does not exist, in either direction.** The matrix gives
+   `Tax ↓ → assets +` and `Tax ↑ → assets −`. Measured, both directions move
+   the index by less than 0.06 points on a base of 100 — numerical residue, not
+   a channel. Fiscal policy reaches asset prices only through inflation and the
+   real rate, and weakly. Treat the two cells as unmodelled rather than wrong.
+4. **"Months to PEAK effect" now means something again.** With the lag pipeline
+   discarded, every impulse response was monotone through 48 months and no
+   bracketed number in the matrix was reproducible. They are back, because the
+   transmitted drivers carry the kernels. Rate → assets is a separate, faster
+   chain (1 month) from rate → investment (9 months), as the doc says. Rate →
+   household borrowing is NOT separate: credit demand rides the same
+   transmitted rate as investment. An honest simplification, recorded here
+   rather than implied.
+5. **Asymmetry 2 is a speed, not a size.** "Unemployment rises faster than it
+   falls" was inverted 3:1 by a one-sided Okun switch. Okun's β is now
+   symmetric in the size of the gap and the asymmetry lives in the hiring and
+   firing speeds, which is where the evidence is.
+6. **Self-correction 1, the price brake, was never built** — and building it is
+   what makes a supply shock stagflationary rather than merely inflationary.
+   Self-correction 3, the automatic stabilisers, absorbed 15% of a shock against
+   the 60% stated here; they now absorb ~43%, inside the OECD/micro range, and
+   fire with the documented 3-month and 1-month lags.
+
+Still deferred, and now flagged as such in `parameters.py` rather than looking
+like oversights: the `govt_investment` / `govt_consumption` split (DIAL 4), the
+currency channel and everything else in the open economy (decision A5), and
+hysteresis in ordinary non-crisis recessions.

@@ -4,7 +4,7 @@
  * monetary policy is hard": overshooting a hike takes years to undo.
  */
 import { P } from '../params.js';
-import { clamp } from '../units.js';
+import { clamp, lerp } from '../units.js';
 
 /**
  *   target_u = u* - beta * output_gap                (Okun)
@@ -17,14 +17,34 @@ import { clamp } from '../units.js';
  * unemployment rises fast and falls slowly, and hiring_momentum makes
  * recoveries slower still — it has to rebuild before hiring accelerates.
  *
- * OKUN IS A SWITCH, NOT A CONSTANT. Beta flattens to ~0.20 under labour
- * hoarding (Japan structurally, euro area post-Covid): firms hold staff
- * through the trough and unemployment barely moves. A model with a fixed beta
- * would have been badly wrong about 2020-22.
+ * OKUN IS A RAMP, NOT A CONSTANT AND NOT A SWITCH. Beta flattens toward ~0.20
+ * under labour hoarding (Japan structurally, euro area post-Covid): firms hold
+ * staff through the trough and unemployment barely moves. A model with a fixed
+ * beta would have been badly wrong about 2020-22.
+ *
+ * IT IS SYMMETRIC IN |output_gap|, AND THAT IS THE FIX FOR TWO FINDINGS.
+ * Coded as a hard switch at gap < -2 it did two bad things (docs/07 L5, L6):
+ *
+ *  - Stimulus that carried the gap up across -2 doubled beta and RAISED the
+ *    Okun target, so +1pp of government spending increased unemployment for
+ *    every starting gap between -3.0 and -2.2. That band is the ordinary
+ *    recession the player spends most of the game in.
+ *  - A -3pp demand shock got beta 0.20 and a +3pp shock got 0.45, so an equal
+ *    boom moved employment three times further than a slump — inverting
+ *    "firms fire in weeks and hire over quarters", which doc 02 calls most of
+ *    why monetary policy is hard.
+ *
+ * Symmetric is also the better reading of the mechanism: firms that hold
+ * staff through a trough do not need to hire hard in the recovery either, and
+ * at very low unemployment the labour-supply constraint flattens Okun again.
+ * With beta symmetric, the asymmetry lives entirely in FIRING_SPEED vs
+ * HIRING_SPEED, which is where Davis & Haltiwanger's evidence actually is.
  */
 export function updateEmployment(s, trace) {
-  const hoarding = s.output_gap < -2.0 && s.labour_hoarding_policy !== false;
-  const beta = hoarding ? P.OKUN_LABOUR_HOARDING.value : P.OKUN_BETA.value;
+  const stretch = s.labour_hoarding_policy === false ? 0
+    : clamp(Math.abs(s.output_gap) / P.OKUN_HOARDING_GAP.value, 0, 1);
+  const beta = lerp(P.OKUN_BETA.value, P.OKUN_LABOUR_HOARDING.value, stretch);
+  const hoarding = stretch > 0.5;
   s.okun_beta_effective = beta;
 
   const target = Math.max(1.5, s.natural_unemployment - beta * s.output_gap);

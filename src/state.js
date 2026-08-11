@@ -25,9 +25,31 @@ export function newState(overrides = {}) {
   s.govt_purchases = s.govt_spending;
   s.investment = s.investment_share;
   s.net_exports = 0;                       // v1 is closed — decision A5
+  s.crisis_drag = 0;
+  s.money_printed = s.money_printed ?? 0;
+  s.qe = s.qe ?? 0;
 
   s.tax_revenue = s.tax_rate;
-  s.disposable_income = 100 - s.tax_revenue + s.transfers;
+  // Household MARKET income is what the economy actually produced, not its
+  // capacity. Writing the constant 100 here was one line, and it removed the
+  // income-expenditure multiplier, left the automatic stabilisers with no
+  // shock to absorb, made the austerity paradox algebraically impossible and
+  // made households RICHER in a slump (docs/07 L4). At the steady state
+  // output = potential, so this is still 100 and the steady state is unmoved.
+  s.market_income = 100 * s.output / s.potential_output;
+  // The price brake: a cost-push shock is a real income cut. docs/02
+  // Self-correction 1, and it was missing entirely.
+  s.supply_cost = P.SUPPLY_SHOCK_INCOME_LOSS.value * Math.max(0, s.supply_shock);
+  s.disposable_income = s.market_income - s.tax_revenue + s.transfers - s.supply_cost;
+  // The CYCLICALLY-ADJUSTED PRIMARY deficit: what would be borrowed at
+  // potential, before interest. This is what crowding out reads, so it needs
+  // its own steady-state anchor — comparing it against the headline
+  // deficit_ss leaves a permanent 3.25pp wedge (the interest bill) and the
+  // model crowds investment IN forever, at rest.
+  s.structural_deficit = s.deficit - s.govt_debt * s.yield_10y / 100;
+  s.structural_deficit_felt = s.structural_deficit;
+  s.autostab_tax = 0;                      // lagged stabiliser legs
+  s.autostab_benefit = 0;
 
   // The average propensity to consume is a BEHAVIOURAL CONSTANT derived from
   // the CANONICAL baseline — never from the overridden state. Solving it per
@@ -50,13 +72,13 @@ export function newState(overrides = {}) {
   s.labour_productivity = s.output / s.employment;
   s.productivity_growth = s.potential_growth;   // resolved in supply.js
 
-  // Prices and money
+  // Prices. price_level is the cost of living relative to the month you took
+  // office — a display quantity, asserted against cumulative inflation in
+  // invariants.js. wage_level and money_supply used to sit here too and were
+  // read by nothing at all; see docs/07 M3.
   s.price_level = 100;
-  s.wage_level = 100;
-  s.money_supply = 100;
   s.monetisation_passthrough = 0;
   s.kappa_effective = P.PHILLIPS_KAPPA_ANCHORED.value;
-  s.money_printed = s.money_printed ?? 0;
 
   // Credit and assets. asset_prices is a REAL index — constant in steady
   // state, so leverage and the fire-sale gate are stationary.
@@ -64,36 +86,75 @@ export function newState(overrides = {}) {
   s.credit_trend = s.private_credit_gdp;
   s.asset_fundamental = s.asset_prices;
   s.default_rate = 1.0;
+  s.loan_losses = 0;                       // set by updateDefaults
+  s.credit_impulse = 0;
+  s.write_offs = 0;
+  s.fire_sale_spent = 0;
   s.crisis_prob = 0;
   s.crisis_active = false;
+  s.crisis_months = 0;
+  s.recap_promptness = 0;
+  s.transitory_shock = 0;
+  // Set when a crash lands, and declared here so a SCENARIO can start
+  // mid-crisis without crisis.js reading undefined.
+  s.potential_at_crisis = s.potential_output;
+  s.crisis_spending_baseline = s.govt_spending + s.money_printed;
   s.scar = 0;
 
-  // Sentiment
+  // Sentiment. business_confidence and misery are listed as derived in
+  // docs/01 and nothing computed them; sentiment.js does now.
   s.confidence_residual = 0;
+  s.business_confidence = 60;
+  s.misery = s.inflation + s.unemployment;
   s.approval_base = s.approval;
   s.hiring_momentum = 0;
+
+  // Banks. The floor they defend is BANK_CAPITAL_MINIMUM; the ratio they
+  // REBUILD toward is the canonical healthy level, like apc_ss and for the
+  // same reason. Taking it from the scenario's own start would mean a
+  // scenario that begins with a damaged banking system has redefined
+  // "healthy" to mean "damaged", so the spread would price no stress and
+  // retained earnings would have nothing to rebuild.
+  s.bank_capital_ss = START.bank_capital_ratio;
+  s.bank_capital_shortfall = 0;
 
   // Steady-state anchors. Rules compare against these, never against raw
   // levels — a risk premium on the debt LEVEL would add 3pp to the yield at
   // the steady state and nothing would balance.
   s.inflation_target = P.SS_INFLATION_TARGET.value;
-  s.policy_rate_ss = s.policy_rate;
+  // NEUTRAL IS r* + TARGET. It is NOT wherever this scenario happens to start.
+  // Taking it from s.policy_rate meant a scenario opening at a 10% rate
+  // against 7% expected inflation declared its own stance neutral and then
+  // computed a real user cost 5pp BELOW it — so the tightest starting policy
+  // in the set read as a large monetary easing, and the stagflation scenario
+  // boomed out of its own regime inside a month. Every anchor below that
+  // mixes a rate with inflation_target has to be built the same way.
+  s.policy_rate_ss = s.neutral_real_rate + s.inflation_target;
   s.credit_spread_ss = s.credit_spread;
   s.tax_rate_ss = s.tax_rate;
   s.deficit_ss = s.deficit;
+  s.structural_deficit_ss = s.structural_deficit;
   s.transfers_base = s.transfers;
   // Leverage is a NORMALISED ratio, 1.0 at the steady state: how much
   // borrowing has run up relative to what backs it. Using raw
   // credit(%GDP)/asset(index) gives 1.5 at the steady state and the
   // fire-sale gate fires on tick 1.
-  s.credit_ss = START.private_credit_gdp;   // canonical, like apc_ss
+  // Both anchors are the SCENARIO's own starting values, so leverage is 1.0
+  // in every scenario and the 1.35 gate means the same thing in all of them.
+  // Anchoring the numerator on the canonical START while the denominator
+  // moved with the scenario put the bubble at leverage 0.75 — 45% of the way
+  // to the gate BELOW where it starts — and made forced selling unreachable
+  // in all six scenarios over a full term (docs/07 M4).
+  s.credit_ss = s.private_credit;
+  s.asset_prices_ss = s.asset_prices;
   s.leverage = 1.0;
   s.leverage_ss = 1.0;
   s.leverage_max = 1.35;                   // fire-sale gate: 35% above normal
   // The MARKET real rate, which includes the spread, has its own baseline.
   // Comparing it to r* (a policy-rate concept) leaves a permanent 1.5pp wedge
-  // and credit shrinks forever.
-  s.market_real_rate_ss = s.policy_rate + s.credit_spread - s.inflation_target;
+  // and credit shrinks forever. Built from NEUTRAL, for the same reason as
+  // policy_rate_ss above.
+  s.market_real_rate_ss = s.neutral_real_rate + s.credit_spread_ss;
   s.dsr_ss = s.private_credit_gdp * (s.policy_rate + s.credit_spread) / 100;
   // Normal-times loan losses. Banks earn interest and retain profits, so only
   // losses ABOVE this baseline eat capital. Without the baseline, capital
@@ -102,8 +163,34 @@ export function newState(overrides = {}) {
   s.credit_growth_annual = s.potential_growth + s.inflation;
   s.ulc_growth = s.inflation_target;
   s.spiral_active = false;
-  s.crisis_drag = 0;
   s.velocity_v0 = P.VELOCITY_INTEREST_SEMIELAST.value * Math.log(1 + s.policy_rate / 100);
+
+  // POLICY TRANSMISSION. The dial is what you SET; these are what the economy
+  // has actually FELT so far. applyDialChange schedules the difference into
+  // the lag pipeline on the channel's kernel, and the engine walks these
+  // toward the dial. No rule may assign to them — test/lags.test.js checks
+  // that, because the whole pipeline used to be overwritten by the rules
+  // before it could act (docs/07 L1).
+  s.policy_rate_demand = s.policy_rate;    // rate_to_investment, peaks 9m
+  s.policy_rate_markets = s.policy_rate;   // rate_to_asset_prices, peaks 1m
+  s.tax_rate_effective = s.tax_rate;       // tax_to_consumption, peaks 3m
+  s.qe_stock = s.qe;                       // qe_to_yield, peaks 2m
+
+  // Written by a rule but read before their producer runs, or read by the UI.
+  // Declared here because `undefined` in arithmetic is NaN that propagates
+  // silently until an invariant catches it several rules later — and one of
+  // these (interest_cost, read by updateBondYield two rules before
+  // updateBudget writes it) was live: it survived only because NaN > 0.25 is
+  // false. See docs/07 M11.
+  s.mpc_effective = P.MPC_BASE.value;
+  s.market_rate = s.policy_rate + s.credit_spread;
+  s.user_cost = s.market_rate - s.expected_inflation + P.DEPRECIATION_RATE.value * 100;
+  s.okun_beta_effective = P.OKUN_BETA.value;
+  s.risk_premium = 0;
+  s.interest_cost = s.govt_debt * s.yield_10y / 100;
+  s.qe_rate_relief = 0;
+  s.fired_event = null;
+  s.ending_counters = {};
 
   // Histories for charts and YoY
   s.history = { output: [], growth: [], inflation: [], unemployment: [],
@@ -126,7 +213,10 @@ export function pushHistory(s) {
   h.approval.push(s.approval);
   h.credit_gap.push(s.credit_to_gdp_gap);
   h.output_gap.push(s.output_gap);
-  h.real_income.push(s.disposable_income * s.output / 100);
+  // disposable_income is already a % of potential and already carries the
+  // output move (market income tracks output). Multiplying by output again
+  // would count the cycle twice; the level conversion is potential_output.
+  h.real_income.push(s.disposable_income * s.potential_output / 100);
   h.govt_debt.push(s.govt_debt);
   h.credibility.push(s.credibility);
   h.growth.push(yoyGrowth(h.output));

@@ -2,7 +2,6 @@
  * WAGES  [research 1.6]
  */
 import { P } from '../params.js';
-import { annualRateToMonthlyLinear } from '../units.js';
 
 /**
  *   desired = expected_inflation + slope(u)*(u* - u) + productivity_growth
@@ -39,7 +38,6 @@ export function updateWages(s, trace) {
   const rigidity = actual - desired;
 
   s.wage_growth = actual;
-  s.wage_level *= 1 + annualRateToMonthlyLinear(actual / 100);
 
   // Unit labour cost growth is what actually pressures prices.
   s.ulc_growth = actual - s.productivity_growth;

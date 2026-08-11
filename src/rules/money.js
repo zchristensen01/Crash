@@ -1,26 +1,27 @@
 /**
- * MONEY, VELOCITY, MONETISATION  [A6, research 2.1-2.2]
+ * VELOCITY AND MONETISATION  [A6, research 2.1-2.2]
  *
  * The honest answer to "why can't we just print money": you can, and
  * sometimes you should. The constraint isn't the money — it's real goods and
  * labour. Printing when factories sit idle puts them to work. Printing when
  * everyone's employed just raises prices. The inflation is a tax, it falls
  * hardest on savers and people on fixed incomes, and nobody voted for it.
+ *
+ * The SPENDING half of printing lives in aggregate.js, where the printed
+ * money buys things and the slack ceiling decides whether that becomes output
+ * or prices. What lives here is the second, faster channel: the direct
+ * pass-through to inflation that opens when nobody believes the target any
+ * more.
+ *
+ * updateMoneySupply used to sit at the top of this file. money_supply was
+ * written every tick and read by nothing, and neither was velocity: setting
+ * both to absurd values changed no other variable in 60 ticks, and M*V never
+ * equalled P*Y (docs/07 M3). money_supply is gone; velocity earned its place
+ * back by being wired into the pass-through below, which is the loop doc 02
+ * describes and the model did not have.
  */
 import { P } from '../params.js';
-import { clamp, annualRateToMonthlyLinear, annualToMonthlyFlow } from '../units.js';
-
-export function updateMoneySupply(s, trace) {
-  const nominalGrowth = s.potential_growth + s.inflation;
-  const organic = s.money_supply * annualRateToMonthlyLinear(nominalGrowth / 100);
-  const printed = annualToMonthlyFlow(s.money_printed);
-
-  trace.record('money_supply', {
-    'growing with the economy': organic,
-    'printed by the government': printed,
-  }, organic + printed);
-  s.money_supply += organic + printed;
-}
+import { clamp } from '../units.js';
 
 /**
  *   log V = v0 + semi_elasticity*log(1+i) + flight
@@ -62,7 +63,7 @@ export function updateVelocity(s, trace) {
 /**
  * THE HIGHEST-PRIORITY FIX IN THE MODEL.
  *
- *   passthrough = credibility_factor * slack_factor      SMOOTH, not a threshold
+ *   passthrough = credibility_factor * slack_factor * velocity   SMOOTH
  *   credibility_factor = clip((0.5 - credibility)/0.5, 0, 1)
  *   slack_factor       = clip(1 - slack/SLACK_GATE, 0, 1)
  *
@@ -73,8 +74,13 @@ export function updateVelocity(s, trace) {
  * that lesson entirely — a player who ran the obvious experiment learned the
  * opposite of the truth. That was defect 2.
  *
- * Printing also raises money supply without raising debt, which is why it
- * looks free, and erodes credibility, which is why it isn't.
+ * Printing also erodes credibility, which is the slow fuse: keep printing and
+ * you eventually open the gate you were relying on being shut.
+ *
+ * The velocity multiplier is 1.0 in every ordinary state, because velocity is
+ * pinned at 1 until expected inflation clears VELOCITY_FLIGHT_THRESHOLD. Past
+ * it, flight from money multiplies the pass-through — the ⟲ in doc 02's DIAL
+ * 5, which the model computed and then ignored (docs/07 M3).
  */
 export function updateMonetisation(s, trace) {
   const gate = P.MONETISATION_CREDIBILITY_GATE.value;
@@ -83,7 +89,8 @@ export function updateMonetisation(s, trace) {
   const slack = Math.max(0, -s.output_gap);
   const slackFactor = clamp(1 - slack / P.MONETISATION_SLACK_GATE.value, 0, 1);
 
-  const passthrough = credFactor * slackFactor;
+  const flight = clamp(s.velocity, 1, 4);
+  const passthrough = credFactor * slackFactor * flight;
   s.monetisation_passthrough = s.money_printed * passthrough;
 
   // Printing erodes credibility directly, in proportion to how much you do.
@@ -91,14 +98,17 @@ export function updateMonetisation(s, trace) {
     s.credibility = Math.max(0, s.credibility - 0.0015 * s.money_printed);
   }
 
+  const gated = s.money_printed * credFactor * slackFactor;
   trace.record('money printing -> inflation', {
     'money printed (% of GDP)': s.money_printed,
     'suppressed by idle capacity': -s.money_printed * (1 - slackFactor),
     'suppressed by a credible central bank': -s.money_printed * slackFactor * (1 - credFactor),
+    'FLIGHT FROM MONEY — velocity multiplying it': gated * (flight - 1),
   }, s.monetisation_passthrough, {
     passthrough,
     credibility_factor: credFactor,
     slack_factor: slackFactor,
+    velocity_multiplier: flight,
     note: passthrough < 0.1
       ? 'idle factories and a trusted central bank are absorbing this'
       : 'no slack and nobody believes the target — this goes straight to prices',

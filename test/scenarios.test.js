@@ -6,7 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SCENARIOS } from '../src/game/scenarios.js';
-import { newState } from '../src/state.js';
+import { newState, regime } from '../src/state.js';
+import { P } from '../src/params.js';
 import { run } from '../src/engine.js';
 import { applyAutopilot } from '../src/game/autopilot.js';
 
@@ -36,15 +37,67 @@ test('the bubble hides for four years — the design promise', () => {
   // early, the player hikes, and the thing it was built to teach never
   // happens. Every visible number must stay healthy while the credit gap
   // crosses the BIS danger line.
+  //
+  // INFLATION IS IN THIS LIST NOW. It was not, and the previous scenario
+  // crossed 3% by month three and reached 4.7% by year four — the most
+  // visible gauge on the screen shouting while the test called it hidden
+  // (docs/07 M6). An unasserted promise is not a promise.
   const s = newState(SCENARIOS.bubble.overrides);
   for (let year = 1; year <= 4; year++) {
     run(s, 12, { assertEveryTick: false });
+    assert.ok(s.inflation < 3, `year ${year}: inflation ${s.inflation.toFixed(1)}% is visibly bad`);
     assert.ok(s.unemployment < 6, `year ${year}: unemployment ${s.unemployment.toFixed(1)} is visibly bad`);
     assert.ok(s.approval > 55, `year ${year}: approval ${s.approval.toFixed(0)} is visibly bad`);
+    assert.ok(regime(s) === 'GOLDILOCKS',
+      `year ${year}: the regime box reads ${regime(s)}, which tells the player ` +
+      `to act on something other than the credit gap`);
   }
   assert.ok(s.credit_to_gdp_gap > 9,
     `after 4 years the credit gap is only ${s.credit_to_gdp_gap.toFixed(1)}pp — ` +
     `it must cross the 9pp BIS line while everything else looks fine`);
+});
+
+test('every scenario starts in, and stays a quarter in, its advertised regime', () => {
+  // "A regime also has to be DRIVEN, not asserted" — scenarios.js says it and
+  // nothing enforced it. The recession scenario asserted unemployment 9% with
+  // a stimulative rate and no demand shortfall, so its output gap was
+  // POSITIVE from month one and unemployment was under 5% by month six. Its
+  // trap — that the rate dial is already dead — was never tested (docs/07 M6).
+  const expected = {
+    calm: 'GOLDILOCKS',
+    overheating: 'OVERHEATING',
+    recession: 'RECESSION',
+    stagflation: 'STAGFLATION',
+    debt_trap: 'GOLDILOCKS',        // the debt is the problem, not the cycle
+    bubble: 'GOLDILOCKS',           // by design: nothing visible is wrong
+  };
+  // A QUARTER, not a year, and that is the honest window. A scenario is a
+  // starting POSITION; where it goes is the game. Stagflation in particular
+  // cannot hold its box for a year, because holding it would require the
+  // model to be stable at 9% inflation with a passive central bank — and the
+  // Taylor principle says it must not be. What has to be true is that the
+  // player arrives in the regime the scenario advertises and gets long enough
+  // to read the board.
+  for (const [key, sc] of Object.entries(SCENARIOS)) {
+    const s = newState(sc.overrides);
+    assert.equal(regime(s), expected[key], `${key} does not even START in its regime`);
+    run(s, 3, { assertEveryTick: false, events: false });
+    assert.equal(regime(s), expected[key],
+      `${key} drifted out of ${expected[key]} within a quarter with no player ` +
+      `input: gap ${s.output_gap.toFixed(1)}, inflation ${s.inflation.toFixed(1)}, ` +
+      `unemployment ${s.unemployment.toFixed(1)}`);
+  }
+});
+
+test('the recession scenario has the rate dial genuinely dead', () => {
+  // Its stated trap. Worth asserting, because the previous version had 2pp of
+  // room and an economy that recovered on its own inside six months.
+  const s = newState(SCENARIOS.recession.overrides);
+  run(s, 12, { assertEveryTick: false, events: false });
+  assert.ok(s.output_gap < -3, `the gap is ${s.output_gap.toFixed(1)} after a year`);
+  assert.ok(s.policy_rate - P.SS_ELB.value < 1.0,
+    `there is still ${(s.policy_rate - P.SS_ELB.value).toFixed(2)}pp of room on the ` +
+    `rate dial — the scenario's whole trap is that there is not`);
 });
 
 test('no scenario produces absurd numbers inside a term', () => {

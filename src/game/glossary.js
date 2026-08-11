@@ -39,9 +39,14 @@ export const GLOSSARY = {
   'Spend': 'How much the government spends. The FASTEST lever you have — it ' +
     'adds demand almost immediately, which is why it is the crisis tool. ' +
     'Paid for by tax, by borrowing, or by printing.',
-  'Print': 'Create money instead of borrowing it. Free money, no debt. Try it ' +
-    'and watch WHEN it causes trouble — it depends entirely on whether there ' +
-    'is spare capacity in the economy.',
+  'Print': 'Spend money you created instead of money you borrowed or taxed. ' +
+    'It really does buy things and it really does not add to the debt. Try ' +
+    'it and watch WHEN it causes trouble — it depends entirely on whether ' +
+    'there are spare workers and factories for the extra spending to use.',
+  'QE': 'The central bank buys government bonds with money it creates. This ' +
+    'does not spend anything on anything — it pushes down the interest rate ' +
+    'on long-term borrowing. It matters because when the main interest rate ' +
+    'has already gone as low as it can go, this still works.',
 
   // --- regimes ---
   'GOLDILOCKS': 'Low inflation, low unemployment. Nothing is wrong. The ' +

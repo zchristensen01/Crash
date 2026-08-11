@@ -16,6 +16,7 @@
  */
 import { P } from '../params.js';
 import { clamp } from '../units.js';
+import { applyDialChange } from './dials.js';
 
 /**
  *   i* = r* + pi + A*(pi - target) + B*gap,  smoothed, floored at the ELB
@@ -34,7 +35,14 @@ export function taylorRate(s) {
   return clamp(smoothed, P.SS_ELB.value, 25);
 }
 
-/** Apply the rule in place. Pass as `opts.autopilot` to engine.run(). */
-export function applyAutopilot(s) {
-  s.policy_rate = taylorRate(s);
+/**
+ * Apply the rule in place. Pass as `opts.autopilot` to engine.run().
+ *
+ * It goes through applyDialChange for the same reason the player does: that
+ * is where the transmission lag is scheduled. Assigning s.policy_rate
+ * directly moves the setting and nothing else, so a benchmark built that way
+ * would be a central bank whose decisions never reach the economy.
+ */
+export function applyAutopilot(s, pipeline) {
+  applyDialChange(s, pipeline, 'policy_rate', taylorRate(s));
 }
