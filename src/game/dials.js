@@ -120,6 +120,22 @@ export function applyDialChange(s, pipeline, key, newValue) {
 
   const old = s[key];
   s[key] = Math.max(dial.min, Math.min(dial.max, newValue));
+
+  // TRUNCATION IS REPORTED. It used to happen in total silence, which is how
+  // the Taylor autopilot came to ask for up to 25% against a dial that stops
+  // at 20% and nobody noticed for three audits (4th audit brief A2). A
+  // saturated instrument reads exactly like a converged one on every summary
+  // statistic, so the only defence is to say so at the moment it happens.
+  //
+  // The COUNT is the load-bearing half. A single truncation is a player
+  // pushing a slider into its stop, which is fine and needs no alarm; a run
+  // that ends with 87 of them is a benchmark that spent 91% of the game
+  // against its own ceiling, and no other number in the run says so.
+  if (Math.abs(s[key] - newValue) > 1e-9) {
+    s.dial_truncated = { key, requested: newValue, applied: s[key], at: s.tick };
+    s.dial_truncated_count += 1;
+  }
+
   const delta = s[key] - old;
   if (delta === 0) return;
 

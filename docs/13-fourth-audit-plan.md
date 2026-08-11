@@ -280,9 +280,50 @@ than the other, in either direction) and defer the choice of the final number to
 > Pinning them to each other rather than to a number is what lets **2.4 move the
 > ceiling by editing `dials.js` alone.**
 
-**1.3 — A trace/telemetry assertion that a dial request was truncated.**
+**1.3 — A trace/telemetry assertion that a dial request was truncated. — DONE**
 Nothing anywhere reports it today. Cheap, and it is what would have surfaced 1.2
 without an audit.
+
+> #### As built — `s.dial_truncated`, `s.dial_truncated_count`, a trace note, 2 tests.
+>
+> **THIS TASK OVERTURNED PART OF 1.2, AND THE WAY IT DID IS THE FINDING.**
+>
+> 1.2's obvious repair — have `taylorRate` clamp to the dial's *own* bounds read
+> from `DIALS`, one source of truth — is **wrong**, and 1.3 is what proved it.
+> With that clamp in place `applyDialChange` receives a value that is already in
+> range, so it never truncates, so the telemetry never fires: **the truncation
+> count went to 0 in all six scenarios while the saturation was completely
+> unchanged.** Deduplicating the bound moved the defect somewhere even less
+> visible than where it started.
+>
+> So the bounds are now enforced in exactly **one** place. `taylorRate` returns
+> an **unbounded request**; `applyDialChange` applies the dial's range and
+> reports what it refused. All three arrangements — `25`, the dial's max, no
+> clamp — produce an **identical path** (0.00e+0 across all six scenarios over
+> 96 months). Only the third says anything.
+>
+> **What that made visible, none of which anything in the project reported:**
+>
+> | scenario | months of 96 the Taylor rule was refused its own request |
+> |---|---|
+> | `stagflation` | **87** — the ceiling |
+> | `recession` | **30** — the effective lower bound |
+> | the other four | 0 |
+>
+> `recession`'s 30 is a second finding the brief does not have. The scenario
+> opens with the rate on the floor and a large negative gap, so the rule asks to
+> go *below* the ELB and cannot. **The ELB binding for 30 months is one of the
+> lessons the game exists to teach** — `dials.js` says so in the rate dial's own
+> help text — and it was as silent as the ceiling. Both are now asserted.
+>
+> The trace note carries the requested path, which was previously unobtainable:
+> `stagflation` asks for 20.93% at m10, 23.34% by m17.
+>
+> **A note on the record:** the `dial_truncated` record is per-month and cleared
+> by the tick, not by the next accepted move, so a player who pushes the rate
+> into its stop and then adjusts spending is still told about the rate. Only the
+> most recent truncation in a month is kept; the count keeps all of them.
+> Surfacing it on screen is Phase 8.5's job, not this one.
 
 **1.4 — Delete the asserted defeat in `autopilot.js:14`.**
 *"It still loses the stagflation scenario, because no rule handles a supply

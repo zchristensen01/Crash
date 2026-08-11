@@ -47,8 +47,16 @@ export function tick(s, trace, pipeline, rng, opts = {}) {
   // starting above target diverges — correctly (see game/autopilot.js).
   // It is handed the pipeline because a rule-following central bank faces
   // exactly the same transmission lags the player does.
+  // Cleared BEFORE policy runs, so what survives the month is either this
+  // month's autopilot truncation or the player's move since the last tick.
+  s.dial_truncated = null;
   if (opts.autopilot) opts.autopilot(s, pipeline);
   if (opts.chaos) chaosPolicy(s, pipeline, rng);
+  if (s.dial_truncated) {
+    const t = s.dial_truncated;
+    trace.note(`${t.key} request truncated by the dial's own bound`,
+      { requested: t.requested, applied: t.applied, times_so_far: s.dial_truncated_count });
+  }
 
   // Shocks. Probabilities are ANNUAL in the data and converted here, once.
   s.fired_event = null;

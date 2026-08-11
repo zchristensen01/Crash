@@ -15,36 +15,39 @@
  *      scenario, because no rule handles a supply shock well.
  */
 import { P } from '../params.js';
-import { clamp } from '../units.js';
-import { DIALS, applyDialChange } from './dials.js';
+import { applyDialChange } from './dials.js';
 
 /**
- * THE RATE DIAL IS THE ONLY SOURCE OF ITS OWN BOUNDS.
- *
- * This used to be a bare `25` while dials.js said `max: 20`, and
- * applyDialChange truncated the difference in silence: the rule asked for up
- * to 25% and could never get more than 20%, and nothing anywhere reported it
- * (4th audit brief A2). Measured, the two clamps are behaviour-identical —
- * max path difference 0.00e+0 across all six scenarios over 96 months —
- * because the smoothing term reads back s.policy_rate, which applyDialChange
- * has already truncated, so the higher internal ceiling can never persist for
- * even one month. It was a lie the code told about itself rather than a live
- * defect, which is exactly why it survived: nothing it did could be measured.
- *
- * THE NUMBER ITSELF IS STILL WRONG and is deliberately not fixed here. The
- * binding constraint is `max_expected_inflation + a positive real rate`, and
- * that requirement moves sharply once the transmission lag is split (Phase
- * 2.1). Choosing it now would be guessing; it is derived in Phase 2.4.
- * Measured today, `stagflation` under this rule sits pegged at the ceiling for
- * 87 of its 96 months.
- */
-const RATE_DIAL = DIALS.find((d) => d.key === 'policy_rate');
-
-/**
- *   i* = r* + pi + A*(pi - target) + B*gap,  smoothed, floored at the ELB
+ *   i* = r* + pi + A*(pi - target) + B*gap,  smoothed
  *
  * Total response to inflation is 1 + A = 1.5, which is what puts it above the
  * unity threshold the Taylor principle requires.
+ *
+ * THIS RETURNS A REQUEST, NOT A SETTING, AND IT IS DELIBERATELY UNBOUNDED.
+ *
+ * It used to end `clamp(smoothed, P.SS_ELB.value, 25)` while dials.js said
+ * `max: 20`, so the rule asked for up to 25% and could never get more than
+ * 20% — and applyDialChange truncated the difference in silence (4th audit
+ * brief A2). The obvious repair is to clamp here to the dial's own bounds
+ * instead of a second copy of them. That is wrong, and measurably so: it
+ * makes the rule's own ceiling absorb the truncation, so the dial never sees
+ * it and the telemetry that exists to report it never fires. The saturation
+ * does not go away, it just stops being visible from anywhere.
+ *
+ * So the bounds are enforced in exactly ONE place — applyDialChange, which is
+ * where every dial move goes and where the truncation is reported. All three
+ * arrangements produce an identical path (max difference 0.00e+0 across all
+ * six scenarios over 96 months), because the smoothing term reads back
+ * s.policy_rate, which the dial has already truncated. Only this one says so
+ * out loud. Measured, the rule is refused its own request in 87 of
+ * `stagflation`'s 96 months and 30 of `recession`'s — the ceiling in one
+ * direction and the effective lower bound in the other, and nothing in the
+ * project reported either before.
+ *
+ * THE CEILING ITSELF IS STILL WRONG and is deliberately not fixed here. The
+ * binding constraint is `max_expected_inflation + a positive real rate`, and
+ * that requirement moves sharply once the transmission lag is split (Phase
+ * 2.1). Choosing it now would be guessing; it is derived in Phase 2.4.
  */
 export function taylorRate(s) {
   const target = P.SS_INFLATION_TARGET.value;
@@ -53,8 +56,7 @@ export function taylorRate(s) {
     + P.TAYLOR_OUTPUT.value * s.output_gap;
 
   const rho = P.TAYLOR_SMOOTHING.value;          // central banks move in steps
-  const smoothed = rho * s.policy_rate + (1 - rho) * desired;
-  return clamp(smoothed, RATE_DIAL.min, RATE_DIAL.max);
+  return rho * s.policy_rate + (1 - rho) * desired;
 }
 
 /**

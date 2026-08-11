@@ -225,6 +225,11 @@ export function newState(overrides = {}) {
   // Zero in every scenario but debt_trap, where it is the whole mechanism.
   s.sovereign_premium_felt = 0;
   s.fired_event = null;
+  // A dial request the dial's own bounds refused, and how many there have
+  // been. Written only by applyDialChange, which is the single choke point
+  // every dial move goes through. See the note there.
+  s.dial_truncated = null;
+  s.dial_truncated_count = 0;
   s.ending_counters = {};
 
   // Histories for charts and YoY
