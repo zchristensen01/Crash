@@ -9,9 +9,11 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Nine corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Eleven corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
-> Phase 0 table**, so the verification pass is not above being re-verified.
+> Phase 0 table**, and **Correction 10, in which I made the exact error the
+> standing rule exists to prevent**. Neither the verification pass nor the
+> auditor is above being re-verified.
 > `TASKS.md` is the checklist; this file is the reasoning.
 
 ---
@@ -811,6 +813,131 @@ guidance) are both wrong. Replace with Section A's decomposition.
 ### PHASE 3 — SECTION B: THE ASSET–CREDIT LOOP
 *Independent of Phase 2 and roughly equal in size. **B2 before B1** — fixing the
 units changes the gain, so doing B1 first means solving for the wrong number.*
+
+**3.1–3.5 — SECTION B. — ALL DONE. It was ONE unit error.**
+
+> #### As built. The plan expected four fixes and a balancing term to build; 3.1 did the work and the balancing term already existed.
+>
+> **3.1 — the units. The arithmetic chose the option, not me.** The plan offered
+> two repairs and said "derive and report; do not pick". Option (b) — keep the
+> growth form and derive `ASSET_PRICE_MEANREVERSION` so the implied equilibrium
+> equals the sourced semi-elasticity — requires **0.0852** against a published
+> **[0.01, 0.05]**. 70% outside its own range, and outside at *every* point of
+> the semi-elasticity's range too (0.0846 at A=3, 0.0858 at A=6). So option (a),
+> for a measured reason.
+>
+> **The sharpest single fact in Phase 3:** the overshoot factor was
+> `1 / (12 × MEANREVERSION)` — **a number that does not contain the
+> semi-elasticity at all.** The model's asset-price response to interest rates
+> was set by the mean-reversion parameter rather than by the elasticity that
+> governs it. 4.59× at the central value, 9.2× at the bottom of the range.
+>
+> | permanent 1pp cut, asset index vs baseline | m12 | m24 | m48 | m96 | m180 | m480 |
+> |---|---|---|---|---|---|---|
+> | before | 4.1 | 8.6 | 18.2 | 38.0 | 65.6 | diverges |
+> | after | 1.3 | 2.8 | 5.6 | 9.9 | 13.8 | 12.0 |
+> | rate channel alone (credit channel off) | 0.94 | 1.80 | 3.15 | 4.80 | 5.83 | 5.70 |
+>
+> The residual against a sourced 4.60 is **not** a leftover unit error: at m180
+> the real rate has fallen 1.28pp rather than 1.00, because a permanent cut
+> raises expected inflation. Predicted 1.28 × 4.6 = 5.89 against an actual 5.83
+> — agreement to 1%.
+>
+> **OPEN, measured and not tuned:** at 12 months the model delivers 0.94% of the
+> 4.60% response. The equity leg is sourced *"cumulative ~1yr"* and housing
+> *"2–5yr"*, and one mean-reversion speed cannot satisfy both — equity implies
+> ~0.08 (outside the range), housing 0.028–0.038 (inside it). Left at 0.02.
+>
+> **3.2 — the gain, and THREE FALSE CLAIMS in `credit.js`.** Loop gain measured
+> at four operating points rather than one:
+>
+> | | steady state | 1pp/24m | 1pp/96m | 2pp/96m |
+> |---|---|---|---|---|
+> | before the units fix | 0.0130 | 0.0169 | 0.0169 | **315.52** |
+> | after | 0.0076 | 0.0097 | 0.0089 | 0.0071 |
+>
+> The pre-fix row is why this cannot be checked at rest: **stable at the steady
+> state and explosive two percentage points away, four orders of magnitude
+> apart.** Neither coefficient of the loop was touched.
+>
+> 1. *"it has no balancing counterpart — that is the whole point of it"* —
+>    **false.** It has one, it is sourced, and it binds: credit → debt-service
+>    burden → defaults (`DEFAULT_RATE_DSR`) → bank capital → spread → real rate
+>    → back into the impulse. A permanent 2pp cut settles credit/GDP at **262%**
+>    by m720 with the debt-service ratio 1.20× baseline. **The plan told me to
+>    add this; it was already built and simply could not bind** while the asset
+>    block overshot by 4.6×.
+> 2. *"Both coefficients are weak/judgement in parameters.py"* — one was. `0.02`
+>    and `0.4` were bare literals, now `CREDIT_COLLATERAL_FEEDBACK` and
+>    `CREDIT_IMPULSE_RATE_SENSITIVITY`.
+> 3. **The flagged read-not-measured claim, and the brief was right.** The EMA
+>    comment describes a guard that is not there. An EMA of a sustained input
+>    converges *to that input*: credit/GDP goes 150 → 161 → 188 → **222** under
+>    a 1pp cut. It integrates exactly as it would without the EMA.
+>
+> **3.3 — consumption bounded**, to `[10, 95]`, which is `invariants.js` check
+> 8's own band, so there is one number rather than two. In `overheating`,
+> C went **431.66 → 95.00** and disposable income stopped going negative
+> (−26.47 → 60.20). The invariant existed and never fired, because every
+> long-horizon run sets `assertEveryTick: false` — **an invariant that only
+> holds while you are watching is not a bound.**
+>
+> **3.4 — the asset clamp was a growth floor, not a bound.** `clamp(gPct, −30,
+> 12)` bound for **48 consecutive months** in `stagflation` and A/F still
+> reached **1534.67**. Bounded on the deviation now: worst A/F over 240 months
+> across all six scenarios is **10.00**. The ceiling is derived from
+> reachability — worst A/F a player can reach across 150 runs (events and
+> endings on, dials slammed at random) is **2.20**, against 3–6× for Japan 1989
+> and Nasdaq 2000.
+>
+> **3.5 — the guard went green on 3.1 alone.** A/F **2.873e11 → 1.12**, credit
+> gap **647.89 → 6.79**. Phase 2 halved it (1.323e11) and did not fix it, which
+> is how the two sections were confirmed independent.
+>
+> ### CORRECTION 10 — I made the error the standing rule exists to prevent.
+>
+> 1.1's comment said `stability.test.js` missed Section B because the loop is
+> gated at the steady state by `excess = gap - 3.0` and `assetBoom 1.25`. **Those
+> are at `credit.js:318-322`, they gate `updateCrisisProbability` — the crash
+> METER, a display quantity — and have nothing to do with the loop.** The real
+> kink is `Math.max(0, credit_growth_annual − nominalGrowth)`. I read it from
+> the source instead of measuring it, and it survived a commit. The conclusion
+> was right and the mechanism was wrong, which is exactly what `docs/12` did.
+> Corrected, and the replacement is the four-point measurement above, which does
+> not depend on naming the kink at all.
+>
+> ### CORRECTION 11 — `bubble` was calibrated against the defect, and 3.1 broke it.
+>
+> `docs/00` describes it as eight years of every gauge saying you are brilliant
+> while the one nobody watches climbs to ~14.5pp. Measured across 3.1:
+>
+> | credit gap, no player input | m24 | m48 | m72 | m96 | crisis_prob m96 |
+> |---|---|---|---|---|---|
+> | before | 8.77 | 11.63 | 13.34 | **14.10** | 10.36% |
+> | after | 8.39 | 9.80 | 7.99 | **3.37** | 0.22% |
+>
+> It now peaks at 9.82 around m48 and **unwinds**. A hidden danger that resolves
+> itself teaches that ignoring it works. The four-year promise still passes
+> (9.80 > 9), which is why nothing caught it — **nothing asserted anything about
+> the half of the term where the payoff lives.** Now guarded as a `todo`.
+> **Not closed by re-inflating the wealth channel** — rule 3, and the channel now
+> matches its literature. The scenario is DATA; its starting vector is the thing
+> to revisit (4.3), and 6.1 is the other half of the answer.
+>
+> ### Two bugs found by the new tests, both outside Section B
+>
+> - **The strict trace check compared floats at ~1e17 against an ABSOLUTE 1e-6
+>   tolerance**, so cancellation noise tripped it in `debt_trap` at m189 — 115
+>   months after a real game ends at m74. Now relative above 1e6, identical
+>   below. Verified against six cases.
+> - **`debt_trap` overflows `govt_debt` to Infinity at m191** after 7.27e+189.
+>   Verified identical before and after Phase 3: the declared
+>   `debt_service_spiral` plus double precision, not a defect. Skipped
+>   explicitly with the reason.
+>
+> ---
+>
+> *The plan's original text follows.*
 
 **3.1 — Fix the asset-price semi-elasticity's units (B2).**
 `ASSET_PRICE_RATE_SEMIELAST_*` blend to 4.6% of asset price per pp of real rate

@@ -553,6 +553,39 @@ solution.
 
 ---
 
+## THE BUBBLE LOOP, AND WHAT ITS GAIN ACTUALLY IS
+
+Part 1's DIAL 1 chain contains the loop this document draws as
+`asset_prices ↑ → borrow against assets → buy more assets ⟲`. It is real and it
+still runs. Two things about it were wrong in the code and are worth stating
+here, because the map implied neither.
+
+**The rate → asset-price link is a LEVEL response, not a growth rate.**
+`ASSET_PRICE_RATE_SEMIELAST_*` blend to 4.6% of asset price per pp of real
+rate. That was applied as a persistent monthly growth rate, so the equilibrium
+sat wherever growth and mean reversion balanced — an overshoot of
+`1 / (12 × ASSET_PRICE_MEANREVERSION)`, **a factor that does not contain the
+semi-elasticity at all**. The model's asset response to interest rates was
+being set by the mean-reversion parameter rather than by the elasticity that
+governs it: 4.59× too large. The real rate now sets a *target* deviation from
+fundamental which prices approach at `ASSET_PRICE_MEANREVERSION`, so the
+long-run response equals the sourced number by construction.
+
+**The loop has a balancing counterpart, and `credit.js` used to deny it.**
+It is the debt-service burden: more credit raises debt service, which raises
+defaults (`DEFAULT_RATE_DSR`), which eats bank capital, which widens the
+spread, which raises the real market rate and suppresses credit growth. Add it
+to Part 2's self-corrections — it is the fifth one, and it was invisible
+because it could not bind while the asset leg was overshooting.
+
+Measured after both fixes, amplification of a credit shock over 96 months:
+**0.0076 at the steady state and 0.0071 two percentage points from it**, where
+before it was 0.0130 and **315.52**. The loop is stable, and — this is the part
+worth keeping — *a gain measured only at the steady state would have said so
+in both cases*.
+
+---
+
 ## Corrections from the audit pass
 
 `docs/07` measured every chain above against the code. Six of them ran
