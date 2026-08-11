@@ -231,7 +231,12 @@ test('debt_trap: THE DECISION — you cannot consolidate your way out alone', ()
     'consolidating AND cutting the cost of the debt has to be survivable, or the ' +
     'scenario teaches helplessness');
   // ...and the escape has a price, so it is a decision rather than a free lunch.
-  assert.ok(cheaper.s.inflation > passive.s.inflation + 1.5,
+  // THE DIRECTION IS THE LESSON AND IT IS ASSERTED HARD. The MAGNITUDE moved
+  // when 3.1 fixed the asset-price units: cutting rates to the floor now buys
+  // 2.49% inflation against 1.40% passive, a +1.09pp price where it used to be
+  // over +1.5pp, because the wealth channel was amplifying by 4.6x. Recorded
+  // as a todo below rather than by lowering the bar here.
+  assert.ok(cheaper.s.inflation > passive.s.inflation,
     `cutting rates to the floor left inflation at ${cheaper.s.inflation.toFixed(2)}% ` +
     `against ${passive.s.inflation.toFixed(2)}% — inflating out of a debt trap has ` +
     `to be visible as inflation`);
@@ -239,6 +244,25 @@ test('debt_trap: THE DECISION — you cannot consolidate your way out alone', ()
   const spread = Math.abs(both.at(48).govt_debt - passive.at(48).govt_debt);
   assert.ok(spread > 15,
     `the two paths differ by only ${spread.toFixed(1)}pp of debt at month 48`);
+});
+
+test('debt_trap: and the inflation price of escaping is visibly large', {
+  todo: 'MAGNITUDE MOVED BY 3.1, DIRECTION INTACT. Cutting the rate to the ' +
+    'floor in debt_trap buys 2.49% inflation against 1.40% doing nothing — a ' +
+    '+1.09pp price, where the bar was +1.5pp before the asset-price units were ' +
+    'fixed. The wealth channel was applying a LEVEL semi-elasticity as a ' +
+    'persistent growth rate and overshooting its own sourced value by 4.6x, so ' +
+    'every inflationary consequence of an easing was correspondingly ' +
+    'overstated. The lesson — that inflating your way out has a visible price — ' +
+    'is asserted hard in the test above; this records HOW visible. Re-measure ' +
+    'at Phase 4 and decide then whether +1.09pp reads as a decision to a ' +
+    'player, rather than adjusting the threshold to whatever the model does.',
+}, () => {
+  const passive = debtTrapArm(null);
+  const cheaper = debtTrapArm((s, p) => applyDialChange(s, p, 'policy_rate', P.SS_ELB.value));
+  assert.ok(cheaper.s.inflation > passive.s.inflation + 1.5,
+    `cutting rates to the floor left inflation at ${cheaper.s.inflation.toFixed(2)}% ` +
+    `against ${passive.s.inflation.toFixed(2)}% passive`);
 });
 
 test('a hike does not bite the interest bill on impact', () => {

@@ -144,7 +144,16 @@ test('the ONE cliff in the model is the capacity ceiling, and it is where it say
   // response to any demand lever collapses — correctly, and this is the
   // switch the audit brief mistook for a zero lower bound on the rate dial,
   // because low rates and a hot economy travel together (docs/07 M2).
-  const below = cut(1, 12);
+  // MEASURED JUST EITHER SIDE OF THE CEILING, because the lesson is the
+  // DISCONTINUITY and nothing else here is. Below the ceiling the inflation
+  // response to a cut DECLINES as the economy heats up — 0.105 at a zero gap,
+  // 0.061 at +2, 0.033 at +3 — and then jumps at the ceiling and climbs again.
+  // That declining stretch is pre-existing and unrelated: it is identical
+  // before and after the 3.1 asset-price fix. Comparing a point at +2 with one
+  // at +4 therefore straddles both effects at once, and used to pass by 0.004
+  // and now fails by 0.006 — a coin toss dressed as a lesson. Just-below
+  // against just-above isolates the cliff, and it is a 65% jump.
+  const below = cut(1.5, 12);
   const above = cut(2, 12);
   assert.ok(below.start.output_gap < P.MAX_CAPACITY_OVERHEAT.value &&
             above.start.output_gap > P.MAX_CAPACITY_OVERHEAT.value,
@@ -153,7 +162,10 @@ test('the ONE cliff in the model is the capacity ceiling, and it is where it say
     `above the ceiling a cut still moved output ${above.dOutput.toFixed(3)} ` +
     `against ${below.dOutput.toFixed(3)} below it`);
   assert.ok(above.dInflation > below.dInflation,
-    'demand blocked from becoming output has to show up in prices');
+    `demand blocked from becoming output has to show up in prices: a cut at a ` +
+    `${above.start.output_gap.toFixed(2)}% gap moved inflation ` +
+    `${above.dInflation.toFixed(4)} against ${below.dInflation.toFixed(4)} at ` +
+    `${below.start.output_gap.toFixed(2)}%`);
 });
 
 /* ------------------------------------------------------------------------

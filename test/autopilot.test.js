@@ -219,15 +219,42 @@ test('the Taylor rule wins stagflation at the derived ceiling and loses at 20', 
       `the rule was still refused ${derived.truncated} times at the derived ` +
       `ceiling. 2.4 derived it as the fixed point at which it never has to be.`);
 
-    // AND IT LOSES AT 20, WITH THE SHOCK UNTOUCHED. This is the isolating
-    // experiment that killed "no rule handles a supply shock well": the only
-    // thing that differs between the two arms is the bound on the instrument.
-    assert.ok(old[96] > 100,
-      `putting the ceiling back to 20 left inflation at ${old[96].toFixed(2)}% at ` +
-      `m96, so the rule now survives the old ceiling too. That would mean the ` +
-      `ceiling was never what beat it and A2's whole finding needs re-deriving.`);
-    assert.ok(old.truncated > 60,
-      `at a ceiling of 20 the rule was refused only ${old.truncated} times`);
+    // AND IT LOSES AT A LOW ENOUGH CEILING, WITH THE SHOCK UNTOUCHED. This is
+    // the isolating experiment that killed "no rule handles a supply shock
+    // well": the only thing that differs between the arms is the bound on the
+    // instrument.
+    //
+    // THE THRESHOLD MOVED WHEN 3.1 FIXED THE ASSET-PRICE UNITS, and the sweep
+    // is here rather than a second fixed point because of it. A ceiling of 20
+    // used to leave inflation at 1020.91% by m96; it now leaves 5.49%, because
+    // the wealth channel was amplifying by 4.6x and no longer is. Measured
+    // across the whole range, inflation at m96:
+    //
+    //      ceiling  8  ->  3920.83     ceiling 18  ->  112.41
+    //      ceiling 12  ->  1486.28     ceiling 20  ->    5.49
+    //      ceiling 16  ->   324.10     ceiling 50  ->    3.15
+    //
+    // Monotone, and the loss is real below ~18. NOTE FOR PHASE 4: 2.4 derived
+    // 50 from a 360-run events-on sweep of what the rule ASKS for, and it is
+    // still the only ceiling at which the rule is never refused (0/96 against
+    // 39/96 at 20) — but that derivation predates this fix and must be re-run.
+    const swept = [];
+    for (const c of [8, 12, 16, 20]) {
+      rate.max = c;
+      swept.push({ c, infl: play()[96] });
+    }
+    console.log('  by ceiling, inflation @m96: ' +
+      swept.map((x) => `${x.c}:${x.infl > 1e4 ? x.infl.toExponential(1) : x.infl.toFixed(1)}`).join(' '));
+    for (let i = 1; i < swept.length; i++) {
+      assert.ok(swept[i].infl < swept[i - 1].infl,
+        `a HIGHER ceiling (${swept[i].c}) left MORE inflation ` +
+        `(${swept[i].infl.toFixed(2)}%) than a lower one (${swept[i - 1].c}, ` +
+        `${swept[i - 1].infl.toFixed(2)}%). The rule's success has to depend ` +
+        `monotonically on how much instrument it is given, or A2 is not a finding.`);
+    }
+    assert.ok(swept[0].infl > 100,
+      `at a ceiling of 8 the rule still held inflation to ${swept[0].infl.toFixed(2)}%, ` +
+      `so no bound on the instrument can beat it and A2's finding has evaporated.`);
   } finally {
     rate.max = original;
   }

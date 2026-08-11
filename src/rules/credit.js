@@ -33,13 +33,55 @@ export function updateAssetPrices(s, trace) {
   const A = P.ASSET_PRICE_EQUITY_WEIGHT.value * P.ASSET_PRICE_RATE_SEMIELAST_EQUITY.value +
             (1 - P.ASSET_PRICE_EQUITY_WEIGHT.value) * P.ASSET_PRICE_RATE_SEMIELAST_HOUSING.value;
 
-  const discount = annualToMonthlyFlow(-A * (realRate - s.neutral_real_rate));
+  // THE RATE CHANNEL IS A LEVEL RESPONSE, NOT A GROWTH RATE [4th audit B2].
+  //
+  // A is a SEMI-ELASTICITY: 4.6% of asset price per pp of real rate, which is
+  // what the cited literature estimates and what its own unit string says.
+  // This used to be `annualToMonthlyFlow(-A * (realRate - neutral))`, i.e. the
+  // level response applied as a PERSISTENT MONTHLY GROWTH RATE. The only thing
+  // stopping it was mean reversion, so the equilibrium was wherever those two
+  // balanced:
+  //
+  //     A/12 = MEANREVERSION * 100 * ln(A/F)
+  //     ln(A/F) = A / (1200 * MEANREVERSION)
+  //
+  // and the OVERSHOOT FACTOR is that divided by the sourced A/100, which is
+  // 1 / (12 * MEANREVERSION) — a number that does not contain A at all. The
+  // model's asset-price response to interest rates was therefore set by
+  // ASSET_PRICE_MEANREVERSION and not by the semi-elasticity that is supposed
+  // to govern it: 4.59x too large at MEANREVERSION = 0.02, and it would have
+  // been 9.2x at the bottom of that parameter's range.
+  //
+  // WHY THIS SHAPE AND NOT THE OTHER ONE. The audit offered two repairs: apply
+  // it to the level, or keep the growth form and DERIVE MEANREVERSION so the
+  // implied equilibrium equals the sourced semi-elasticity. The second is not
+  // available, and the arithmetic says so rather than a preference:
+  //
+  //     MEANREVERSION = A / (1200 * ln(1 + A/100)) = 0.0852
+  //     published range                            = [0.01, 0.05]
+  //
+  // 70% above the top of its own range — and because the requirement is
+  // ~1/12 regardless of A, it stays outside at every point of A's range too
+  // (0.0846 at A=3, 0.0858 at A=6). The growth form needs the level anchor to
+  // undo in ONE MONTH what an ANNUAL semi-elasticity does in a year. That is
+  // the unit error, stated exactly.
+  //
+  // So the rate sets a TARGET deviation from fundamental, and prices approach
+  // it at MEANREVERSION — which is what that parameter was always described
+  // as. The equilibrium level response now equals the sourced semi-elasticity
+  // BY CONSTRUCTION rather than by coincidence, and both parameters do the job
+  // their notes claim.
+  const lnTarget = -(A / 100) * (realRate - s.neutral_real_rate);
+  const lnDeviation = Math.log(s.asset_prices / s.asset_fundamental);
+  const speed = P.ASSET_PRICE_MEANREVERSION.value * 100;
+  // Split for the trace only: the two halves are where rates want prices to
+  // sit, and the pull back toward what they are worth. They sum to
+  // speed * (lnTarget - lnDeviation).
+  const discount = speed * lnTarget;
+  const reversion = -speed * lnDeviation;
 
   const excessCredit = Math.max(0, s.credit_growth_annual - (s.potential_growth + s.inflation));
   const collateral = P.ASSET_PRICE_CREDIT_CHANNEL.value * excessCredit;
-
-  const reversion = -P.ASSET_PRICE_MEANREVERSION.value * 100 *
-                    Math.log(s.asset_prices / s.asset_fundamental);
 
   // FORCED SELLING IS DONE BY SOMEONE, AND THEY RUN OUT. The rate is
   // ASSET_PRICE_FIRESALE per point of excess leverage, but the TOTAL a

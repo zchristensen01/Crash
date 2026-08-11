@@ -106,13 +106,25 @@ the experiment that isolates it.
 
 ## Phase 3 — Section B: the asset–credit loop
 
-- [ ] 3.1 Fix the asset-price semi-elasticity's units
-      **CARRIED FROM 2.2:** the wealth channel is **85% of the residual
-      knife-edge**. Steepest local response −149.2pp/pp as built vs
-      **−22.5 with `WEALTH_EFFECT = 0`**. The acceptance test for this already
-      exists and is self-calibrating — `A-TABLE: the knife-edge is the wealth
-      channel` in `test/transmission.test.js` compares the live model against
-      the model with the channel switched off, so it needs no target number.
+- [x] 3.1 Fix the asset-price semi-elasticity's units
+      **Option (a), and the arithmetic chose it, not me.** Option (b) needs
+      `ASSET_PRICE_MEANREVERSION = 0.0852` against a published `[0.01, 0.05]` —
+      70% outside, and outside at every point of the semi-elasticity's own
+      range too. The rate now sets a TARGET deviation approached at
+      MEANREVERSION; equilibrium equals the sourced semi-elasticity by
+      construction.
+      **The overshoot factor was `1 / (12 * MEANREVERSION)` — a number that does
+      not contain the semi-elasticity at all.** The model's asset response to
+      rates was set by the mean-reversion parameter, not by the elasticity that
+      governs it. 4.59x at the central value; 9.2x at the bottom of the range.
+      **This alone closed the divergence guard** (see 3.5). Seven downstream
+      tests moved; all re-measured, none tuned.
+      **OPEN, measured:** at 12 months the model delivers 0.94% of a 4.60%
+      level response — the equity leg's source says "cumulative ~1yr" and
+      housing's says 2–5yr, and a single mean-reversion speed cannot satisfy
+      both (equity implies ~0.08, outside the range; housing implies
+      0.028–0.038, inside it). Left at the published 0.02 and recorded.
+
 - [ ] 3.2 Give the credit↔collateral loop a balancing term, or state its gain
       **CARRIED FROM 1.1:** the loop costs exactly **0.638pp of stable range** —
       a permanent peg diverges below 1.5777 as built, below 0.9398 with
