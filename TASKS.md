@@ -293,6 +293,45 @@ experiment that isolates it.
 - [ ] 6.2 **Historical scenarios: play the moment**
 - [ ] 6.3 Separate housing from equities
 - [ ] 6.4 Demographics
+- [ ] 6.6 **THE WEDGE — let the player watch a bubble inflate** *(new, requested)*
+      **What is missing.** `credit_to_gdp_gap` is a gauge, so a bubble is
+      technically visible. But `crisis_prob` is computed every tick and shown
+      NOWHERE, and `asset_prices`/`asset_fundamental` are shown nowhere either —
+      so A/F, the actual bubble measure, is invisible. There is not even a
+      history buffer for it.
+      **The shape: two lines and the space between them.** Chart
+      `asset_prices` against `asset_fundamental` — *what things cost* against
+      *what they are worth* — and shade the gap. The shaded wedge IS the
+      bubble, opening and closing in front of you. Next to it, `crisis_prob` as
+      "annual chance of a crash: 6%".
+      **Why this rather than another gauge.** A gauge reading `+9.8pp` is an
+      abstraction; a widening wedge labelled *"houses cost 53% more than they
+      are worth"* is a story, and it is the same number. And `crisis_prob`
+      converts a line going up into **a bet the player is knowingly taking**,
+      which is the difference between a spectacle and a decision.
+      **Keep the trap.** Put it on a panel the player must choose to open, not
+      in the headline row. `bubble`'s whole design is that every visible gauge
+      says you are brilliant; a wedge on the front page destroys it.
+      **The payoff: show it in the post-mortem.** When the crash lands, replay
+      the wedge you were ignoring. The same-seed ghost machinery already exists,
+      so "here is what year-one action would have done" pairs with 6.1.
+      **Cost:** two history buffers (`asset_prices`, `asset_fundamental` — both
+      need `docs/01` entries or `docs.test.js` fails), one chart, one readout.
+      No new parameters, no model change.
+      **BLOCKED ON 5.4, AND THIS IS NOT OPTIONAL.** The credit-gap gauge is
+      currently a broken bubble detector — it mean-reverts 3–4x faster than the
+      HP filter it claims to approximate and under-reads persistent booms,
+      which is the exact situation it exists for. Building a bubble display on
+      it now would ship a display of a defect. 5.4 fixes it and also restores
+      `bubble`'s own design promise.
+      **One design question left open on purpose:** showing `asset_fundamental`
+      is arguably *too* honest — real policymakers are never told the
+      fundamental, and the hard thing about bubbles is that you cannot tell one
+      from a boom while you are inside it. Deliberately NOT modelling that
+      uncertainty: a knowingly unreliable gauge would undercut the one claim
+      this project makes, that its numbers are honest. Teach the mechanism
+      live; teach the epistemics in the post-mortem.
+
 - [-] 6.5 Forward guidance — deferred again, but THE CASE HAS CHANGED
       **NEW EVIDENCE FROM 2.5, and it strengthens the eventual build.** Two of
       the four episodes now point at this same missing mechanism from OPPOSITE
@@ -315,7 +354,7 @@ experiment that isolates it.
 
 ## Phase 8 — Interface
 
-- [ ] 8.1 Display `crisis_prob`
+- [ ] 8.1 Display `crisis_prob` — **see 6.6**, which is the fuller version of this
 - [ ] 8.2 Add an output-gap gauge
 - [ ] 8.3 Display `price_level`
 - [ ] 8.4 Real wage growth
