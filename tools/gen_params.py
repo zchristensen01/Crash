@@ -18,6 +18,18 @@ import json
 import sys
 from pathlib import Path
 
+# NEVER READ A CACHED parameters.py. Python validates its bytecode cache on the
+# source's mtime IN WHOLE SECONDS, so two edits to parameters.py inside the same
+# second leave a stale .pyc that looks valid — and this script then writes a
+# src/params.js that does not match the file it claims to be generated from,
+# silently. Measured during the 4th audit: a parameter restored from a backup
+# one second after being edited produced a params.js still carrying the edited
+# value, and every test in the suite ran against it.
+#
+# A generated artefact that disagrees with its source is worse than no artefact,
+# which is the whole reason this file exists. Two lines to make it impossible.
+sys.dont_write_bytecode = True
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 

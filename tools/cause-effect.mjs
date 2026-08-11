@@ -241,8 +241,82 @@ function lags() {
 }
 
 const SECTIONS = { dials, stateDependence, noInput, automatic, shocks, lags };
-const only = process.argv[2];
-for (const [name, fn] of Object.entries(SECTIONS)) {
-  if (!only || name.toLowerCase().startsWith(only.toLowerCase())) fn();
+
+/**
+ * --check: has the model moved since docs/11 was last regenerated?
+ *
+ * docs/11 is the one document whose numbers are generated, and its header has
+ * always said "re-run this and paste the output back in". That is a process,
+ * and the process failed: it went two full passes stale, so every number in it
+ * predated the transmission split, the derived rate ceiling, the closed
+ * bifurcation and the asset-price units fix. Nothing detected that, because
+ * nothing could — the doc looked exactly as authoritative when wrong.
+ *
+ * Fully generating the file is the other repair, and it is not obviously
+ * better: most of docs/11's value is the prose explaining each chain in the
+ * order it fires, that prose quotes the numbers inline, and moving it into a
+ * template here would trade one staleness risk for a harder-to-read one.
+ *
+ * So instead the document carries a FINGERPRINT of every number this tool
+ * measures. It does not claim the prose is correct — it claims the document
+ * was written against a model that produced exactly these numbers. Change any
+ * rule or parameter that moves any of them and the fingerprint no longer
+ * matches, `npm test` fails, and the failure names the tool to re-run. That is
+ * a weaker guarantee than generation and a much stronger one than a comment
+ * asking the next person to remember.
+ */
+function fingerprint() {
+  const lines = [];
+  const real = console.log;
+  console.log = (...a) => lines.push(a.join(' '));
+  try { for (const fn of Object.values(SECTIONS)) fn(); } finally { console.log = real; }
+  // Hash the measured numbers only, so re-wording a heading here does not
+  // invalidate a document whose numbers are still right.
+  const numbers = lines.join('\n').match(/-?\d+\.\d+|-?\d+/g) || [];
+  let h1 = 0x811c9dc5, h2 = 0x01000193;
+  for (const n of numbers) {
+    for (let i = 0; i < n.length; i++) {
+      h1 = Math.imul(h1 ^ n.charCodeAt(i), 0x01000193) >>> 0;
+      h2 = Math.imul(h2 + n.charCodeAt(i) + 1, 0x85ebca6b) >>> 0;
+    }
+  }
+  return { hash: (h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0')), count: numbers.length };
 }
-console.log();
+
+const MARKER = /<!-- cause-effect-fingerprint: ([0-9a-f]+) \((\d+) numbers\) -->/;
+const DOC = new URL('../docs/11-cause-and-effect.md', import.meta.url);
+
+if (process.argv.includes('--check') || process.argv.includes('--stamp')) {
+  const { hash, count } = fingerprint();
+  const stamp = `<!-- cause-effect-fingerprint: ${hash} (${count} numbers) -->`;
+  const { readFileSync, writeFileSync } = await import('node:fs');
+  const doc = readFileSync(DOC, 'utf8');
+  if (process.argv.includes('--stamp')) {
+    writeFileSync(DOC, MARKER.test(doc) ? doc.replace(MARKER, stamp) : `${stamp}\n${doc}`);
+    console.log(`cause-effect: stamped docs/11 with ${hash} (${count} numbers)`);
+  } else {
+    const m = doc.match(MARKER);
+    if (!m) {
+      console.error('\ncause-effect: docs/11 carries no fingerprint. Run `node tools/cause-effect.mjs --stamp`.\n');
+      process.exit(1);
+    }
+    if (m[1] !== hash) {
+      console.error(
+        `\ncause-effect: docs/11 IS STALE.\n\n` +
+        `  Its numbers were generated against a model that no longer exists:\n` +
+        `    document ${m[1]}\n    model    ${hash}\n\n` +
+        `  docs/11 is the operator's manual — what actually happens when you touch\n` +
+        `  each input. It went two passes stale before this check existed. Re-run\n` +
+        `  \`node tools/cause-effect.mjs\`, update the tables AND the numbers quoted\n` +
+        `  in the prose, then \`node tools/cause-effect.mjs --stamp\`.\n`);
+      process.exit(1);
+    }
+    console.log(`cause-effect: docs/11 is current (${hash}, ${count} numbers)`);
+  }
+} else {
+  const only = process.argv[2];
+  for (const [name, fn] of Object.entries(SECTIONS)) {
+    if (!only || name.toLowerCase().startsWith(only.toLowerCase())) fn();
+  }
+  console.log();
+}

@@ -214,17 +214,22 @@ experiment that isolates it.
       residual — the model's endogenous share of the published loss, **8.4% ->
       3.65%**. 10.1's rewrite of `docs/10` must carry this section forward.
 
-- [ ] 4.3 Regenerate cause-effect, report, IRF, paths
-      **AND RE-MEASURE EVERY SCENARIO'S STARTING VECTOR.** `bubble` was
-      calibrated against the asset-price unit error and no longer produces its
-      designed regime over a full term (see 6.1). The vector is DATA and may be
-      revisited; the regime must still be DRIVEN, not asserted (rule 6).
-      **`docs/11-cause-and-effect.md` HAS NOT BEEN REGENERATED IN THIS PASS AT
-      ALL** — it still dates from the third audit (commit a2b7ce0), so every
-      number in it predates the transmission split, the derived ceiling and the
-      closed bifurcation. It is the single most stale artefact in the repo.
-      `TEST-RESULTS.md` WAS regenerated at 2.5/2.6 (149 tests, 14 open) and
-      will need doing again after Phase 3.
+- [x] 4.3 Regenerate cause-effect, report, IRF, paths
+      `docs/11` regenerated — all six dial tables replaced from fresh
+      measurements, and the numbers quoted in the prose updated with them.
+      `TEST-RESULTS.md` regenerated.
+      **The staleness is now DETECTABLE, which is the part that mattered.**
+      `docs/11` carries a fingerprint of all 1464 measured numbers;
+      `tools/cause-effect.mjs --check` is wired into `npm test` and fails with
+      the tool to re-run. Verified it catches a one-parameter change.
+      **Found a real build defect on the way:** `npm run params` could emit a
+      `src/params.js` that did not match `parameters.py`, because Python
+      validates its bytecode cache on mtime in WHOLE SECONDS. Two edits inside
+      one second left a stale `.pyc` that looked valid. Fixed with
+      `sys.dont_write_bytecode`, verified against the repro.
+      **STILL TO DO under 4.3:** re-measure every scenario's starting vector
+      (`bubble` no longer produces its designed regime — Correction 11).
+
 - [ ] 4.4 Re-measure OPEN #1 and OPEN #9
       **#9 IS ALREADY MEASURED AND THE PLAN'S EXPECTATION WAS WRONG.** The plan
       says the shortfall is "partly the lag burying the response beyond the

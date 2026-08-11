@@ -1,3 +1,4 @@
+<!-- cause-effect-fingerprint: 93b2457043c7b9e2 (1464 numbers) -->
 # 11 — Cause and Effect
 
 > **LIVING DOCUMENT, and the only one whose numbers are generated.** Every
@@ -6,13 +7,29 @@
 > in. A document that claims to say what a model does, written by reading the
 > model, is how `docs/07` ended up finding fourteen defects.
 >
-> **REGENERATED AFTER `docs/12`.** That pass moved most numbers here and
-> deleted two claims outright. The two largest movers: the crash is no longer
-> 2.6x too deep (§6), and **debt no longer responds quickly to the policy
-> rate** — the whole stock used to reprice every month, and §2's claim that
-> "debt is the second fastest thing to respond to a rate cut" was an artefact
-> of that defect rather than a result. `confidence_slump` no longer exists as a
-> separate shock. `debt_trap` is a different scenario.
+> **REGENERATED AFTER THE FOURTH AUDIT, AND NOW CHECKED.** This document went
+> TWO FULL PASSES STALE — every number in it predated the transmission split,
+> the derived rate ceiling, the closed bifurcation and the asset-price units
+> fix — and nothing detected that, because nothing could. It carries a
+> FINGERPRINT of every number the tool measures, `npm test` verifies it, and
+> the failure names the tool to re-run. The fingerprint does not claim the
+> prose is right; it claims the document was written against a model that
+> produced exactly these numbers.
+>
+> **The largest movers in the fourth audit.** Asset prices respond about a
+> third as much to a rate cut (+1.25 index points at a year against +4.12),
+> because the semi-elasticity was a LEVEL response being applied as a
+> persistent growth rate and overshot its own sourced value by 4.6x. The rate
+> the economy feels now arrives in a quarter rather than over a year, so
+> investment moves earlier and by less at any given month. Output at a year is
+> +0.32 against +0.43.
+>
+> **From `docs/12`, still true:** the crash is no longer 2.6x too deep (§6), and
+> **debt no longer responds quickly to the policy rate** — the whole stock used
+> to reprice every month, and §2's claim that "debt is the second fastest thing
+> to respond to a rate cut" was an artefact of that defect rather than a
+> result. `confidence_slump` no longer exists as a separate shock. `debt_trap`
+> is a different scenario.
 
 `02-causal-map.md` says what the chains are *meant* to be. This says what
 actually happens, with numbers, when you touch something. It is the operator's
@@ -78,13 +95,14 @@ index (100 = start); approval in points.
 ### `policy_rate` −1.00pp — a cut
 
 ```
-mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv
- 1 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.19 |  +0.03 |  +0.00
- 3 |  +0.05 |  +0.01 |  -0.01 |  +0.02 |  +0.02 |  -0.01 |  +0.85 |  +0.09 |  +0.01
- 6 |  +0.16 |  +0.04 |  -0.04 |  +0.07 |  +0.08 |  -0.04 |  +1.95 |  +0.18 |  +0.08
-12 |  +0.43 |  +0.14 |  -0.14 |  +0.20 |  +0.20 |  -0.21 |  +4.12 |  +0.44 |  +0.41
-24 |  +0.98 |  +0.37 |  -0.32 |  +0.40 |  +0.48 |  -0.99 |  +8.57 |  +1.29 |  +1.01
-48 |  +2.12 |  +0.81 |  -0.59 |  +0.67 |  +1.12 |  -4.25 | +18.01 |  +3.82 |  +1.38
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.05 |  +0.03 |  +0.00 | +0.000
+ 3 |  +0.03 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.21 |  +0.09 |  +0.01 | +0.000
+ 6 |  +0.14 |  +0.03 |  -0.04 |  +0.10 |  +0.03 |  -0.04 |  +0.53 |  +0.22 |  +0.07 | +0.000
+12 |  +0.32 |  +0.11 |  -0.11 |  +0.21 |  +0.08 |  -0.18 |  +1.25 |  +0.59 |  +0.32 | +0.000
+24 |  +0.60 |  +0.24 |  -0.21 |  +0.32 |  +0.20 |  -0.78 |  +2.79 |  +1.48 |  +0.61 | +0.000
+48 |  +1.06 |  +0.44 |  -0.33 |  +0.43 |  +0.42 |  -2.91 |  +5.58 |  +3.27 |  +0.59 | +0.000
 ```
 
 **The chain, in the order it fires:**
@@ -92,37 +110,50 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 1. `policy_rate` moves. Nothing else moves this month.
 2. **[1 month]** `policy_rate_markets` lands → the real rate falls → asset
    prices start climbing. This is why assets are the fastest column in the
-   table: +2 index points by month 6, +18 by month 4.
+   table: +0.53 index points by month 6, +5.58 by month 48. THIS IS A THIRD OF
+   WHAT IT USED TO BE (+1.95 and +18.01) — see the header.
 3. **[slow — and this changed in `docs/12`]** the 10-year yield falls with the
    policy rate immediately, but **the rate the government actually PAYS does
    not**: only 1/`DEBT_AVERAGE_MATURITY_YEARS` of the stock refinances each
-   year. Debt is −0.21 at a year and −4.25 at four. This used to read −1.14 and
-   −7.45, and this document used to claim debt was "the second fastest thing to
-   respond to a rate cut, and almost nobody expects that". Nobody expects it
-   because it is not true: the whole stock was repricing every month.
-4. **[peaks 9 months]** `policy_rate_demand` lands → `user_cost` falls →
-   investment rises. **Damped by `monetaryEasingScale`:** a cut transmits at
-   1/1.5 of a hike, less again in a recession, and toward zero at the lower
-   bound.
+   year. Debt is −0.18 at a year and −2.91 at four. Before `docs/12` this read
+   −1.14 and −7.45, and this document used to claim debt was "the second
+   fastest thing to respond to a rate cut, and almost nobody expects that".
+   Nobody expects it because it is not true: the whole stock was repricing
+   every month.
+4. **[the rate arrives in a quarter; the SPENDING takes longer]**
+   `policy_rate_demand` lands on `rate_to_borrowing_cost` — 50% of the
+   pass-through by month 3, 93% by month 6 — → `user_cost` falls → firms *want*
+   to invest more. What they actually spend closes
+   `INVESTMENT_ADJUSTMENT_SPEED` of the gap each month, because capital
+   spending is planned, ordered and built. **The two together reproduce the
+   published 9-month peak of investment's response rather than assuming it.**
+   Before the fourth audit the RATE itself rode that 9-month kernel, which
+   applied the same reduced form twice. **Damped by `monetaryEasingScale`:** a
+   cut transmits at 1/1.5 of a hike, less again in a recession, and toward zero
+   at the lower bound.
 5. **[same tick]** higher output → higher household market income → higher
    consumption → higher output. This is the multiplier, and it is why the
    consumption column overtakes the investment column by month 48.
 6. **[slow]** rising asset prices → wealth effect → more consumption; and
-   cheaper credit → the credit impulse → the credit gap opens. **+3.8pp of
+   cheaper credit → the credit impulse → the credit gap opens. **+3.27pp of
    credit gap after four years from a single 1pp cut.** Cheap money held for a
-   term is how the bubble scenario happens to you by accident.
-7. **[slowest]** inflation. +0.14pp at a year. The anchored Phillips slope is
-   0.05, so demand barely moves prices — see the note in §6.
+   term is how the bubble scenario happens to you by accident. The loop this
+   runs through has a measured gain of 0.0076 at rest and 0.0071 two points
+   from it; before the asset-price fix the second of those was 315.52.
+7. **[slowest]** inflation. +0.11pp at a year, +0.44 at four. The anchored
+   Phillips slope is 0.05, so demand barely moves prices — see the note in §6.
 
 ### `policy_rate` +1.00pp — a hike
 
 ```
-mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv
- 1 |  -0.00 |  -0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.19 |  -0.03 |  -0.00
- 6 |  -0.19 |  -0.02 |  +0.07 |  -0.11 |  -0.08 |  +0.04 |  -1.90 |  -0.18 |  -0.11
-12 |  -0.51 |  -0.05 |  +0.19 |  -0.28 |  -0.20 |  +0.20 |  -3.83 |  -0.45 |  -0.54
-24 |  -1.11 |  -0.12 |  +0.37 |  -0.54 |  -0.44 |  +0.88 |  -7.05 |  -1.27 |  -1.43
-48 |  -2.02 |  -0.23 |  +0.57 |  -0.78 |  -0.87 |  +3.41 | -11.67 |  -3.41 |  -1.86
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  -0.00 |  -0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.05 |  -0.03 |  -0.00 | +0.000
+ 3 |  -0.05 |  -0.00 |  +0.01 |  -0.04 |  -0.01 |  +0.01 |  -0.20 |  -0.09 |  -0.01 | +0.000
+ 6 |  -0.19 |  -0.02 |  +0.07 |  -0.15 |  -0.03 |  +0.04 |  -0.46 |  -0.22 |  -0.10 | +0.000
+12 |  -0.44 |  -0.04 |  +0.16 |  -0.32 |  -0.08 |  +0.19 |  -0.93 |  -0.60 |  -0.49 | +0.000
+24 |  -0.75 |  -0.08 |  +0.26 |  -0.46 |  -0.19 |  +0.75 |  -1.73 |  -1.46 |  -0.98 | +0.000
+48 |  -1.18 |  -0.13 |  +0.36 |  -0.57 |  -0.34 |  +2.59 |  -2.88 |  -3.02 |  -1.04 | +0.000
 ```
 
 **Not a mirror image, and the asymmetries are the lesson:**
@@ -144,12 +175,14 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 ### `tax_rate` −1.00pp — a cut
 
 ```
-mo | output | inflat | unemp  | invest | consum | debt   | apprv
- 3 |  +0.03 |  +0.01 |  -0.01 |  -0.01 |  +0.04 |  +0.05 |  +0.18
- 6 |  +0.10 |  +0.03 |  -0.03 |  -0.05 |  +0.14 |  +0.20 |  +0.86
-12 |  +0.17 |  +0.07 |  -0.07 |  -0.15 |  +0.32 |  +0.60 |  +2.58
-24 |  +0.29 |  +0.14 |  -0.12 |  -0.24 |  +0.55 |  +1.36 |  +1.99
-48 |  +0.56 |  +0.31 |  -0.24 |  -0.22 |  +0.81 |  +2.44 |  +0.58
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.01 |  +0.00 |  +0.00 |  +0.02 | +0.000
+ 3 |  +0.04 |  +0.01 |  -0.01 |  -0.00 |  +0.04 |  +0.05 |  +0.00 |  +0.00 |  +0.18 | +0.000
+ 6 |  +0.14 |  +0.04 |  -0.04 |  -0.01 |  +0.15 |  +0.20 |  +0.00 |  +0.00 |  +0.88 | +0.000
+12 |  +0.27 |  +0.10 |  -0.10 |  -0.07 |  +0.33 |  +0.57 |  +0.01 |  +0.02 |  +2.68 | +0.000
+24 |  +0.38 |  +0.18 |  -0.15 |  -0.19 |  +0.56 |  +1.24 |  +0.07 |  +0.07 |  +2.09 | +0.000
+48 |  +0.55 |  +0.31 |  -0.23 |  -0.22 |  +0.80 |  +2.24 |  +0.33 |  +0.24 |  +0.50 | +0.000
 ```
 
 1. **[peaks 3 months]** `tax_rate_effective` lands — withholding and settlement
@@ -168,12 +201,14 @@ mo | output | inflat | unemp  | invest | consum | debt   | apprv
 ### `govt_spending` +1.00pp
 
 ```
-mo | output | inflat | unemp  | invest | consum | debt   | apprv
- 1 |  +1.04 |  +0.16 |  -0.15 |  +0.00 |  +0.00 |  +0.05 |  +0.01
- 3 |  +1.33 |  +0.32 |  -0.34 |  +0.13 |  +0.15 |  +0.10 |  +0.78
-12 |  +1.33 |  +0.54 |  -0.47 |  +0.01 |  +0.26 |  +0.02 |  +2.21
-24 |  +1.48 |  +0.69 |  -0.50 |  -0.01 |  +0.40 |  -0.31 |  +0.76
-48 |  +1.90 |  +0.89 |  -0.59 |  +0.07 |  +0.67 |  -1.54 |  +0.55
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  +1.04 |  +0.16 |  -0.15 |  +0.00 |  +0.00 |  +0.05 |  +0.00 |  +0.00 |  +0.01 | +0.000
+ 3 |  +1.22 |  +0.30 |  -0.32 |  +0.03 |  +0.14 |  +0.11 |  +0.01 |  +0.02 |  +0.74 | +0.000
+ 6 |  +1.28 |  +0.41 |  -0.42 |  +0.05 |  +0.17 |  +0.12 |  +0.03 |  +0.06 |  +1.44 | +0.000
+12 |  +1.34 |  +0.54 |  -0.47 |  +0.03 |  +0.24 |  +0.05 |  +0.15 |  +0.16 |  +2.17 | +0.000
+24 |  +1.43 |  +0.67 |  -0.49 |  -0.01 |  +0.35 |  -0.27 |  +0.55 |  +0.43 |  +0.74 | +0.000
+48 |  +1.64 |  +0.81 |  -0.53 |  +0.00 |  +0.50 |  -1.29 |  +1.55 |  +1.07 |  +0.32 | +0.000
 ```
 
 **The fastest lever you have.** +1.04 of output in the first month, because
@@ -190,12 +225,14 @@ it".
 ### `money_printed` 2.00pp
 
 ```
-mo | output | inflat | unemp  | invest | consum | debt   | apprv  | credib
- 1 |  +2.08 |  +0.28 |  -0.24 |  +0.00 |  +0.00 |  -0.05 |  +0.01 | -0.003
- 6 |  +3.06 |  +0.79 |  -0.72 |  +0.48 |  +0.43 |  -0.74 |  +3.42 | -0.018
-12 |  +3.49 |  +1.08 |  -0.79 |  +0.60 |  +0.68 |  -1.92 |  +5.64 | -0.035
-24 |  +4.36 |  +1.48 |  -0.80 |  +0.79 |  +1.18 |  -4.80 |  +3.06 | -0.067
-48 |  +4.72 |  +2.24 |  -0.96 |  +1.08 |  +1.77 | -12.14 |  -0.37 | -0.151
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  +2.08 |  +0.28 |  -0.24 |  +0.00 |  +0.00 |  -0.05 |  +0.00 |  +0.01 |  +0.01 | -0.003
+ 3 |  +2.48 |  +0.53 |  -0.53 |  +0.09 |  +0.28 |  -0.26 |  +0.01 |  +0.03 |  +1.49 | -0.009
+ 6 |  +2.71 |  +0.74 |  -0.69 |  +0.21 |  +0.37 |  -0.69 |  +0.06 |  +0.09 |  +3.03 | -0.018
+12 |  +3.16 |  +1.02 |  -0.77 |  +0.40 |  +0.58 |  -1.78 |  +0.28 |  +0.27 |  +5.00 | -0.035
+24 |  +3.92 |  +1.42 |  -0.81 |  +0.63 |  +0.97 |  -4.50 |  +1.12 |  +0.77 |  +2.76 | -0.067
+48 |  +4.64 |  +2.01 |  -0.87 |  +0.91 |  +1.49 | -11.30 |  +3.70 |  +2.10 |  +0.28 | -0.127
 ```
 
 **Printing is spending.** It buys things in `aggregate.js` and cancels on the
@@ -217,11 +254,14 @@ inside eight years.** 2pp does not. There is a cliff and it is not signposted.
 ### `qe` 10.0pp
 
 ```
-mo | output | inflat | unemp  | invest | debt   | assets
- 6 |  +0.11 |  +0.03 |  -0.03 |  +0.08 |  -0.12 |  +0.39
-12 |  +0.19 |  +0.07 |  -0.07 |  +0.11 |  -0.36 |  +1.20
-24 |  +0.35 |  +0.14 |  -0.13 |  +0.15 |  -0.96 |  +2.84
-48 |  +0.69 |  +0.30 |  -0.23 |  +0.22 |  -2.68 |  +5.92
+mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
+--------------------------------------------------------------------------------------------
+ 1 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  +0.00 | +0.000
+ 3 |  +0.01 |  +0.00 |  -0.00 |  +0.01 |  +0.00 |  -0.00 |  +0.02 |  +0.00 |  +0.00 | +0.000
+ 6 |  +0.04 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.11 |  +0.02 |  +0.02 | +0.000
+12 |  +0.10 |  +0.03 |  -0.03 |  +0.07 |  +0.02 |  -0.05 |  +0.35 |  +0.08 |  +0.09 | +0.000
+24 |  +0.19 |  +0.07 |  -0.07 |  +0.10 |  +0.06 |  -0.23 |  +0.87 |  +0.27 |  +0.19 | +0.000
+48 |  +0.33 |  +0.14 |  -0.11 |  +0.13 |  +0.13 |  -0.93 |  +1.79 |  +0.69 |  +0.19 | +0.000
 ```
 
 Deliberately weak per pound — 3.5 basis points off the yield per 1% of GDP
