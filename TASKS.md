@@ -1,0 +1,102 @@
+# TASKS
+
+Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
+**`docs/13-fourth-audit-plan.md`**. Source brief: `4th-audit-brief.md`.
+
+`[ ]` todo `[~]` in progress `[x]` done `[-]` deliberately not doing
+
+---
+
+## Phase 0 — Verification
+
+- [x] Reproduce Part 0 (200 calm ticks, zero drift)
+- [x] Reproduce the Section A decomposition table (28 cells)
+- [x] Verify A1 kernel mean lag, A2 dial ceiling, A3 effective response
+- [x] Verify B1 divergence, B2 asset units, B3 unbounded consumption
+- [x] Verify D1 interest income, and the D2/D3/D4/D5 code claims
+- [x] Record corrections to the brief (3 found, 1 reorders the work)
+
+## Phase 1 — Guards and the silent truncation
+
+- [ ] 1.1 Divergence guard: no state variable may diverge over 480 ticks
+- [ ] 1.2 Make the autopilot clamp and the dial max agree, and assert it
+- [ ] 1.3 Report when a dial request is truncated
+- [ ] 1.4 Delete the asserted defeat in `autopilot.js:14`
+
+## Phase 2 — Section A: the transmission lag
+
+- [ ] 2.1 Split the rate lag from the investment-response lag
+- [ ] 2.2 Re-measure the A-table from the model itself
+- [ ] 2.3 Record the effective transmitted Taylor response (0.37)
+- [ ] 2.4 Derive the dial ceiling
+- [ ] 2.5 Re-run the four historical episodes and re-report
+- [ ] 2.6 Rewrite OPEN #6's message
+
+## Phase 3 — Section B: the asset–credit loop
+
+- [ ] 3.1 Fix the asset-price semi-elasticity's units
+- [ ] 3.2 Give the credit↔collateral loop a balancing term, or state its gain
+- [ ] 3.3 Bound consumption physically
+- [ ] 3.4 Replace the +12%/month asset growth clamp
+- [ ] 3.5 Turn the divergence guard green
+
+## Phase 4 — Re-measure everything **(HARD GATE)**
+
+- [ ] 4.1 Re-solve the two crisis amplification constants
+- [ ] 4.2 Record that they are calibration constants, not measurements
+- [ ] 4.3 Regenerate cause-effect, report, IRF, paths
+- [ ] 4.4 Re-measure OPEN #1 and OPEN #9
+
+## Phase 5 — Correctness and hygiene
+
+- [ ] 5.1 Recycle government interest income to households
+- [ ] 5.2 Private debt maturity
+- [ ] 5.3 Lint check (f): numeric literals in `src/rules/`
+- [ ] 5.4 Derive the credit trend speed
+- [ ] 5.5 Fix `CREDIT_GAP_CRISIS_THRESHOLD`'s note and `HAND_TO_MOUTH_SHARE`
+- [ ] 5.6 Wire or defer `participation` and `gdp_growth_annual`
+
+## Phase 6 — What to add
+
+- [ ] 6.1 Macroprudential dial: the countercyclical capital buffer
+- [ ] 6.2 **Historical scenarios: play the moment**
+- [ ] 6.3 Separate housing from equities
+- [ ] 6.4 Demographics
+- [-] 6.5 Forward guidance — deferred again, for the right reason
+
+## Phase 7 — Validation
+
+- [ ] 7.1 Uncertainty propagation (Monte Carlo)
+- [ ] 7.2 Step-size independence
+
+## Phase 8 — Interface
+
+- [ ] 8.1 Display `crisis_prob`
+- [ ] 8.2 Add an output-gap gauge
+- [ ] 8.3 Display `price_level`
+- [ ] 8.4 Real wage growth
+- [ ] 8.5 Make every recorded trace reachable
+- [ ] 8.6 The pipeline panel as a timeline, not a list
+- [ ] 8.7 Project the line forward
+- [ ] 8.8 Confidence bands
+- [ ] 8.9 Dial history / decision ledger
+- [ ] 8.10 The remaining unshown values
+- [ ] 8.11 Accessibility
+
+## Phase 9 — Is it a game
+
+- [ ] 9.1 The published forecast
+- [ ] 9.2 Two named advisors who disagree
+
+## Phase 10 — Documentation (throughout, not at the end)
+
+- [ ] 10.1 Rewrite `docs/10` wholesale
+- [ ] 10.2 Regenerate `docs/11`
+- [ ] 10.3 Regenerate `TEST-RESULTS.md`
+- [ ] 10.4 Update `docs/02`
+- [ ] 10.5 Update `docs/01`
+- [ ] 10.6 Add `docs/00`'s fourth revisions section
+- [ ] 10.7 Update `docs/09`
+- [ ] 10.8 Fix `README.md`'s counts
+- [ ] 10.9 Update `parameters.py`
+- [ ] 10.10 Write `docs/14` — the report
