@@ -711,6 +711,84 @@ The binding constraint is `max_expected_inflation + a positive real rate`. After
 A1 the required ceiling falls sharply. Derive it, state the derivation, re-run
 `stagflation`.
 
+**2.5 — Re-run the four historical episodes and re-report. — DONE**
+**2.6 — Rewrite `OPEN #6`'s message. — DONE (it is no longer an OPEN)**
+
+> #### THE HEADLINE OF PHASE 2: `docs/12`'s largest finding is CLOSED.
+>
+> "THE ONE FINDING UNDERNEATH ALL FOUR: a bifurcation in the playable range"
+> was a failing `todo`. It is now a **passing hard assertion**. From 8%
+> inflation and 7% expected, rate moved in one step, inflation at m36:
+>
+> | | 6% | 6.5% | 7% | 7.5% | 8% | 9% | 12% | 15% |
+> |---|---|---|---|---|---|---|---|---|
+> | **now** | 11.71 | 7.61 | 5.40 | 4.54 | 3.83 | 2.65 | 0.26 | −1.48 |
+> | before | — | — | **217.6** | — | — | **0.69** | — | — |
+>
+> And the same destination reached gradually, which used to flip the outcome:
+>
+> | 15% over | 0m | 6m | 12m | 18m | 24m | 36m |
+> |---|---|---|---|---|---|---|
+> | **now** | −1.48 | −0.80 | 0.68 | 2.48 | 4.84 | 16.26 |
+> | before | 2.16 defl. | — | — | 12.12 | **250** | — |
+>
+> Both are smooth monotone curves. **Gradualism now costs inflation smoothly,
+> which is the lesson, instead of falling off a cliff between 18 and 24 months.**
+>
+> **`docs/12` named the wrong mechanism, and this is the proof.** It wrote:
+> *"demand responds to the REAL user cost, expectations are formed entirely
+> from realised inflation, and the transmitted rate takes about three years to
+> arrive"* — and concluded the missing forward-looking expectations channel was
+> the defect. The first two clauses are **still true and untouched**. Only the
+> third was fixed, and the knife-edge went with it. The standing rule of this
+> pass, earning its place.
+>
+> **What remains is correct and must not be "fixed".** A peg below the Fisher
+> point still diverges given long enough:
+>
+> | rate | m36 | m60 | m96 |
+> |---|---|---|---|
+> | 6% | 11.71 | 81.55 | 2036.23 |
+> | 6.5% | 7.61 | 17.31 | 388.53 |
+> | 7% | 5.40 | 3.92 | **0.17** |
+> | 9% | 2.65 | −1.55 | −4.00 |
+>
+> The separatrix sits at **~6.75%** against expected inflation 7.0% + r* 0.5%.
+> That is the Taylor principle, which the brief said explicitly must not be
+> removed. What changed is that it is now **where the arithmetic puts it**
+> rather than 1.5pp above it, and the approach is a curve rather than a cliff.
+>
+> #### The four episodes, re-measured. They no longer fail the same way.
+>
+> | episode | verdict | key numbers |
+> |---|---|---|
+> | **UK 1979-83** | **the big winner** | inflation peaks **m11** (UK: m13; was **m60**), 8.63% at 4y (was 13.71); felt rate at m12 **13.12 → 16.86** against a 17% MLR |
+> | **US 2021-23** | materially better | now **peaks inside the window** (20.54% @ m40) where before it was still climbing; 10.41% at m32 (was 14.06) |
+> | **JAPAN** | untouched | 1.28% at m12 (was 1.44). Phase 2 moved the **ceiling**; Japan spends a decade against the **floor** |
+> | **US 2008-12** | untouched | trough −1.85% (was −1.86). It is a crash plus an **easing**, so faster transmission helps the easing too |
+>
+> **Two of the four now point at the same missing mechanism from opposite
+> directions.** US 2021-23's remaining failure is *entirely* credibility
+> collapsing to zero on realised misses; Japan's is expectations that cannot
+> de-anchor *downward*. That agreement is new. It is also the honest case for
+> **6.5 (forward guidance)** — `docs/12` deferred it for a reason that named
+> the wrong defect, Phase 2 removed that defect, and what is left is the thing
+> `docs/12` thought it was pointing at all along.
+>
+> **UK's residual failure has moved category.** It is no longer about
+> transmission: the disinflation happens on time, it is just far too cheap
+> (sacrifice ratio 0.38 against Ball's 2–4). That is the same statement as
+> `TAX_SHOCK_TO_GDP` and the missing austerity paradox — every real quantity
+> moves too little for the price change that caused it — and it is a demand-block
+> finding.
+>
+> `TEST-RESULTS.md` regenerated: 149 tests, 135 pass, 0 fail, **14 open** (was
+> 11 before this pass began, and the bifurcation is no longer among them).
+>
+> ---
+>
+> *The plan's original text follows.*
+
 **2.5 — Re-run the four historical episodes and re-report.**
 `TEST-RESULTS.md` #2, #3, #4 and #5 all sit downstream of this phase. Do not
 touch the episode tests themselves — they are good tests. Re-run and rewrite

@@ -10,12 +10,36 @@
  * whether the arc comes out the right shape.
  *
  * ============================ READ THIS FIRST ============================
- * THE MODEL FAILS ALL FOUR, AND IT FAILS THEM THE SAME WAY. That is the most
- * important result in `docs/12` and it is far larger than anything the audit
- * brief anticipated: the model does not disinflate GRADUALLY at all — it either
- * stabilises or diverges, with a two-percentage-point knife-edge between them.
- * The last two tests in this file are the ones to read if you read only one
- * thing here.
+ * THE MODEL STILL FAILS ALL FOUR — but it no longer fails them all the SAME
+ * way, and that is the result of the fourth audit's Phase 2.
+ *
+ * `docs/12`'s headline was that the model does not disinflate gradually at
+ * all: it either stabilised or diverged, with a two-percentage-point
+ * knife-edge between them and nothing in the middle. THAT IS NOW CLOSED — see
+ * the last test in this file, which used to be a failing `todo` and is now a
+ * passing assertion. `docs/12` attributed it to a missing forward-looking
+ * expectations channel; it was a transmission lag applied to the wrong
+ * quantity, and fixing that removed it without touching expectations at all.
+ *
+ * WHAT THE FOUR NOW SAY, WHICH IS FOUR DIFFERENT THINGS:
+ *   UK 1979-83   THE BIG WINNER. The disinflation now happens, and on roughly
+ *                the historical timetable (peak month 11 vs the UK's 13,
+ *                against month 60 before). It is still far too cheap:
+ *                sacrifice ratio 0.38 against Ball's 2-4.
+ *   US 2021-23   Materially better — inflation now peaks inside the window at
+ *                all — and what remains is ENTIRELY the expectations block:
+ *                credibility collapses to zero on realised misses alone.
+ *   JAPAN        Untouched, and could not have been: Phase 2 moved the
+ *                ceiling, and Japan spends a decade against the FLOOR. Points
+ *                at the same expectations channel from the deflationary side.
+ *   US 2008-12   Untouched, and the least like the others: it is a crash plus
+ *                an EASING, so faster transmission helps the easing too. Sits
+ *                downstream of Section B.
+ *
+ * Two of the four now point at the same missing mechanism — expectations that
+ * respond to something other than realised inflation — and they point at it
+ * from opposite directions. That agreement is new, and it is the most useful
+ * thing this file currently says.
  *
  * Every disagreement below is a `todo` carrying its measured number, per the
  * standing rule: a model that lands outside the evidence is a finding to
@@ -110,18 +134,25 @@ test('US 2008-12: the rate dial does reach its floor and stay there', () => {
 });
 
 test('US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT', {
-  todo: 'THE MODEL DOES NOT PRODUCE THE GREAT RECESSION, and the reason is the ' +
-    'opposite of what you would guess. Fed with the actual policy path, output ' +
-    'troughs at -1.86% of trend (US: -5 to -7), unemployment rises +0.32pp to ' +
-    '5.13% at month 10 (US: +5.0pp to 10.0% at month 22), inflation never goes ' +
-    'below 2.26% (US: -2.1%), and government debt FALLS from 64% to 60% (US: ' +
-    '64 -> 100). The 1.75pp of rate cuts delivered between months 2 and 11 ' +
-    'produce a boom that more than cancels a financial crisis: output is +3.83% ' +
-    'of trend at month 6, BEFORE Lehman lands. So this is not the crash being ' +
-    'too weak — test/crisis.test.js shows the crash arc is right in isolation — ' +
-    'it is the monetary channel being too strong relative to it. Note also that ' +
-    'debt falling through a crisis is arithmetically impossible in the data and ' +
-    'points at the same place: see THE ONE FINDING UNDERNEATH ALL FOUR.',
+  todo: 'STILL FAILS, AND PHASE 2 BARELY TOUCHED IT — which is itself the ' +
+    'finding. Re-measured after the A1 transmission split and the derived rate ' +
+    'ceiling: output troughs at -1.85% of trend (was -1.86; US: -5 to -7), ' +
+    'unemployment rises +0.14pp peaking in month 9 (was +0.32pp; US: +5.0pp to ' +
+    '10.0% at month 22), inflation never goes below 2.25% (was 2.26; US: -2.1%), ' +
+    'and government debt FALLS from 64% to 61% (was 60; US: 64 -> 100). ' +
+    'Output is +3.55% of trend at month 6, BEFORE Lehman lands. ' +
+    'THE UNEMPLOYMENT RESPONSE GOT SMALLER, not larger. ' +
+    'WHY PHASE 2 DID NOT HELP HERE, and it is worth understanding: this ' +
+    'episode is not a disinflation, it is a CRASH plus an easing, and the two ' +
+    'Section A defects were both about tightening arriving too slowly. Making ' +
+    'the rate arrive faster makes the EASING arrive faster too, so the 1.75pp ' +
+    'of cuts delivered between months 2 and 11 now offset the crisis sooner ' +
+    'rather than less. The asymmetry the brief identified is unchanged: the ' +
+    'cut reaches asset prices on a 1-month kernel and now reaches borrowers on ' +
+    'a 3-month one, while the crisis works through the credit and capital ' +
+    'blocks over years. What is left is a demand block that heals too fast, ' +
+    'which is the same statement as OPEN #1 and TAX_SHOCK_TO_GDP, and it sits ' +
+    'downstream of Section B rather than Section A. Re-measure after Phase 3.',
 }, () => {
   const r = us2008();
   const uRise = r.peak('unemployment').unemployment - r.at(1).unemployment;
@@ -167,20 +198,25 @@ test('US 2021-23: fiscal transfers plus a supply shock do produce an inflation',
 });
 
 test('US 2021-23: THE DISINFLATION NEVER HAPPENS', {
-  todo: 'THE HARD ONE THE AUDIT BRIEF FLAGGED, and it fails much harder than ' +
-    'expected. Inflation does not peak inside the 40-month window at all: it is ' +
-    'still rising at month 40, at 36.81%, having passed 14.06% at month 32 when ' +
-    'US CPI was 3.1%. A funds rate taken to 5.25% by month 27 does not stop it. ' +
-    'Two mechanisms are responsible and both are visible in the path. (1) The ' +
-    'transmitted rate is 2.28% at month 30 and 4.10% at month 40 while the DIAL ' +
-    'has been at 5.25 since month 27 — the real economy never feels the hike, ' +
-    'so the REAL rate stays deeply negative and demand keeps rising. (2) ' +
-    'Credibility falls 0.851 -> 0.000 by month 29 purely from realised misses, ' +
-    'which quadruples kappa and makes the process self-reinforcing. Unemployment ' +
-    'peaks at 5.81% (US: never above 4.0), so the sacrifice ratio question the ' +
-    'brief asked cannot even be posed — the model never buys the disinflation ' +
-    'at any price. Do not raise the transmission speed or lower kappa to close ' +
-    'this: see THE ONE FINDING UNDERNEATH ALL FOUR.',
+  todo: 'MATERIALLY BETTER AFTER PHASE 2 AND STILL WRONG. Inflation now PEAKS ' +
+    'inside the window — 20.54% at month 40, where before it had not peaked at ' +
+    'all and was still climbing through 36.81% — and it is 10.41% at month 32 ' +
+    'against 14.06% before (US: peaked 9.1% at month 17, 3.1% by month 32). ' +
+    'The single biggest change is that the hike now reaches the economy: ' +
+    'mechanism (1) in the old diagnosis was that the transmitted rate was ' +
+    '2.28% at month 30 while the DIAL had been at 5.25 since month 27, and ' +
+    'that is gone — policy_rate_demand now tracks the dial within a quarter. ' +
+    'WHAT IS LEFT IS MECHANISM (2), AND IT IS NOW THE WHOLE OF IT: credibility ' +
+    'falls 0.85 -> 0.000 by month 31 purely from realised misses, which ' +
+    'quadruples kappa and makes the process self-reinforcing exactly when the ' +
+    'central bank most needs to be believed. A 5.25% funds rate against 20% ' +
+    'expected inflation is deeply negative in real terms whatever the ' +
+    'transmission speed. This is the forward-guidance / expectations channel ' +
+    'the project has deferred three times, and after Phase 2 it is the ' +
+    'largest single thing still missing from the monetary block — the ' +
+    'reasoning in docs/12 that deferred it named the wrong defect, but Phase 2 ' +
+    'has now removed that defect and the case for building it is what remains. ' +
+    'Do not raise the transmission speed or lower kappa to close this.',
 }, () => {
   const r = us2021();
   const pk = r.peak('inflation');
@@ -234,18 +270,24 @@ test('UK 1979-83: low credibility really does make inflation more expensive', ()
 });
 
 test('UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES', {
-  todo: 'The disinflation is not bought, so the price is not paid. Inflation ' +
-    'peaks at 20.39% but in month 60, not month 13, and is still 13.71% at ' +
-    'month 48 — 67% of its peak, against a UK figure of 4.6%. Unemployment ' +
-    'rises +0.50pp to 6.68% where the UK went 5.4 -> 11.9, so the measured ' +
-    'sacrifice ratio is 0.29 point-years per pp against Ball 1994\'s 2-4 for ' +
-    'this exact episode. THE REASON IS INSTRUCTIVE AND IS NOT A COEFFICIENT: ' +
-    'a 17% MLR against 16.8% expected inflation is a REAL rate of roughly zero, ' +
-    'so the model correctly reads Howe\'s budget as barely contractionary. What ' +
-    'is missing is what made it contractionary in fact — an announced regime ' +
-    'change that moved expectations ahead of the outturn. The model has no ' +
-    'channel for that at all: credibility falls 0.189 -> 0.000 and never ' +
-    'recovers, because it responds only to realised inflation.',
+  todo: 'THE BIGGEST IMPROVEMENT OF PHASE 2, AND IT STILL FAILS ON THE PRICE. ' +
+    'The TIMING is now right: inflation peaks in month 11 where the UK peaked ' +
+    'in month 13, against month 60 before the A1 split — the disinflation now ' +
+    'happens, and on roughly the historical timetable. It falls to 8.63% at ' +
+    'four years, against 13.71% before (UK: 4.6%). The felt rate at month 12 ' +
+    'went from 13.12% to 16.86% against a 17% MLR, which is the whole of why: ' +
+    'Howe\'s budget is now actually contractionary in the model rather than ' +
+    'nominally so. ' +
+    'WHAT STILL FAILS IS THE PRICE, AND IT FAILS IN BOTH DIRECTIONS. The peak ' +
+    'is 16.38% against a UK 21.9% — the model no longer overshoots into a late ' +
+    'spiral, but it never reaches the historical peak either. And the recession ' +
+    'is still absent: unemployment rises 0.64pp where the UK went 5.4 -> 11.9, ' +
+    'so the sacrifice ratio is 0.38 point-years per pp against Ball 1994\'s 2-4 ' +
+    'for this exact episode. A disinflation this cheap is not a disinflation ' +
+    'anyone would recognise. That is a statement about the DEMAND BLOCK — the ' +
+    'same finding as TAX_SHOCK_TO_GDP and the missing austerity paradox, where ' +
+    'every real quantity moves too little for the price change that caused it. ' +
+    'It is no longer a statement about transmission.',
 }, () => {
   const r = uk1979();
   const pk = r.peak('inflation');
@@ -313,16 +355,24 @@ test('JAPAN: own-currency debt held at home does not reprice, and foreign-held d
 });
 
 test('JAPAN: THE MODEL CANNOT HOLD A DEFLATION', {
-  todo: 'Inflation is under 0.5% in 2 of 120 months. It leaves the deflation ' +
-    'inside a year (1.44% at month 12), passes target at month 24 and reaches ' +
-    '3.95% by month 60 with the policy rate on the floor the whole time. Debt ' +
-    'never exceeds 90% — Japan passed 150% — because the inflation the model ' +
-    'invents erodes it. THE MISSING MECHANISM IS DOWNWARD DE-ANCHORING: ' +
-    'updateExpectations pulls expectations back toward inflation_target from ' +
-    'BELOW at the same rate as from above, so a central bank with credibility ' +
-    '0.7 that cannot reach 2% is not representable. Japan\'s problem was ' +
-    'precisely that nobody believed the BoJ could get there. This is the same ' +
-    'absence as the other three episodes, seen from the deflationary side.',
+  todo: 'UNCHANGED BY PHASE 2, AS EXPECTED, AND THE REASON MATTERS. Inflation ' +
+    'is under 0.5% in 2 of 120 months; it leaves the deflation inside a year ' +
+    '(1.28% at month 12, was 1.44%), passes target by month 36 (2.78%) and ' +
+    'reaches 3.76% by month 60 (was 3.95%) with the policy rate on the floor ' +
+    'throughout. Debt peaks at 91% where Japan passed 150%, because the ' +
+    'inflation the model invents erodes it. ' +
+    'PHASE 2 COULD NOT HAVE HELPED. Both Section A defects were about a ' +
+    'TIGHTENING arriving too slowly, and Japan is a decade in which no ' +
+    'tightening was attempted and the rate dial was against its LOWER bound ' +
+    'the whole time — the one bound Phase 2.4 did not move, because the ELB is ' +
+    'physics rather than layout. ' +
+    'THE MISSING MECHANISM IS DOWNWARD DE-ANCHORING: updateExpectations pulls ' +
+    'expectations back toward inflation_target from BELOW at the same rate as ' +
+    'from above, so a central bank with credibility 0.7 that cannot reach 2% is ' +
+    'not representable. Japan\'s problem was precisely that nobody believed the ' +
+    'BoJ could get there. That is the same expectations channel US 2021-23 now ' +
+    'points at, seen from the deflationary side, and after Phase 2 the two ' +
+    'episodes agree on the diagnosis for the first time.',
 }, () => {
   const r = japan();
   const belowHalf = r.h.filter((x) => x.inflation < 0.5).length;
@@ -353,35 +403,66 @@ test('the Taylor principle IS satisfiable — but only by jumping, never by walk
     `${r.peak('unemployment').unemployment.toFixed(2)}%`);
 });
 
-test('THE ONE FINDING UNDERNEATH ALL FOUR: a bifurcation in the playable range', {
-  todo: 'THE LARGEST FINDING IN docs/12, AND THE AUDIT BRIEF DID NOT ANTICIPATE ' +
-    'IT. The model does not disinflate GRADUALLY — it either stabilises or ' +
-    'diverges, with a knife-edge between them and nothing in the middle, and ' +
-    'real economies live in the middle. Measured, from 8% inflation and 7% ' +
-    'expected, with the rate moved in ONE step: to 7% -> inflation reaches ' +
-    '217.6% by month 60; to 9% -> it falls to 0.69%. Two percentage points of ' +
-    'policy separate hyperinflation from success. Worse, the SAME destination ' +
-    'reached gradually flips the outcome: 15% immediately -> 2.16% deflation at ' +
-    'month 36; 15% over 18 months -> 12.12%; 15% over 24 months -> 250%. ' +
-    'THE MECHANISM: demand responds to the REAL user cost, expectations are ' +
-    'formed entirely from realised inflation, and the transmitted rate takes ' +
-    'about three years to arrive. So expected_inflation responds to inflation ' +
-    'faster than policy_rate_demand responds to the dial, the real rate moves ' +
-    'the WRONG WAY when inflation rises, and the loop is positive unless the ' +
-    'nominal move is large enough to clear the whole distance at once. ' +
-    'Credibility compounds it: it falls only on realised misses, so it ' +
-    'collapses exactly when it is most needed and quadruples kappa on the way ' +
-    'down. This is docs/07 L6\'s defect class — a discontinuity inside the ' +
-    'range the player occupies — at the largest scale it appears anywhere in ' +
-    'the model, and it explains all four episode failures at once. ' +
-    'WHAT IT MEANS FOR SECTION 5: the audit brief recommends forward guidance ' +
-    'as a depth feature. This upgrades it from a nice-to-have to a ' +
-    'prerequisite — every historical disinflation was won by moving ' +
-    'expectations AHEAD of the outturn, and there is no channel for that here. ' +
-    'It is also why Section 5 was NOT built in this pass: an announcement ' +
-    'effect bolted onto a process that diverges under the real Volcker path ' +
-    'would be decoration on a defect.',
-}, () => {
+/**
+ * THE ONE FINDING UNDERNEATH ALL FOUR — CLOSED BY PHASE 2.
+ *
+ * This was the largest finding in `docs/12`: the model did not disinflate
+ * GRADUALLY at all. It either stabilised or diverged, with a knife-edge
+ * between them and nothing in the middle, and real economies live in the
+ * middle. Measured then, from 8% inflation and 7% expected, rate moved in ONE
+ * step, inflation at month 36:
+ *
+ *      to 7%  ->  217.6%          to 9%  ->  0.69%
+ *
+ * Two percentage points of policy separated hyperinflation from success. And
+ * the SAME destination reached gradually flipped the outcome: 15% immediately
+ * gave 2.16% deflation, 15% over 24 months gave 250%.
+ *
+ * MEASURED NOW, after Phase 2, the same experiments:
+ *
+ *      one step to   6%    6.5%     7%    7.5%     8%     9%    12%    15%
+ *      inflation   11.71   7.61   5.40   4.54   3.83   2.65   0.26  -1.48
+ *
+ *      15% reached over   0m     6m    12m    18m    24m    36m
+ *      inflation        -1.48  -0.80   0.68   2.48   4.84  16.26
+ *
+ * Both are smooth monotone curves. Gradualism now costs you inflation
+ * SMOOTHLY — which is correct economics, and is the lesson the scenario is
+ * for — instead of falling off a cliff between 18 and 24 months.
+ *
+ * THE MECHANISM `docs/12` NAMED WAS WRONG AND IT MATTERS. It said: "demand
+ * responds to the REAL user cost, expectations are formed entirely from
+ * realised inflation, and the transmitted rate takes about three years to
+ * arrive", and concluded that the missing forward-looking expectations channel
+ * was the defect. The first two clauses are still true and unchanged. Only the
+ * third was fixed — the transmitted rate now arrives in a quarter — and the
+ * knife-edge went with it. **The expectations block was never the cause.**
+ * That is the standing rule of this pass earning its place: docs/12 measured a
+ * real bifurcation and attributed it to a channel it had never switched off.
+ *
+ * WHAT REMAINS, AND IT IS NOT A DEFECT. A peg below the Fisher point still
+ * diverges, given long enough. Same experiment read at three horizons:
+ *
+ *      rate      m36      m60       m96
+ *       6%     11.71    81.55   2036.23
+ *      6.5%     7.61    17.31    388.53
+ *       7%      5.40     3.92      0.17
+ *       9%      2.65    -1.55     -4.00
+ *
+ * The separatrix sits at ~6.75%, against expected inflation of 7.0% and a
+ * neutral real rate of 0.5%. A fixed nominal rate below expected inflation
+ * plus r* MUST eventually spiral: that is the Taylor principle, it is the one
+ * thing the audit brief said explicitly must not be "fixed", and a model
+ * without it would be teaching something false. What changed is that the
+ * separatrix is now WHERE THE ARITHMETIC PUTS IT rather than 1.5pp above it,
+ * and the approach to it is a curve rather than a cliff.
+ *
+ * The residual sharpness NEAR the separatrix is the asset-wealth channel, and
+ * that is Section B — measured in test/transmission.test.js, which shows the
+ * steepest local response falling from -149.2 to -22.5pp per pp with
+ * WEALTH_EFFECT switched off.
+ */
+test('THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone', () => {
   const disinflates = (target, overMonths) => {
     const policy = {};
     if (overMonths === 0) policy[0] = (w) => dial(w, 'policy_rate', target);

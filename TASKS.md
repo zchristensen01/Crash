@@ -71,8 +71,15 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       events on. **The Taylor rule now WINS stagflation**: 5.69% @m48,
       1.91% @m96, refused 0/96 — against 29.55% / 1020.91% / 86-96 at a
       ceiling of 20. Closes A4 by measurement.
-- [ ] 2.5 Re-run the four historical episodes and re-report
-- [ ] 2.6 Rewrite OPEN #6's message
+- [x] 2.5 Re-run the four historical episodes and re-report
+      All four `todo` messages rewritten against measured numbers. UK 1979-83
+      is the big winner (peak m60 -> m11, against the UK's m13). US 2021 and
+      Japan now point at the SAME missing mechanism from opposite directions.
+      US 2008 untouched — it is a crash plus an easing.
+- [x] 2.6 Rewrite OPEN #6's message — **it is no longer an OPEN**
+      The bifurcation test flipped from failing `todo` to passing assertion.
+      `docs/12`'s largest finding is closed, and by fixing transmission rather
+      than expectations — the mechanism it named was wrong.
 
 ## Phase 3 — Section B: the asset–credit loop
 
