@@ -31,7 +31,12 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       `s.dial_truncated` + `s.dial_truncated_count` + a trace note, written
       only by `applyDialChange`. Measured: the Taylor rule is refused in 87/96
       months of `stagflation` (ceiling) and 30/96 of `recession` (the ELB).
-- [ ] 1.4 Delete the asserted defeat in `autopilot.js:14`
+- [x] 1.4 Delete the asserted defeat in `autopilot.js:14`
+      Replaced with the isolating experiment and pinned by a test. Ceiling 20
+      -> 242.34% @m48; ceiling 40, shock unchanged -> 7.48%. Uncovered
+      **Correction 7**: Phase 0's Correction 1 table was measured through the
+      hidden 25 clamp, so every "dial max 40" row in it is wrong. 2.4 must not
+      use it.
 
 ## Phase 2 — Section A: the transmission lag
 

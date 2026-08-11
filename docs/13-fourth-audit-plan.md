@@ -56,6 +56,12 @@ Every number in that table is correct. **The `+` prefixes are not cumulative
 where they appear to be** — rows 3 and 4 are single changes from the baseline,
 rows 2 and 5 are cumulative. Compared like with like, at a common dial ceiling:
 
+> ⚠️ **THE TABLE BELOW IS SUPERSEDED — see CORRECTION 7 under Phase 1.4.** Every
+> "dial max 40" row was measured through `taylorRate`'s own hidden clamp at 25,
+> so its effective ceiling was 25, not 40. The corrected figure for row 4 is
+> **7.48, not 139.12**. The *conclusion* below — that the ceiling is the binding
+> constraint — survives and gets stronger. The numbers do not. Do not quote them.
+
 | dial max | `TAYLOR_INFLATION` | ρ | inflation @ m48 | gap |
 |---|---|---|---|---|
 | 20 | 0.5 | 0.85 | 242.34 | +96.0 |
@@ -325,13 +331,60 @@ without an audit.
 > most recent truncation in a month is kept; the count keeps all of them.
 > Surfacing it on screen is Phase 8.5's job, not this one.
 
-**1.4 — Delete the asserted defeat in `autopilot.js:14`.**
+**1.4 — Delete the asserted defeat in `autopilot.js:14`. — DONE**
 *"It still loses the stagflation scenario, because no rule handles a supply
 shock well."* A Taylor rule handles a one-off supply shock adequately in every
 standard model; it loses here for the mechanical reasons in A1–A3, and the table
 above shows it wins the moment the ceiling is lifted. Rule 6 pointing the other
 way: a defeat written into a comment and read back as a design property. Replace
 with the measurement.
+
+> #### As built — the comment now carries the experiment, and a test pins it.
+>
+> The isolating experiment (rule 9): raise the rate dial's ceiling from 20 to 40
+> and change **nothing else** — supply shock, 3% capacity loss, 9% opening
+> inflation, smoothing and `TAYLOR_INFLATION` all identical.
+>
+> | arm | inflation @ m48 | @ m96 | months refused |
+> |---|---|---|---|
+> | as built (ceiling 20) | **242.34** | 22711.39 | 87/96 |
+> | **ceiling 40, nothing else** | **7.48** | **−3.37** | 48/96 |
+> | `TAYLOR_INFLATION` 1.0, ceiling 20 | 177.62 | 13905.74 | 89/96 |
+> | no smoothing (ρ=0), ceiling 20 | 37.84 | **1871.40** | 92/96 |
+> | no smoothing + ceiling 40 | 4.30 | 2.41 | 0/96 |
+>
+> **The shock never moved, so the shock was never what beat it.** A comment
+> cannot be run, so the claim is pinned by a test that fails if either half of
+> it stops being true.
+>
+> ### CORRECTION 7 — **Correction 1's table was measured through the hidden 25 clamp, and every "dial max 40" row in it is wrong.**
+>
+> Found while measuring 1.4, and it is a Phase 0 error. Re-run both ways:
+>
+> | configuration | with internal clamp 25 | without | Correction 1 says |
+> |---|---|---|---|
+> | dial max 20, A 0.5, ρ 0.85 | 242.34 | 242.34 | 242.34 ✅ |
+> | dial max 40, A 0.5, ρ 0.85 | 139.12 | **7.48** | 139.12 ❌ |
+> | dial max 40, A 1.5, ρ 0.85 | 8.92 | **−3.48** | 8.92 ❌ |
+> | dial max 40, A 0.5, ρ 0 | 5.14 | **4.30** | 5.14 ❌ |
+> | dial max 40, A 1.0, ρ 0.85 | 40.59 | — | 40.59 ❌ |
+>
+> Every figure reproduces to 2dp **with** the clamp. So when Phase 0 "raised the
+> dial max to 40" it was still measuring an effective ceiling of **25**, because
+> `taylorRate`'s own clamp bound before the dial's did. That is the same defect
+> A2 describes, biting the person auditing it.
+>
+> **This strengthens Correction 1 rather than weakening it.** Correction 1
+> concluded *"at dial max 40 both work, and comparably — the binding constraint
+> is the ceiling"*. Measured properly, **raising the ceiling alone wins
+> outright** (242.34 → 7.48): you need not touch the gain or the smoothing at
+> all. The ceiling is not merely the binding constraint at m48, it is the whole
+> of it. A2/2.4 get more important again.
+>
+> It also finishes off A3. *"The problem is delay, not gain"* was already
+> unsupported; the corrected numbers say the problem is **neither** — at m48 it
+> is the ceiling, and removing the smoothing alone leaves inflation at 1871% by
+> m96. **Phase 2.4 must not use Correction 1's table.**
 
 ---
 

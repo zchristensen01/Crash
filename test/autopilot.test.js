@@ -158,3 +158,68 @@ test('the truncation count makes a saturated benchmark visible in one number', (
     `the rule hit a dial bound ${counts.calm} times in calm, where it should ` +
     `never leave the neighbourhood of neutral`);
 });
+
+/**
+ * 1.4 — THE ASSERTED DEFEAT, REPLACED BY THE MEASUREMENT.
+ *
+ * autopilot.js used to claim it lost `stagflation` "because no rule handles a
+ * supply shock well". That is a defeat written into a comment and read back as
+ * a design property — rule 6 pointing the other way — and it sat on top of the
+ * real cause for three passes.
+ *
+ * This test IS the replacement. A comment cannot be run; this can, and it
+ * fails the moment either half of the claim stops being true.
+ *
+ * It mutates the dial's ceiling, which is normally forbidden — but that is
+ * precisely the isolating experiment (rule 9): one thing changes, and it is
+ * the instrument rather than the economy. The shock, the capacity loss, the
+ * opening inflation, the smoothing and the gain are identical in both arms.
+ */
+test('the Taylor rule loses stagflation to the CEILING, not to the supply shock', () => {
+  const rate = DIALS.find((d) => d.key === 'policy_rate');
+  const original = rate.max;
+
+  const play = () => {
+    const s = newState(SCENARIOS.stagflation.overrides);
+    const trace = new Trace(false);
+    const pipeline = new LagPipeline();
+    const rng = makeRng(1);
+    const out = {};
+    for (let m = 1; m <= 96; m++) {
+      tick(s, trace, pipeline, rng, {
+        events: false, endings: false, assertEveryTick: false, findNaN: false,
+        autopilot: applyAutopilot,
+      });
+      if (m === 48 || m === 96) out[m] = s.inflation;
+    }
+    return { ...out, truncated: s.dial_truncated_count };
+  };
+
+  try {
+    const built = play();
+    rate.max = 40;
+    const lifted = play();
+
+    console.log(`  stagflation under the Taylor rule: ceiling ${original} -> ` +
+      `${built[48].toFixed(2)}% @m48, ${built[96].toExponential(2)}% @m96 ` +
+      `(refused ${built.truncated}/96); ceiling 40 -> ${lifted[48].toFixed(2)}% @m48, ` +
+      `${lifted[96].toFixed(2)}% @m96 (refused ${lifted.truncated}/96)`);
+
+    assert.ok(built[48] > 100,
+      `the rule now holds stagflation to ${built[48].toFixed(2)}% at month 48 as ` +
+      `built. It used to lose outright at 242%. If this has been fixed, say so ` +
+      `in autopilot.js's header — the comment there states the loss as a ` +
+      `measured fact and it must not become stale the way its predecessor did.`);
+
+    assert.ok(lifted[48] < 20 && lifted[96] < 20,
+      `raising ONLY the dial's ceiling to 40 leaves inflation at ` +
+      `${lifted[48].toFixed(2)}% at m48 and ${lifted[96].toFixed(2)}% at m96. The ` +
+      `claim in autopilot.js — that the rule loses to the instrument and not to ` +
+      `the shock — rests on this arm winning with the shock untouched.`);
+
+    assert.ok(built.truncated > 60,
+      `the rule was refused its request in only ${built.truncated} of 96 months`);
+  } finally {
+    rate.max = original;
+  }
+});

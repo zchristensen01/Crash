@@ -11,8 +11,34 @@
  *      A scenario blowing up with no policy is the model being RIGHT.
  *   2. It is the benchmark to score a player against — "the rule would have
  *      kept approval at 61; you got 48."
- *   3. It demonstrates the rule is not magic. It still loses the stagflation
- *      scenario, because no rule handles a supply shock well.
+ *   3. It demonstrates the rule is not magic. It loses `stagflation` as built
+ *      — inflation 242% at month 48, 22711% at month 96 — and the reason is
+ *      NOT the supply shock.
+ *
+ * That last clause used to read "because no rule handles a supply shock well",
+ * which was a defeat written into a comment and then read back as a design
+ * property. Rule 6 says a regime must be DRIVEN, not asserted; this was the
+ * same error pointing the other way, and it protected the defect underneath it
+ * for three passes.
+ *
+ * THE EXPERIMENT THAT ISOLATES IT. Raise the rate dial's ceiling from 20 to 40
+ * and change nothing else — the supply shock, the 3% capacity loss, the 9%
+ * opening inflation, the smoothing and TAYLOR_INFLATION all identical:
+ *
+ *      as built (ceiling 20)     inflation  242.34 @ m48,  22711.39 @ m96
+ *      ceiling 40                inflation    7.48 @ m48,     -3.37 @ m96
+ *
+ * The rule wins. The shock never moved, so the shock was never what beat it.
+ * What beat it was the instrument: the rule is refused its own request in 87
+ * of the 96 months, so it spends the scenario holding a dial it has already
+ * run out of. Raising TAYLOR_INFLATION to the top of its sourced range (1.0)
+ * without touching the ceiling still loses — 177.62 @ m48 — so this is not a
+ * gain problem either.
+ *
+ * The honest version of "the rule is not magic" is therefore about the LAG and
+ * the CEILING, not about supply shocks: a rule that cannot deliver a positive
+ * real rate cannot stabilise anything, and one that delivers it a year late
+ * has already lost the expectations race. Phase 2.4 derives the ceiling.
  */
 import { P } from '../params.js';
 import { applyDialChange } from './dials.js';
