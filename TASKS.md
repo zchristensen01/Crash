@@ -161,7 +161,19 @@ experiment that isolates it.
       it in `debt_trap` at m189. Tolerance is now relative above 1e6 and
       identical below it.
 
-- [ ] 3.4 Replace the +12%/month asset growth clamp
+- [x] 3.4 Replace the +12%/month asset growth clamp
+      Bound the **deviation `A/F`** to `[0.05, 10]`, not the monthly move — a
+      clamp on the rate of change of a compounding level is a growth FLOOR once
+      a spiral runs. Measured: it bound for 48 consecutive months in
+      `stagflation` and A/F still reached **1534.67**; now 10.00. Traced as a
+      term, like investment's and consumption's.
+      **The ceiling is derived from reachability, not picked:** worst A/F a
+      player can reach across 150 runs (6 scenarios x 25 seeds, events and
+      endings on, dials slammed at random) is **2.20**; Japan 1989 and Nasdaq
+      2000 are 3-6x on generous measures. 10 is 4.5x past anything the game
+      can produce. Removing the growth clamp changes nothing a player sees — it
+      bound 0 months in four scenarios and only post-ending in the other two.
+
 - [x] 3.5 Turn the divergence guard green — **closed by 3.1 alone**
       Both tests are hard passes; the `todo` markers are gone and the messages
       now record what closed it. A permanent 1pp cut: A/F **2.873e11 -> 1.12**,

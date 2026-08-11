@@ -106,23 +106,58 @@ export function updateAssetPrices(s, trace) {
     'FORCED SELLING (fire sale)': fireSale,
   };
   const gPct = Object.values(terms).reduce((a, b) => a + b, 0);
-  trace.record('asset price change (%)', terms, gPct, {
+
+  // BOUND THE LEVEL, NOT THE MONTHLY MOVE [4th audit B4].
+  //
+  // This used to be `clamp(gPct, -30, 12)`, with a note saying the model must
+  // "spiral legibly". A CLAMP ON THE RATE OF CHANGE OF A COMPOUNDING LEVEL IS
+  // NOT A BOUND — it is a growth floor once the spiral is running. Measured
+  // before this change: the +12%/month ceiling bound for 48 consecutive months
+  // in `stagflation`, and 1.12^48 is 229x, which took asset/fundamental to
+  // 1534.67. The clamp was setting the SPEED of the explosion and calling it a
+  // limit.
+  //
+  // What is bounded now is the DEVIATION FROM FUNDAMENTAL, which is the
+  // quantity that has a meaning: A/F is a real ratio, normalised so the bound
+  // means the same thing in every scenario regardless of where its asset index
+  // starts. The old `Math.max(5, ...)` floor was the same idea applied to the
+  // raw index, and only coincided with a sensible deviation because the
+  // canonical fundamental is 100.
+  //
+  // THE NUMBERS ARE JUDGEMENT, and they are absurdity bounds rather than
+  // calibration. Measured across 150 runs — six scenarios x 25 seeds, events
+  // and endings ON, with a player slamming the dials at random — the worst
+  // A/F anywhere a player can actually reach is 2.20, in `bubble`. Japan's
+  // 1989 land market and the 2000 Nasdaq are put at roughly 3-6x fundamental
+  // on generous measures. A ceiling of 10 is therefore 4.5x past anything the
+  // game can produce and above anything history has recorded: it exists so a
+  // divergent run stays readable, and nothing real should ever meet it.
+  //
+  // Removing the growth clamp changes nothing a player sees: measured, it
+  // bound for 0 months in calm, recession, debt_trap and bubble, and in
+  // overheating and stagflation only after the hyperinflation ending had
+  // already ended the game (month 51 and month 23).
+  const AF_MIN = 0.05;   // judgement: the index floor, as a deviation
+  const AF_MAX = 10;     // judgement: 4.5x the worst reachable, above any bubble on record
+  const grown = s.asset_prices * (1 + gPct / 100);
+  const before = s.asset_prices;
+  s.asset_prices = clamp(grown, s.asset_fundamental * AF_MIN, s.asset_fundamental * AF_MAX);
+
+  // Traced as a term, so a bound that bites is visible rather than silent —
+  // the same discipline updateInvestment has always had and updateConsumption
+  // gained in B3. Expressed back in growth-% so the terms stay additive.
+  const realisedG = (s.asset_prices / before - 1) * 100;
+  trace.record('asset price change (%)', {
+    ...terms,
+    'bounded to a possible level': realisedG - gPct,
+  }, realisedG, {
+    asset_over_fundamental: s.asset_prices / s.asset_fundamental,
     fire_sale_active: fireSale < 0,
     selling_capacity_left: Math.max(0, P.FIRESALE_TOTAL_CAPACITY.value - s.fire_sale_spent),
     note: fireSale < 0
       ? 'forced sales are driving prices down, which forces more sales'
       : 'no forced selling — the fire-sale term is off',
   });
-
-  // Bound the monthly move. Beyond the playable region the model is
-  // deliberately divergent — a fixed nominal rate against rising inflation is
-  // a Taylor-principle violation and SHOULD spiral. But it must spiral
-  // legibly: unbounded, asset prices reach 4-digit index values and the
-  // invariant failures become unreadable. In the real game the hyperinflation
-  // ending fires long before this bites. Asymmetric because fire sales fall
-  // faster than booms rise.
-  const boundedG = clamp(gPct, -30, 12);
-  s.asset_prices = Math.max(5, s.asset_prices * (1 + boundedG / 100));
   // The fundamental anchor is stationary because asset_prices is a REAL
   // (deflated) index. Growing it here makes asset/fundamental drift below 1
   // every tick, which quietly moves leverage, the wealth effect in
