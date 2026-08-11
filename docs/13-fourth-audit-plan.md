@@ -140,12 +140,100 @@ is fixed.
 *Nothing here changes behaviour except one clamp. All of it exists to make
 Phase 2 measurable, and two of the three are tests that should fail today.*
 
-**1.1 — The divergence guard (`E1`). Write it first; watch it fail.**
+**1.1 — The divergence guard (`E1`). Write it first; watch it fail. — DONE**
 Under any single permanent dial move inside that dial's own declared range, no
 state variable may diverge over 480 ticks. Twenty lines. It is the only reason
 Section B survived three audits, and it is the class of guard this project uses
 everywhere else. *It will fail immediately — that is the point. Leave it failing
 until Phase 3.*
+
+> #### As built — `test/divergence.test.js`, two `todo` tests, both failing.
+>
+> **CORRECTION 4 — the guard as worded cannot ever be green, and that is not a
+> Phase 3 problem.** Measured before writing it: of 87 permanent dial settings
+> across the five declared ranges, **43 diverge over 480 ticks.** Three separate
+> reasons, and only one of them is a defect:
+>
+> - **Levels that are supposed to compound.** `price_level` is cumulative
+>   inflation *by invariant 6*; forty years at 10% is 45×. Same for `govt_debt`,
+>   `deficit`, `potential_output`, `output`.
+> - **`debt_service_spiral`**, which is in `parameters.py` `UNBALANCED_LOOPS`
+>   with no balancing counterpart on purpose. `stability.test.js` already
+>   excludes `govt_debt` from its core block for this reason.
+> - **A pegged nominal rate below neutral is Fisher-unstable**, and
+>   `autopilot.js` says so in as many words: *"A scenario blowing up with no
+>   policy is the model being RIGHT."*
+>
+> A permanent `money_printed = 15% of GDP` held for forty years **must**
+> hyperinflate. So the guard is over **stationary quantities** — ratios and
+> rates the model itself defines as having a resting value — and it asserts only
+> that **no divergence is caused by a loop `UNBALANCED_LOOPS` does not declare.**
+>
+> **Every divergence is attributed by an isolating experiment, inside the test**
+> (rule 9): re-run with `ASSET_PRICE_CREDIT_CHANNEL = 0`, and re-run with
+> `govt_debt` pinned. Whichever switch-off makes the path bounded is the cause.
+> Neither ⇒ the nominal peg, which is economics.
+>
+> **What it catches today — 2 settings, both through the undeclared bubble loop:**
+>
+> | setting | first breach | with the loop off |
+> |---|---|---|
+> | `policy_rate = 1.5` (a 1pp cut) | `output_gap` 211 @ m283 | bounded |
+> | `qe = 30` | `output_gap` 211 @ m278 | bounded |
+>
+> **CORRECTION 5 — B1's attribution is right at 1.5 and wrong as a general
+> claim.** The brief says the divergence *"is specifically the credit →
+> collateral → credit loop"*. It switched the channel off at **one** rate.
+> Swept and bisected to 4 decimal places (rule 2), the channel **moves the
+> frontier, it does not create it**:
+>
+> | `ASSET_PRICE_CREDIT_CHANNEL` | permanent peg diverges below | settles at 1.5? |
+> |---|---|---|
+> | 0.15 (as built) | **1.5777** | **no** — A/F 2.87e11 |
+> | 0 | **0.9398** | yes — A/F 1.38, gap −7.41 |
+>
+> So the loop costs the model exactly **0.638pp of stable range**. Below 0.94
+> the model diverges either way and that is the Fisher arithmetic, not the
+> bubble. The debt spiral closes the window from above at **3.0868**, so the
+> rate dial's whole stable window is **[1.578, 3.087] — 1.51pp wide, out of a
+> declared 20.75pp.**
+>
+> **The measured frontier, and it is the most quotable number of this phase:**
+>
+> | dial | declared range | settles in | diverges |
+> |---|---|---|---|
+> | `policy_rate` | [−0.75, 20] | **[1.578, 3.087]** | 13/19 |
+> | `tax_rate` | [0, 70] | [22.75, 70] | 7/20 |
+> | `govt_spending` | [0, 70] | **[20, 24]** | 11/20 |
+> | `money_printed` | [0, 15] | [0, 0.5] | 11/14 |
+> | `qe` | [0, 30] | [0, 26.25] | 1/14 |
+>
+> **The rate dial has a 20.75pp declared range and a 1.51pp window in which the
+> model has a steady state at all.** Most of that is the debt spiral above and
+> the Fisher peg below, both legitimate — but nothing anywhere records it, and
+> `govt_spending`'s ±2pp window is narrower still. (The sweep's grid brackets
+> the frontier at [1.844, 3.0]; the bisected values are the exact ones.)
+>
+> **Why `stability.test.js` missed Section B, which is the finding worth
+> keeping.** It computes the spectral radius of the core block's Jacobian **at
+> the steady state**. There `credit_to_gdp_gap = 0` and `A/F = 1`, and the
+> credit→collateral→credit loop is switched off *by its own thresholds*
+> (`excess = gap - 3.0`, `assetBoom 1.25`). **The guard existed and was
+> evaluated at the one point in the state space where the loop it needed to see
+> cannot fire.** A linearisation around a resting point cannot find a loop that
+> only closes once you have left it. That is why this guard sweeps rather than
+> differentiates, and it is a defect class worth naming: *a stability test
+> evaluated only at the fixed point.*
+>
+> **A 9-point sweep is not enough and that nearly cost the finding.** An even
+> grid over the rate dial steps from −0.75 to 1.84 and straight over 1.5. The
+> whole of B1 sits in a 0.1pp band between 1.5 (runs away) and 1.6 (settles).
+> The guard therefore also tries ±0.25, ±0.5, ±1, ±2 and ±5 from each dial's
+> own starting point — the moves a player actually makes.
+>
+> **A later pass must not go green by adding the bubble loop to the register.**
+> 3.2 permits declaring it only with a demonstration that loop gain is below
+> one, and a loop with gain below one does not diverge. Stated in the test.
 
 **1.2 — Make the autopilot's clamp and the dial's max agree, and assert it.**
 `autopilot.js:35` clamps to 25; `dials.js:16` clamps to 20; `applyDialChange`
