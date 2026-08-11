@@ -36,9 +36,9 @@ rather than a coefficient being quietly nudged.
 |---|---|
 | Model | 23 rules, ~4,100 lines of dependency-free JavaScript |
 | Parameters | 121, of which 41 are registered as deliberately unread |
-| Tests | 94 — 88 pass, 0 fail, 2 documented `todo` disagreements, ~0.4 s |
+| Tests | 95 — 92 pass, 0 fail, 3 documented `todo` disagreements, ~0.4 s |
 | Deliverable | one self-contained `index.html`, 324 kB, no CDN, no `node_modules` |
-| Docs | 11 files, ~35,000 words |
+| Docs | 13 files, ~44,000 words |
 | Runtime deps | none. Node 20+ to build and test, Python 3 to regenerate parameters |
 
 ## What works
@@ -96,6 +96,13 @@ And one parameter conflict, in `parameters.py` `CONFLICTS`:
 | | |
 |---|---|
 | `ENERGY_TO_CPI` | Says 0.04pp of CPI per 10% energy rise, which makes the oil event's 60% spike worth 0.24pp. The event uses 2.4pp. Exactly 10×, and 0.04 looks like a transcription error for 0.4. Needs the source, not a keystroke |
+
+And one magnitude error found while writing `11-cause-and-effect.md`, tracked
+the same way:
+
+| | Model | Published | |
+|---|---|---|---|
+| `CRISIS_OUTPUT_TROUGH` | −24% | −6 to −15 | A REDUCED FORM USED AS A STRUCTURAL SHOCK. −9% is the *observed* peak-to-trough fall, which already contains the multiplier; `crisis.js` feeds it in as an exogenous demand impulse and the model multiplies it again. `CRISIS_HYSTERESIS_SCAR` compounds it by landing as an immediate cut to potential when Cerra-Saxena measure divergence from *trend* over years. Same class of error as decision A3 |
 
 ### Structural absences
 
@@ -194,12 +201,13 @@ sourced — and, unusually, that it tells you where they are not.
 
 1. `10-state-of-the-project.md` — this file
 2. `00-design-brief.md` — what the game is and what it must teach
-3. `02-causal-map.md` — the causal chains, with the audit's corrections inline
-4. `01-variables.md` — every state variable, current
-5. `09-interface.md` — the screen, current
-6. `08-post-audit-revisions.md` — what the last pass changed and why
-7. `parameters.py` — the numbers, with confidence and citations
-8. `src/rules/index.js` — the execution order, which is itself the causal order
+3. `11-cause-and-effect.md` — what every input actually does, measured
+4. `02-causal-map.md` — the causal chains, with the audit's corrections inline
+5. `01-variables.md` — every state variable, current
+6. `09-interface.md` — the screen, current
+7. `08-post-audit-revisions.md` — what the last pass changed and why
+8. `parameters.py` — the numbers, with confidence and citations
+9. `src/rules/index.js` — the execution order, which is itself the causal order
 
 `03-architecture.md` §Defects, `04`, `05`, `06` and `07` are the historical
 record. Read them when you want to know why something is the way it is, not

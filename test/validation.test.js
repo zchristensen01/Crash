@@ -142,6 +142,32 @@ test('RATE_TO_INFLATION: the model is about half the published estimate', {
   assert.ok(inRange(v, P.RATE_TO_INFLATION), report(v, P.RATE_TO_INFLATION));
 });
 
+test('CRISIS_OUTPUT_TROUGH: the crash is about 2.6x deeper than the literature', {
+  todo: 'KNOWN, AND A REDUCED FORM USED AS A STRUCTURAL SHOCK. -9% is the ' +
+        'OBSERVED peak-to-trough fall, which already contains the multiplier; ' +
+        'crisis.js feeds it in as an exogenous demand impulse and the model ' +
+        'multiplies it again. CRISIS_HYSTERESIS_SCAR compounds it by landing ' +
+        'as an immediate cut to potential when Cerra-Saxena measure divergence ' +
+        'from TREND over years. Measured trough ~-24% of output. Fixing it ' +
+        'means separating the structural impulse from the observed trough and ' +
+        'phasing the scar in — a modelling decision, not a smaller number. ' +
+        'This is the same class of error as decision A3.',
+}, async () => {
+  const { EVENTS } = await import('../src/game/events.js');
+  const { SCENARIOS } = await import('../src/game/scenarios.js');
+  const crash = EVENTS.find((e) => e.key === 'financial_crisis');
+  const base = world({ overrides: SCENARIOS.calm.overrides, assert: false });
+  const hit = world({ overrides: SCENARIOS.calm.overrides, assert: false });
+  advance(base, 36); advance(hit, 36);
+  crash.apply(hit.s);
+  let trough = 0;
+  for (let m = 0; m < 36; m++) {
+    advance(base, 1); advance(hit, 1);
+    trough = Math.min(trough, (hit.s.output - base.s.output) / base.s.output * 100);
+  }
+  assert.ok(inRange(trough, P.CRISIS_OUTPUT_TROUGH), report(trough, P.CRISIS_OUTPUT_TROUGH));
+});
+
 test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
   todo: 'KNOWN. A 1% of GDP tax rise costs ~0.33% of output over 30 months ' +
         'against a published 2.0-3.0. The Romer-Romer narrative multiplier is ' +

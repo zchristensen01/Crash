@@ -735,6 +735,17 @@ CRISIS_OUTPUT_TROUGH = P(
     -9.0, -15.0, -6.0, "% peak-to-trough real GDP per capita fall in a financial-crisis recession",
     "strong", "Reinhart & Rogoff 2009 (~9% average); Jorda, Schularick & "
     "Taylor, 'When Credit Bites Back', JMCB 45:3-28 (2013)",
+    "[AUDIT-2 FINDING, docs/11] THIS IS A REDUCED FORM BEING USED AS A "
+    "STRUCTURAL SHOCK, and the model double-counts as a result. -9% is the "
+    "OBSERVED peak-to-trough fall, which already contains the multiplier; "
+    "crisis.js feeds it in as an exogenous demand impulse and the model's own "
+    "multiplier then amplifies it again. Measured realised trough: -24% of "
+    "output, against a published -6 to -15. Compounding it, CRISIS_HYSTERESIS_SCAR "
+    "lands as an immediate 10% cut to potential, when Cerra-Saxena measure a "
+    "level that diverges from TREND over years. Resolving this needs the "
+    "structural impulse separated from the observed trough and the scar phased "
+    "in — a modelling decision, not a keystroke. Surfaced by a todo test in "
+    "test/validation.test.js rather than closed by shrinking a number. "
     "[PASS2 NEW; low/high order corrected] 200+ recessions, 14 advanced "
     "economies 1870-2008, local projections conditioning on credit. More "
     "credit-intensive booms produce deeper busts.")
