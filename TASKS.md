@@ -171,6 +171,10 @@ experiment that isolates it.
       Phase 3, which is why re-solving now would mean doing it twice.
 - [ ] 4.2 Record that they are calibration constants, not measurements
 - [ ] 4.3 Regenerate cause-effect, report, IRF, paths
+      **AND RE-MEASURE EVERY SCENARIO'S STARTING VECTOR.** `bubble` was
+      calibrated against the asset-price unit error and no longer produces its
+      designed regime over a full term (see 6.1). The vector is DATA and may be
+      revisited; the regime must still be DRIVEN, not asserted (rule 6).
       **`docs/11-cause-and-effect.md` HAS NOT BEEN REGENERATED IN THIS PASS AT
       ALL** — it still dates from the third audit (commit a2b7ce0), so every
       number in it predates the transmission split, the derived ceiling and the
@@ -217,6 +221,12 @@ experiment that isolates it.
 ## Phase 6 — What to add
 
 - [ ] 6.1 Macroprudential dial: the countercyclical capital buffer
+      **NOW HALF OF AN ANSWER TO A LIVE REGRESSION.** 3.1 left the `bubble`
+      scenario deflating on its own: the credit gap peaks at 9.82pp around m48
+      and unwinds to 3.37 by m96, where it used to climb monotonically to
+      14.10. A bubble the player cannot act on was already a spectacle rather
+      than a decision; one that resolves itself teaches that ignoring it
+      works. See the `todo` in `test/scenarios.test.js`.
 - [ ] 6.2 **Historical scenarios: play the moment**
 - [ ] 6.3 Separate housing from equities
 - [ ] 6.4 Demographics

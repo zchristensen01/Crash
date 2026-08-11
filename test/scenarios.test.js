@@ -59,6 +59,41 @@ test('the bubble hides for four years — the design promise', () => {
     `it must cross the 9pp BIS line while everything else looks fine`);
 });
 
+test('the bubble does not deflate on its own before the term ends', {
+  todo: 'A LESSON-LEVEL CONSEQUENCE OF 3.1, AND NOT A DEFECT IN 3.1. docs/00 ' +
+    'describes this scenario as eight years of every gauge saying you are ' +
+    'brilliant while the one nobody watches climbs to ~14.5pp. It used to do ' +
+    'exactly that — the credit gap rose monotonically 8.77 (m24), 11.63 (m48), ' +
+    '13.34 (m72), 14.10 (m96), with crisis probability reaching 10.36% and ' +
+    'approval never leaving 70. It now PEAKS at 9.82 around month 48 and ' +
+    'unwinds to 3.37 by month 96, with crisis probability falling from 6.35 to ' +
+    '0.22. The bet the player was knowingly taking now settles itself. ' +
+    'THE CAUSE IS THAT THE SCENARIO WAS CALIBRATED AGAINST A DEFECT. Its 14.5pp ' +
+    'gap was being produced by updateAssetPrices overshooting its own sourced ' +
+    'semi-elasticity by 4.6x, which 3.1 fixed. The four-year promise above ' +
+    'still holds (9.80pp at m48, over the BIS line, with every visible gauge ' +
+    'healthy), so what is lost is the second half of the term. ' +
+    'DO NOT CLOSE THIS BY RE-INFLATING THE WEALTH CHANNEL — that is rule 3, and ' +
+    'the channel now matches its own literature. The scenario is DATA, not ' +
+    'code: its starting vector is the thing to revisit, and it must still ' +
+    'DRIVE the regime rather than assert it (rule 6). Phase 4 re-measures every ' +
+    'scenario; 6.1 (the countercyclical buffer) is the other half of the answer, ' +
+    'because a bubble the player cannot act on is a spectacle rather than a ' +
+    'decision.',
+}, () => {
+  const s = newState(SCENARIOS.bubble.overrides);
+  let peak = -Infinity, peakMonth = 0;
+  for (let m = 1; m <= 96; m++) {
+    run(s, 1, { assertEveryTick: false, events: false, endings: false });
+    if (s.credit_to_gdp_gap > peak) { peak = s.credit_to_gdp_gap; peakMonth = m; }
+  }
+  assert.ok(s.credit_to_gdp_gap > peak * 0.8,
+    `the credit gap peaked at ${peak.toFixed(2)}pp in month ${peakMonth} and had ` +
+    `fallen to ${s.credit_to_gdp_gap.toFixed(2)}pp by the end of the term. The ` +
+    `scenario exists to hold a hidden danger in front of the player for eight ` +
+    `years; one that quietly resolves itself teaches that ignoring it works.`);
+});
+
 test('every scenario starts in, and stays a quarter in, its advertised regime', () => {
   // "A regime also has to be DRIVEN, not asserted" — scenarios.js says it and
   // nothing enforced it. The recession scenario asserted unemployment 9% with
