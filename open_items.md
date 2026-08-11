@@ -88,6 +88,37 @@ it buys a third as much. Nobody has explained it. It also made the capacity-clif
 test a coin toss for as long as it has existed — that test passed by 0.004 and
 failed by 0.006 across an unrelated change.
 
+### A4. The bond yield has no expected-inflation term — `OPEN`, and it BLOCKS 5.1
+`updateBondYield` computes the 10-year yield as policy rate + term premium
++ risk premium. **There is no Fisher term.** That is fine while the central bank
+follows the Taylor principle — the policy rate then contains inflation — and
+wrong the moment the rate is pegged, which is exactly what several scenarios do.
+
+Measured in `overheating`, policy rate pegged at 1.0%, no player input:
+
+| month | inflation | yield_10y | avg coupon | REAL coupon |
+|---|---|---|---|---|
+| 24 | 3.78 | 1.53 | 1.72 | **−2.06** |
+| 48 | 3.43 | 1.34 | 1.65 | −1.78 |
+| 96 | 3.13 | 0.98 | 1.42 | **−1.71** |
+
+The yield **falls** as inflation runs, and bondholders accept a −2% real return
+indefinitely. No bond market does that.
+
+**This blocks D1 / task 5.1, and that is how it was found.** Recycling the
+government's interest bill to domestic households is correct — debt service is a
+transfer, not a destruction, and it is why 250% debt is survivable in Japan. But
+with no Fisher term the interest bill *falls* in an inflation, so recycling it
+hands households **less** income exactly when inflation is highest. Implemented
+and measured: `overheating` stopped hyperinflating and settled at 3.13%
+inflation — **the Taylor principle stopped operating in the one scenario built
+to demonstrate it.** Reverted rather than shipped.
+
+Fixing the yield is not a keystroke: `START`'s 3.25 = 2.5 + 0.75 assumes the
+policy rate already carries expected inflation, so adding a Fisher term
+double-counts under a responding central bank and needs its own derivation,
+source and steady-state re-solve.
+
 ---
 
 ## B. Things I found and did not chase

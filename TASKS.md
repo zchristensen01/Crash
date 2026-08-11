@@ -259,7 +259,30 @@ guard green. Phase 6 is unblocked.
 
 ## Phase 5 — Correctness and hygiene
 
-- [ ] 5.1 Recycle government interest income to households
+- [~] 5.1 Recycle government interest income to households
+      **BUILT, MEASURED, AND REVERTED. It is blocked on a defect nobody knew
+      about — see `open_items.md` A4.**
+      The mechanism is right and the arithmetic works: `disposable_income +=
+      (1 - foreign_share) * interest_cost`, `apc_ss` re-derived from 0.709265 to
+      0.692945, steady state exact to 9dp. It also needs a SECOND half the plan
+      does not mention — interest accrues to bondholders, who are by definition
+      not hand-to-mouth, so it must be consumed at a lower propensity
+      (`apc_bondholder`, solved from `HAND_TO_MOUTH_SHARE`, no new parameter).
+      Without it the debt-service spiral **stops diverging entirely** —
+      amplification over a term 1.7458x -> 1.0006x, crossing at exactly 70%
+      recycled, which is 1 minus `foreign_share`.
+      **WHY IT CANNOT SHIP YET.** `updateBondYield` has no expected-inflation
+      term, so under a pegged rate the interest bill FALLS as inflation rises
+      (`overheating`: yield 1.53 -> 0.98 while inflation runs at 3.8%, real
+      coupon −2.06). Recycling it then hands households less income exactly when
+      inflation is highest, and measured, **`overheating` stopped hyperinflating
+      and settled at 3.13%** — the Taylor principle stopped operating in the one
+      scenario built to demonstrate it. Isolated: the interest channel alone
+      does little (510 -> 494), the lower `apc_ss` alone does most of it
+      (510 -> 66), and together they give 3.13.
+      **Do A4 first, then this.** The work is measured and the numbers above are
+      the recipe.
+
 - [ ] 5.2 Private debt maturity
       **THE MACHINERY EXISTS NOW:** 2.1 added the `rate_to_borrowing_cost`
       kernel and `RATE_PASSTHROUGH_TO_BORROWERS`, whose note already draws the
