@@ -239,18 +239,23 @@ experiment that isolates it.
       Only `bubble` regressed — and **its cause is D2, not the vector**, so the
       fix is 5.4. New full-term characterisation test guards all six.
 
-- [ ] 4.4 Re-measure OPEN #1 and OPEN #9
-      **#9 IS ALREADY MEASURED AND THE PLAN'S EXPECTATION WAS WRONG.** The plan
-      says the shortfall is "partly the lag burying the response beyond the
-      24-month window", so A1 should have moved it. It did not: 0.1227pp at 24
-      months, against the 0.122 recorded before. But the response is not
-      missing, it is SLOW — 0.0586 at 12m, 0.1227 at 24m, 0.1756 at 36m and
-      **0.2192 at 48m, which is inside the published 0.2–0.4.** The slowness no
-      longer lives in the rate; it lives in the investment partial adjustment
-      and the Phillips curve. Its `todo` message still carries the old text and
-      needs rewriting with these four numbers.
-      **#1** — US 2008-12's rewritten message now states that the too-fast
-      healing is downstream of Section B rather than Section A.
+- [x] 4.4 Re-measure OPEN #1 and OPEN #9 — **the plan was wrong about both**
+      **#1 is NOT downstream of Section B.** The plan expected the rebound to be
+      "the credit/asset loop re-inflating". Measured, the credit gap is
+      **negative throughout the recovery** (-6.40 m24, -8.26 m60, -4.70 m96,
+      -2.82 m120) and never re-inflates above trend. Isolating test: with the
+      collateral channel AND the wealth effect both off, the crisis is
+      shallower (trough -6.19 against -10.17) but **2.83pp still comes back —
+      46% of the trough recovered with both amplifiers gone.** It is the demand
+      block, i.e. open_items A2 again.
+      **#9's response is slow, not absent.** A1 did not move the 24-month figure
+      (0.1227 against 0.122) as the plan expected. But: 0.0586 @12m, 0.1227
+      @24m, 0.1756 @36m, **0.2192 @48m — inside the published 0.2-0.4.** The
+      window is doing as much of the disagreement as the model is.
+
+**PHASE 4 GATE: GREEN.** 160 tests, 143 pass, 0 fail, 17 todo. lint clean,
+`index.html` current, `docs/11` current, steady state exact to 9dp, divergence
+guard green. Phase 6 is unblocked.
 
 ## Phase 5 — Correctness and hygiene
 

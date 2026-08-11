@@ -374,18 +374,24 @@ test('the scar PHASES IN rather than landing on month one', () => {
 });
 
 test('MEASURED: the model rebounds after year five and Cerra-Saxena say it should not', {
-  todo: 'OPEN. Within the 96-month game the loss is right: -10.0% of trend at ' +
-    'five years and -7.4% at eight. But run it to ten years and the model has ' +
-    'recovered to -4.7%, because most of the five-year loss is a persistent ' +
-    'OUTPUT GAP rather than lost capacity, and the gap eventually closes. Only ' +
-    'the 3.2pp exogenous capacity cut is genuinely permanent. Cerra & Saxena ' +
-    'find no significant rebound at ANY horizon. Closing this by inflating the ' +
-    'exogenous scar is not available: it would push the five-year loss to -14% ' +
-    'and the trough outside the published band, so the two ends of the arc ' +
-    'cannot both be matched with one constant. What it actually says is that ' +
-    'the model heals a demand gap faster than the data does — a statement ' +
-    'about the demand block, and the same shape as the TAX_SHOCK_TO_GDP and ' +
-    'austerity-paradox findings.',
+  todo: 'RE-MEASURED IN PHASE 4.4, AND THE PLAN\'S HYPOTHESIS FOR IT IS WRONG. ' +
+    'docs/13 expected this to be downstream of Section B — "the 10-year ' +
+    'recovery coincides with the credit/asset loop re-inflating" — so fixing ' +
+    'B should have slowed it. THE CREDIT GAP IS NEGATIVE THROUGHOUT THE ' +
+    'RECOVERY and never re-inflates above trend: -6.40 at m24, -8.26 at m60, ' +
+    '-4.70 at m96, -2.82 at m120. It is a depressed credit stock closing on ' +
+    'its trend from BELOW, not a new boom. ' +
+    'Output against the pre-crisis trend now reads -9.74 (m12), -10.16 (m24), ' +
+    '-6.25 (m60), -4.63 (m96), -3.87 (m120), troughing at -10.17 in month 22 ' +
+    'and recovering 6.30pp. ' +
+    'THE ISOLATING EXPERIMENT: switch OFF both the collateral channel and the ' +
+    'wealth effect and the crisis is shallower (trough -6.19) but 2.83pp of it ' +
+    'still comes back — 46% of the trough recovered with both amplifiers gone. ' +
+    'So the rebound is not Section B at all. It is the demand block closing an ' +
+    'output gap faster than the data says it should, which is the same finding ' +
+    'as the UK 1979-83 sacrifice ratio, TAX_SHOCK_TO_GDP, the missing ' +
+    'austerity paradox and the crisis propagation that would not re-solve in ' +
+    '4.1. One finding, five sightings. See open_items.md A2.',
 }, () => {
   const r = crashArc({ months: 120 });
   assert.ok(r.vsTrend[120] < -8,

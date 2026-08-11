@@ -142,13 +142,21 @@ test('QE_TO_GDP: bond buying reaches output through the yield, and how much', {
 // ---------------------------------------------------------------------
 
 test('RATE_TO_INFLATION: the model is about half the published estimate', {
-  todo: 'KNOWN AND ARGUABLY CORRECT. A 1pp hike moves inflation ~0.12pp at 24 ' +
-        'months against a published 0.2-0.4. This is the anchored Phillips ' +
-        'slope doing exactly what docs/02 says it should: with kappa at 0.05 ' +
-        'the demand channel barely moves prices, and real surges are supposed ' +
-        'to come from supply shocks and unanchoring. The published range is ' +
-        'estimated across regimes that include the unanchored 1970s. Do not ' +
-        'raise kappa to close this.',
+  todo: 'RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE ' +
+    'PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly ' +
+    'the lag burying the response beyond the 24-month window", so the A1 ' +
+    'transmission split should have moved it. It did not: 0.1227pp at 24 ' +
+    'months against the 0.122 recorded before. But the response keeps ' +
+    'arriving — 0.0586 at 12 months, 0.1227 at 24, 0.1756 at 36, and 0.2192 at ' +
+    '48, WHICH IS INSIDE THE PUBLISHED 0.2-0.4. The window is doing as much of ' +
+    'the disagreement as the model is. ' +
+    'What is left is the anchored Phillips slope doing exactly what docs/02 ' +
+    'says it should: with kappa at 0.05 the demand channel barely moves prices, ' +
+    'and real surges are supposed to come from supply shocks and unanchoring. ' +
+    'The published range is estimated across regimes that include the ' +
+    'unanchored 1970s. The slowness no longer lives in the RATE — that arrives ' +
+    'in a quarter now — it lives in the investment partial adjustment and the ' +
+    'Phillips curve. Do not raise kappa to close this.',
 }, () => {
   const r = compare({ taylor: false, shock: (w) => nudge(w, 'policy_rate', +1), months: 24 });
   const v = -r.dInflation;
