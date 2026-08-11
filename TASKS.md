@@ -150,7 +150,17 @@ experiment that isolates it.
       **I ALSO GOT A MECHANISM WRONG IN 1.1 AND CORRECTED IT HERE** — see the
       carried-findings note.
 
-- [ ] 3.3 Bound consumption physically
+- [x] 3.3 Bound consumption physically
+      Clamped to `[10, 95]` — **invariants.js check 8's own band**, so there is
+      one number rather than two — with the bound recorded as a trace term the
+      way investment's always was. Measured in `overheating` with no player
+      input: C went **431.66 -> 95.00** at m96 and the output gap 398.66 ->
+      62.00; disposable income no longer goes negative (-26.47 -> 60.20).
+      **Found a real bug on the way:** the strict trace check compared floats
+      at ~1e17 against an ABSOLUTE 1e-6 tolerance, so cancellation noise tripped
+      it in `debt_trap` at m189. Tolerance is now relative above 1e6 and
+      identical below it.
+
 - [ ] 3.4 Replace the +12%/month asset growth clamp
 - [x] 3.5 Turn the divergence guard green — **closed by 3.1 alone**
       Both tests are hard passes; the `todo` markers are gone and the messages

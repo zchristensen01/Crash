@@ -52,7 +52,35 @@ export function updateConsumption(s, trace) {
     'feeling richer or poorer (asset prices)': wealth,
     'confidence, beyond what the numbers explain': mood,
   };
-  s.consumption = permanent + transitory + wealth + mood;
-  trace.record('consumption', terms, s.consumption,
-    { mpc_annualised: mpcQ, hand_to_mouth: P.HAND_TO_MOUTH_SHARE.value });
+
+  // BOUNDED, AS INVESTMENT ALREADY WAS [4th audit B3].
+  //
+  // updateInvestment has clamped to [2, 45] since the first audit, with the
+  // note that no economy invests more than ~45% of output. Consumption had no
+  // bound at all, and the asymmetry was not deliberate — it was simply never
+  // noticed, because it only bites outside the 96-month term or in a spiral.
+  // Measured in `overheating` with no player input, before this: households
+  // consumed 431.66% of potential output at month 96 while their disposable
+  // income was MINUS 26.47. Every penny of it was the wealth term. The audit
+  // brief found the same thing at 315.80% before Phase 2 and 3.1 shrank it;
+  // shrinking is not bounding.
+  //
+  // THE NUMBERS ARE THE PROJECT'S OWN. invariants.js check 8 already declares
+  // [10, 95] as the plausible band for consumption — it simply never fired,
+  // because every long-horizon run in the suite sets assertEveryTick: false,
+  // and an invariant that only holds when you are watching is not a bound.
+  // Using the same pair keeps one number rather than two. JUDGEMENT, and
+  // labelled as such: 95% of potential leaves 5% for investment, government
+  // and trade combined, which no economy has ever managed. It is an absurdity
+  // bound, not a calibration — nothing real should come near it.
+  const CONSUMPTION_MIN = 10;    // judgement: subsistence floor
+  const CONSUMPTION_MAX = 95;    // judgement: same band as invariants.js check 8
+  const raw = permanent + transitory + wealth + mood;
+  s.consumption = clamp(raw, CONSUMPTION_MIN, CONSUMPTION_MAX);
+  trace.record('consumption', {
+    ...terms,
+    // Recorded so the player can SEE it bite, the way investment's does.
+    'bounded to a physically possible range': s.consumption - raw,
+  }, s.consumption,
+  { mpc_annualised: mpcQ, hand_to_mouth: P.HAND_TO_MOUTH_SHARE.value });
 }

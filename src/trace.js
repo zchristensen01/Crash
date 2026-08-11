@@ -21,8 +21,21 @@ export class Trace {
    */
   record(key, terms, total, extra) {
     if (this.strict) {
-      const sum = Object.values(terms).reduce((a, b) => a + b, 0);
-      if (Math.abs(sum - total) > 1e-6) {
+      const values = Object.values(terms);
+      const sum = values.reduce((a, b) => a + b, 0);
+      // THE TOLERANCE IS RELATIVE ABOVE 1e6, and absolute below it.
+      //
+      // An absolute 1e-6 is the right check at the magnitudes an economy
+      // actually reaches, and it stays exactly that strict there: 1e-12 of a
+      // term of size 100 is 1e-10, far below the floor. But a run left going
+      // in a divergent regime reaches terms of ~1e17, where a double has
+      // about 1e1 of resolution — so two terms that cancel to a total of 2
+      // cannot agree to 1e-6 no matter how correct the arithmetic is, and the
+      // guard fires on floating point rather than on a bug. Measured: this
+      // tripped in `debt_trap` at month 189, 115 months after the debt-crisis
+      // ending would have ended a real game at month 74.
+      const scale = Math.max(Math.abs(total), ...values.map(Math.abs));
+      if (Math.abs(sum - total) > Math.max(1e-6, 1e-12 * scale)) {
         throw new Error(
           `trace: terms for '${key}' sum to ${sum}, but total is ${total}. ` +
           `Record the terms BEFORE mutating the state they describe.`);
