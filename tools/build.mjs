@@ -182,9 +182,10 @@ if (process.argv.includes('--check')) {
   if (current !== html) {
     console.error(
       `\nbuild: index.html is STALE — it does not match src/.\n\n` +
-      `  index.html is the deliverable and it is committed, so a stale one ` +
-      `ships the\n  old model while passing every test in the suite. Run ` +
-      `\`npm run build\`.\n`);
+      `  test/bundle.test.js runs this file. It is the only test that ` +
+      `exercises the real\n  deliverable rather than the ES modules, and ` +
+      `against a stale bundle it passes on\n  code that no longer exists. ` +
+      `Run \`npm run build\`.\n`);
     process.exit(1);
   }
   console.log(`build: index.html is current (${BUILD_ORDER.length} modules, ${kb} kB)`);

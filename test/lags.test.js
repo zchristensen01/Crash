@@ -16,6 +16,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { newState } from '../src/state.js';
 import { PIPELINE_TARGETS, DIALS } from '../src/game/dials.js';
+import { P } from '../src/params.js';
 import { world, advance, dial, nudge, compare } from './harness.mjs';
 
 test('a dial move reaches the transmitted driver and converges to the dial', () => {
@@ -31,16 +32,45 @@ test('a dial move reaches the transmitted driver and converges to the dial', () 
     `the kernel must sum to 1 and the landed amounts must survive the rules`);
 });
 
-test('markets feel a rate move faster than the real economy', () => {
-  // docs/02 lists these as separate chains: assets [1m], investment [4-9m].
+test('markets reprice before borrowers, and both before capital spending', () => {
+  // docs/02 lists assets [1m] and the borrowing cost [~1 quarter] as separate
+  // chains, and they still are — but the gap between them is now much smaller,
+  // and that is the A1 fix rather than a regression.
+  //
+  // THIS TEST USED TO REQUIRE markets > 2x the real economy at three months,
+  // which passed only because policy_rate_demand rode the rate_to_investment
+  // kernel (mean lag 14.74 months). That kernel is the published impulse
+  // response OF INVESTMENT, and using it as the lag on the RATE is the defect
+  // A1 names: it made "what businesses pay to borrow" — TRANSMISSION_LABELS'
+  // own words — take over a year to move, when a borrower's rate reprices off
+  // today's policy rate within weeks.
+  //
+  // So the ordering claim is now the THREE-STAGE one, which is what the model
+  // actually contains and is a better statement of the lesson: prices move
+  // before other prices, and quantities move last.
   const w = world();
   advance(w, 12);
+  const before = { markets: w.s.policy_rate_markets, borrow: w.s.policy_rate_demand,
+                   investment: w.s.investment };
   dial(w, 'policy_rate', 4.0);
   advance(w, 3);
-  assert.ok(w.s.policy_rate_markets - 2.5 > (w.s.policy_rate_demand - 2.5) * 2,
-    `three months in, markets have felt ${(w.s.policy_rate_markets - 2.5).toFixed(2)}pp ` +
-    `and the real economy ${(w.s.policy_rate_demand - 2.5).toFixed(2)}pp — ` +
-    `these should not be the same chain`);
+  const dMarkets = w.s.policy_rate_markets - before.markets;
+  const dBorrow = w.s.policy_rate_demand - before.borrow;
+
+  assert.ok(dMarkets > dBorrow,
+    `three months in, markets have felt ${dMarkets.toFixed(2)}pp and borrowers ` +
+    `${dBorrow.toFixed(2)}pp — these should not be the same chain`);
+
+  // The quantity is the slow one now, and it is slow because of capital
+  // adjustment costs rather than because the price took a year to arrive.
+  const shareOfRate = Math.abs(w.s.investment - before.investment) /
+    (Math.abs(dBorrow) * P.INVESTMENT_RATE_ELASTICITY.value / 100 * before.investment);
+  assert.ok(shareOfRate < 0.5,
+    `investment has already delivered ${(shareOfRate * 100).toFixed(0)}% of its ` +
+    `response to the rate borrowers are already paying. Capital spending is ` +
+    `planned, ordered and built — INVESTMENT_ADJUSTMENT_SPEED is what makes it ` +
+    `lag, and if it has stopped lagging the A1 split has collapsed back into ` +
+    `an instant channel.`);
 });
 
 test('the output response to a rate move is LAGGED, not instant', () => {

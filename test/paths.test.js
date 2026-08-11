@@ -117,10 +117,20 @@ test('STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows', 
   // sets for the player: the MOVES sum to zero, so it looks like a policy that
   // nets out. It is not. The DIAL spends months 1-12 a point below baseline,
   // months 13-24 at baseline, and so on — an average stance of -0.5pp held for
-  // eight years. Measured transmitted stance: -0.407pp, flat from month 24 to
-  // month 96, which is exactly what an average half-point easing transmits to.
-  // Reading "the increments cancel" as "the level cancels" is a real mistake
-  // about real policy and the model is right to punish it.
+  // eight years. Reading "the increments cancel" as "the level cancels" is a
+  // real mistake about real policy and the model is right to punish it.
+  //
+  // MEASURED ON THE AVERAGE, NOT ON MONTH 96, since the A1 split. This used to
+  // read the transmitted stance AT month 96 and require about -0.5; it got
+  // -0.407, and that number was an artefact. policy_rate_demand rode a kernel
+  // with a 14.74-month mean lag, so at any instant it carried a year and a bit
+  // of history and looked like an average. With pass-through on its own fast
+  // kernel the instantaneous reading at m96 is -0.000 — correctly, because the
+  // dial went back to baseline in month 85 and borrowers are paying baseline.
+  // The AVERAGE transmitted stance is now -0.500 against an average dial stance
+  // of -0.500, where before it was -0.463: the fix made the claim in this
+  // comment exactly true for the first time. The credit gap, which is what the
+  // lesson is actually about, is unmoved at 5.17 against 5.15.
   const moves = {};
   for (let m = 1; m <= 96; m += 24) {
     moves[m] = (w) => nudge(w, 'policy_rate', -1);
@@ -129,9 +139,10 @@ test('STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows', 
   // 96 months of policy, then 120 months of nothing so the pipeline can DRAIN.
   const r = path({ moves, months: 216 });
 
-  assert.ok(r.at(96).stance < -0.3 && r.at(96).stance > -0.6,
-    `the transmitted stance through the cycle is ${r.at(96).stance.toFixed(3)}; a dial ` +
-    `spending half its time 1pp below baseline has to transmit to about -0.5`);
+  const avgStance = r.h.slice(0, 96).reduce((a, x) => a + x.stance, 0) / 96;
+  assert.ok(avgStance < -0.3 && avgStance > -0.6,
+    `the AVERAGE transmitted stance through the cycle is ${avgStance.toFixed(3)}; a ` +
+    `dial spending half its time 1pp below baseline has to transmit to about -0.5`);
 
   // The credit gap opens IN PROPORTION to that easing rather than to the moves.
   // docs/11 measures +3.8pp of credit gap from a 1pp cut held four years; half

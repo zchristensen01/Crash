@@ -150,18 +150,51 @@ export function updateInvestment(s, trace) {
   const deficitExcess = s.structural_deficit_felt - s.structural_deficit_ss;
   const crowding = -P.CROWDING_OUT.value * deficitExcess * (1 - slack) * elbRoom;
 
+  // WHAT THE FIRM WANTS TO SPEND. Not what it spends this month — see below.
+  const desired = s.investment_share + rateTerm + accelerator + crowding;
+
+  // THE SLOW HALF OF THE MONETARY LAG, AND THE HALF THE MODEL WAS MISSING
+  // [4th audit A1].
+  //
+  // Capital spending is planned, ordered and built. A firm that decides today
+  // to invest less does not spend less today, so investment closes a fraction
+  // of the gap to `desired` each month rather than jumping to it. That is a
+  // QUANTITY responding slowly to a PRICE, which is the thing the published
+  // 9-month impulse response actually measures.
+  //
+  // The model used to get this delay by lagging the RATE on that same impulse
+  // response, so the reduced form was both the input and the coefficient. Now
+  // the rate arrives fast (rate_to_borrowing_cost, ~1 quarter, what the
+  // pass-through literature measures) and the delay lives here, where the
+  // decision is. LAGS_MONTHS['rate_to_investment'] is no longer scheduled
+  // anywhere: it is what the combination is MEASURED AGAINST in
+  // test/transmission.test.js.
+  //
+  // IT APPLIES TO THE WHOLE LEVEL, not just the rate term. Adjustment costs
+  // are a property of capital spending and do not care why the firm changed
+  // its mind, so the accelerator and the crowding-out response are damped by
+  // the same friction. Applying it to the rate term alone would say a firm can
+  // retool overnight for a fiscal reason but not for a monetary one.
+  //
+  // The steady state is untouched by construction: desired == investment there,
+  // so the adjustment term is exactly zero.
+  const speed = P.INVESTMENT_ADJUSTMENT_SPEED.value;
+  const adjustment = speed * (desired - s.investment);
+  const raw = s.investment + adjustment;
+
   const terms = {
-    'baseline investment': s.investment_share,
-    'cost of borrowing': rateTerm,
-    'demand already strong (accelerator)': accelerator,
-    'government borrowing crowding it out': crowding,
+    'what it was spending': s.investment,
+    'cost of borrowing': speed * rateTerm,
+    'demand already strong (accelerator)': speed * accelerator,
+    'government borrowing crowding it out': speed * crowding,
+    'still catching up to last month\'s decision':
+      speed * (s.investment_share - s.investment),
   };
   // Bounded BOTH ways. The floor is obvious; the ceiling is not, and its
   // absence was a live bug: under hyperinflation the real user cost goes
   // deeply negative, and an unbounded rate term drove investment to 700% of
   // GDP, which exploded the capital stock and then potential output itself.
   // No economy invests more than ~45% of output in a year.
-  const raw = s.investment_share + rateTerm + accelerator + crowding;
   s.investment = clamp(raw, 2, 45);
   trace.record('investment', { ...terms,
     'bounded to a physically possible range': s.investment - raw,
@@ -169,6 +202,7 @@ export function updateInvestment(s, trace) {
     user_cost: s.user_cost,
     rate_felt_so_far: s.policy_rate_demand,
     rate_on_the_dial: s.policy_rate,
+    what_it_wants_to_spend: desired,
     easing_effectiveness: stance < 0 ? scale : null,
     crowding_out_effectiveness: elbRoom,
   });

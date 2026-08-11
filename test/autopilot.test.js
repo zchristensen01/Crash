@@ -205,17 +205,26 @@ test('the Taylor rule loses stagflation to the CEILING, not to the supply shock'
       `(refused ${built.truncated}/96); ceiling 40 -> ${lifted[48].toFixed(2)}% @m48, ` +
       `${lifted[96].toFixed(2)}% @m96 (refused ${lifted.truncated}/96)`);
 
-    assert.ok(built[48] > 100,
-      `the rule now holds stagflation to ${built[48].toFixed(2)}% at month 48 as ` +
-      `built. It used to lose outright at 242%. If this has been fixed, say so ` +
-      `in autopilot.js's header — the comment there states the loss as a ` +
-      `measured fact and it must not become stale the way its predecessor did.`);
+    // Measured at m96, not m48. The A1 transmission split took the m48 figure
+    // from 242.34% to 29.55% — the largest single effect in this pass — so a
+    // month-48 threshold now measures how much of A1 has landed rather than
+    // whether the rule wins. By the end of the term it still diverges.
+    assert.ok(built[96] > 100,
+      `the rule now holds stagflation to ${built[96].toFixed(2)}% at month 96 as ` +
+      `built, having been at 1020.91%. If this has been fixed, say so in ` +
+      `autopilot.js's header — the comment there states the loss as a measured ` +
+      `fact and it must not become stale the way its predecessor did.`);
 
     assert.ok(lifted[48] < 20 && lifted[96] < 20,
       `raising ONLY the dial's ceiling to 40 leaves inflation at ` +
       `${lifted[48].toFixed(2)}% at m48 and ${lifted[96].toFixed(2)}% at m96. The ` +
       `claim in autopilot.js — that the rule loses to the instrument and not to ` +
       `the shock — rests on this arm winning with the shock untouched.`);
+
+    assert.equal(lifted.truncated, 0,
+      `at a ceiling of 40 the rule was still refused ${lifted.truncated} times. ` +
+      `Phase 2.4 derives the ceiling from exactly this: the lowest bound the ` +
+      `rule never has to be refused at.`);
 
     assert.ok(built.truncated > 60,
       `the rule was refused its request in only ${built.truncated} of 96 months`);

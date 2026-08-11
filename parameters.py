@@ -384,7 +384,57 @@ HAND_TO_MOUTH_SHARE = P(
 INVESTMENT_RATE_ELASTICITY = P(
     1.5, 1.0, 2.0, "% change in investment level per 1pp policy rate",
     "moderate", "Bank of England transmission mechanism",
-    "Peaks 4-6 quarters out. Most rate-sensitive demand component.")
+    "Peaks 4-6 quarters out. Most rate-sensitive demand component. THE PEAK "
+    "IS NOT AN INPUT: it is produced by RATE_PASSTHROUGH_TO_BORROWERS "
+    "convolved with INVESTMENT_ADJUSTMENT_SPEED, and measured against "
+    "LAGS_MONTHS['rate_to_investment']. This elasticity is the LONG-RUN "
+    "response; the partial adjustment in updateInvestment delivers it in "
+    "full, only later.")
+
+# --- The two halves of the monetary transmission lag (4th audit, A1) ---
+#
+# THE DEFECT THIS SPLITS. dials.js used to schedule the transmitted policy
+# rate itself on the `rate_to_investment` kernel — an estimated impulse
+# response OF INVESTMENT (a quantity) TO A MONETARY SHOCK (a price). The rate
+# arrived at the economy with a 14.74-month mean lag, and updateInvestment
+# then applied INVESTMENT_RATE_ELASTICITY to that already-lagged rate. The
+# reduced form was doing duty as a structural input and was then multiplied by
+# the structural coefficient it already contained — rule 4, in the busiest
+# channel in the model.
+#
+# The published IRF is the CONVOLUTION of two things the literature measures
+# separately, so the model now carries them separately:
+#
+#   (1) how fast a policy move reaches the rate borrowers actually pay
+#       — a PRICE reaching a price. Fast.
+#   (2) how fast capital spending responds once the price has moved
+#       — a QUANTITY responding to a price. Slow.
+#
+# The 9-month peak becomes a TARGET TO REPRODUCE rather than a number to
+# impose, which is what rule 4 requires. test/transmission.test.js measures it.
+RATE_PASSTHROUGH_TO_BORROWERS = P(
+    3.0, 1.0, 6.0, "months to peak, policy rate -> the rate borrowers pay",
+    "moderate", "ECB retail bank interest rate pass-through (MIR-based "
+    "studies); BIS work on bank lending-rate pass-through",
+    "Pass-through to NEW lending rates is fast and largely complete within a "
+    "quarter — banks reprice new business off market rates within weeks. The "
+    "STOCK of existing loans reprices far more slowly, which is a SEPARATE "
+    "question and a separate parameter (see TEST-RESULTS.md #11 on private "
+    "debt maturity); this is the marginal borrower deciding whether to invest, "
+    "so it is the new-business rate that matters. The range spans the "
+    "corporate/mortgage and fixed/floating spread across advanced economies.")
+
+INVESTMENT_ADJUSTMENT_SPEED = P(
+    0.15, 0.08, 0.30, "monthly fraction of the desired investment gap closed",
+    "moderate", "Kydland & Prescott 1982 (time-to-build, ~4 quarters for US "
+    "manufacturing); Christiano, Eichenbaum & Evans 2005 (investment "
+    "adjustment costs)",
+    "Capital spending is planned, ordered and built, so a firm that decides "
+    "today to invest less does not spend less today. Geometric partial "
+    "adjustment: mean lag is (1-speed)/speed, so 0.15 is about 5.7 months and "
+    "the range spans roughly 2.3 to 11.5. IT APPLIES TO THE WHOLE INVESTMENT "
+    "LEVEL, not only to the rate term — adjustment costs are a property of "
+    "capital spending and do not care why the firm changed its mind.")
 
 # --- Wage setting (question 1.6) ---
 WAGE_PC_EXPECTED_INFL = P(
@@ -1247,6 +1297,14 @@ LAGS_MONTHS = {
     # [PASS2] Three of these changed. Old values in brackets.
     "rate_to_asset_prices":        1,
     "rate_to_exchange_rate":       3,   # unused in v1 (closed economy)
+    # [4th audit A1] The rate the economy FEELS now travels on this, a bank
+    # pass-through kernel. Derived from the parameter so there is one copy.
+    "rate_to_borrowing_cost": int(RATE_PASSTHROUGH_TO_BORROWERS.value),
+    # NOT SCHEDULED ANY MORE, and deliberately kept. This is the published
+    # impulse response of investment to a monetary shock, and it is now what
+    # the model is MEASURED AGAINST rather than what it is built from
+    # (test/transmission.test.js). Scheduling the transmitted rate on it was
+    # the A1 defect: a reduced form used as a structural input.
     "rate_to_investment":          9,   # [was 15]
     "rate_to_output":             12,
     "rate_to_unemployment":       18,
@@ -1275,6 +1333,15 @@ KERNEL_SHAPE_K = {
     "rate_to_inflation":   4.0,   # ECB/CEPR 2023
     "rate_to_investment":  2.5,   # SVAR mediation (arXiv 2509.05284); Bauer-Swanson
     "spending_to_output":  2.0,   # fiscal multiplier consensus
+    # Pass-through has a SHORT TAIL, which is the whole point of splitting it
+    # off, so k is high: the gamma's mean is k*peak/(k-1), and a low k puts the
+    # mean nowhere near the mode. At k=1.6 a "3-month" kernel has a mean lag of
+    # 8.1 months and is not a fast channel at all. What the literature actually
+    # pins is the CUMULATIVE profile, so that is what this was chosen against:
+    # k=5 gives 50% of the pass-through by month 3, 93% by month 6, 100% by
+    # month 12, against an ECB/BIS picture of new-business lending rates
+    # repricing largely within one to two quarters.
+    "rate_to_borrowing_cost": 5.0,
 }
 KERNEL_DEFAULT_K = 2.5   # judgement, for channels with no fitted IRF
 
@@ -1489,6 +1556,14 @@ DEFERRED = {
     "SS_LABOUR_SHARE": "consumed via START",
     "SS_K_OVER_Y": "consumed via START",
     "SS_DEPRECIATION": "consumed via START (DEPRECIATION_RATE is the law of motion)",
+
+    # --- consumed via LAGS_MONTHS
+    "RATE_PASSTHROUGH_TO_BORROWERS":
+        "consumed via LAGS_MONTHS['rate_to_borrowing_cost'], which is built "
+        "from it so there is exactly one copy of the number. The kernel it "
+        "generates is scheduled by applyDialChange on every policy_rate move, "
+        "so this is a live structural input, not an idle one — it is listed "
+        "here for the same reason the SS_* anchors are.",
 
     # --- deferred levers: real mechanisms, no dial yet
     "GOVT_INVESTMENT_MULT_SPLIT_PLACEHOLDER": None,   # removed below; see cleanup

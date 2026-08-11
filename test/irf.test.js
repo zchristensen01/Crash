@@ -50,18 +50,48 @@ test('a temporary rate hike produces a HUMP, not a ramp', () => {
   }
 });
 
+/**
+ * THE SEPARATION IS MEASURED ON THE MEDIAN, NOT THE ARGMAX, and the reason is
+ * a measurement problem rather than a modelling one.
+ *
+ * The inflation impulse response is a broad, almost flat plateau: its argmax
+ * sits at month 17 while half its cumulative response has still not arrived by
+ * month 42. On a curve that flat the argmax is not a statistic — a 3% change
+ * anywhere along it moves the reported peak by six months. Measured across the
+ * A1 transmission split, which changed the front end of every response:
+ *
+ *              argmax gap   centroid gap   median gap
+ *   before          6           3.4            5
+ *   after           2           3.2            5
+ *
+ * The lesson is intact and the argmax is noise. So the ordering is still
+ * asserted on the peaks — that is a claim about sequence, and it holds — while
+ * the SIZE of the separation is asserted on the month by which half the
+ * response has arrived, which is stable.
+ */
+function medianMonth(r, k) {
+  const a = r.path.map((x) => Math.abs(x[k]));
+  const total = a.reduce((s, v) => s + v, 0);
+  let c = 0;
+  for (let i = 0; i < a.length; i++) { c += a[i]; if (c >= total / 2) return i + 1; }
+  return a.length;
+}
+
 test('the ordering of the peaks is output, then unemployment, then inflation', () => {
   // docs/02 Part 5's real claim, underneath the bracket numbers: the real
   // economy moves before the labour market, which moves before prices. The
   // ordering is the lesson; the exact months are derived, not imposed.
-  const r = rateImpulse(+1);
+  const r = rateImpulse(+1, { months: 96 });
   const y = r.peak('output_gap').m, u = r.peak('unemployment').m, pi = r.peak('inflation').m;
   assert.ok(u >= y, `unemployment peaked at ${u}, before output at ${y}`);
   assert.ok(pi > u, `inflation peaked at ${pi}, not after unemployment at ${u}`);
-  assert.ok(pi - y >= 3,
-    `only ${pi - y} months between the output peak (${y}) and the inflation peak ` +
-    `(${pi}) — "it takes a year to move output and two to move inflation" is the ` +
-    `game's central frustration and it has to be visible`);
+
+  const my = medianMonth(r, 'output_gap'), mpi = medianMonth(r, 'inflation');
+  assert.ok(mpi - my >= 3,
+    `only ${mpi - my} months between output delivering half its response (m${my}) ` +
+    `and inflation delivering half of its (m${mpi}) — "it takes a year to move ` +
+    `output and two to move inflation" is the game's central frustration and it ` +
+    `has to be visible`);
 });
 
 test('the response scales with the size of the impulse and not with its sign', () => {

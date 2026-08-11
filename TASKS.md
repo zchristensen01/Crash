@@ -49,7 +49,12 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
 
 ## Phase 2 — Section A: the transmission lag
 
-- [ ] 2.1 Split the rate lag from the investment-response lag
+- [x] 2.1 Split the rate lag from the investment-response lag
+      `rate_to_borrowing_cost` kernel (3m peak) + partial adjustment in
+      `updateInvestment`. New params `RATE_PASSTHROUGH_TO_BORROWERS`,
+      `INVESTMENT_ADJUSTMENT_SPEED`. Knife-edge moved from 8–9% to 6–7%;
+      investment IRF peak 13 -> 9 months, matching the published value;
+      stagflation 242.34% -> 29.55% at m48. See docs/13 Correction 8.
 - [ ] 2.2 Re-measure the A-table from the model itself
 - [ ] 2.3 Record the effective transmitted Taylor response (0.37)
 - [ ] 2.4 Derive the dial ceiling

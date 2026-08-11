@@ -392,7 +392,129 @@ with the measurement.
 *The largest defect. A1 is a modelling decision; everything else here is small
 once it lands.*
 
-**2.1 — Split the rate lag from the investment-response lag. `*** START HERE ***`**
+**2.1 — Split the rate lag from the investment-response lag. — DONE**
+
+> #### As built — and the shape differs from the one proposed below. See Correction 8.
+>
+> - `policy_rate_demand` now rides a new `rate_to_borrowing_cost` kernel,
+>   peak 3 months, shape k=5 → **50% of pass-through by m3, 93% by m6**.
+>   New sourced parameter `RATE_PASSTHROUGH_TO_BORROWERS` (3.0, [1,6],
+>   moderate, ECB/BIS retail lending-rate pass-through).
+> - The slow half became a **partial adjustment inside `updateInvestment`**:
+>   investment closes `INVESTMENT_ADJUSTMENT_SPEED` (0.15, [0.08,0.30],
+>   moderate, Kydland–Prescott time-to-build; Christiano–Eichenbaum–Evans) of
+>   the gap to desired each month.
+> - `LAGS_MONTHS.rate_to_investment` is **no longer scheduled anywhere**. It is
+>   kept as what the model is now *measured against*, which is what rule 4
+>   requires of a reduced form.
+>
+> ### CORRECTION 8 — the plan's proposed shape violates a rule `dials.js` already states.
+>
+> The plan says the investment response should become *"a new `PIPELINE_TARGETS`
+> entry carrying the investment impulse, which `updateInvestment` adds"*. That
+> schedules an **effect size**, and `applyDialChange`'s own header forbids it:
+>
+> > *"That is why these are level deltas and not effect sizes: an effect size
+> > has to be estimated twice (once here, once in the rule) and the two then
+> > have to be kept from double-counting. A driver only exists once."*
+>
+> Two further reasons, both decisive:
+> 1. The pipeline is **event-driven** — it only fires on a dial move. The
+>    investment response also has to lag its response to the **credit spread**,
+>    the **sovereign premium** and **expected inflation**, none of which have a
+>    dial event. A pipeline target could never lag those, so the channel would
+>    be half-lagged and half-instant.
+> 2. Scheduling at dial-move time **freezes the state-dependent scaling**
+>    (`monetaryEasingScale`, the ZLB ramp) at the moment of the move.
+>
+> Partial adjustment lags the response uniformly across every driver, is
+> structural rather than reduced-form, and leaves the steady state exact —
+> `desired == investment` at rest, so the term is identically zero. **Verified:
+> 200 calm ticks still give `output_gap 0.000000000`, `inflation 2.000000000`,
+> `investment 22.500000000`.**
+>
+> #### THE RESULT, and it is the largest single effect measured in this pass.
+>
+> **The knife-edge moved to where the Fisher arithmetic says it belongs.**
+> Section A's table, inflation at m60 from 8% inflation / 7% expected:
+>
+> | policy rate | brief (as built) | **after A1** | no wealth channel |
+> |---|---|---|---|
+> | 5% | 555.73 | 259.29 | 35.90 |
+> | 6% | 443.10 | 126.86 | 14.50 |
+> | **7%** | **326.00** | **5.53** | 5.31 |
+> | 8% | 136.50 | 1.55 | 3.32 |
+> | 9% | 1.76 | −0.80 | 1.90 |
+> | 10% | −1.54 | −3.54 | 0.70 |
+> | 12% | −4.00 | −4.00 | −1.71 |
+>
+> The stabilising threshold moves from **between 8% and 9%** to **between 6% and
+> 7%** — `expected_inflation + neutral_real` = 7.5. This is exactly what the
+> brief's A1(b) predicted, and it is now measured rather than argued.
+>
+> **The published IRF peak is reproduced, not imposed.** Neither parameter was
+> chosen to hit it — one came from the pass-through literature, the other from
+> the adjustment-cost literature — and the convolution lands on it:
+>
+> | hold | investment peak before | **after** | published |
+> |---|---|---|---|
+> | 6 months | m13 | **m9** | **9** |
+> | 12 months | m17 | m14 | — |
+>
+> **`stagflation` under the Taylor rule: 242.34% → 29.55% at m48.** Still
+> divergent by m96 (1020.91%), and the ceiling is still refused in 86 of 96
+> months, which is Phase 2.4's brief.
+>
+> #### FOUR TESTS WHOSE PREMISES A1 CHANGED. Each re-measured, none relaxed.
+>
+> **`STOP-GO` was measuring the lag, not the stance.** It read the transmitted
+> stance *at* month 96 and wanted ≈ −0.5, getting −0.407. That number was an
+> artefact: on a 14.74-month kernel the transmitted rate carried a year of
+> history at every instant and *looked* like an average. Now the instantaneous
+> reading at m96 is **−0.000** — correct, the dial returned to baseline in month
+> 85 — while the **average** transmitted stance over the 96 months is
+> **exactly −0.500** against an average dial stance of −0.500, where it used to
+> be −0.463. **The fix made the test's own comment true for the first time.**
+> The credit gap, which is what the lesson is about, is unmoved: 5.15 → 5.17.
+>
+> **The peak-ordering test was reading an unstable statistic.** The inflation
+> IRF is a flat plateau — argmax m17, but half its cumulative response has not
+> arrived by m42. Across the split:
+>
+> | | argmax gap | centroid gap | median gap |
+> |---|---|---|---|
+> | before | 6 | 3.4 | 5 |
+> | after | **2** | **3.2** | **5** |
+>
+> The lesson is intact and the argmax is noise, so the separation is now
+> asserted on the median. The *ordering* is still asserted on the peaks.
+>
+> **"Markets feel a rate move faster than the real economy"** required markets
+> to move >2× the real economy at 3 months. It passed only because the real
+> economy was on a 14.74-month kernel — i.e. it was testing the defect. Rewritten
+> as the three-stage claim the model now contains: markets reprice before
+> borrowers, and both before capital spending.
+>
+> **UK 1979-83's inflation peak moved 20.39% → 16.38%** (UK RPI: 21.9%), because
+> the hike now reaches borrowers — the felt rate at m12 goes 13.12 → 16.86. The
+> disinflation works better (m48 inflation 56% → 47% of peak) and the peak
+> matches history worse. The magnitude assertion moved to the episode's existing
+> `todo`; the mechanism assertions are untouched and still pass.
+>
+> #### Left failing, deliberately
+>
+> **Crash-arc unemployment: +1.93pp against a published 2–5**, a 0.07pp
+> shortfall. Split into its own `todo` so the four other crash magnitudes keep
+> hard assertions. `CRISIS_IMPULSE_AMPLIFICATION` and `CRISIS_SCAR_AMPLIFICATION`
+> are solved *from* this model and absorb exactly this; **Phase 4.1** re-solves
+> them after Phase 3. Doing it now would mean doing it twice.
+>
+> **The 1pp-cut divergence is untouched** — A/F 2.873e11 → 1.323e11 at m480. The
+> guard still fails and Section B is confirmed independent of Section A.
+>
+> ---
+>
+> *The plan's original text follows.*
 
 The defect: `dials.js:132` schedules `policy_rate_demand` on the
 `rate_to_investment` kernel, whose source is *"SVAR mediation; Bauer-Swanson"* —

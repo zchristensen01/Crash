@@ -144,12 +144,23 @@ export function applyDialChange(s, pipeline, key, newValue) {
 
   if (key === 'policy_rate') {
     // Two speeds, because the doc lists two chains and they are not the same
-    // length: markets reprice in a month, the real economy takes three
-    // quarters. The sign asymmetry and the lower bound are NOT applied here —
-    // they are properties of the STANCE, not of the increment, and scaling
-    // increments makes a cut-then-hike round trip ratchet the stance
-    // permanently tighter. See monetaryEasingScale in rules/investment.js.
-    pipeline.schedule('policy_rate_demand', delta, 'rate_to_investment', label, s.tick);
+    // length: markets reprice in a month, borrowers over a quarter. The sign
+    // asymmetry and the lower bound are NOT applied here — they are properties
+    // of the STANCE, not of the increment, and scaling increments makes a
+    // cut-then-hike round trip ratchet the stance permanently tighter. See
+    // monetaryEasingScale in rules/investment.js.
+    //
+    // [4th audit A1] THIS USED TO RIDE `rate_to_investment`, which is the
+    // published impulse response OF INVESTMENT TO A MONETARY SHOCK — a
+    // quantity responding to a price, with a 14.74-month mean lag. Used as the
+    // lag on the PRICE, and then multiplied by INVESTMENT_RATE_ELASTICITY in
+    // updateInvestment, it applied the same reduced form twice: rule 4, in the
+    // busiest channel in the model. What this field is has never been in
+    // doubt — TRANSMISSION_LABELS calls it "what businesses pay to borrow" —
+    // and a borrower's rate reprices off today's policy rate within weeks. The
+    // slow half, the spending decision, now lives where it belongs, as a
+    // partial adjustment inside updateInvestment.
+    pipeline.schedule('policy_rate_demand', delta, 'rate_to_borrowing_cost', label, s.tick);
     pipeline.schedule('policy_rate_markets', delta, 'rate_to_asset_prices', label, s.tick);
 
   } else if (key === 'tax_rate') {
