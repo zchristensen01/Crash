@@ -10,6 +10,15 @@ number from any document.
 
 `[ ]` todo `[~]` in progress `[x]` done `[-]` deliberately not doing
 
+**COVERAGE INVARIANT: every `OPEN` or `PARTIAL` entry in `open_items.md` has a
+numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
+A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
+D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11. The entries with no task are the
+ones that want none: `FIXED` (E1, E2), `WATCH` (D3, E3) and `DELIBERATE` (B2).
+**There are no audit reports.** A finding goes in `open_items.md` with its
+reproduction; the work it implies goes here as a task; the reasoning goes in
+`docs/13`'s "As built" block next to the change. See 10.10.
+
 ---
 
 ## Phase 0 — Verification
@@ -484,17 +493,122 @@ guard green. Phase 6 is unblocked.
       **NOT FIXED HERE** — it moves potential output in every scenario and is a
       Phase-3-sized task with its own gate.
 
+### Defects found during Phase 5 that the plan does not contain
+
+Each has a matching `open_items.md` entry with the reproduction. These are
+tasks, not notes — the pass found them and did not fix them.
+
+- [ ] 5.7 **The capital law of motion treats a share as a level** — `open_items` A5
+      **The largest model defect found in Phase 5.** `supply.js:25` adds
+      `annualToMonthlyFlow(s.investment)` — a PERCENT OF POTENTIAL — to
+      `capital_stock`, a LEVEL, so the investment flow feeding the capital
+      stock is frozen at its month-zero value while potential grows away from
+      100. Measured: K converges to a constant `I/δ` = 22.5/0.065 = **346.15**
+      (measured 346.154 at m2400); long-run potential growth decays to
+      `gA = g·(1−α)` = **0.930%** (measured 0.9345% at m1200, still falling)
+      against a stated `potential_growth` of 1.5; K/Y falls 3.0 → 2.89 (m96) →
+      **2.05** (m600).
+      **Isolated:** scaling the flow by `potential_output` returns growth to
+      **1.493%** and K/Y to 2.83, and the steady state stays exact to 9dp.
+      **A SECOND DEFECT SITS UNDER IT:** `test/params.test.js`'s identity check
+      hardcodes `0.06` against `DEPRECIATION_RATE = 0.065`, so the share that
+      holds K/Y constant is **24.0**, not 22.5. `investment_share` must be
+      re-derived with it.
+      **This needs its own gate.** It moves potential output in every scenario,
+      so it moves the six starting vectors, all of `docs/11`, and
+      `CRISIS_IMPULSE_AMPLIFICATION` (solved against a trough measured relative
+      to potential). Treat it like Phase 3: fix, re-measure everything, re-stamp.
+      **`test/steady-state.test.js` CANNOT SEE IT** — it checks `output_gap` (a
+      ratio), `inflation` (a rate) and `consumption` (a percent of potential),
+      and all three are invariant when output and potential drift together. Add
+      a level assertion as part of this task or the next drift is invisible too.
+
+- [ ] 5.8 Give `updateBondYield` an expected-inflation term — `open_items` A4
+      **UNBLOCKS 5.1 AND 5.5's `HAND_TO_MOUTH_SHARE` WIRING.** The 10-year yield
+      is policy rate + term premium + risk premium with no Fisher term, which is
+      fine under a responding central bank and wrong the moment the rate is
+      pegged. Measured in `overheating` with the rate pegged at 1.0%: the yield
+      **falls** 1.53 → 0.98 while inflation runs at 3.1–3.8%, and bondholders
+      accept a −2% real return indefinitely.
+      **Not a keystroke:** `START`'s 3.25 = 2.5 + 0.75 already assumes the
+      policy rate carries expected inflation, so a Fisher term double-counts
+      under a responding central bank. Needs its own derivation, source and
+      steady-state re-solve.
+
+- [ ] 5.9 Re-derive the rate ceiling of 50 — `open_items` D1
+      2.4 derived `max: 50` as a fixed point over 360 runs with events on,
+      **before** 3.1 removed the wealth-channel overshoot. The model is much
+      less explosive now: at a ceiling of 20 the Taylor rule *survives*
+      stagflation (5.49% at m96) where it used to reach 1020.91%. The A2
+      finding survives — the threshold moved from 20–25 to **18–20** and the
+      rule is still refused 39/96 months at 20 against 0/96 at 50 — but the
+      derivation itself has not been re-run. Do it after 5.7, not before.
+
+- [ ] 5.10 The two bounds that are stated twice — `open_items` D2
+      `updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8
+      asserts the same band; `updateInvestment` clamps to `[2, 45]` and check 8
+      asserts that too. Deliberate belt-and-braces and the numbers were taken
+      from the invariant so there is one source — but they are still two
+      copies, and 5.3 named them without merging them. Move one and the other
+      must move.
+
+- [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
+      `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks
+      `src/rules/` only. **254 undeclared literals sit outside that scope:**
+      `ui/chart.js` 53, `game/scenarios.js` **49**, `game/indicators.js` 42,
+      `invariants.js` **21**, `game/events.js` 16, `game/dials.js` 13.
+      Most of `ui/` is presentation and should stay out. The two that matter
+      are `scenarios.js` — DATA the model is calibrated against — and
+      `invariants.js`, which holds the bounds 5.10 is about. `game/events.js`
+      and `game/endings.js` decide what happens to the player.
+      **`test/` is a third scope**, and 5.7's hardcoded `0.06` is why it matters.
+
+- [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
+      **Every generated artefact in this project has a `--check` and every
+      number re-typed into prose has none**, and Phase 5's verification found
+      five stale prose numbers and one inverted claim in an afternoon. The
+      worst: `docs/02` calls the transmitted Taylor response "the most
+      important single fact about this model's dynamics", it has been **1.96**
+      since 3.1, and the document said 1.83 while `TAYLOR_INFLATION`'s note
+      said 1.80 — past a HARD GATE whose stated job was to re-measure
+      everything.
+      Not obviously fixable by a tool: prose numbers have no schema. The
+      cheapest partial guard is a convention — quote a number in prose ONLY
+      with the command that regenerates it beside it — which `open_items.md`
+      already claims to follow and did not. A stronger one: a `docs/`-wide
+      sweep that extracts `**N.NN**` patterns near a named quantity and asks
+      the tool for the current value.
+
+
 ## Phase 6 — What to add
 
 - [ ] 6.1 Macroprudential dial: the countercyclical capital buffer
-      **NOW HALF OF AN ANSWER TO A LIVE REGRESSION.** 3.1 left the `bubble`
-      scenario deflating on its own: the credit gap peaks at 9.82pp around m48
-      and unwinds to 3.37 by m96, where it used to climb monotonically to
-      14.10. A bubble the player cannot act on was already a spectacle rather
-      than a decision; one that resolves itself teaches that ignoring it
-      works. See the `todo` in `test/scenarios.test.js`.
+      **NOW HALF OF AN ANSWER TO A LIVE REGRESSION** — `open_items` A1. 3.1
+      left the `bubble` scenario deflating on its own. Current path, no player
+      input: the credit gap runs **9.16 (m24) → 11.65 (m48) → 11.05 (m72) →
+      7.08 (m96)**, peaking at **11.98 in month 58**, where it used to climb
+      monotonically to 14.10. 5.4 recovered part of it by deriving the trend
+      speed and 5.2 a little more (a slower debt-service leg means the credit
+      loop's balancing counterpart arrives later), and **the shape is
+      unchanged: it still peaks and unwinds inside the term.** A bubble the
+      player cannot act on was already a spectacle rather than a decision; one
+      that resolves itself teaches that ignoring it works. See the `todo` in
+      `test/scenarios.test.js`.
+      **Do 5.7 first.** The remaining gap is partly structural — the BIS trend
+      carries a slope state and this one does not — and 5.7 changes the
+      denominator (`potential_output`) that credit/GDP is measured against.
 - [ ] 6.2 **Historical scenarios: play the moment**
-- [ ] 6.3 Separate housing from equities
+- [ ] 6.3 Separate housing from equities — **and it is the real fix for `open_items` B4**
+      One `ASSET_PRICE_MEANREVERSION` serves two sourced horizons: equity is
+      *"cumulative ~1yr"*, housing *"2–5yr"*. Equity implies ~0.08 (outside the
+      published [0.01, 0.05]); housing implies 0.028–0.038 (inside it). Left at
+      0.02 and recorded rather than tuned, and the consequence is measured:
+      **the model delivers 0.94% of a 4.60% level response at 12 months** —
+      right in the long run, slow to get there.
+      **`open_items` D4 is the same shape one block over:** one
+      `PRIVATE_DEBT_REPRICING_YEARS` cannot carry the US prepayment asymmetry
+      (fast when rates FALL, locked when they rise). If this task splits the
+      asset legs, look at whether the same split is wanted there.
 - [ ] 6.4 Demographics
 - [ ] 6.6 **THE WEDGE — let the player watch a bubble inflate** *(new, requested)*
       **What is missing.** `credit_to_gdp_gap` is a gauge, so a bubble is
@@ -521,12 +635,18 @@ guard green. Phase 6 is unblocked.
       **Cost:** two history buffers (`asset_prices`, `asset_fundamental` — both
       need `docs/01` entries or `docs.test.js` fails), one chart, one readout.
       No new parameters, no model change.
-      **BLOCKED ON 5.4, AND THIS IS NOT OPTIONAL.** The credit-gap gauge is
-      currently a broken bubble detector — it mean-reverts 3–4x faster than the
-      HP filter it claims to approximate and under-reads persistent booms,
-      which is the exact situation it exists for. Building a bubble display on
-      it now would ship a display of a defect. 5.4 fixes it and also restores
-      `bubble`'s own design promise.
+      **UNBLOCKED: 5.4 HAS LANDED**, and it got part of the way. The
+      credit-gap gauge was a broken bubble detector — mean-reverting far faster
+      than the HP filter it claims to approximate, so it under-read persistent
+      booms, which is the exact situation it exists for. `CREDIT_TREND_CATCHUP`
+      is now derived (0.127/yr) and the brief's "3–4x too fast" was measured at
+      **1.58x**. What remains is structural and no speed fixes it: the BIS
+      trend carries a slope state and this one is level-only. **So the wedge
+      may now be built on the gauge, but 6.1 is still the other half** — a
+      bubble the player cannot act on is a spectacle. And `crisis_prob`'s own
+      arithmetic is only declared as of 5.3; read `CREDIT_GAP_WARNING`,
+      `CREDIT_GAP_ONE_SD` and `CRISIS_PROB_RZONE_UPLIFT` before putting that
+      number on screen.
       **One design question left open on purpose:** showing `asset_fundamental`
       is arguably *too* honest — real policymakers are never told the
       fundamental, and the hard thing about bubbles is that you cannot tell one
@@ -549,6 +669,23 @@ guard green. Phase 6 is unblocked.
 ## Phase 7 — Validation
 
 - [ ] 7.1 Uncertainty propagation (Monte Carlo)
+- [ ] 7.3 **Diagnose why a rate cut buys LESS inflation the hotter the economy**
+      `open_items` A3, and nobody has explained it. Below the capacity ceiling
+      the inflation response to a 1pp cut **falls** as the output gap rises,
+      then jumps at the ceiling: 0.105 at a zero gap, 0.061 at +1.98, 0.033 at
+      +3.02, then 0.055 at +4.08. **Verified pre-existing** — identical before
+      and after Phase 3 — but backwards on its face. It also made the
+      capacity-cliff test a coin toss for as long as it has existed: it passed
+      by 0.004 and failed by 0.006 across an unrelated change.
+- [ ] 7.4 Sweep the judgement set, starting with `updateCreditSpread` — `open_items` E5
+      **Four of that function's six terms are judgement** with no source — the
+      weights on leverage (0.8), collateral (0.5), realised defaults (0.3) and
+      the 30%/month adjustment speed — against two sourced. 5.3 labelled them;
+      it did not resolve them. It matters more than most judgement blocks
+      because `credit_spread` is inside `market_rate`, which is what every
+      private borrower pays, and since 5.2 it also sets the rate the whole
+      private debt STOCK walks toward. Fold into 7.1's Monte Carlo rather than
+      inventing ranges for them.
 - [ ] 7.2 Step-size independence
       Phase 3 guarantees this finds something. Note also that 2.1 added a new
       per-tick smoother — `INVESTMENT_ADJUSTMENT_SPEED` closes 15% of the gap
@@ -579,6 +716,49 @@ guard green. Phase 6 is unblocked.
 - [ ] 9.1 The published forecast
 - [ ] 9.2 Two named advisors who disagree
 
+## Phase 11 — The demand block **(the pass's largest finding, and the plan has nothing for it)**
+
+Not in the fourth-audit brief and not in `docs/13`. It is **one finding seen
+five ways**, and every one of them is the same shape: *every real quantity
+moves too little for the price change that caused it.*
+
+| | model | literature |
+|---|---|---|
+| UK 1979-83 sacrifice ratio | **0.35** | Ball 1994: 2–4 |
+| `TAX_SHOCK_TO_GDP` | **0.487** | Romer-Romer: 2–3 |
+| austerity paradox | absent at every playable gap | — |
+| endogenous crisis propagation | **3.65** | was 8.4 of Cerra-Saxena's 10 |
+| post-crisis rebound | 46% of the trough with BOTH amplifiers off | Cerra-Saxena: none |
+
+- [ ] 11.1 Diagnose it — `open_items` A2
+      **It is not a calibration problem**, and 4.1 proved that from the other
+      side: `CRISIS_SCAR_AMPLIFICATION` re-solves to 1.06–1.26 against a
+      published [2.0, 4.5], and forcing it there would make the exogenous
+      capacity cut supply 7.9–9.5 of Cerra-Saxena's 10 while the model supplies
+      almost nothing. **The refusal is the finding.**
+      Start with the multiplier chain: `disposable_income → yd_permanent
+      (5%/month) → consumption → output → market_income`. `apc_ss` is 0.709 and
+      the transitory MPC is 0.35, both sourced; what is not obviously sourced
+      is the 5%/month permanent-income speed (5.3 labelled it judgement) and
+      whether the income-expenditure loop closes at all within a term.
+      **Do 5.7 first** — the capital-units defect is in the supply block and
+      changes the denominator every one of these is measured against.
+- [ ] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
+      The crash trough is **exactly** on target (−9.0000% against
+      `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.86pp against a
+      published 2–5**. The output hole is the right depth and the labour market
+      does not follow it in. Probably 11.1 seen from the labour side.
+      `TEST-RESULTS.md`'s OPEN on the output→employment lag is related.
+- [ ] 11.3 Re-solve `CRISIS_SCAR_AMPLIFICATION` — `open_items` C2
+      **Only after 11.1**, and 4.2's `SOLVED_FROM_MODEL` register is what makes
+      that safe: the constant is DEFINED by a solve, so it must be re-solved
+      whenever the demand block changes, and the register fails until it is.
+- [ ] 11.4 Re-derive `debt_trap`'s starting vector — `open_items` B6
+      Two of its own tests sit on very thin margins — *"the real economy
+      responds to the yield at all"* passed on an output gap of 0.63 and failed
+      at −0.11 under a change that was not aimed at it. A scenario whose central
+      claim survives on a tenth of a percentage point will keep breaking.
+
 ## Phase 10 — Documentation (throughout, not at the end)
 
 - [ ] 10.1 Rewrite `docs/10` wholesale
@@ -592,9 +772,20 @@ guard green. Phase 6 is unblocked.
       3-7 has never been checked number-by-number** (open_items B1). The
       fingerprint asserts the doc was generated against this model; it does not
       assert every sentence was re-read.
+      **CLOSED IN 5.2.** All of §1 and §3–§7 were regenerated and the prose
+      corrected — and three sections were not merely stale, they taught the
+      opposite of what the model does: §1's kernel table had **never** been
+      regenerated since the file was created and described the pre-2.1 model,
+      §5 said the Taylor rule LOSES `stagflation`, and §7 still called the
+      closed bifurcation "the biggest hole". Re-stamped `86c1b104fab5561d`.
+      The one block still flagged unverified is `debt_trap`'s five-row policy
+      table in §5, marked in place as not re-run.
 - [~] 10.3 Regenerate `TEST-RESULTS.md` — done repeatedly, redo at the end
       `node tools/report.mjs`. Currently **162 tests, 146 pass, 0 fail, 16
       open** — 5.2 closed one `todo` and added two assertions, 5.6 added one.
+      **Its `todo` prose is a live staleness surface:** `report.mjs` copies
+      those messages verbatim, so a stale number in a `todo` is published. Phase
+      5's verification found four. Re-read them, do not just re-run the tool.
 - [ ] 10.4 Update `docs/02`
       **PARTLY DONE:** 2.3 added a new section, "THE MOST IMPORTANT SINGLE FACT
       ABOUT THIS MODEL'S DYNAMICS", carrying the 0.37 → **1.96** transmitted
@@ -613,20 +804,28 @@ guard green. Phase 6 is unblocked.
 - [ ] 10.7 Update `docs/09`
 - [ ] 10.8 Fix `README.md`'s counts
       **DONE ONCE ALREADY** (121→128 parameters, "95 tests, three todo"→"145
-      tests, fourteen todo"). Both have drifted again since — currently 128
-      parameters and 149 tests, 14 todo. Redo at the end rather than chasing
-      it, and note the README does not yet mention `tools/build.mjs --check`.
+      tests, fourteen todo"). Both have drifted again since — currently **144
+      parameters and 162 tests, 16 todo**. Redo at the end rather than chasing
+      it, and note the README mentions neither `tools/build.mjs --check` nor
+      `tools/cause-effect.mjs --check`, which are two of the three tripwires.
 - [ ] 10.9 Update `parameters.py`
       **PARTLY DONE:** `RATE_PASSTHROUGH_TO_BORROWERS` and
       `INVESTMENT_ADJUSTMENT_SPEED` added with range/confidence/source;
       `TAYLOR_INFLATION`'s note now carries the transmitted-response finding;
       `INVESTMENT_RATE_ELASTICITY`'s note records that its peak is produced
-      rather than imposed. STILL OUTSTANDING: the derived credit-trend
-      constant, macropru bounds, every literal promoted in 5.3, the two
-      crisis-constant notes (4.2), and `CREDIT_GAP_CRISIS_THRESHOLD`'s false
-      note.
-- [x] 10.10 Write `docs/14` — the report
-      `docs/14-fourth-audit-report.md`, indexed in `docs/README.md`. Opens with
-      the three documents still teaching the pre-Phase-2/3 model, then A5, then
-      what was built and what was deliberately not. Covers Phase 5 and the
-      verification of Phases 0-4.
+      rather than imposed. **5.2, 5.3, 5.4 and 5.5 landed the bulk of the
+      rest:** `CREDIT_TREND_CATCHUP`, `PRIVATE_DEBT_REPRICING_YEARS`, the
+      twelve literals 5.3 promoted, `FIRESALE_LEVERAGE_TRIGGER`, and
+      `CREDIT_GAP_CRISIS_THRESHOLD`'s false note — corrected in place with the
+      false claim quoted rather than quietly deleted. **STILL OUTSTANDING:**
+      macropru bounds (6.1), and `investment_share`'s re-derivation from 22.5
+      to 24.0 (5.7).
+- [-] 10.10 Write `docs/14` — the report — **NOT DOING, and the report is deleted**
+      Written, then removed on instruction: **this project does not want audit
+      reports.** A report is a document about the work rather than the work,
+      and this pass has spent most of its effort correcting exactly that class
+      of document. Everything actionable in it now lives in this file as a
+      numbered task — 5.7-5.12 and Phase 11 — and every finding lives in
+      `open_items.md` with its reproduction. Nothing was lost: the reasoning is
+      in `docs/13`'s "As built" blocks and in the commit messages, both of
+      which sit next to the change they describe. **Do not write docs/14.**
