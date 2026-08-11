@@ -130,7 +130,11 @@ test('STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows', 
   // The AVERAGE transmitted stance is now -0.500 against an average dial stance
   // of -0.500, where before it was -0.463: the fix made the claim in this
   // comment exactly true for the first time. The credit gap, which is what the
-  // lesson is actually about, is unmoved at 5.17 against 5.15.
+  // lesson is actually about, is +3.48 at m96 and +1.99 by m216 once the
+  // pipeline has drained. (It read 5.17 here until Phase 5 re-measured it;
+  // 5.2's private-debt maturity and 5.4's slower credit trend both moved it,
+  // and the assertion below is a THRESHOLD rather than a value for exactly
+  // that reason.)
   const moves = {};
   for (let m = 1; m <= 96; m += 24) {
     moves[m] = (w) => nudge(w, 'policy_rate', -1);

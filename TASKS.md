@@ -331,12 +331,33 @@ guard green. Phase 6 is unblocked.
       **Do A4 first, then this.** The work is measured and the numbers above are
       the recipe.
 
-- [ ] 5.2 Private debt maturity
-      **THE MACHINERY EXISTS NOW:** 2.1 added the `rate_to_borrowing_cost`
-      kernel and `RATE_PASSTHROUGH_TO_BORROWERS`, whose note already draws the
-      distinction this task needs — that parameter is the NEW-BUSINESS rate,
-      and the stock of existing loans reprices far more slowly. The new
-      parameter is the stock repricing speed, and it is a separate source.
+- [x] 5.2 Private debt maturity — **and it was TWO defects, not one**
+      New `PRIVATE_DEBT_REPRICING_YEARS` = 3.0 [1.0, 8.0], `weak`, the private
+      analogue of `DEBT_AVERAGE_MATURITY_YEARS`. New state field
+      `private_debt_rate` (documented in `docs/01`), walking toward
+      `market_rate` at 1/3 a year exactly as `average_coupon` walks toward
+      `yield_10y`. Steady state exact to 9dp.
+      **DECOMPOSED, because the old line got two things wrong and the plan
+      names one.** A 3pp hike's FIRST-MONTH move in the default rate:
+      `0.67538pp` as built (the DIAL, whole stock) -> **`0.03160`** reading the
+      transmitted rate -> **`0.00125`** with the maturity. **The dial read was
+      21x of it and the maturity a further 25x**, 540x in total. Fixing only
+      the maturity would have left the burden answering the announcement.
+      The stock catches up **2.8% at m1, 22.4% at m12, 43.1% at m24, 73.9% at
+      m60**; the 50% crossing is m30 against a pure-exponential 25.
+      **THE `todo` IS NOW A PASSING ASSERTION — 17 todos -> 16.** Its old bar
+      (|Δ| < 1e-4, i.e. exactly zero on impact) was NOT restored: that asserts
+      no private debt is floating-rate, which is false and is a different
+      error. Replaced by the shape — impact is 0.19% of the five-year response,
+      the burden at 3yr is 2.30x the burden at 1yr — plus **the isolating
+      experiment**: set the repricing time to one month and the impact response
+      returns, 25.4x. `tools/lint.mjs`'s `lint-allow-dial` exception is gone.
+      **DOCS/11 WAS FAR MORE STALE THAN ITS FINGERPRINT SUGGESTED** — see
+      Correction 13. §1's kernel table had never been regenerated since the
+      document was written and described the PRE-2.1 model; §5 said the Taylor
+      rule loses `stagflation` to hyperinflation at m24 when 2.4 established it
+      wins; §7 still called the closed bifurcation "the biggest hole". All of
+      §1 and §3–§7 rebuilt and re-stamped. **open_items B1 is closed.**
 - [ ] 5.3 Lint check (f): numeric literals in `src/rules/`
       **Phase 2 added no new numeric literals to `src/rules/`** (verified by
       diff against the pass's start) — both new coefficients went through

@@ -1,4 +1,4 @@
-<!-- cause-effect-fingerprint: ed9e231fa2b99b75 (1464 numbers) -->
+<!-- cause-effect-fingerprint: 86c1b104fab5561d (1464 numbers) -->
 # 11 — Cause and Effect
 
 > **LIVING DOCUMENT, and the only one whose numbers are generated.** Every
@@ -17,12 +17,12 @@
 > produced exactly these numbers.
 >
 > **The largest movers in the fourth audit.** Asset prices respond about a
-> third as much to a rate cut (+1.25 index points at a year against +4.12),
+> third as much to a rate cut (+1.23 index points at a year against +4.12),
 > because the semi-elasticity was a LEVEL response being applied as a
 > persistent growth rate and overshot its own sourced value by 4.6x. The rate
 > the economy feels now arrives in a quarter rather than over a year, so
 > investment moves earlier and by less at any given month. Output at a year is
-> +0.32 against +0.43.
+> +0.30 against +0.43.
 >
 > **From `docs/12`, still true:** the crash is no longer 2.6x too deep (§6), and
 > **debt no longer responds quickly to the policy rate** — the whole stock used
@@ -54,34 +54,44 @@ responses keep accumulating for years rather than peaking and returning.
 Two different lags, and conflating them is how the audit brief ended up
 measuring the capacity ceiling and calling it a lower bound.
 
-**The kernel** — how much of a 1pp rate cut the economy has felt at all:
+**The kernel** — how much of a 1pp rate cut has reached the PRICE borrowers
+pay:
 
 | month | 1 | 3 | 6 | 9 | 12 | 18 | 24 | 36 | 48 |
 |---|---|---|---|---|---|---|---|---|---|
-| real economy (`policy_rate_demand`) | 0.01 | 0.05 | 0.18 | 0.33 | **0.48** | 0.71 | 0.86 | 0.97 | 1.00 |
+| real economy (`policy_rate_demand`) | 0.05 | **0.50** | 0.93 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 | markets (`policy_rate_markets`) | 0.50 | 0.94 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
 
-Markets reprice in a month. The real economy is half way there at a year and
-still finishing at three. That gap is the single most important thing the game
-has to teach and it is why you will be told you have failed long before you
-have.
+> **THIS TABLE READ 0.01 / 0.05 / 0.48 / 1.00 UNTIL THE FOURTH AUDIT'S PHASE 5,
+> AND THE SENTENCE UNDER IT SAID THE OPPOSITE OF WHAT IT NOW SAYS.** It was
+> written before 2.1 and never regenerated: the rate itself used to ride
+> `rate_to_investment`, the published impulse response *of investment*, mean
+> lag 14.74 months. A price was being delayed by a quantity's response time.
+> The rate now arrives on `rate_to_borrowing_cost` — half of it in a quarter —
+> and **the slow half did not disappear, it moved to where the decision is**,
+> as a partial adjustment on investment (`INVESTMENT_ADJUSTMENT_SPEED`). Read
+> the two tables in that order: the price lands fast, the spending does not.
 
-**The response** — share of the eventual 48-month output move delivered by
+Markets reprice in a month and borrowers in a quarter. What still takes years
+is the **response** — share of the eventual 48-month output move delivered by
 month N:
 
 | lever | 1 | 3 | 6 | 9 | 12 | 18 | 24 | 36 | 48 |
 |---|---|---|---|---|---|---|---|---|---|
-| `policy_rate` −1pp | 0.00 | 0.02 | 0.08 | 0.14 | 0.20 | 0.33 | 0.46 | 0.72 | 1.00 |
-| `tax_rate` −1pp | 0.00 | 0.06 | 0.18 | 0.26 | 0.31 | 0.40 | 0.52 | 0.77 | 1.00 |
-| `govt_spending` +1pp | **0.55** | 0.70 | 0.69 | 0.69 | 0.70 | 0.74 | 0.78 | 0.89 | 1.00 |
-| `money_printed` 2pp | **0.44** | 0.60 | 0.65 | 0.69 | 0.74 | 0.83 | 0.92 | 0.96 | 1.00 |
-| `qe` 10pp | 0.00 | 0.06 | 0.16 | 0.22 | 0.28 | 0.39 | 0.51 | 0.75 | 1.00 |
+| `policy_rate` −1pp | 0.00 | 0.03 | 0.13 | 0.22 | 0.30 | 0.44 | 0.56 | 0.79 | 1.00 |
+| `tax_rate` −1pp | 0.00 | 0.07 | 0.25 | 0.40 | 0.50 | 0.61 | 0.69 | 0.85 | 1.00 |
+| `govt_spending` +1pp | **0.64** | 0.75 | 0.78 | 0.80 | 0.82 | 0.85 | 0.87 | 0.93 | 1.00 |
+| `money_printed` 2pp | **0.45** | 0.53 | 0.58 | 0.63 | 0.68 | 0.77 | 0.85 | 0.97 | 1.00 |
+| `qe` 10pp | 0.00 | 0.02 | 0.11 | 0.20 | 0.29 | 0.43 | 0.56 | 0.79 | 1.00 |
 
-The two fiscal levers that *buy things* deliver half their effect in the first
-month. Everything that works through a price — the rate, the tax rate, QE —
-delivers almost nothing in the first quarter. **That is the whole argument for
-fiscal policy being the crisis tool**, and it falls out of the model rather
-than being asserted anywhere.
+The two fiscal levers that *buy things* deliver most of their effect in the
+first month. Everything that works through a price — the rate, the tax rate, QE
+— delivers almost nothing in the first quarter, **and that is now a statement
+about how slowly firms and households act on a price that has already changed,
+not about how slowly the price changes.** That is the whole argument for fiscal
+policy being the crisis tool, and it falls out of the model rather than being
+asserted anywhere. It is also why you will be told you have failed long before
+you have.
 
 ---
 
@@ -97,12 +107,12 @@ index (100 = start); approval in points.
 ```
 mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
 --------------------------------------------------------------------------------------------
- 1 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.05 |  +0.03 |  +0.00 | +0.000
- 3 |  +0.03 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.21 |  +0.09 |  +0.01 | +0.000
- 6 |  +0.14 |  +0.03 |  -0.04 |  +0.10 |  +0.03 |  -0.04 |  +0.53 |  +0.23 |  +0.07 | +0.000
-12 |  +0.32 |  +0.11 |  -0.11 |  +0.21 |  +0.08 |  -0.18 |  +1.25 |  +0.61 |  +0.32 | +0.000
-24 |  +0.60 |  +0.24 |  -0.21 |  +0.32 |  +0.20 |  -0.78 |  +2.79 |  +1.57 |  +0.61 | +0.000
-48 |  +1.06 |  +0.44 |  -0.33 |  +0.43 |  +0.42 |  -2.91 |  +5.58 |  +3.66 |  +0.59 | +0.000
+ 1 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.05 |  +0.00 |  +0.00 | +0.000
+ 3 |  +0.03 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.21 |  +0.01 |  +0.01 | +0.000
+ 6 |  +0.13 |  +0.03 |  -0.03 |  +0.09 |  +0.03 |  -0.04 |  +0.52 |  +0.06 |  +0.06 | +0.000
+12 |  +0.30 |  +0.10 |  -0.10 |  +0.20 |  +0.08 |  -0.17 |  +1.23 |  +0.29 |  +0.31 | +0.000
+24 |  +0.56 |  +0.22 |  -0.20 |  +0.30 |  +0.19 |  -0.75 |  +2.72 |  +1.00 |  +0.57 | +0.000
+48 |  +1.00 |  +0.42 |  -0.32 |  +0.40 |  +0.40 |  -2.82 |  +5.42 |  +2.78 |  +0.57 | +0.000
 ```
 
 **The chain, in the order it fires:**
@@ -110,12 +120,12 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 1. `policy_rate` moves. Nothing else moves this month.
 2. **[1 month]** `policy_rate_markets` lands → the real rate falls → asset
    prices start climbing. This is why assets are the fastest column in the
-   table: +0.53 index points by month 6, +5.58 by month 48. THIS IS A THIRD OF
+   table: +0.52 index points by month 6, +5.42 by month 48. THIS IS A THIRD OF
    WHAT IT USED TO BE (+1.95 and +18.01) — see the header.
 3. **[slow — and this changed in `docs/12`]** the 10-year yield falls with the
    policy rate immediately, but **the rate the government actually PAYS does
    not**: only 1/`DEBT_AVERAGE_MATURITY_YEARS` of the stock refinances each
-   year. Debt is −0.18 at a year and −2.91 at four. Before `docs/12` this read
+   year. Debt is −0.17 at a year and −2.82 at four. Before `docs/12` this read
    −1.14 and −7.45, and this document used to claim debt was "the second
    fastest thing to respond to a rate cut, and almost nobody expects that".
    Nobody expects it because it is not true: the whole stock was repricing
@@ -135,12 +145,12 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
    consumption → higher output. This is the multiplier, and it is why the
    consumption column overtakes the investment column by month 48.
 6. **[slow]** rising asset prices → wealth effect → more consumption; and
-   cheaper credit → the credit impulse → the credit gap opens. **+3.66pp of
+   cheaper credit → the credit impulse → the credit gap opens. **+2.78pp of
    credit gap after four years from a single 1pp cut.** Cheap money held for a
    term is how the bubble scenario happens to you by accident. The loop this
-   runs through has a measured gain of 0.0076 at rest and 0.0071 two points
+   runs through has a measured gain of 0.0078 at rest and 0.0075 two points
    from it; before the asset-price fix the second of those was 315.52.
-7. **[slowest]** inflation. +0.11pp at a year, +0.44 at four. The anchored
+7. **[slowest]** inflation. +0.10pp at a year, +0.42 at four. The anchored
    Phillips slope is 0.05, so demand barely moves prices — see the note in §6.
 
 ### `policy_rate` +1.00pp — a hike
@@ -148,25 +158,25 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 ```
 mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
 --------------------------------------------------------------------------------------------
- 1 |  -0.00 |  -0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.05 |  -0.03 |  -0.00 | +0.000
- 3 |  -0.05 |  -0.00 |  +0.01 |  -0.04 |  -0.01 |  +0.01 |  -0.20 |  -0.09 |  -0.01 | +0.000
- 6 |  -0.19 |  -0.02 |  +0.07 |  -0.15 |  -0.03 |  +0.04 |  -0.46 |  -0.23 |  -0.10 | +0.000
-12 |  -0.44 |  -0.04 |  +0.16 |  -0.32 |  -0.08 |  +0.19 |  -0.93 |  -0.62 |  -0.49 | +0.000
-24 |  -0.75 |  -0.08 |  +0.26 |  -0.46 |  -0.19 |  +0.75 |  -1.73 |  -1.55 |  -0.98 | +0.000
-48 |  -1.18 |  -0.13 |  +0.36 |  -0.57 |  -0.34 |  +2.59 |  -2.88 |  -3.40 |  -1.04 | +0.000
+ 1 |  -0.00 |  -0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.05 |  -0.00 |  -0.00 | +0.000
+ 3 |  -0.05 |  -0.00 |  +0.01 |  -0.04 |  -0.01 |  +0.01 |  -0.20 |  -0.01 |  -0.01 | +0.000
+ 6 |  -0.18 |  -0.02 |  +0.06 |  -0.14 |  -0.03 |  +0.04 |  -0.46 |  -0.06 |  -0.10 | +0.000
+12 |  -0.41 |  -0.04 |  +0.15 |  -0.30 |  -0.08 |  +0.18 |  -0.93 |  -0.30 |  -0.47 | +0.000
+24 |  -0.71 |  -0.08 |  +0.25 |  -0.43 |  -0.18 |  +0.72 |  -1.73 |  -1.00 |  -0.92 | +0.000
+48 |  -1.13 |  -0.13 |  +0.34 |  -0.54 |  -0.33 |  +2.50 |  -2.88 |  -2.62 |  -0.99 | +0.000
 ```
 
 **Not a mirror image, and the asymmetries are the lesson:**
 
-- **A hike costs more output than a cut buys.** −1.09 against +0.98 at two
+- **A hike costs more output than a cut buys.** −0.71 against +0.56 at two
   years. Pulling a rope, not pushing a string.
-- **The cost lands before the benefit.** Unemployment is +0.19 at a year and
-  approval −0.54, while inflation has fallen 0.05pp. At two years unemployment
-  is +0.37, approval −1.41, inflation −0.12. *You will be a year and a half
+- **The cost lands before the benefit.** Unemployment is +0.15 at a year and
+  approval −0.47, while inflation has fallen 0.04pp. At two years unemployment
+  is +0.25, approval −0.92, inflation −0.08. *You will be a year and a half
   into a hiking cycle, watching unemployment climb with inflation barely
   moved, being told you have failed.* That is the normal experience of doing
   this correctly, and the table is what it looks like.
-- **Debt rises when you hike, but SLOWLY.** +0.20pp at a year and +3.41pp over
+- **Debt rises when you hike, but SLOWLY.** +0.18pp at a year and +2.50pp over
   four, from the interest bill arriving as the stock refinances. Fighting
   inflation and paying down debt are not the same lever — and the bill for
   fighting inflation lands years after the decision, which is worse. These were
@@ -180,9 +190,9 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  1 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.01 |  +0.00 |  +0.00 |  +0.02 | +0.000
  3 |  +0.04 |  +0.01 |  -0.01 |  -0.00 |  +0.04 |  +0.05 |  +0.00 |  +0.00 |  +0.18 | +0.000
  6 |  +0.14 |  +0.04 |  -0.04 |  -0.01 |  +0.15 |  +0.20 |  +0.00 |  +0.00 |  +0.88 | +0.000
-12 |  +0.27 |  +0.10 |  -0.10 |  -0.07 |  +0.33 |  +0.57 |  +0.01 |  +0.02 |  +2.68 | +0.000
-24 |  +0.38 |  +0.18 |  -0.15 |  -0.19 |  +0.56 |  +1.24 |  +0.07 |  +0.07 |  +2.09 | +0.000
-48 |  +0.55 |  +0.31 |  -0.23 |  -0.22 |  +0.80 |  +2.24 |  +0.33 |  +0.27 |  +0.50 | +0.000
+12 |  +0.27 |  +0.10 |  -0.10 |  -0.07 |  +0.33 |  +0.57 |  +0.01 |  +0.01 |  +2.68 | +0.000
+24 |  +0.38 |  +0.18 |  -0.15 |  -0.19 |  +0.56 |  +1.24 |  +0.07 |  +0.06 |  +2.09 | +0.000
+48 |  +0.55 |  +0.31 |  -0.23 |  -0.23 |  +0.80 |  +2.25 |  +0.32 |  +0.23 |  +0.49 | +0.000
 ```
 
 1. **[peaks 3 months]** `tax_rate_effective` lands — withholding and settlement
@@ -190,10 +200,10 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 2. Disposable income rises → consumption rises, slowly, because households
    respond to *permanent* income and `yd_permanent` closes only 5% of the gap
    a month.
-3. **Investment FALLS.** The deficit widens → crowding out → −0.23 at two
-   years, against +0.55 of consumption. A tax cut is a transfer from
+3. **Investment FALLS.** The deficit widens → crowding out → −0.19 at two
+   years, against +0.56 of consumption. A tax cut is a transfer from
    businesses to households before it is a stimulus.
-4. **Approval spikes and then fades** — +2.58 at a year, +0.61 at four. Voters
+4. **Approval spikes and then fades** — +2.68 at a year, +0.49 at four. Voters
    weight the recent economy heavily (`APPROVAL_HORIZON`), so a tax cut is
    worth most in the year you make it. That is a real lesson about democratic
    incentives, not an exploit.
@@ -205,17 +215,17 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 --------------------------------------------------------------------------------------------
  1 |  +1.04 |  +0.16 |  -0.15 |  +0.00 |  +0.00 |  +0.05 |  +0.00 |  +0.00 |  +0.01 | +0.000
  3 |  +1.22 |  +0.30 |  -0.32 |  +0.03 |  +0.14 |  +0.11 |  +0.01 |  +0.02 |  +0.74 | +0.000
- 6 |  +1.28 |  +0.41 |  -0.42 |  +0.05 |  +0.17 |  +0.12 |  +0.03 |  +0.06 |  +1.44 | +0.000
-12 |  +1.34 |  +0.54 |  -0.47 |  +0.03 |  +0.24 |  +0.05 |  +0.15 |  +0.16 |  +2.17 | +0.000
-24 |  +1.43 |  +0.67 |  -0.49 |  -0.01 |  +0.35 |  -0.27 |  +0.55 |  +0.46 |  +0.74 | +0.000
-48 |  +1.64 |  +0.81 |  -0.53 |  +0.00 |  +0.50 |  -1.29 |  +1.55 |  +1.19 |  +0.32 | +0.000
+ 6 |  +1.28 |  +0.41 |  -0.42 |  +0.05 |  +0.17 |  +0.12 |  +0.03 |  +0.05 |  +1.44 | +0.000
+12 |  +1.34 |  +0.54 |  -0.47 |  +0.03 |  +0.24 |  +0.05 |  +0.15 |  +0.15 |  +2.17 | +0.000
+24 |  +1.43 |  +0.67 |  -0.49 |  -0.01 |  +0.35 |  -0.27 |  +0.55 |  +0.42 |  +0.74 | +0.000
+48 |  +1.63 |  +0.81 |  -0.53 |  +0.00 |  +0.50 |  -1.28 |  +1.54 |  +1.12 |  +0.32 | +0.000
 ```
 
 **The fastest lever you have.** +1.04 of output in the first month, because
 government purchases *are* demand — there is nothing to transmit. Everything
 after that is the multiplier: income → consumption → income.
 
-**Debt FALLS after two years.** Spending 1pp more leaves debt 1.54pp lower at
+**Debt FALLS after two years.** Spending 1pp more leaves debt 1.28pp lower at
 four years, because the extra output raises the tax take and inflation erodes
 the stock faster than the borrowing adds to it. That is only true at this
 starting debt level, this yield and this multiplier — but it is a real and
@@ -230,9 +240,9 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  1 |  +2.08 |  +0.28 |  -0.24 |  +0.00 |  +0.00 |  -0.05 |  +0.00 |  +0.01 |  +0.01 | -0.003
  3 |  +2.48 |  +0.53 |  -0.53 |  +0.09 |  +0.28 |  -0.26 |  +0.01 |  +0.03 |  +1.49 | -0.009
  6 |  +2.71 |  +0.74 |  -0.69 |  +0.21 |  +0.37 |  -0.69 |  +0.06 |  +0.09 |  +3.03 | -0.018
-12 |  +3.16 |  +1.02 |  -0.77 |  +0.40 |  +0.58 |  -1.78 |  +0.28 |  +0.28 |  +5.00 | -0.035
-24 |  +3.92 |  +1.42 |  -0.81 |  +0.63 |  +0.97 |  -4.50 |  +1.12 |  +0.82 |  +2.76 | -0.067
-48 |  +4.64 |  +2.01 |  -0.87 |  +0.91 |  +1.49 | -11.30 |  +3.70 |  +2.33 |  +0.28 | -0.127
+12 |  +3.15 |  +1.02 |  -0.77 |  +0.40 |  +0.58 |  -1.78 |  +0.28 |  +0.25 |  +5.00 | -0.035
+24 |  +3.92 |  +1.42 |  -0.81 |  +0.63 |  +0.97 |  -4.50 |  +1.12 |  +0.76 |  +2.76 | -0.067
+48 |  +4.64 |  +2.01 |  -0.87 |  +0.91 |  +1.49 | -11.29 |  +3.68 |  +2.21 |  +0.29 | -0.127
 ```
 
 **Printing is spending.** It buys things in `aggregate.js` and cancels on the
@@ -259,9 +269,9 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  1 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  +0.00 | +0.000
  3 |  +0.01 |  +0.00 |  -0.00 |  +0.01 |  +0.00 |  -0.00 |  +0.02 |  +0.00 |  +0.00 | +0.000
  6 |  +0.04 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.11 |  +0.02 |  +0.02 | +0.000
-12 |  +0.10 |  +0.03 |  -0.03 |  +0.07 |  +0.02 |  -0.05 |  +0.35 |  +0.08 |  +0.09 | +0.000
-24 |  +0.19 |  +0.07 |  -0.07 |  +0.10 |  +0.06 |  -0.23 |  +0.87 |  +0.29 |  +0.19 | +0.000
-48 |  +0.33 |  +0.14 |  -0.11 |  +0.13 |  +0.13 |  -0.93 |  +1.79 |  +0.77 |  +0.19 | +0.000
+12 |  +0.10 |  +0.03 |  -0.03 |  +0.07 |  +0.02 |  -0.05 |  +0.35 |  +0.09 |  +0.09 | +0.000
+24 |  +0.19 |  +0.08 |  -0.07 |  +0.10 |  +0.06 |  -0.23 |  +0.87 |  +0.33 |  +0.19 | +0.000
+48 |  +0.34 |  +0.15 |  -0.12 |  +0.14 |  +0.13 |  -0.95 |  +1.81 |  +0.94 |  +0.19 | +0.000
 ```
 
 Deliberately weak per pound — 3.5 basis points off the yield per 1% of GDP
@@ -284,38 +294,40 @@ output rather than prices.
 
 | start gap | Δoutput | Δinflation | Δunemp | output share |
 |---|---|---|---|---|
-| −8.6% | +1.16 | +0.12 | −0.20 | **0.91** |
-| −6.5% | +1.17 | +0.12 | −0.20 | 0.91 |
-| −4.3% | +1.13 | +0.11 | −0.18 | 0.91 |
-| −2.0% | +1.05 | +0.10 | −0.19 | 0.91 |
-| 0.0% | +0.98 | +0.37 | −0.32 | 0.73 |
-| +2.3% | +1.07 | +0.15 | −0.04 | 0.88 |
-| **+4.4%** | **+0.04** | +0.23 | −0.12 | **0.16** |
-| +5.6% | +0.05 | +0.52 | −0.13 | 0.08 |
+| −8.10% | +0.75 | +0.08 | −0.13 | 0.91 |
+| −6.06% | +0.75 | +0.07 | −0.13 | 0.91 |
+| −3.98% | +0.68 | +0.07 | −0.11 | 0.91 |
+| −1.90% | +0.62 | +0.06 | −0.11 | 0.91 |
+| +0.00% | +0.56 | +0.22 | −0.20 | 0.72 |
+| +1.98% | +0.60 | +0.12 | −0.06 | 0.83 |
+| +4.08% | +0.04 | +0.11 | −0.06 | 0.27 |
+| +5.27% | +0.04 | +0.21 | −0.07 | 0.16 |
 
 ### `govt_spending` +1pp
 
 | start gap | Δoutput | Δinflation | Δunemp | output share |
 |---|---|---|---|---|
-| −8.6% | +2.08 | +0.24 | −0.38 | **0.90** |
-| −4.3% | +2.14 | +0.23 | −0.20 | 0.90 |
-| −2.0% | +1.65 | +0.20 | −0.39 | 0.89 |
-| 0.0% | +1.48 | +0.69 | −0.50 | 0.68 |
-| +2.3% | +1.24 | +0.28 | −0.07 | 0.82 |
-| **+4.4%** | **−0.01** | +0.51 | −0.15 | **−0.03** |
-| +5.6% | +0.00 | +3.25 | −0.22 | 0.00 |
+| −8.10% | +1.95 | +0.23 | −0.36 | 0.90 |
+| −6.06% | +1.94 | +0.23 | −0.36 | 0.90 |
+| −3.98% | +2.02 | +0.22 | −0.15 | 0.90 |
+| −1.90% | +1.57 | +0.20 | −0.40 | 0.89 |
+| +0.00% | +1.43 | +0.67 | −0.49 | 0.68 |
+| +1.98% | +1.54 | +0.33 | −0.11 | 0.82 |
+| +4.08% | −0.01 | +0.36 | −0.15 | −0.02 |
+| +5.27% | −0.00 | +1.04 | −0.16 | −0.00 |
 
 ### `money_printed` 2pp
 
 | start gap | Δoutput | Δinflation | output share |
 |---|---|---|---|
-| −8.6% | +4.17 | +0.36 | **0.92** |
-| −4.3% | +4.27 | +0.45 | 0.90 |
-| −2.0% | +4.15 | +1.01 | 0.80 |
-| 0.0% | +4.36 | +1.48 | 0.75 |
-| +2.3% | +1.35 | +1.09 | 0.55 |
-| **+4.4%** | **+0.11** | **+4.01** | 0.03 |
-| +5.6% | +0.27 | **+31.04** | 0.01 |
+| −8.10% | +3.92 | +0.34 | 0.92 |
+| −6.06% | +3.96 | +0.38 | 0.91 |
+| −3.98% | +3.99 | +0.42 | 0.90 |
+| −1.90% | +3.80 | +0.93 | 0.80 |
+| +0.00% | +3.92 | +1.42 | 0.73 |
+| +1.98% | +1.88 | +0.99 | 0.66 |
+| +4.08% | +0.07 | +1.79 | 0.04 |
+| +5.27% | +0.08 | +12.29 | 0.01 |
 
 **Read all three together and this is the game in one page:**
 
@@ -357,24 +369,24 @@ dial after the first month.
 ```
 mo | Δoutput | Δmkt income | Δtax rev | Δtransfers | Δdisposable | Δdeficit | Δstructural | absorbed
  1 |   -5.20 |       -5.00 |    -0.54 |      +0.36 |       -4.10 |    -4.10 |       -5.00 |     0.18
- 3 |   -7.23 |       -6.93 |    -1.44 |      +0.74 |       -4.75 |    -2.85 |       -5.00 |     0.32
- 6 |   -7.87 |       -7.49 |    -2.10 |      +0.88 |       -4.51 |    -2.09 |       -5.00 |     0.40
-12 |   -8.83 |       -8.28 |    -2.56 |      +0.98 |       -4.74 |    -1.55 |       -5.00 |     0.43
-24 |  -10.44 |       -9.55 |    -3.01 |      +1.14 |       -5.40 |    -0.96 |       -5.00 |     0.43
+ 3 |   -6.31 |       -6.06 |    -1.30 |      +0.66 |       -4.10 |    -3.06 |       -5.00 |     0.32
+ 6 |   -6.97 |       -6.66 |    -1.86 |      +0.78 |       -4.02 |    -2.40 |       -5.00 |     0.40
+12 |   -8.09 |       -7.64 |    -2.34 |      +0.90 |       -4.39 |    -1.82 |       -5.00 |     0.42
+24 |   -9.79 |       -9.02 |    -2.84 |      +1.07 |       -5.11 |    -1.17 |       -5.00 |     0.43
 ```
 
 Four things are happening without anyone deciding anything:
 
 1. **Progressive tax revenue falls automatically** — the largest stabiliser
-   channel, −3.0pp by two years, lagged 3 months for withholding.
+   channel, −2.8pp by two years, lagged 3 months for withholding.
 2. **Unemployment benefits rise automatically** — the most *timely* channel,
    +0.36pp in the first month.
-3. **Together they absorb 43% of the income shock.** Market income falls 9.6pp;
-   disposable income falls only 5.4pp. `AUTO_STABILISER_ABSORPTION` says the
+3. **Together they absorb 43% of the income shock.** Market income falls 9.0pp;
+   disposable income falls only 5.1pp. `AUTO_STABILISER_ABSORPTION` says the
    OECD aggregate is ~60% with micro estimates of 32–47%; 43% is inside the
    range and `test/validation.test.js` checks it.
 4. **The headline deficit and the fiscal stance say opposite things.** The
-   deficit *improves* from −4.10 to −0.91 as the economy shrinks around it,
+   deficit *improves* from −4.10 to −1.17 as the economy shrinks around it,
    while the structural deficit sits at exactly −5.00 the whole time. Reading
    the headline number as your fiscal stance is a real-world mistake that this
    model will let you make and then punish you for.
@@ -408,29 +420,36 @@ trap is boredom: you stimulate for no reason and create the next problem.
 
 | | no input | Taylor |
 |---|---|---|
-| 12m | OVERH +2.8 / 6.6 / 4.3 / 94 / 59 / +1.9 | OVERH +1.0 / 5.1 / 4.6 / 99 / 60 / +0.1 |
-| 24m | OVERH +7.0 / 14.5 / 3.8 / 84 / 61 / +6.1 | OVERH −0.8 / 4.2 / 5.3 / 101 / 59 / −1.2 |
-| 48m | **187% inflation → HYPERINFLATION** | GOLDI −1.6 / 2.6 / 5.6 / 91 / 61 |
-| 96m | — | GOLDI −0.2 / 2.0 / 5.1 / 93 / 64 |
+| 12m | OVERH +1.3 / 5.1 / 4.6 / 95 / 60 / +1.6 | OVERH +0.2 / 4.3 / 4.9 / 96 / 60 / +0.7 |
+| 24m | OVERH +2.2 / 6.7 / 4.3 / 89 / 62 / +4.0 | OVERH −0.5 / 3.4 / 5.2 / 93 / 60 / −0.3 |
+| 48m | OVERH +8.0 / **29.5** / 3.6 / 64 / 51 / +16.2 | GOLDI −0.6 / 2.4 / 5.2 / 92 / 63 / −3.0 |
+| 96m | +54.6 / **380.5** → **HYPERINFLATION** | GOLDI −0.2 / 2.0 / 5.1 / 93 / 64 / −4.9 |
 
 Left alone this is a Taylor-principle violation and it must diverge: a fixed
 nominal rate against rising inflation means a falling real rate, which feeds
 demand, which feeds inflation. **The scenario is a countdown, not a state.**
 
-The benchmark fixes it — and note the cost: unemployment rises from 3.5% to
-5.6%, approval falls, debt rises 7pp, and it takes four years. Inflation is
-still 5.1% at a year, when unemployment has already started climbing. The trap
-is exactly that: you will be told you failed long before it works.
+The benchmark fixes it — and note the cost: unemployment rises from 4.4% to
+5.2%, debt is 4pp higher than the do-nothing arm at two years, and it takes
+four years. Inflation is still 4.3% at a year, when unemployment has already
+started climbing. The trap is exactly that: you will be told you failed long
+before it works.
+
+> **The unattended arm survives about a year longer than it used to.** It
+> reached 187% at month 48 and ended there; it now reaches 29.5% at 48 and
+> 380.5% at 96. The countdown is slower because Phase 3 removed the
+> asset-price overshoot that was feeding it, and 5.2 gave the private debt
+> stock a maturity, so the debt-service leg arrives over years.
 
 ### `recession` — a crash six months ago, rates on the floor
 
 | | no input | Taylor |
 |---|---|---|
-| 1m | RECES −8.8 / 0.2 / 7.3 / 100 / 64 | same |
-| 12m | RECES −9.1 / 0.3 / 6.9 / 105 / 59 | RECES −9.0 / 0.3 / 6.9 / 105 / 59 |
-| 24m | RECES −6.0 / 0.8 / 6.3 / 110 / 66 | RECES −5.8 / 0.8 / 6.2 / 109 / 66 |
-| 48m | GOLDI −0.8 / 1.6 / 5.4 / 114 / 69 | GOLDI −0.3 / 1.7 / 5.3 / 112 / 69 |
-| 96m | **OVERH +5.8 / 3.9 / 3.9 / 103 / 64 / cg +8.3** | GOLDI +0.9 / 2.6 / 4.6 / 109 / 63 |
+| 1m | RECES −8.9 / 0.2 / 7.3 / 100 / 64 / −0.1 | same |
+| 12m | RECES −8.9 / 0.4 / 6.8 / 105 / 59 / −0.7 | RECES −8.9 / 0.4 / 6.8 / 105 / 59 / −0.5 |
+| 24m | RECES −6.5 / 0.7 / 6.4 / 109 / 64 / −1.3 | RECES −6.5 / 0.7 / 6.4 / 109 / 64 / −0.6 |
+| 48m | GOLDI −2.3 / 1.4 / 5.7 / 114 / 67 / −1.3 | GOLDI −2.3 / 1.4 / 5.7 / 114 / 67 / +0.4 |
+| 96m | GOLDI +2.5 / 2.9 / 4.3 / 111 / 66 / **cg +2.5** | GOLDI +1.1 / 2.5 / 4.6 / 112 / 65 / −0.2 |
 
 **The Taylor rule is almost useless here and that is the trap working.** The
 two arms are nearly identical for four years, because the rate is already at
@@ -439,38 +458,60 @@ zero. The economy heals on its own over five years — through mean reversion in
 asset prices, the crisis drag decaying, and banks rebuilding capital — and it
 costs 15pp of debt to do it.
 
-**And then look at 96 months with no input:** the credit gap is at +8.3, close
-to the BIS danger line, and the regime box says OVERHEATING. *Do nothing after a
-recession for long enough and you build the next bubble.* Nobody designed that;
-it falls out of cheap money held too long.
+**And then look at 96 months with no input:** the gap is +2.5, inflation 2.9%
+and the credit gap +2.5 and still climbing, against a Taylor arm that holds
+both near zero. *Do nothing after a recession for long enough and you start
+building the next bubble.* Nobody designed that; it falls out of cheap money
+held too long.
+
+> **This used to end the term in OVERHEATING at a +8.3 credit gap.** Phase 3's
+> asset-price fix took most of it out — 4.3 measured the new ending as
+> GOLDILOCKS at +3.15, and 5.4's slower credit trend brought it back to +2.5.
+> The direction survives; the size does not, and open_items A2 is the reason
+> to expect more of that.
 
 ### `stagflation` — 9% inflation, 8.5% unemployment, capacity down 3%
 
 | | no input | Taylor |
 |---|---|---|
-| 1m | STAGF −3.0 / 12.5 / 8.2 / 100 / 43 | same |
-| 6m | OVERH −0.4 / 17.7 / 7.1 / 96 / 37 | OVERH −1.1 / 17.4 / 7.2 / 100 / 37 |
-| 12m | OVERH +6.3 / 26.3 / 5.6 / 89 / 30 | OVERH +2.2 / 23.8 / 6.0 / 102 / 31 |
-| 24m | **HYPERINFLATION** | **HYPERINFLATION** |
+| 1m | STAGF −3.5 / 12.4 / 8.2 / 100 / 43 | same |
+| 6m | OVERH −2.5 / 16.6 / 7.4 / 97 / 37 | OVERH −2.9 / 16.5 / 7.4 / 97 / 37 |
+| 12m | OVERH +0.3 / 21.2 / 6.7 / 91 / 31 | OVERH −2.0 / 19.9 / 7.2 / 92 / 32 |
+| 24m | +6.8 / **30.9** → **HYPERINFLATION** | OVERH −3.4 / 18.5 / 7.3 / 84 / 34 |
+| 48m | — | STAGF −5.5 / **7.8** / 7.6 / 88 / 31 |
+| 96m | — | **GOLDI −1.6 / 2.9 / 7.1 / 128 / 44** |
 
-**The benchmark loses this one too**, which is the point. A 5% policy rate
-against 7% expected inflation is a deeply negative real rate; the rule takes
-15 months to move decisively and the transmission takes another nine. By then
-expectations have run.
+> **THE BENCHMARK USED TO LOSE THIS ONE AND NOW WINS IT, AND THAT IS THE
+> LARGEST SINGLE CHANGE IN THIS DOCUMENT.** This table said HYPERINFLATION in
+> *both* columns at 24 months. Two things moved it, and neither was a
+> coefficient. The fourth audit's A1 split found the Taylor rule was
+> announcing a response of 1.5 and transmitting 0.37 — above unity on the dial
+> and below it in effect — because the policy rate was being delayed by
+> investment's response time. It transmits **1.96** now. And 2.4 derived the
+> rate ceiling as a fixed point: at the old `max: 20` the rule was refused its
+> own request in 87 of 96 months and lost anyway.
+
+**The rule wins, and the bill is enormous.** Inflation still peaks at 20.3% in
+month 16 before
+it turns, unemployment sits at 7.6% four years in, approval falls to 31, and
+the debt reaches 128% of GDP paying for it — because the rate the state is
+borrowing at is the rate the rule just set. The credit gap at −31 is a private
+sector that has stopped borrowing altogether. **It takes eight years and it
+costs a term.**
 
 You get about a quarter in the STAGFLATION box before the answer becomes
 obvious and expensive. Beating it needs a Volcker move — a large, immediate
 hike, accepted as costing jobs — and the approval column tells you what that
-costs politically: 45 → 30 within a year while inflation is still rising.
+costs politically: 43 → 31 while inflation is still rising.
 
 ### `debt_trap` — debt 140%, yield 7%, 60% foreign-held, growth 1%
 
 | | no input | Taylor |
 |---|---|---|
-| 12m | GOLDI −1.6 / 1.8 / 5.6 / 147 / 62 | GOLDI −1.5 / 1.8 / 5.5 / 147 / 62 |
-| 24m | GOLDI −2.2 / 1.7 / 5.7 / 155 / 62 | GOLDI −1.5 / 1.8 / 5.5 / 154 / 63 |
-| 48m | GOLDI −3.5 / 1.5 / 5.8 / 175 / 61 | GOLDI −1.6 / 1.7 / 5.6 / 172 / 63 |
-| 96m | RECES −8.7 / 0.9 / 6.7 / **252** → **DEBT CRISIS** | GOLDI −3.1 / 1.6 / 5.8 / **227** → **DEBT CRISIS** |
+| 12m | GOLDI −1.1 / 1.9 / 5.4 / 146 / 62 | GOLDI −1.0 / 1.9 / 5.4 / 146 / 62 |
+| 24m | GOLDI −1.8 / 1.8 / 5.6 / 154 / 62 | GOLDI −1.5 / 1.8 / 5.5 / 154 / 62 |
+| 48m | GOLDI −3.0 / 1.6 / 5.8 / 174 / 61 | GOLDI −2.0 / 1.7 / 5.6 / 172 / 63 |
+| 96m | RECES −7.3 / 1.1 / 6.4 / **246** → **DEBT CRISIS** | GOLDI −4.0 / 1.5 / 5.8 / **228** → **DEBT CRISIS** |
 
 **REBUILT IN `docs/12` M2, and it used to be provably inert:** the Taylor arm
 was byte-identical to doing nothing over 48 months — max |debt difference|
@@ -489,7 +530,11 @@ and both are defects in their own right:
   discount, it just stops charging them a penalty.
 - `DEBT_AVERAGE_MATURITY_YEARS` — only the maturing slice reprices.
 
-**The decision it now contains, and none of it was there before:**
+**The decision it now contains, and none of it was there before.** The table
+below was measured for `docs/12` and has NOT been re-measured against the
+fourth audit's model — the do-nothing row alone has moved (debt 175 → 174 at
+m48, the ending from month 71 to month 73). Treat the ORDERING as the finding
+and re-run the rows before quoting any of them (open_items B1):
 
 | policy | debt m48 | outcome |
 |---|---|---|
@@ -508,24 +553,36 @@ both, and that is a real decision with a real price.
 
 | | no input |
 |---|---|
-| 1m | GOLDI +1.5 / 2.5 / 4.4 / 100 / 72 / **cg +6.0** |
-| 12m | GOLDI +1.9 / 2.8 / 4.4 / 95 / 68 / **cg +7.0** |
-| 24m | GOLDI +1.8 / 2.9 / 4.4 / 89 / 70 / **cg +8.9** |
-| 48m | GOLDI +1.7 / 3.0 / 4.4 / 77 / 71 / **cg +11.8** |
-| 96m | GOLDI +1.2 / 2.8 / 4.5 / 58 / 71 / **cg +14.5** |
+| 1m | GOLDI +1.3 / 2.5 / 4.4 / 100 / 72 / **cg +6.0** |
+| 12m | GOLDI +1.3 / 2.6 / 4.5 / 95 / 68 / **cg +7.2** |
+| 24m | GOLDI +1.0 / 2.6 / 4.6 / 90 / 70 / **cg +9.2** |
+| 48m | GOLDI +0.1 / 2.2 / 5.0 / 81 / 70 / **cg +11.7** |
+| 96m | GOLDI −3.9 / 1.5 / 5.8 / 72 / 68 / **cg +7.1** |
 
-**Eight years in GOLDILOCKS.** Inflation never leaves the 2.5–3.0 band,
-unemployment sits at 4.4%, approval never drops below 68, and debt *falls* from
-100 to 58. Every gauge on the headline row says you are doing a wonderful job.
+**Eight years in GOLDILOCKS.** Inflation never leaves the 1.5–2.6 band,
+unemployment stays between 4.4% and 5.8%, approval never drops below 68, and
+debt *falls* from 100 to 72. Every gauge on the headline row says you are doing
+a wonderful job.
 
-The credit gap goes 6.0 → 14.5, past the 9pp BIS line in year four and into
-territory `docs/02` calls historically extreme. Annual crisis probability rises
-from 2.7% to about 6%; over eight years that is roughly a one-in-three chance
-of the crash arriving, and it is invisible on every other gauge.
+The credit gap goes 6.0 → 11.7 by year four, past the 9pp BIS line and into
+territory `docs/02` calls historically extreme. It is invisible on every other
+gauge.
 
-This is the best teaching tool in the set and it only works because the healthy
-numbers really are healthy — `test/scenarios.test.js` asserts all four of them,
-including the regime label, for four years.
+> **AND THEN IT UNWINDS, WHICH IS THE INVERSE OF THE POINT.** By month 96 the
+> gap has fallen back to +7.1. This scenario was calibrated against the
+> asset-price unit error that 3.1 fixed: it used to climb monotonically to
+> +14.5. 5.4 recovered part of it by deriving the credit trend's speed from
+> the filter it claims to be — the m48 peak went 9.8 → 11.7 — and the rest is
+> structural: the BIS trend carries a slope state and this one does not, so it
+> lags a growing credit stock permanently. **A hidden danger that resolves
+> itself teaches that ignoring it works.** Tracked as open_items A1, guarded
+> by a failing `todo` in `test/scenarios.test.js`, and the other half of the
+> answer is a macroprudential dial the player can actually pull (task 6.1).
+
+This is still the best teaching tool in the set for the first four years, and
+it only works because the healthy numbers really are healthy —
+`test/scenarios.test.js` asserts all four of them, including the regime label,
+for four years.
 
 ---
 
@@ -536,11 +593,11 @@ noted.
 
 | Shock | 1m | 6m | 12m | 24m |
 |---|---|---|---|---|
-| **Oil price spike** | π +2.4, appr −4 | out −0.2, π +1.7, appr −6 | π +1.1, appr −5 | out +0.2, π +0.6 |
-| **Productivity boom** | out +1.6 | out +1.6 | out +1.6, appr +4 | out +1.6 |
-| **Bank wobble** (bubble) | out −0.8, appr −5 | out −0.5, appr −4 | out −0.6 | out −0.6 |
-| **FINANCIAL CRISIS** (bubble) | out −6.3, u +0.9 | out −8.9, u +1.8, appr −18 | out −10.8, u +2.0 | out −11.4, u +2.0 |
-| **Export slump** | out −1.2, u +0.3 | out −1.3, u +0.5 | out −0.9, u +0.4 | out −0.6 |
+| **Oil price spike** | π +2.4, appr −4 | out −0.3, π +1.7, appr −6 | out −0.2, π +1.1, appr −5 | π +0.5, appr +1 |
+| **Productivity boom** | out +1.6, appr +3 | out +1.6 | out +1.6, appr +4 | out +1.6 |
+| **Bank wobble** (bubble) | out −0.1, appr −5 | out −0.4, appr −4 | out −0.4, u +0.2 | out −0.5 |
+| **FINANCIAL CRISIS** (bubble) | out −6.0, u +0.8 | out −8.6, u +1.6, appr −18 | out −10.1, u +1.7 | out −10.0, u +1.3 |
+| **Export slump** | out −1.2, u +0.3 | out −1.1, u +0.4 | out −0.9, u +0.3 | out −0.6 |
 
 `confidence_slump` was **deleted** in `docs/12` and its confidence leg folded
 into `export_slump`. It moved output by 0.17pp at `CONFIDENCE_INDEP_PREDICTIVE`'s
@@ -551,8 +608,8 @@ the *finding*; attaching it to a shock that has fundamentals behind it is what
 that finding actually implies.
 
 **The oil shock is the only one that is genuinely stagflationary:** inflation
-+2.4 on impact *and* output −0.2, because the cost-push shock is also a real
-income cut. Approval takes the worst of both.
++2.4 on impact and output −0.3 by six months, because the cost-push shock is
+also a real income cut. Approval takes the worst of both.
 
 **The productivity boom is the one free lunch** — permanently more output with
 no inflation at all. It is the only shock whose effect does not decay.
@@ -564,9 +621,11 @@ where the model is furthest from the literature — see §7.
 cost 0.19pp of output in `bubble` and 0.28pp in `calm` — *identical* at every
 capital position, because a flat −1.0pp hit to a ratio that rebuilds toward 13%
 never reached `BANK_CAPITAL_MINIMUM` and so never armed the delever trigger. It
-now scales on the credit gap: −0.28pp at trend credit, −0.93pp in a mature
-bubble, where it takes bank capital from 13.3% to **9.8%**, below the floor,
-arming the quantity leg of the doom loop for the first time. Baron, Verner &
+now scales on the credit gap, and in `bubble` costs 0.5pp of output at two
+years against roughly a third of that at trend credit, by taking bank capital
+below the floor and arming the quantity leg of the doom loop for the first
+time. (The −0.28/−0.93 pair quoted here through `docs/12` was measured before
+Phase 3; the mechanism is unchanged and the magnitudes are not.) Baron, Verner &
 Xiong: most bank distress *without* a preceding credit boom passes with little
 real damage, and the same distress after one predicts severe outcomes.
 
@@ -577,10 +636,18 @@ real damage, and the same distress after one predicts severe outcomes.
 Written down because a cause-and-effect manual that only lists the parts that
 work is marketing.
 
-**The crash is fixed.** It measured −24% of output against a published −6 to
-−15; it now troughs at **−8.96% of the pre-crisis level in month 14**, with
-unemployment +2.07pp and output 9.98% below the pre-crisis *trend* at five
-years. `docs/12` §2 has the derivation. Two things had to be separated to get
+**The crash's DEPTH is fixed and its PROPAGATION is not.** It measured −24% of
+output against a published −6 to −15; it now troughs at **−8.95% of the
+pre-crisis level in month 14**. But `CRISIS_IMPULSE_AMPLIFICATION` is *defined*
+as the constant that makes that true (`parameters.py`'s `SOLVED_FROM_MODEL`
+register), so the trough is a consistency check and not evidence. What IS
+evidence is everything the constants do not pin: unemployment peaks at
+**+1.85pp against a published 2–5**, and output is **6.23% below trend at five
+years against `CRISIS_HYSTERESIS_SCAR` = 10**. Measured with the exogenous scar
+switched off entirely, the model generates **3.63** of that 10 by itself,
+against 8.4 before this audit. **The model no longer propagates a crisis; it
+gets hit and recovers.** `docs/12` §2 has the derivation and open_items A2 has
+the diagnosis. Two things had to be separated to get
 there, and neither was a magnitude:
 
 1. **Both published numbers were reduced forms** being fed in as structural
@@ -593,8 +660,12 @@ there, and neither was a magnitude:
    made the two look mutually contradictory.
 
 **What is still open:** run past the game's horizon and the model rebounds —
-−10.0% of trend at five years, −7.4% at eight, −4.7% at ten, where Cerra &
-Saxena find no significant rebound at any horizon. Recorded as a `todo`.
+−6.23% of trend at five years, −4.65% at eight, −3.90% at ten, where Cerra &
+Saxena find no significant rebound at any horizon. Recorded as a `todo`. The
+fourth audit's 4.4 switched the collateral channel and the wealth effect BOTH
+off and **2.83pp of the trough still came back — 46% of it, with both
+amplifiers gone.** The rebound is not the credit loop re-inflating; it is the
+demand block, which is the same finding as the missing propagation above.
 
 **`debt_trap` was not really a scenario. It is now.** See §5 — the cause was
 that the sovereign yield reached nothing outside the government's own books.
@@ -614,16 +685,35 @@ Three results worth knowing:
   that has been built does not un-build.
 - **A stop-go cycle that looks symmetric is a persistent easing.** Alternating
   −1pp/+1pp on a twelve-month cycle leaves the dial a point below baseline half
-  the time: an average −0.5pp stance, transmitting to −0.407pp, opening the
-  credit gap +5.1pp over eight years. The *increments* cancel; the *level* does
-  not. This is exactly how the recession scenario builds the next bubble.
+  the time: an average dial stance of −0.500pp, transmitting to **−0.500pp
+  exactly**, opening the credit gap **+3.5pp** over eight years. The
+  *increments* cancel; the *level* does not. This is exactly how the recession
+  scenario builds the next bubble. (Before the A1 split the transmitted figure
+  was −0.407 and it was an artefact: the rate rode a 14.74-month kernel, so an
+  instantaneous reading carried a year of history and impersonated an average.)
 - **A hike-hold-cut round trip is not free in jobs.** Firing is 2.4× faster
   than hiring, so the cumulative unemployment cost exceeds the cumulative gain.
 
-**THE BIGGEST HOLE IS NOW SOMEWHERE ELSE, and it is much larger.** The four
-historical episode tests added in `docs/12` all fail, and they fail the same
-way: **the model does not disinflate gradually — it either stabilises or
-diverges, with a two-percentage-point knife-edge between them.** From 8%
-inflation, a 7% policy rate reaches 217% and a 9% rate reaches 0.69%; the same
-15% destination reached over 24 months explodes where reaching it immediately
-does not. See `test/episodes.test.js` and `docs/12` §1.
+**THE BIFURCATION THIS SECTION USED TO CALL "THE BIGGEST HOLE" IS CLOSED.**
+It said: *"the model does not disinflate gradually — it either stabilises or
+diverges, with a two-percentage-point knife-edge between them"*, and `docs/12`
+attributed it to a missing forward-looking expectations channel. **The
+attribution was wrong.** It was a transmission lag applied to the wrong
+quantity: the policy rate was being delayed by `rate_to_investment`, an
+estimated impulse response *of investment*, so the Taylor rule announced a
+response to inflation of 1.5 and transmitted **0.37**. Splitting the lag
+(`RATE_PASSTHROUGH_TO_BORROWERS` for the price, `INVESTMENT_ADJUSTMENT_SPEED`
+for the spending) took the transmitted response to **1.96** and closed it
+without touching expectations at all. The knife-edge moved from 8–9% to
+**6–7%**, which is where Fisher puts it, and `test/episodes.test.js`'s
+bifurcation test is now a passing assertion rather than a failing `todo`.
+
+**WHAT IS ACTUALLY THE BIGGEST HOLE, and it is in neither the brief nor the
+plan: the demand block moves too little.** One finding, five sightings — the UK
+1979-83 sacrifice ratio is **0.35** against Ball's 2–4; `TAX_SHOCK_TO_GDP` is
+**0.487** against Romer-Romer's 2–3; the austerity paradox is absent at every
+playable gap; endogenous crisis propagation is **3.63** against a former 8.4;
+and 46% of the crash trough recovers with both amplifiers switched off. Every
+real quantity moves too little for the price change that caused it. It is why
+`CRISIS_SCAR_AMPLIFICATION` could not be re-solved inside its own range. See
+`open_items.md` A2.

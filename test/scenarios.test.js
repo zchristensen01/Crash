@@ -89,7 +89,14 @@ test('the bubble does not deflate on its own before the term ends', {
     'from the stated lambda gives 0.127/year, not the 0.05-0.06 that would ' +
     'restore 14.5pp — which took the peak from 9.82 to 12.00 and the m96 gap ' +
     'from 3.37 to 6.20. Pushing further would be tuning to a target (rule 3), ' +
-    'so it was not done. WHAT IS LEFT IS PROBABLY STRUCTURAL: the BIS trend is ' +
+    'so it was not done. ' +
+    '5.2 THEN MOVED IT AGAIN, UPWARD, FOR AN UNRELATED REASON: giving private ' +
+    'debt a maturity means a rate change reaches the debt-service burden over ' +
+    'years, so the balancing leg of the credit loop (burden -> defaults -> ' +
+    'spread -> real rate) arrives slower and the boom runs longer. Current ' +
+    'path 9.16/11.65/11.05/7.08, peaking at 11.98 in month 58. The SHAPE is ' +
+    'unchanged: it still peaks and unwinds inside the term. ' +
+    'WHAT IS LEFT IS PROBABLY STRUCTURAL: the BIS trend is ' +
     'a LOCAL LINEAR trend carrying a slope state and this one is level-only, ' +
     'so it lags a growing credit stock permanently and no speed fixes that. ' +
     'See CREDIT_TREND_CATCHUP\'s note. 6.1 (the countercyclical buffer) is the ' +

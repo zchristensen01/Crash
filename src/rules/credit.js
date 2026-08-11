@@ -199,14 +199,37 @@ export function updateLeverage(s, trace) {
  * the standard controls — it is not merely a proxy for output.
  */
 export function updateDefaults(s, trace) {
-  // lint-allow-dial: KNOWN DEFECT, RECORDED NOT FIXED (docs/12 M2 follow-on). This
-  // is the same error the government's interest bill had until this pass: the whole
-  // PRIVATE debt stock reprices the month the dial moves, i.e. every mortgage and
-  // every corporate loan is floating-rate with no lag. Fixing it properly needs a
-  // private-debt maturity structure to sit alongside DEBT_AVERAGE_MATURITY_YEARS,
-  // which is a modelling change with its own parameter and source, not a keystroke.
-  // Surfaced by a todo test in test/validation.test.js rather than half-fixed here.
-  const dsr = s.private_credit * (s.policy_rate + s.credit_spread) / 100;
+  // PRIVATE DEBT HAS A MATURITY TOO, AND ONLY THE REPRICING SLICE MOVES
+  // [4th audit 5.2]. This was `private_credit * (policy_rate + credit_spread)
+  // / 100` — the DIAL, applied to the WHOLE stock, every month. Every mortgage
+  // and every corporate loan was floating-rate with no lag, so the default
+  // rate responded to a rate change the month it was announced. It is the same
+  // error the government's interest bill carried until DEBT_AVERAGE_MATURITY_
+  // YEARS was added in the third audit, one block later, and the asymmetry was
+  // absurd on its face: the state refinanced over seven years while its
+  // households refinanced overnight.
+  //
+  // TWO DEFECTS, AND THEY ARE DIFFERENT. Reading `policy_rate` is a dial read
+  // — the rule saw the announcement rather than the transmission, which is
+  // docs/12 L3. Applying it to the whole stock is a maturity error. Fixing
+  // only the first would still have every loan reprice in one month, just
+  // three months late; fixing only the second would still start the clock on
+  // the announcement.
+  //
+  // THE NEW-BUSINESS RATE IS `market_rate`, NOT A SECOND DEFINITION OF ONE.
+  // updateInvestment sets it one rule earlier as policy_rate_demand +
+  // credit_spread - qe_rate_relief + sovereign_premium_felt, and
+  // updateCreditGap already reads it as what borrowers pay. A loan written
+  // this month is written at that rate; the average across the book walks
+  // toward it as older vintages roll off. Using policy_rate_demand +
+  // credit_spread instead — the strict textual analogue of the old line — was
+  // the obvious alternative and is worse: it would give the same borrowers two
+  // different borrowing rates in adjacent rules, and it would silently exclude
+  // QE relief, which reaches a household exactly by letting it refinance.
+  const reprice = annualRateToMonthlyLinear(1 / P.PRIVATE_DEBT_REPRICING_YEARS.value);
+  const prevRate = s.private_debt_rate;
+  s.private_debt_rate += reprice * (s.market_rate - prevRate);
+  const dsr = s.private_credit * s.private_debt_rate / 100;
   const terms = {
     'baseline defaults': 1.0,
     'debt service burden': P.DEFAULT_RATE_DSR.value * (dsr - s.dsr_ss),
@@ -216,7 +239,20 @@ export function updateDefaults(s, trace) {
   s.default_rate = Math.max(0.05, rawDefault);
   trace.record('default_rate', { ...terms,
     'floor (defaults never reach zero)': s.default_rate - rawDefault,
-  }, s.default_rate);
+  }, s.default_rate, {
+    // The same split a finance ministry gets on interest_cost, for the private
+    // side: what borrowers are PAYING against what a new loan costs today. The
+    // gap between them is the hiking cycle that has not landed yet.
+    rate_new_borrowers_pay: s.market_rate,
+    rate_the_stock_is_paying: s.private_debt_rate,
+    debt_service_ratio: dsr,
+    share_repriced_this_month: reprice,
+    note: Math.abs(s.market_rate - s.private_debt_rate) < 0.05
+      ? 'the loan book has caught up with the market'
+      : s.market_rate > s.private_debt_rate
+        ? 'borrowers are still rolling onto dearer debt — this bites for years'
+        : 'cheaper credit is available but most borrowers have not refinanced yet',
+  });
 
   // Only losses ABOVE the normal-times baseline eat capital; ordinary losses
   // are covered by ordinary profits. Retained earnings then rebuild toward

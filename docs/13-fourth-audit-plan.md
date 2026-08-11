@@ -1127,6 +1127,94 @@ The whole private debt stock reprices the month the dial moves. A1 hands you the
 machinery; the fixed/floating mix is the sourced parameter and is most of why
 2022 hurt the UK and Australia far more than the US.
 
+> #### As built — and the plan describes one defect where there were two.
+>
+> New `PRIVATE_DEBT_REPRICING_YEARS` = **3.0**, range [1.0, 8.0], confidence
+> `weak` — deliberately the CROSS-COUNTRY spread rather than an estimation
+> interval, because the quantity varies by an order of magnitude and that
+> spread is the interesting fact. New state field `private_debt_rate`, walking
+> toward `market_rate` at 1/3 a year exactly as `average_coupon` walks toward
+> `yield_10y`. Steady state exact to 9dp; `dsr_ss` is consistent by
+> construction because `newState` already sets `market_rate = policy_rate +
+> credit_spread` in every scenario.
+>
+> ### CORRECTION 13a — the old line got TWO things wrong, and the bigger one is not the maturity.
+>
+> `dsr = private_credit * (s.policy_rate + s.credit_spread) / 100` reads the
+> **DIAL**. That is a docs/12 L3 violation living under a `lint-allow-dial`
+> exception whose stated reason was entirely about maturity. Decomposed by
+> rebuilding each stage, the first-month move in the default rate after a 3pp
+> hike:
+>
+> | | Δdefault, month 1 | |
+> |---|---|---|
+> | as built — dial, whole stock | **0.67538pp** | |
+> | transmitted rate, whole stock | **0.03160pp** | the dial read was **21x** |
+> | transmitted rate, 3-year stock | **0.00125pp** | maturity a further **25x** |
+>
+> **540x in total, and the plan would have bought 25 of it.** Fixing only the
+> maturity would have left the debt-service burden answering the announcement
+> rather than the transmission — every loan still repricing in one month, just
+> three months later. Both are now fixed and the lint exception is deleted.
+>
+> The stock's catch-up after a 3pp hike: **2.8% at m1, 22.4% at m12, 43.1% at
+> m24, 73.9% at m60**, crossing 50% at month 30 against a pure-exponential 25
+> (the target is still moving).
+>
+> **The new-business rate is `market_rate`, not a second definition of one.**
+> `updateInvestment` sets it one rule earlier and `updateCreditGap` already
+> reads it as what borrowers pay. The obvious alternative — `policy_rate_demand
+> + credit_spread`, the strict textual analogue of the old line — was rejected
+> because it would give the same borrowers two different borrowing rates in
+> adjacent rules and would silently exclude QE relief, which reaches a
+> household exactly by letting it refinance.
+>
+> **THE `todo` IS NOW A PASSING ASSERTION, AND ITS OLD BAR WAS NOT RESTORED.**
+> It required |Δdefault| < 1e-4 on impact — effectively zero — which asserts
+> that NO private debt is floating-rate. Some of it is; that is the entire
+> content of the parameter, and asserting zero would be asserting a different
+> error. What is asserted instead is the shape: impact is **0.19%** of the
+> five-year response, the burden at three years is **2.30x** the burden at one,
+> and — the experiment that isolates it — setting the repricing time to one
+> month brings the impact response back **25.4x**.
+>
+> **Not modelled, and recorded rather than fudged:** US-style prepayable fixed
+> mortgages reprice fast when rates FALL (refinancing) and not at all when they
+> rise (lock-in). One speed cannot carry that, the same way one
+> `ASSET_PRICE_MEANREVERSION` cannot carry equity and housing (open_items B4).
+>
+> ### CORRECTION 13b — `docs/11` was far more stale than its fingerprint could show, and one of its sections still taught the defect Phase 2 removed.
+>
+> 4.3 built the fingerprint and regenerated **§2's six dial tables**. It did not
+> touch §1, §3, §4, §5, §6 or §7, and `open_items` B1 recorded that. What B1
+> did not say is how bad it was. Regenerating them for this task:
+>
+> - **§1's kernel table has never been regenerated since the document was
+>   written** (`git log -L` on those lines returns exactly one commit, the one
+>   that created the file). It read `0.01 / 0.05 / 0.48 / 1.00` for the share
+>   of a rate cut the real economy has felt at 1 / 3 / 12 / 48 months. That is
+>   the PRE-2.1 model, where the rate rode `rate_to_investment`. Measured:
+>   **`0.05 / 0.50 / 0.93 / 1.00`**. The sentence under it — *"the real economy
+>   is half way there at a year and still finishing at three. That gap is the
+>   single most important thing the game has to teach"* — described a defect
+>   that had been fixed six weeks of commits earlier.
+> - **§5 said the Taylor rule loses `stagflation`**, both columns HYPERINFLATION
+>   at 24 months. Measured: it **wins** — 18.5% at m24, 7.8% at m48, **GOLDI at
+>   2.9% by m96**, having peaked at 20.3% in month 16, and it costs 128% of GDP
+>   of debt and a term of approval to do it. That is 2.4's finding, and §5 was
+>   still teaching its opposite.
+> - **§7 still called the bifurcation "THE BIGGEST HOLE"** and quoted the 8–9%
+>   knife-edge. 2.6 closed it; the knife-edge is 6–7%. §7 also carried the
+>   crash arc as `−8.96% trough / +2.07pp unemployment / −9.98% of trend at 5yr`
+>   against a measured **−8.95 / +1.85 / −6.23**, and had no mention of the
+>   demand-block finding that is now the largest thing in the audit.
+> - §3, §4 and §6's tables were all pre-Phase-2.
+>
+> All of §1 and §3–§7 rebuilt from `tools/cause-effect.mjs` and re-stamped
+> (`86c1b104fab5561d`). **`open_items` B1 is closed.** The lesson is E4's: the
+> fingerprint asserts the document was generated against this model, and six of
+> its seven sections had never been generated at all.
+
 **5.3 — Lint check (f): numeric literals in `src/rules/`.**
 The check the third pass was asked for and did not write. Flag every literal not
 in {0, 1, 12, 100} and not already named. Triage each: promote to

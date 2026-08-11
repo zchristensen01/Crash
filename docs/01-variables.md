@@ -158,6 +158,7 @@ reproduce the published 9-month investment peak rather than assuming it.
 | `qe_rate_relief` | RATE | 0.0 | pp taken off the whole curve by bond buying |
 | `private_credit_gdp` | STOCK | 150% | The scenario's starting credit level. Seeds `private_credit`, `credit_trend` and `credit_ss` |
 | `private_credit` | STOCK | 150% | Household + business borrowing, % of GDP |
+| `private_debt_rate` | RATE | 4.0% | The rate actually PAID on the outstanding PRIVATE stock — `average_coupon`'s exact analogue. Walks toward `market_rate` as 1/`PRIVATE_DEBT_REPRICING_YEARS` of the loan book reprices each year. The whole stock used to reprice instantly **off the dial** (4th audit 5.2): every mortgage floating-rate, and reacting to the announcement rather than the transmission |
 | `credit_trend` | STOCK | 150% | Its own very slow trend. The gap is the crash meter |
 | `credit_to_gdp_gap` | RATE | 0.0pp | **THE CRASH METER.** Warning 3pp, BIS danger line 9pp |
 | `credit_impulse` | FLOW | 0.0 | Credit demand as a fading flow, not a ratcheting level |

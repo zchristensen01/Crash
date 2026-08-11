@@ -216,6 +216,13 @@ export function newState(overrides = {}) {
   // false. See docs/07 M11.
   s.mpc_effective = P.MPC_BASE.value;
   s.market_rate = s.policy_rate + s.credit_spread;
+  // The rate actually PAID on the outstanding PRIVATE stock — the exact
+  // analogue of average_coupon above, and for the same reason: only a slice of
+  // the loan book reprices each year (4th audit 5.2). Equal to the market rate
+  // at the start — and `dsr_ss` above is built from the same policy_rate +
+  // credit_spread — so the burden's baseline is consistent by construction in
+  // every scenario and the steady state is unmoved.
+  s.private_debt_rate = s.market_rate;
   s.user_cost = s.market_rate - s.expected_inflation + P.DEPRECIATION_RATE.value * 100;
   s.okun_beta_effective = P.OKUN_BETA.value;
   s.risk_premium = 0;

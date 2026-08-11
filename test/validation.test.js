@@ -219,29 +219,94 @@ test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
   assert.ok(inRange(v, P.TAX_SHOCK_TO_GDP), report(v, P.TAX_SHOCK_TO_GDP));
 });
 
-test('PRIVATE debt reprices instantly, and government debt no longer does', {
-  todo: 'RECORDED, NOT FIXED (docs/12, E1). credit.js computes the debt-service ' +
-    'burden as private_credit * (policy_rate + credit_spread) / 100 — the DIAL, ' +
-    'and the whole stock. That is exactly the error the government\'s interest ' +
-    'bill carried until DEBT_AVERAGE_MATURITY_YEARS was added this pass: every ' +
-    'mortgage and every corporate loan is floating-rate with no lag, so the ' +
-    'default rate responds to a rate move the month it is announced. The ' +
-    'asymmetry is now visible and odd — the state refinances over seven years ' +
-    'while its households refinance overnight. Fixing it needs a private-debt ' +
-    'maturity parameter with its own source (the fixed/floating mix differs ' +
-    'enormously across countries, which is most of why the 2022 hiking cycle ' +
-    'hurt the UK and Australia so much more than the US), so it is a modelling ' +
-    'change rather than a keystroke. tools/lint.mjs holds the exception with a ' +
-    'declared reason so it cannot be forgotten.',
-}, () => {
-  // A rate move must not move the default rate on impact.
+/**
+ * PRIVATE DEBT HAS A MATURITY — and this used to be a failing `todo`.
+ *
+ * It said: "credit.js computes the debt-service burden as private_credit *
+ * (policy_rate + credit_spread) / 100 — the DIAL, and the whole stock… the
+ * state refinances over seven years while its households refinance overnight."
+ * 5.2 built the private analogue of DEBT_AVERAGE_MATURITY_YEARS and the
+ * asymmetry is gone.
+ *
+ * THE OLD ASSERTION IS NOT THE ONE RESTORED HERE, AND THAT IS DELIBERATE. It
+ * demanded |Δdefault| < 1e-4 on impact — effectively zero — which is a claim
+ * that NO private debt is floating-rate. Some of it is; that is the whole
+ * content of the parameter. Asserting zero would be asserting a different
+ * error. What is asserted instead is the shape the maturity structure
+ * produces: almost nothing on impact, and still building years later.
+ *
+ * THE EXPERIMENT THAT ISOLATES IT is the third assertion — set the repricing
+ * time to one month and the impact response comes back. Without it this is a
+ * measurement of the model, not of the mechanism.
+ */
+test('private debt reprices over YEARS, and the burden lands late', () => {
+  const hike = (months, years) => {
+    const saved = P.PRIVATE_DEBT_REPRICING_YEARS.value;
+    if (years != null) P.PRIVATE_DEBT_REPRICING_YEARS.value = years;
+    try {
+      const base = world({ assert: false });
+      const hit = world({ assert: false });
+      advance(base, 24); advance(hit, 24);
+      nudge(hit, 'policy_rate', +3);
+      const d = [];
+      for (let m = 1; m <= months; m++) {
+        advance(base, 1); advance(hit, 1);
+        d.push(hit.s.default_rate - base.s.default_rate);
+      }
+      return { at: (m) => d[m - 1], last: hit.s, base: base.s };
+    } finally { P.PRIVATE_DEBT_REPRICING_YEARS.value = saved; }
+  };
+
+  const r = hike(60);
+  const instant = hike(1, 1 / 12);   // the whole book reprices every month
+  const impactShare = r.at(1) / r.at(60);
+  const isolation = instant.at(1) / r.at(1);
+
+  console.log(`  a 3pp hike, default rate: m1 ${r.at(1).toFixed(5)}pp, ` +
+    `m12 ${r.at(12).toFixed(5)}, m36 ${r.at(36).toFixed(5)}, m60 ${r.at(60).toFixed(5)}. ` +
+    `Impact is ${(impactShare * 100).toFixed(2)}% of the five-year response ` +
+    `(0.67538pp before 5.2, off the DIAL and the whole stock). ` +
+    `Repricing switched off: ${instant.at(1).toFixed(5)}pp, ${isolation.toFixed(1)}x.`);
+
+  assert.ok(impactShare < 0.02,
+    `the first month delivers ${(impactShare * 100).toFixed(2)}% of the five-year ` +
+    `default response. Borrowers do not all reprice in thirty days.`);
+  assert.ok(r.at(36) > 2 * r.at(12),
+    `the burden at three years (${r.at(36).toFixed(5)}pp) is not more than twice ` +
+    `the burden at one (${r.at(12).toFixed(5)}pp). A hiking cycle bites a loan ` +
+    `book for years; if it has all arrived inside a year the stock is repricing ` +
+    `like new business.`);
+  assert.ok(isolation > 10,
+    `switching the maturity structure off (repricing in one month) changed the ` +
+    `impact response by only ${isolation.toFixed(1)}x, so the shape above is not ` +
+    `coming from the maturity structure and this test is measuring something else.`);
+});
+
+/**
+ * THE OTHER HALF OF THE SAME DEFECT, AND IT WAS THE BIGGER HALF.
+ *
+ * The old line read `s.policy_rate` — the DIAL — so the default rate answered
+ * the announcement rather than the transmission. Decomposed by rebuilding each
+ * stage, the impact response to a 3pp hike goes 0.67538 -> 0.03160 -> 0.00125:
+ * the dial read was 21x of it and the maturity structure a further 25x.
+ * tools/lint.mjs's `lint-allow-dial` exception is gone with it.
+ */
+test('the debt-service burden reads the transmitted rate, not the dial', () => {
   const base = world({ assert: false });
   const hit = world({ assert: false });
   advance(base, 24); advance(hit, 24);
   nudge(hit, 'policy_rate', +3);
   advance(base, 1); advance(hit, 1);
-  const dDefault = hit.s.default_rate - base.s.default_rate;
-  assert.ok(Math.abs(dDefault) < 1e-4,
-    `a 3pp hike moved the default rate ${dDefault.toFixed(5)}pp in its FIRST month. ` +
-    `Borrowers do not all reprice in thirty days.`);
+  // One month after a 3pp hike the DIAL has moved 3pp and the rate borrowers
+  // pay has barely moved; if the burden tracked the dial it would be most of
+  // the way there.
+  const dDial = hit.s.policy_rate - base.s.policy_rate;
+  const dPaid = hit.s.private_debt_rate - base.s.private_debt_rate;
+  assert.equal(dDial, 3);
+  assert.ok(dPaid / dDial < 0.01,
+    `one month after a 3pp hike the rate the private stock PAYS has moved ` +
+    `${dPaid.toFixed(4)}pp, ${(dPaid / dDial * 100).toFixed(1)}% of the dial. ` +
+    `Two lags stand between them — RATE_PASSTHROUGH_TO_BORROWERS to reach new ` +
+    `business, then PRIVATE_DEBT_REPRICING_YEARS to reach the stock — and this ` +
+    `says one of them is missing.`);
 });

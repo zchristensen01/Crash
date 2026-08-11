@@ -793,7 +793,57 @@ DEFAULT_RATE_DSR = P(
     0.15, 0.08, 0.30, "pp rise in the default rate per 1pp rise in the debt-service ratio",
     "weak", "'Financial Development, Default Rates and Credit Spreads', "
     "Economic Journal 130(626) 2020 (Moody's data)",
-    "[PASS2 NEW] Moody's 15,000-issuer database 1950-2017. Magnitude is judgement.")
+    "[PASS2 NEW] Moody's 15,000-issuer database 1950-2017. Magnitude is judgement. "
+    "[4TH AUDIT 5.2] The DSR it reads is now the rate PAID on the outstanding "
+    "stock, not this month's market rate — see PRIVATE_DEBT_REPRICING_YEARS.")
+
+PRIVATE_DEBT_REPRICING_YEARS = P(
+    3.0, 1.0, 8.0,
+    "years — average time for the rate PAID on the outstanding private debt "
+    "stock to catch up with the market rate",
+    "weak", "BIS Annual Economic Report 2023 and BIS Quarterly Review "
+    "Mar-2023 on the floating-rate/short-fixation share of private credit and "
+    "the speed of the 2022 hiking cycle's pass-through; ECB MIR statistics on "
+    "the fixation-period distribution of outstanding euro-area household "
+    "loans; IMF GFSR 2022-23 on household debt-service sensitivity.",
+    "[4TH AUDIT 5.2, docs/12 E1] THE PRIVATE ANALOGUE OF "
+    "DEBT_AVERAGE_MATURITY_YEARS, and the asymmetry it removes was visible and "
+    "absurd: the state refinanced over seven years while its households "
+    "refinanced overnight. updateDefaults computed the debt-service burden as "
+    "private_credit * (policy_rate + credit_spread) / 100 — the DIAL, and the "
+    "WHOLE STOCK — so every mortgage and every corporate loan was "
+    "floating-rate with no lag and the default rate moved the month a rate "
+    "change was announced. Same error, same shape, one block later.\n"
+    "\n"
+    "THIS IS THE SEPARATE QUESTION RATE_PASSTHROUGH_TO_BORROWERS' NOTE POINTS "
+    "AT. That parameter is how fast a policy move reaches the rate on NEW "
+    "business (fast, about a quarter). This is how fast the STOCK of existing "
+    "loans inherits it (slow, and it is a different literature). The two "
+    "compose: a hike reaches new borrowers in a quarter and the average rate "
+    "paid crawls toward it over years.\n"
+    "\n"
+    "WHY A SINGLE NUMBER IS THE WRONG SHAPE AND IS USED ANYWAY. There is no "
+    "published advanced-economy average here the way OECD publishes sovereign "
+    "term to maturity, because the quantity varies by an order of magnitude "
+    "across countries and that spread IS the interesting fact — it is most of "
+    "why the 2022 cycle hurt Australia and the UK so much more than the US. "
+    "The central value is a composition, and the WEIGHTS ARE JUDGEMENT:\n"
+    "  corporates  bank loans are largely floating or short-fixation "
+    "(~1yr); bonds are fixed at ~7yr average maturity. Bank-based mix -> ~3yr.\n"
+    "  households  mortgages dominate. Variable-rate and short-fixation "
+    "countries (AU, ES, PT, FI, SE, and the UK's 2-5yr fixes) sit at ~1-3yr; "
+    "long-fixation ones (US 30yr, FR, DE, NL, DK) at 10yr+ -> ~4-6yr.\n"
+    "Roughly equal weight gives 3-4 years; 3.0 is the round number inside it. "
+    "The range [1, 8] is deliberately the CROSS-COUNTRY spread rather than an "
+    "estimation interval, which is why the confidence is `weak`: a sweep over "
+    "it is a sweep over 'which country is this', and that is the honest "
+    "reading of the parameter.\n"
+    "\n"
+    "NOT MODELLED, AND IT IS ASYMMETRIC IN REALITY: US-style prepayable fixed "
+    "mortgages reprice FAST when rates fall (refinancing) and not at all when "
+    "they rise (lock-in). One speed cannot carry that, the same way one "
+    "ASSET_PRICE_MEANREVERSION cannot carry equity and housing (open_items "
+    "B4). Recorded, not fudged.")
 
 DEFAULT_RATE_UNEMP = P(
     0.20, 0.10, 0.40, "pp rise in the default rate per 1pp rise in unemployment",

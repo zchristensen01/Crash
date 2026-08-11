@@ -17,8 +17,8 @@ Where a number is quoted it was measured, not read.
 ### A1. `bubble` no longer produces its designed regime — `OPEN`
 The scenario `docs/00` calls the best teaching tool in the set. Its credit gap
 used to climb monotonically for eight years while every visible gauge stayed
-healthy. It now **peaks at 9.82pp around month 48 and unwinds to 3.37 by month
-96**, with crisis probability falling from 6.35% to 0.22%.
+healthy. It now **peaks at 11.98pp in month 58 and unwinds to 7.08 by month
+96**, with crisis probability falling from 8.07% to 2.38%.
 
 ```
 node --test test/scenarios.test.js    # the todo carries both paths
@@ -27,7 +27,15 @@ node --test test/scenarios.test.js    # the todo carries both paths
 | credit gap, no player input | m24 | m48 | m72 | m96 | crisis_prob m96 |
 |---|---|---|---|---|---|
 | before Phase 3 | 8.77 | 11.63 | 13.34 | **14.10** | 10.36% |
-| now | 8.39 | 9.80 | 7.99 | **3.37** | 0.22% |
+| after 3.1 | 8.39 | 9.80 | 7.99 | **3.37** | 0.22% |
+| after 5.4 | 8.86 | 12.00 | 11.10 | **6.20** | — |
+| **now** (after 5.2) | 9.16 | 11.65 | 11.05 | **7.08** | 2.38% |
+
+> 5.2's private-debt maturity moved it again, and upward: a rate change now
+> reaches the debt-service burden over years, so the balancing leg of the
+> credit loop (burden → defaults → spread → real rate) arrives slower and the
+> boom runs longer. **The shape of the problem is unchanged** — it still peaks
+> and unwinds inside the term, which is the inverse of the design.
 
 The scenario was **calibrated against the asset-price unit error** that 3.1
 fixed. Nothing about the fix is wrong. A hidden danger that resolves itself
@@ -49,7 +57,9 @@ trend catch-up speed:
 
 **5.4 has now run and only got part of the way.** The derivation from the
 stated lambda gives 0.127/year, not the 0.05–0.06 that would restore 14.5pp:
-peak gap 9.82 → **12.00**, m96 3.37 → **6.20**. Pushing further would be tuning
+peak gap 9.82 → **12.00**, m96 3.37 → **6.20** (and 5.2 carried it a little
+further, to a 11.98 peak and 7.08 at m96, for a reason that has nothing to do
+with the trend filter). Pushing further would be tuning
 to a target. What remains is probably structural — the BIS trend carries a slope
 state and this one does not, so it lags a growing credit stock permanently and
 no choice of speed fixes it. Must not be closed by re-inflating the wealth channel
@@ -142,20 +152,26 @@ source and steady-state re-solve.
 
 ## B. Things I found and did not chase
 
-### B1. `docs/11`'s prose is only verified for section 2 — `PARTIAL`
+### B1. `docs/11`'s prose is only verified for section 2 — `CLOSED in 5.2`
 4.3 regenerated all six dial tables and updated the numbers quoted in **§2's**
-rate-cut chain. The prose in **§1, §3, §4, §5, §6 and §7 was not checked
-number-by-number.**
+rate-cut chain, and left §1 and §3–§7 unchecked. **5.2 regenerated all of them,
+and three were not merely stale — they taught the opposite of what the model
+now does.** See docs/13 Correction 13b.
 
-The fingerprint stamped on the document asserts that it was generated against a
-model producing these measurements — it does **not** assert that every sentence
-was re-read. Anyone quoting a number from those sections should re-measure it
-first:
+- **§1's kernel table had never been regenerated since the document was
+  created** (`git log -L 58,64:docs/11-cause-and-effect.md` returns one
+  commit). It read 0.01 / 0.05 / 0.48 / 1.00 for the share of a rate cut the
+  real economy has felt at 1 / 3 / 12 / 48 months — the pre-2.1 model.
+  Measured: **0.05 / 0.50 / 0.93 / 1.00**.
+- **§5 said the Taylor rule loses `stagflation` to hyperinflation at m24.** It
+  wins: 7.8% at m48 and GOLDILOCKS at 2.9% by m96.
+- **§7 still called the closed bifurcation "THE BIGGEST HOLE"**, quoted the
+  8–9% knife-edge (it is 6–7%) and did not mention the demand block at all.
 
-```
-node tools/cause-effect.mjs          # prints every table
-node tools/cause-effect.mjs --check  # only says whether the MODEL has moved
-```
+Re-stamped at `86c1b104fab5561d`. The remaining known-unverified block is
+**`debt_trap`'s five-row policy table in §5**, which was measured for `docs/12`
+and is flagged in place as not re-run — the do-nothing row alone has moved
+(ending month 71 → 73).
 
 ### B2. `debt_trap` overflows `govt_debt` to Infinity at month 191 — `DELIBERATE`
 After reaching 7.27e+189. Verified identical before and after Phase 3, so it is
@@ -243,6 +259,23 @@ same band; `updateInvestment` clamps to `[2, 45]` and check 8 asserts that too.
 Deliberate belt-and-braces, and the numbers were deliberately taken from the
 invariant so there is one source. But they are still two copies: **move one and
 the other must move.** A candidate for Phase 5.3's literal sweep.
+
+### D4. `PRIVATE_DEBT_REPRICING_YEARS` is one number for a ten-fold spread — `WATCH`
+5.2's parameter is 3.0 years with a range of [1, 8] that is deliberately the
+CROSS-COUNTRY spread, not an estimation interval: a sweep over it is a sweep
+over "which country is this". Two consequences a later phase should not
+rediscover.
+
+**It is asymmetric in reality and one speed cannot carry that.** US-style
+prepayable fixed mortgages reprice fast when rates FALL (refinancing) and not
+at all when they rise (lock-in). Same shape as B4's single
+`ASSET_PRICE_MEANREVERSION` serving two asset legs.
+
+**It is now the largest single lever on how much a hiking cycle hurts**, and
+nothing in the game surfaces it. Measured, a 3pp hike's default-rate response
+at 12 months: 0.457pp at 1 year of repricing, 0.234 at 3, 0.141 at 8.
+`test/validation.test.js` compares 3 years against instant repricing but does
+NOT sweep the range; 7.1's Monte Carlo should.
 
 ### D3. The trace tolerance is now relative above 1e6 — `WATCH`
 Was an absolute 1e-6, which fired on floating-point cancellation rather than on
