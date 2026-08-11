@@ -99,10 +99,16 @@ far; all live in `docs/13` as "As built" blocks under the task that produced the
 `credit.js:218`'s EMA comment (needed by **3.2**) and D3's numeric-literal
 counts (needed by **5.3**). Neither has been checked. Do not quote either.
 
-**The standing rule earned its place.** `docs/12` measured a real bifurcation
-and attributed it to the expectations block. Phase 2 closed it by fixing
-transmission and never touched expectations. When you state a mechanism, state
-the experiment that isolates it.
+**The standing rule earned its place twice, and the second time it caught me.**
+`docs/12` measured a real bifurcation and attributed it to the expectations
+block; Phase 2 closed it by fixing transmission and never touched expectations.
+Then **1.1's own comment named the wrong kink** for why `stability.test.js`
+missed Section B — it cited the crash meter's thresholds, which gate a display
+quantity, when the real one is `Math.max(0, credit_growth_annual −
+nominalGrowth)`. Read from the source instead of measured, and it survived a
+commit. 3.2 corrected it with the 4-operating-point measurement, which does not
+depend on naming the kink at all. When you state a mechanism, state the
+experiment that isolates it.
 
 ## Phase 3 — Section B: the asset–credit loop
 
@@ -125,21 +131,25 @@ the experiment that isolates it.
       both (equity implies ~0.08, outside the range; housing implies
       0.028–0.038, inside it). Left at the published 0.02 and recorded.
 
-- [ ] 3.2 Give the credit↔collateral loop a balancing term, or state its gain
-      **CARRIED FROM 1.1:** the loop costs exactly **0.638pp of stable range** —
-      a permanent peg diverges below 1.5777 as built, below 0.9398 with
-      `ASSET_PRICE_CREDIT_CHANNEL = 0`. Below 0.94 it diverges either way and
-      that is Fisher, not the loop (Correction 5).
-      **TWO settings diverge through it, not one:** `policy_rate = 1.5` AND
-      `qe = 30`. A fix aimed only at the rate case will leave the guard red.
-      **DO NOT go green by adding the loop to `UNBALANCED_LOOPS`.** It is not
-      in the register though `credit.js:200` claims in a comment that it is
-      deliberate — resolving that contradiction is part of this task, but
-      declaring it is only permitted together with a demonstration that loop
-      gain is below one, and such a loop would not diverge anyway.
-      **STILL UNVERIFIED:** docs/13 Phase 0 flagged B1's claim that
-      `credit.js:218`'s EMA comment "describes a guard that is not there" as
-      READ, NOT MEASURED. Nobody has checked it yet. Check before quoting it.
+- [x] 3.2 Give the credit↔collateral loop a balancing term, or state its gain
+      **STATED, and the balancing term turned out to already exist.** Loop gain
+      measured at four operating points, not one: 0.0076 / 0.0097 / 0.0089 /
+      0.0071 at 96 months. Pre-3.1 it was 0.0130 at the steady state and
+      **315.52 two percentage points away** — the state dependence a Jacobian
+      at the fixed point cannot see, now measured rather than argued.
+      **THREE CLAIMS IN `credit.js` WERE FALSE, all three corrected:** the loop
+      "has no balancing counterpart" (it has one — debt service -> defaults via
+      `DEFAULT_RATE_DSR` -> capital -> spread -> real rate, and a 2pp cut
+      settles credit/GDP at 263% with the burden 1.20x baseline); "both
+      coefficients are in parameters.py" (one was); and the EMA comment
+      (**the flagged read-not-measured claim — CONFIRMED FALSE**: credit/GDP
+      goes 150 -> 161 -> 188 -> 222 under a 1pp cut, so it integrates exactly
+      as before; the EMA is a filter, the debt-service term is the guard).
+      `0.02` and `0.4` promoted to `CREDIT_COLLATERAL_FEEDBACK` and
+      `CREDIT_IMPULSE_RATE_SENSITIVITY`. New `test/credit-loop.test.js`.
+      **I ALSO GOT A MECHANISM WRONG IN 1.1 AND CORRECTED IT HERE** — see the
+      carried-findings note.
+
 - [ ] 3.3 Bound consumption physically
 - [ ] 3.4 Replace the +12%/month asset growth clamp
 - [ ] 3.5 Turn the divergence guard green

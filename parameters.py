@@ -621,6 +621,33 @@ ASSET_PRICE_CREDIT_CHANNEL = P(
     "The collateral/leverage channel. No direct identification; calibrated so "
     "a sustained credit boom inflates the index. TUNING DIAL, not evidence.")
 
+# The other two legs of the bubble loop. Both were BARE LITERALS in
+# credit.js until the fourth audit, inside a comment that asserted they were
+# "weak/judgement in parameters.py" — which was true of
+# ASSET_PRICE_CREDIT_CHANNEL above and false of these. Promoted so the claim
+# is true and so tools/lint.mjs check (f) has something to point at.
+CREDIT_COLLATERAL_FEEDBACK = P(
+    0.02, 0.005, 0.05, "pp of annual credit growth per 1% of asset overvaluation",
+    "weak", "Judgement anchored on Kiyotaki & Moore 1997 (collateral "
+    "constraints) and Jorda, Schularick & Taylor credit-boom evidence",
+    "THE RETURN LEG OF THE BUBBLE LOOP. ASSET_PRICE_CREDIT_CHANNEL takes "
+    "excess credit growth into asset prices; this takes the resulting "
+    "overvaluation back into credit growth, and their PRODUCT is the loop "
+    "gain. No direct identification for either. TUNING DIAL, not evidence — "
+    "but the gain it produces is measured on every run by "
+    "test/credit-loop.test.js at four operating points, because at the steady "
+    "state the loop is switched off by its own kink and a gain measured there "
+    "says nothing.")
+
+CREDIT_IMPULSE_RATE_SENSITIVITY = P(
+    0.4, 0.2, 0.8, "pp of annual credit growth per pp of real market rate above its baseline",
+    "weak", "Credit-demand semi-elasticity; BIS financial-cycle work",
+    "Enters with a negative sign: a real rate above baseline suppresses credit "
+    "growth. This is the channel through which the debt-service balancing term "
+    "closes the loop — higher credit raises the debt-service burden, which "
+    "raises defaults (DEFAULT_RATE_DSR), which widens the spread, which raises "
+    "the real market rate and shows up here.")
+
 ASSET_PRICE_MEANREVERSION = P(
     0.02, 0.01, 0.05, "monthly fraction of the gap to fundamental closed (equity; housing slower)",
     "weak", "Campbell-Shiller dividend-yield return predictability",

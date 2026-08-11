@@ -227,9 +227,16 @@ until Phase 3.*
 >
 > **Why `stability.test.js` missed Section B, which is the finding worth
 > keeping.** It computes the spectral radius of the core block's Jacobian **at
-> the steady state**. There `credit_to_gdp_gap = 0` and `A/F = 1`, and the
-> credit→collateral→credit loop is switched off *by its own thresholds*
-> (`excess = gap - 3.0`, `assetBoom 1.25`). **The guard existed and was
+> the steady state**, and the loop's gain depends enormously on where you
+> stand — measured in 3.2, a credit_impulse shock amplifies **0.0130× at the
+> steady state and 315.52× two percentage points away**.
+>
+> ⚠️ **The kink named here was wrong and 3.2 corrected it.** This said the loop
+> was gated by `excess = gap - 3.0` and `assetBoom 1.25`; those are at
+> `credit.js:318-322` and gate the crash **meter**, not the loop. The real one
+> is `Math.max(0, credit_growth_annual − nominalGrowth)`. It was **read, not
+> measured** — the exact error the standing rule exists to prevent, committed
+> by the pass that wrote the rule down. **The guard existed and was
 > evaluated at the one point in the state space where the loop it needed to see
 > cannot fire.** A linearisation around a resting point cannot find a loop that
 > only closes once you have left it. That is why this guard sweeps rather than

@@ -8,14 +8,28 @@
  *
  * WHY test/stability.test.js DID NOT CATCH IT, which is the interesting part.
  * That test computes the spectral radius of the core block's Jacobian AT THE
- * STEADY STATE. At the steady state credit_to_gdp_gap is 0 and A/F is 1 — and
- * the credit->collateral->credit loop is switched OFF by its own thresholds
- * there (`excess = gap - 3.0` in updateCreditImpulse, `assetBoom 1.25` in
- * updateAssetPrices). So the existing stability guard is evaluated at the one
- * point in the state space where the loop it needs to see cannot fire. A
- * linearisation around a resting point cannot find a loop that only closes
- * once you have left it. That is why this guard sweeps rather than
- * differentiates.
+ * STEADY STATE, and the loop's gain turns out to depend enormously on where
+ * you stand. Measured on the pre-fix tree — amplification of a credit_impulse
+ * shock over 96 months:
+ *
+ *     steady state          0.0130      stable
+ *     1pp cut, settled      0.0169      stable
+ *     2pp cut, settled    315.5195      EXPLOSIVE
+ *
+ * Two percentage points from the point of linearisation, four orders of
+ * magnitude. A Jacobian at the fixed point cannot see that. So this guard
+ * sweeps rather than differentiates, and test/credit-loop.test.js now measures
+ * the gain at four operating points on every run.
+ *
+ * THE FIRST VERSION OF THIS COMMENT NAMED THE WRONG KINK, and the correction
+ * belongs here rather than in a changelog. It said the loop was switched off
+ * at the steady state by `excess = gap - 3.0` and `assetBoom 1.25`. Those are
+ * at credit.js:318-322, they gate updateCrisisProbability — the crash METER,
+ * a display quantity — and they have nothing to do with the loop. The real
+ * kink is `Math.max(0, credit_growth_annual - nominalGrowth)` in
+ * updateAssetPrices, which is exactly zero at the steady state. The claim was
+ * READ from the source instead of measured, which is precisely the error this
+ * project's standing rule exists to prevent, and it survived a commit.
  *
  * WHAT COUNTS AS DIVERGENCE, and this is the part that took the measuring.
  * "No state variable may diverge" cannot be asserted literally, because the

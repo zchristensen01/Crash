@@ -248,18 +248,65 @@ export function updateCreditGap(s, trace) {
 
   // LOOP GAIN MATTERS MORE THAN EITHER COEFFICIENT. Borrowing lifts asset
   // prices (ASSET_PRICE_CREDIT_CHANNEL) and richer collateral supports more
-  // borrowing (the term below). Their product is the gain of the bubble loop,
-  // and it has no balancing counterpart — that is the whole point of it. Set
-  // too high, a bubble goes vertical in two years and nothing is teachable;
-  // the design calls for one that builds over ~5 years and deflates in ~1.
-  // Both coefficients are `weak`/`judgement` in parameters.py, so this is a
-  // TUNING DIAL, not a finding.
-  const collateralFeedback = 0.02 * (s.asset_prices / s.asset_fundamental - 1) * 100;
-  const rawImpulse = -0.4 * (realRate - s.market_real_rate_ss) + collateralFeedback;
+  // borrowing (CREDIT_COLLATERAL_FEEDBACK). Their product is the gain of the
+  // bubble loop. Set too high, a bubble goes vertical in two years and nothing
+  // is teachable; the design calls for one that builds over ~5 years and
+  // deflates in ~1. All three coefficients are `weak` in parameters.py, so
+  // this is a TUNING DIAL, not a finding.
+  //
+  // THREE CLAIMS THAT USED TO BE HERE WERE FALSE, and the fourth audit
+  // measured all three [B1]:
+  //
+  // 1. "it has no balancing counterpart — that is the whole point of it".
+  //    It has one, and it is sourced: credit raises the debt-service burden,
+  //    which raises defaults through DEFAULT_RATE_DSR in updateDefaults,
+  //    which eats bank capital, which widens the spread, which raises the real
+  //    market rate — and that arrives back here through
+  //    CREDIT_IMPULSE_RATE_SENSITIVITY. Measured, a permanent 2pp cut settles
+  //    credit/GDP at ~263% with the spread at 2.2 and the debt-service ratio
+  //    19% above its baseline. The counterpart was always there; it simply
+  //    could not bind while updateAssetPrices was overshooting its own sourced
+  //    semi-elasticity by 4.6x (see the note there).
+  //
+  // 2. "Both coefficients are weak/judgement in parameters.py". One was.
+  //    The other two were bare literals in this file. Now all three are
+  //    parameters with a range, a confidence and a source.
+  //
+  // 3. The EMA below did NOT do what its comment claimed. See it.
+  //
+  // LOOP GAIN, MEASURED RATHER THAN ASSERTED. A perturbation to
+  // credit_impulse, amplification after 96 months, at four operating points:
+  //
+  //                            steady state   1pp cut   2pp cut
+  //     before the units fix      0.0130       0.0169    315.52
+  //     now                       0.0076       0.0089      0.0071
+  //
+  // The pre-fix row is the reason this cannot be checked at the steady state:
+  // the loop was stable there and explosive two percentage points away, which
+  // is exactly the state dependence a linearisation around the fixed point
+  // cannot see. test/credit-loop.test.js measures all four every run.
+  const collateralFeedback = P.CREDIT_COLLATERAL_FEEDBACK.value *
+                             (s.asset_prices / s.asset_fundamental - 1) * 100;
+  const rawImpulse = -P.CREDIT_IMPULSE_RATE_SENSITIVITY.value *
+                     (realRate - s.market_real_rate_ss) + collateralFeedback;
 
-  // Credit demand is a flow that fades back toward trend rather than a level
-  // that ratchets. Without this the impulse integrates and credit/GDP has no
-  // finite equilibrium under any sustained policy.
+  // A LOW-PASS FILTER, AND THAT IS ALL IT IS.
+  //
+  // This used to claim: "Credit demand is a flow that fades back toward trend
+  // rather than a level that ratchets. Without this the impulse integrates and
+  // credit/GDP has no finite equilibrium under any sustained policy." The
+  // second sentence describes a guard that is not here. An EMA of a sustained
+  // input converges to that input, not to zero, so a standing impulse is
+  // passed through undiminished — and credit_growth_annual adds it to nominal
+  // growth, so private_credit/GDP integrates it exactly as before.
+  //
+  // Measured under a permanent 1pp cut: the impulse settles near +0.6 to +0.9
+  // and credit/GDP goes 150 -> 161 (m96) -> 188 (m240) -> 222 (m480). It is
+  // bounded, but the EMA is not what bounds it — the debt-service counterpart
+  // in (1) above is. What the EMA actually buys is a one-quarter smoothing of
+  // the month-to-month move, which is worth having and is not a stability
+  // guarantee. The credit GAP looks tamer than the stock because credit_trend
+  // chases the stock; that is updateCreditTrend's doing, not this line's.
   s.credit_impulse = 0.85 * s.credit_impulse + 0.15 * rawImpulse;
 
   // FORCED DELEVERAGING — the quantity leg of the doom loop, and the piece
