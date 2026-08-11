@@ -130,5 +130,12 @@ export function updateCrisisRecovery(s, trace) {
   // safe while the scar landed instantly; now that it phases in, ending the
   // crisis early would freeze the scar part-way and quietly hand back
   // permanent damage that Cerra & Saxena say never comes back.
-  if (s.crisis_drag < 0.1 && s.scar > s.scar_target - 0.1) s.crisis_active = false;
+  // judgement: "spent" tolerances on two decaying quantities, in the units of
+  // the quantities themselves (pp of GDP). Nothing picks 0.1 — it is small
+  // against CRISIS_OUTPUT_TROUGH's 9 and large against float noise. The only
+  // thing it decides is the month `crisis_active` flips, and by then both
+  // halves are within a tenth of a point of done.
+  const CRISIS_SPENT_TOLERANCE = 0.1;   // judgement, see above
+  if (s.crisis_drag < CRISIS_SPENT_TOLERANCE &&
+      s.scar > s.scar_target - CRISIS_SPENT_TOLERANCE) s.crisis_active = false;
 }

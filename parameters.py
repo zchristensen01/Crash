@@ -780,6 +780,39 @@ BOND_YIELD_NONLINEAR_THRESHOLD = P(
     "sensitivity rises; a periphery reprices when debt is foreign-held or "
     "effectively foreign-currency. Lower the threshold for foreign currency.")
 
+# --- The self-fulfilling repricing that ENDS a debt trap (4th audit 5.3) ---
+#
+# Both of these were bare in fiscal.js and between them they decide when the
+# debt-crisis ending fires, which is the whole of what `debt_trap` teaches.
+DEBT_SERVICE_PANIC_SHARE = P(
+    0.25, 0.15, 0.35, "share of tax revenue eaten by interest at which the market reprices on its own",
+    "weak", "IMF/World Bank Debt Sustainability Framework interest-to-revenue "
+    "thresholds (the DSF's high-risk band starts around 20-25% for market-"
+    "access countries); Reinhart & Rogoff on the absence of a universal "
+    "debt-level threshold.",
+    "[4TH AUDIT 5.3] Named locally in fiscal.js and used TWICE — the trigger "
+    "for the yield's panic term and the zero point of `fiscal_space` — with a "
+    "comment saying those two must be the same number or the gauge lies about "
+    "the cliff. Correct, and now there is one number rather than one local "
+    "const two rules can drift from. WHY REVENUE AND NOT DEBT/GDP: Japan at "
+    "250% is fine and Greece at 130% was not, and the difference is what the "
+    "interest bill costs as a share of what the state actually collects. That "
+    "is the model's whole answer to 'how much debt is too much'.")
+
+BOND_YIELD_PANIC_SLOPE = P(
+    8.0, 4.0, 16.0, "pp added to the yield per 1.0 of interest-to-revenue share above the panic threshold",
+    "judgement", "no direct estimate: a self-fulfilling repricing has no "
+    "stable coefficient by construction. Shape from the euro-area periphery "
+    "2010-12, where spreads moved hundreds of bp on no change in the debt "
+    "stock.",
+    "[4TH AUDIT 5.3] A bare 8 in fiscal.js. At 30% of revenue it adds 0.4pp; "
+    "at 50%, 2.0pp. It is the only ACCELERATING term in the yield — everything "
+    "else is linear in the debt — so it is what turns a debt trap from a slope "
+    "into a cliff, and it decides the month the debt-crisis ending fires. "
+    "Labelled judgement rather than given a false source: the literature "
+    "establishes that self-fulfilling repricing happens and gives no "
+    "coefficient for how fast.")
+
 # --- 1.3 Credit spreads and defaults ---
 CREDIT_SPREAD_UNEMP = P(
     0.10, 0.05, 0.20, "pp widening in a Baa-type spread per 1pp rise in unemployment",
@@ -844,6 +877,21 @@ PRIVATE_DEBT_REPRICING_YEARS = P(
     "they rise (lock-in). One speed cannot carry that, the same way one "
     "ASSET_PRICE_MEANREVERSION cannot carry equity and housing (open_items "
     "B4). Recorded, not fudged.")
+
+DEFAULT_RATE_BASELINE = P(
+    1.0, 0.5, 2.0, "% of loans defaulting a year in normal times",
+    "moderate", "Moody's/S&P through-the-cycle corporate default rates blended "
+    "across grades (investment grade well under 1%, speculative several %); "
+    "advanced-economy mortgage and consumer arrears in non-recession years.",
+    "[4TH AUDIT 5.3] THE SAME MAGIC 1.0 IN FIVE PLACES, and it is load-bearing "
+    "in all of them: the baseline term in updateDefaults, the zero point of the "
+    "spread's 'loans going bad' term, the zero point of write-offs, "
+    "newState's opening default_rate, and loan_losses_ss. The whole "
+    "'only losses ABOVE normal times eat bank capital' design hangs on those "
+    "five agreeing. NEARLY MISSED BY THE LINT CHECK THAT EXISTS TO FIND IT: "
+    "check (f) allows a bare `1` as structural, and comparing numerically "
+    "rather than textually made `1.0` allowed too. A coefficient whose value "
+    "happens to be one is still a coefficient. Recorded in docs/13 5.3.")
 
 DEFAULT_RATE_UNEMP = P(
     0.20, 0.10, 0.40, "pp rise in the default rate per 1pp rise in unemployment",
@@ -965,6 +1013,74 @@ CRISIS_PROB_PER_SD_CREDIT = P(
     "GHS: a combined credit AND asset-price boom (the 'R-zone') preceded 64% "
     "of crises. Credit-financed bubbles are far more dangerous than "
     "equity-only ones. Do not extrapolate much beyond 2 SD — cap it.")
+
+# --- The crash meter's own arithmetic (4th audit 5.3) ---
+#
+# updateCrisisRisk turns the credit gap into an annual crisis probability, and
+# every number in it was a bare literal. That function decides whether the
+# game's central event fires; 6.6 wants to put its output on screen. These are
+# now declared, and three of them are honestly `judgement`.
+CREDIT_GAP_WARNING = P(
+    3.0, 2.0, 4.0, "pp of credit/GDP above trend at which risk starts rising",
+    "strong", "BIS Aldasoro, Borio & Drehmann 2018",
+    "[4TH AUDIT 5.3] The LOWER of the two BIS thresholds — 3pp captures ~76% "
+    "of crises over a 3-year horizon with more false positives, against 9pp "
+    "capturing ~66% (CREDIT_GAP_CRISIS_THRESHOLD, the DANGER line). This is "
+    "the zero point of the probability curve, not the danger line: below it "
+    "crisis_prob is exactly zero. It was a bare 3.0 in credit.js and a "
+    "separate bare 3 in the same function's R-zone gate and trace, so the "
+    "gauge's warning line and its own arithmetic could drift apart.")
+
+CREDIT_GAP_ONE_SD = P(
+    6.0, 4.0, 8.0, "pp of credit/GDP gap per standard deviation",
+    "moderate", "Schularick & Taylor 2012; BIS credit-gap distributions for "
+    "advanced economies",
+    "[4TH AUDIT 5.3] CRISIS_PROB_PER_SD_CREDIT is quoted PER STANDARD "
+    "DEVIATION, so converting a gap in pp into a probability needs the size "
+    "of one SD, and that conversion factor was a bare literal named ONE_SD "
+    "inside the function. It does as much to the crash meter as the sourced "
+    "coefficient does: halving it doubles the probability at any given gap.")
+
+CRISIS_PROB_SD_CAP = P(
+    2.5, 2.0, 3.0, "standard deviations beyond which the curve is flat",
+    "judgement", "CRISIS_PROB_PER_SD_CREDIT's own note: 'do not extrapolate "
+    "much beyond 2 SD — cap it'",
+    "[4TH AUDIT 5.3] The cap the sourced parameter's note asks for, which was "
+    "implemented as a bare 2.5 rather than declared. Labelled judgement "
+    "because the note says ~2 and the code says 2.5, and nothing in the "
+    "source picks between them.")
+
+ASSET_BOOM_THRESHOLD = P(
+    1.25, 1.15, 1.40, "ratio of asset prices to fundamental that counts as a boom",
+    "weak", "Greenwood, Hanson & Shleifer 2020 ('Predictable Financial "
+    "Crises'): the R-zone is defined on 2-year past returns above a "
+    "percentile cut, not on a price/fundamental ratio.",
+    "[4TH AUDIT 5.3] A TRANSLATION, and the range is the translation's "
+    "uncertainty rather than an estimated interval. GHS define their boom on "
+    "realised returns; this model has an explicit fundamental, so the boom "
+    "has to be restated as a deviation from it. 25% above fundamental is the "
+    "translation and it is weak. Read together with FIRESALE and "
+    "leverage_max, which are the other two gates on the same ratio.")
+
+CRISIS_PROB_RZONE_UPLIFT = P(
+    0.6, 0.3, 1.0, "extra crisis probability, as a fraction of the credit-only term, when an asset boom coincides",
+    "weak", "Greenwood, Hanson & Shleifer 2020: a joint credit AND asset boom "
+    "preceded 64% of crises, and credit-financed bubbles are far more "
+    "dangerous than equity-only ones.",
+    "[4TH AUDIT 5.3] GHS establish that the combination is much worse than "
+    "either alone; they do not publish this multiplier. 0.6 is the model's "
+    "reading of 'much worse' and it is weak. It is the only place the two "
+    "booms interact, so it is what makes `bubble` a different scenario from "
+    "a credit boom with flat asset prices.")
+
+CRISIS_PROB_MAX = P(
+    40.0, 25.0, 60.0, "% — ceiling on the annual crisis probability",
+    "judgement", "no source: an absurdity bound",
+    "[4TH AUDIT 5.3] Not a finding. Schularick & Taylor's unconditional "
+    "annual crisis frequency in advanced economies is a few percent; 40% a "
+    "year is far past anything the panel contains and exists so a divergent "
+    "run stays readable. Nothing the game can produce should meet it — if it "
+    "does, that is the finding.")
 
 FINANCIAL_ACCELERATOR_STRENGTH = P(
     0.3, 0.1, 0.5, "amplification on INVESTMENT, not output",
@@ -1189,6 +1305,35 @@ VELOCITY_FLIGHT_THRESHOLD = P(
     "a convex takeoff. REGIME-SPECIFIC: drawn from EM/high-inflation "
     "episodes, flagged as such. This convexity is the hyperinflation engine, "
     "and it is what breaks the naive money-printing story at low inflation.")
+
+VELOCITY_FLIGHT_CONVEXITY = P(
+    0.002, 0.001, 0.005, "extra velocity per (pp of expected inflation above the threshold) squared",
+    "weak", "Cagan 1956 semi-log money demand, restated as a local quadratic "
+    "above VELOCITY_FLIGHT_THRESHOLD",
+    "[4TH AUDIT 5.3] A bare 0.002 in money.js, and VELOCITY_FLIGHT_THRESHOLD's "
+    "own note calls this convexity 'the hyperinflation engine'. The engine had "
+    "a sourced ignition point and an undeclared throttle. QUADRATIC, NOT "
+    "SEMI-LOG: Cagan's form is exponential in expected inflation and this is a "
+    "second-order local approximation to it, which is why the confidence is "
+    "weak and the range is a factor of five. At 20pp above the threshold it "
+    "adds 0.8 to velocity — nearly doubling the monetisation pass-through, "
+    "which is multiplied by velocity in updateMonetisation.")
+
+PRINTING_CREDIBILITY_EROSION = P(
+    0.0015, 0.0005, 0.0040, "credibility lost per month per pp of GDP printed",
+    "judgement", "no direct estimate. Shape from the anchoring literature "
+    "(Bernanke 2007 onward): credibility is slow to lose and slow to rebuild, "
+    "and what breaks it is the OBSERVED policy regime rather than any single "
+    "month.",
+    "[4TH AUDIT 5.3] A bare 0.0015 in money.js, and it is the slow fuse the "
+    "whole monetisation block is built around: printing is nearly free while "
+    "credibility is above MONETISATION_CREDIBILITY_GATE, and this is the only "
+    "thing that walks it down to the gate. At 2pp of GDP printed it costs "
+    "0.003 a month, so it takes about four years of steady printing to move "
+    "credibility from 0.65 to the 0.5 gate — which is `money_printed`'s "
+    "'held at 3pp or more, this reaches hyperinflation inside eight years' in "
+    "docs/11 §2. Labelled judgement rather than sourced: nothing in the "
+    "literature gives a monthly erosion rate per unit of monetisation.")
 
 MONETISATION_SLACK_GATE = P(
     1.0, 0.5, 1.5, "pp of slack at which printing pass-through is fully suppressed",

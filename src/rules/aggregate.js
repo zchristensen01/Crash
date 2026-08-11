@@ -41,6 +41,8 @@ export function aggregateDemand(s, trace) {
   // An external demand shock fades; it does not reprice the economy forever.
   // Decayed BEFORE the gap is formed, so the value the identity check reads
   // at the end of the tick is exactly the value that went into the gap.
+  // lint-allow-literal: 0.5 is the DEFINITION of a half-life, not a coefficient —
+  // it is what "half" means. The half-life itself is the parameter.
   s.net_exports *= Math.pow(0.5, 1 / P.FOREIGN_DEMAND_SHOCK_HALFLIFE.value);
 
   const terms = {

@@ -19,14 +19,30 @@ import { clamp, yoyGrowth } from '../units.js';
  * this one deliberately does very little.
  */
 export function updateConfidence(s, trace) {
-  const fundamentals = 60
-    - 2.0 * (s.unemployment - s.natural_unemployment)
-    - 1.0 * Math.max(0, s.inflation - s.inflation_target)
-    + 0.5 * s.output_gap
-    + 0.05 * (s.asset_prices - s.asset_fundamental);
+  // judgement, the whole block. Consumer confidence is a SURVEY INDEX on an
+  // arbitrary scale, so there is no natural-units coefficient to source: 60 is
+  // a neutral reading on a 0-100 scale and the weights are chosen so the index
+  // spans roughly 30-80 across the states the game reaches. What matters
+  // causally is not this index but `confidence_residual` below, which is the
+  // orthogonal part, scaled by the SOURCED CONFIDENCE_FUNDAMENTAL_LOAD — so an
+  // error in these weights moves a gauge and barely moves the economy. That is
+  // deliberate: the prototype's strong unsourced mood->demand channel caused
+  // its steady-state drift.
+  const CONF_NEUTRAL = 60;          // judgement: neutral on a 0-100 survey scale
+  const CONF_W_UNEMPLOYMENT = 2.0;  // judgement, see above
+  const CONF_W_INFLATION = 1.0;     // judgement, see above
+  const CONF_W_OUTPUT_GAP = 0.5;    // judgement, see above
+  const CONF_W_ASSETS = 0.05;       // judgement, see above
+  const CONF_ADJUSTMENT_SPEED = 0.3;// judgement: surveys move within a quarter
+  const fundamentals = CONF_NEUTRAL
+    - CONF_W_UNEMPLOYMENT * (s.unemployment - s.natural_unemployment)
+    - CONF_W_INFLATION * Math.max(0, s.inflation - s.inflation_target)
+    + CONF_W_OUTPUT_GAP * s.output_gap
+    + CONF_W_ASSETS * (s.asset_prices - s.asset_fundamental);
 
   const before = s.consumer_confidence;
-  s.consumer_confidence = clamp(before + 0.3 * (fundamentals - before), 0, 100);
+  s.consumer_confidence = clamp(
+    before + CONF_ADJUSTMENT_SPEED * (fundamentals - before), 0, 100);
 
   // The part fundamentals do NOT explain. This alone feeds consumption.
   s.confidence_residual = (1 - P.CONFIDENCE_FUNDAMENTAL_LOAD.value) *
@@ -37,9 +53,17 @@ export function updateConfidence(s, trace) {
   // nothing computed it. It is a gauge, like consumer_confidence — the
   // orthogonal residual is the only part with causal power and that is
   // wired to consumption above.
-  s.business_confidence = clamp(60 + 4.0 * s.output_gap
-    - 6.0 * (s.credit_spread - s.credit_spread_ss)
-    - 2.0 * (s.user_cost - s.market_real_rate_ss), 0, 100);
+  // judgement, same scale argument as consumer confidence above, and this one
+  // is read by NOTHING — it is a pure gauge. Firms weight the cost of credit
+  // heavily (6.0 on the spread against 2.0 on the user cost) because a spread
+  // move is a change in availability as well as price.
+  const BIZ_NEUTRAL = 60;           // judgement: neutral on a 0-100 survey scale
+  const BIZ_W_OUTPUT_GAP = 4.0;     // judgement, see above
+  const BIZ_W_SPREAD = 6.0;         // judgement, see above
+  const BIZ_W_USER_COST = 2.0;      // judgement, see above
+  s.business_confidence = clamp(BIZ_NEUTRAL + BIZ_W_OUTPUT_GAP * s.output_gap
+    - BIZ_W_SPREAD * (s.credit_spread - s.credit_spread_ss)
+    - BIZ_W_USER_COST * (s.user_cost - s.market_real_rate_ss), 0, 100);
 
   // The misery index, as docs/01 defines it. NOT what approval is driven off:
   // Di Tella, MacCulloch & Oswald reject the 1:1 weighting, so approval uses
@@ -68,6 +92,20 @@ export function updateConfidence(s, trace) {
  * then reflate" genuinely viable in a fixed-term game. That is a real lesson
  * about democratic incentives — it is NOT to be patched out.
  */
+/**
+ * The two approval weights that are NOT sourced.
+ *
+ * judgement, both. APPROVAL_MISERY_WEIGHT and APPROVAL_INCOME_GROWTH_COEF are
+ * estimated (Di Tella, MacCulloch & Oswald), and they carry the unemployment
+ * and income legs. These two do not have an equivalent. Inflation enters at
+ * 1.0 point of approval per pp above target, and ONE-SIDED — below target
+ * voters do not reward you, which is the same asymmetry the credibility block
+ * has. Tax resentment is 0.15 per pp on the ANNOUNCED rate, small on purpose:
+ * it is a political reaction and it must not become a second fiscal channel.
+ */
+const APPROVAL_W_INFLATION = 1.0;    // judgement, see above
+const APPROVAL_W_TAX = 0.15;         // judgement, see above
+
 export function updateApproval(s, trace) {
   const incomeGrowth = yoyGrowth(s.history.real_income);
   const w = P.APPROVAL_MISERY_WEIGHT.value;
@@ -76,11 +114,11 @@ export function updateApproval(s, trace) {
     'people feeling better off': P.APPROVAL_INCOME_GROWTH_COEF.value *
       (incomeGrowth - s.potential_growth),
     'unemployment': -w * (s.unemployment - s.natural_unemployment),
-    'cost of living': -1.0 * Math.max(0, s.inflation - s.inflation_target),
+    'cost of living': -APPROVAL_W_INFLATION * Math.max(0, s.inflation - s.inflation_target),
     // lint-allow-dial: voters resent the tax rate that was ANNOUNCED, not the one
     // that has finished arriving in pay packets. The political reaction is to the
     // budget speech; tax_rate_effective is what the economics responds to.
-    'tax resentment': -0.15 * (s.tax_rate - s.tax_rate_ss),
+    'tax resentment': -APPROVAL_W_TAX * (s.tax_rate - s.tax_rate_ss),
   };
   const target = s.approval_base + Object.values(terms).reduce((a, b) => a + b, 0);
 

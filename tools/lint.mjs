@@ -1,17 +1,17 @@
 /**
- * LINT — five static checks, no dependencies.
+ * LINT — six static checks, no dependencies.
  *
  *     node tools/lint.mjs        (also runs as part of `npm test`)
  *
  * docs/10 lists "no CI, no lint, no type checking" under Engineering and notes
  * that JSDoc plus `tsc --checkJs` would have caught the ten undeclared state
  * fields of docs/07 M11 statically. That is true and it is also a dependency.
- * These five checks are the subset that has actually caught real bugs in this
+ * These six checks are the subset that has actually caught real bugs in this
  * project's history, written in the same zero-dependency style as everything
  * else, and each one names the finding it exists to prevent.
  *
  * They are STATIC and deliberately crude. A regex over source is not a type
- * checker; it is a tripwire on five specific mistakes that have each cost a
+ * checker; it is a tripwire on six specific mistakes that have each cost a
  * pass. Where a check cannot be sure, it stays quiet rather than crying wolf —
  * a linter nobody trusts gets switched off.
  */
@@ -233,9 +233,116 @@ for (const f of SRC) {
 }
 
 // ---------------------------------------------------------------------
+// (f) No undeclared numeric literal in src/rules/.
+//
+// The check the third pass was asked for and did not write, and the reason it
+// matters is the whole claim this project makes: `parameters.py` is the
+// authority, every coefficient has a range, a confidence and a source. A bare
+// number in a rule is a coefficient that escaped that. The fourth audit found
+// three of them doing real work — `0.02` and `0.4` running the bubble loop
+// (promoted in 3.2 to CREDIT_COLLATERAL_FEEDBACK and
+// CREDIT_IMPULSE_RATE_SENSITIVITY) and `0.20` setting the crash meter's trend
+// speed under a comment citing an HP filter it did not resemble (5.4).
+//
+// MEASURED AGAINST THE TREE, not against the brief: 71 occurrences across 11
+// files at the time this was written. The brief's D3 counts (credit 23,
+// prices 16, crisis 16) were read rather than run and two of the three are
+// wrong — measured, credit 21, prices 10, and crisis **2**.
+//
+// THREE WAYS TO SATISFY IT, and they are the plan's own triage:
+//   1. use a P.* parameter — range, confidence, source;
+//   2. name it as an UPPER_SNAKE const whose comment says `judgement`, which
+//      is the honest label for an absurdity bound or a smoothing speed that
+//      no literature pins;
+//   3. declare an exception: // lint-allow-literal: <at least 40 chars>.
+//
+// WHAT IT DELIBERATELY DOES NOT FLAG. Numbers inside a `trace.record(...)` are
+// display — the same carve-out check (e) makes for dials — and array indices
+// are not coefficients. 0, 1, 12 and 100 are structural: identity, unity,
+// months in a year, and percent.
+// ---------------------------------------------------------------------
+{
+  // Compared NUMERICALLY, not textually: `1.0` and `1` are the same number,
+  // and a check that flags one and not the other is a check nobody trusts.
+  const ALLOWED = new Set([0, 1, 12, 100]);
+  // MULTILINE, because the marker is looked for in a BLOCK of comment lines
+  // rather than in one line — `.*$` without /m only matches at end of string,
+  // which silently found nothing whenever the marker was not the last line.
+  const MARKER = /\/\/\s*lint-allow-literal:\s*(.*)$/m;
+  for (const f of RULES) {
+    const raw = read(f).split('\n');
+    const src = strippedLines(read(f));
+    let inTrace = 0;
+    const guarded = new Set();
+    src.forEach((line, i) => {
+      if (/trace\.(record|note)\(/.test(line)) inTrace = 1;
+      const wasTrace = inTrace;
+      if (inTrace) {
+        inTrace += (line.match(/\(/g) || []).length - (line.match(/\)/g) || []).length;
+        if (inTrace <= 1 && /\)\s*;/.test(line)) inTrace = 0;
+      }
+      if (wasTrace) return;
+
+      // String contents are not arithmetic. Array indices and `.at(-2)` are
+      // positions, not coefficients.
+      const bare = line
+        .replace(/'[^']*'/g, "''").replace(/"[^"]*"/g, '""').replace(/`[^`]*`/g, '``')
+        .replace(/\.(at|slice|splice)\([^)]*\)/g, '.$1()')
+        .replace(/\[\s*-?\d+\s*\]/g, '[]');
+
+      const found = [...bare.matchAll(/(?<![\w.$])(\d+(?:\.\d+)?(?:e-?\d+)?)/g)]
+        .map((m) => m[1]).filter((v) => !ALLOWED.has(Number(v)));
+      if (!found.length) return;
+
+      // The contiguous comment block immediately above, plus any trailing
+      // comment on the line itself — a one-word label rarely needs two lines.
+      const own = raw[i] || '';
+      let block = own.includes('//') ? own.slice(own.indexOf('//')) : '';
+      for (let j = i - 1; j >= 0 && /^\s*(\/\/|\*|\/\*)/.test(raw[j] || ''); j--) {
+        block += '\n' + raw[j];
+      }
+      const marker = block.match(MARKER);
+      if (marker) {
+        guarded.add(i);
+        if ((marker[1] || '').trim().length < 40) {
+          fail(f, `line ${i + 1} has a lint-allow-literal marker with no real ` +
+                  `reason. "Because it is" is how docs/07 L1 survived three passes.`);
+        }
+        return;
+      }
+      // A NAMED constant with an explicit `judgement` label is the plan's
+      // second branch: the number is not sourced and says so.
+      if (/^\s*const\s+[A-Z][A-Z0-9_]*\s*=/.test(bare) && /judgement/i.test(block)) return;
+
+      fail(f, `line ${i + 1} has the bare numeric literal${found.length > 1 ? 's' : ''} ` +
+              `${found.join(', ')}: ${line.trim()}\n` +
+              `    A coefficient in a rule needs a range, a confidence and a source in\n` +
+              `    parameters.py — or an UPPER_SNAKE name with an explicit "judgement"\n` +
+              `    comment if nothing pins it — or // lint-allow-literal: <why>.`);
+    });
+    // The other direction, as with lint-allow-dial: a marker guarding a line
+    // that no longer has a literal is a stale register, and a stale register
+    // is worse than none.
+    raw.forEach((line, i) => {
+      if (!MARKER.test(line)) return;
+      // A marker trailing the guarded statement itself.
+      if (guarded.has(i)) return;
+      // Otherwise it is a comment line: walk down to the first line of code
+      // and ask whether THAT is the one the marker was recorded against.
+      let j = i;
+      while (j < raw.length && /^\s*(\/\/|\*|\/\*)/.test(raw[j])) j++;
+      if (!guarded.has(j)) {
+        fail(f, `line ${i + 1} has a stale lint-allow-literal marker — the statement ` +
+                `it guards (line ${j + 1}) has no bare literal. Delete it.`);
+      }
+    });
+  }
+}
+
+// ---------------------------------------------------------------------
 if (problems.length) {
   console.error(`lint: ${problems.length} problem${problems.length > 1 ? 's' : ''}\n`);
   for (const p of problems) console.error(`  ${p}\n`);
   process.exit(1);
 }
-console.log(`lint: clean (${SRC.length} files, 5 checks)`);
+console.log(`lint: clean (${SRC.length} files, 6 checks)`);

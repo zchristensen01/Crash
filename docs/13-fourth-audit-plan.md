@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twelve corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Fourteen corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1222,6 +1222,78 @@ in {0, 1, 12, 100} and not already named. Triage each: promote to
 explicit `judgement` comment. **Prioritise anything that decides an ENDING or a
 GATE** — the `8` panic multiplier in `fiscal.js` and the `0.0015` credibility
 erosion in `money.js` are the two that most need a source.
+
+> #### As built — and the brief's counts do not survive.
+>
+> ### CORRECTION 14 — D3's literal counts were read, not run, and one is out by a factor of eight.
+>
+> The plan already flagged them as unverified and said to use the check's
+> number. Here it is. Raw occurrences of a numeric literal outside {0, 1, 12,
+> 100} in `src/rules/`:
+>
+> | file | brief (D3) | measured |
+> |---|---|---|
+> | `credit.js` | 23 | **21** |
+> | `prices.js` | 16 | **10** |
+> | `crisis.js` | 16 | **2** |
+>
+> **84 raw across 13 files; 71 actionable** once `trace.record(...)` scope is
+> excluded (display, not arithmetic — the same carve-out check (e) already
+> makes for dials) along with array indices. Now zero.
+>
+> #### The check
+>
+> `tools/lint.mjs` grows a sixth check with three ways to satisfy it, which are
+> the plan's own triage: a `P.*` parameter; an UPPER_SNAKE name whose comment
+> says `judgement`; or `// lint-allow-literal: <≥40 chars>`. Enforced in BOTH
+> directions like `lint-allow-dial` and like `parameters.py`'s registers.
+> **All three failure modes were verified to fire, and the third did not** —
+> the stale-marker direction had a leftover condition that made it
+> unreachable, so it was silently passing everything. Fixed and re-verified.
+> A tripwire that cannot fail is worse than no tripwire, which is the same
+> lesson as V1's stale bundle.
+>
+> #### The triage: 12 promoted, ~46 labelled
+>
+> Everything promoted decides a **gate or an ending**, which is the priority
+> the plan sets. `updateCrisisRisk` — the function that decides whether the
+> game's central event fires, and whose output 6.6 wants to put on screen —
+> had **every number in it bare**: `CREDIT_GAP_WARNING`, `CREDIT_GAP_ONE_SD`,
+> `CRISIS_PROB_SD_CAP`, `ASSET_BOOM_THRESHOLD`, `CRISIS_PROB_RZONE_UPLIFT`,
+> `CRISIS_PROB_MAX`. Worth stating plainly: `CRISIS_PROB_PER_SD_CREDIT` is
+> sourced and quoted **per standard deviation**, and the size of one SD was an
+> undeclared `6.0` — a number that does as much to the crash meter as the
+> sourced coefficient does, since halving it doubles the probability at any
+> given gap. Then the debt-crisis trigger (`DEBT_SERVICE_PANIC_SHARE`,
+> `BOND_YIELD_PANIC_SLOPE`) and the hyperinflation engine
+> (`VELOCITY_FLIGHT_CONVEXITY`, `PRINTING_CREDIBILITY_EROSION`) — the two the
+> plan names by hand.
+>
+> **THE FIND IS `DEFAULT_RATE_BASELINE`: the same `1.0` in FIVE PLACES.** The
+> baseline term in `updateDefaults`, the zero point of the spread's
+> loans-going-bad term, the zero point of write-offs, `newState`'s opening
+> `default_rate`, and `loan_losses_ss`. The entire "only losses ABOVE normal
+> times eat bank capital" design requires all five to be the same number, and
+> nothing said so. **The check nearly missed it, and the reason is worth
+> recording**: `1.0` was initially flagged only because the allow-set compared
+> strings, so `1.0` and `1` looked different. Comparing numerically is
+> obviously right — a check that flags one spelling and not the other is a
+> check nobody trusts — and it also made this coefficient invisible. A
+> coefficient whose value happens to be one is still a coefficient.
+>
+> The other ~46 are named locally with `judgement`. That is not a lesser
+> outcome: labelling `SPREAD_W_LEVERAGE = 0.8` as judgement says something
+> true and useful — four of `updateCreditSpread`'s six terms are judgement and
+> two are sourced, and that spread sits inside `market_rate`, which is what
+> every borrower pays. Promoting them would have meant inventing ranges.
+>
+> #### Behaviour-neutral, and measured rather than asserted
+>
+> All six scenarios x 96 months x 22 state fields, **byte-identical to 15
+> significant figures**, before and after. Independently confirmed by
+> `docs/11`'s 1464-number fingerprint not moving (`86c1b104fab5561d`). A
+> refactor of this size that changed one number would be very hard to find
+> later, which is why the check was run as a diff and not as a suite pass.
 
 **5.4 — Derive the credit trend speed (D2).**
 `trendSpeed = 0.20` is an unnamed literal with a half-life of 41.6 months. The

@@ -45,12 +45,20 @@ export function updateVelocity(s, trace) {
                    Math.log(1 + i / 100) - s.velocity_v0;
 
   const over = Math.max(0, s.expected_inflation - P.VELOCITY_FLIGHT_THRESHOLD.value);
-  const flight = 0.002 * over * over;
+  const flight = P.VELOCITY_FLIGHT_CONVEXITY.value * over * over;
 
   const before = s.velocity;
   const target = 1 + rateTerm + flight;
-  const change = 0.1 * (target - before);
-  s.velocity = Math.max(0.2, before + change);
+  // judgement: velocity closes 10% of the gap to its target each month, a
+  // ~9-month mean lag. Money-demand studies estimate the LEVEL relationship
+  // (VELOCITY_INTEREST_SEMIELAST, sourced) and are much weaker on the
+  // adjustment speed. This one is load-bearing in the other direction from
+  // most smoothers: it is what stops the flight-from-money term going vertical
+  // in a single month once VELOCITY_FLIGHT_THRESHOLD is crossed.
+  const VELOCITY_ADJUSTMENT_SPEED = 0.1;   // judgement, see above
+  const VELOCITY_FLOOR = 0.2;              // judgement: absurdity bound
+  const change = VELOCITY_ADJUSTMENT_SPEED * (target - before);
+  s.velocity = Math.max(VELOCITY_FLOOR, before + change);
 
   trace.record('velocity', {
     'where it was': before,
@@ -92,13 +100,21 @@ export function updateMonetisation(s, trace) {
   const slack = Math.max(0, -s.output_gap);
   const slackFactor = clamp(1 - slack / P.MONETISATION_SLACK_GATE.value, 0, 1);
 
-  const flight = clamp(s.velocity, 1, 4);
+  // judgement: the velocity multiplier on the monetisation pass-through is
+  // capped at 4x. Below 1 it is clamped away because velocity falling does not
+  // make printing DISINFLATIONARY — that direction is already carried by the
+  // credibility and slack gates. The ceiling is an absurdity bound: 4x on top
+  // of an already-open gate is a fiscal-dominance economy, and nothing past it
+  // is a distinction the model can teach.
+  const FLIGHT_MULTIPLIER_MAX = 4;   // judgement, see above
+  const flight = clamp(s.velocity, 1, FLIGHT_MULTIPLIER_MAX);
   const passthrough = credFactor * slackFactor * flight;
   s.monetisation_passthrough = s.money_printed * passthrough;
 
   // Printing erodes credibility directly, in proportion to how much you do.
   if (s.money_printed > 0) {
-    s.credibility = Math.max(0, s.credibility - 0.0015 * s.money_printed);
+    s.credibility = Math.max(0,
+      s.credibility - P.PRINTING_CREDIBILITY_EROSION.value * s.money_printed);
   }
 
   const gated = s.money_printed * credFactor * slackFactor;

@@ -231,12 +231,17 @@ export function updateDefaults(s, trace) {
   s.private_debt_rate += reprice * (s.market_rate - prevRate);
   const dsr = s.private_credit * s.private_debt_rate / 100;
   const terms = {
-    'baseline defaults': 1.0,
+    'baseline defaults': P.DEFAULT_RATE_BASELINE.value,
     'debt service burden': P.DEFAULT_RATE_DSR.value * (dsr - s.dsr_ss),
     'people losing jobs': P.DEFAULT_RATE_UNEMP.value * (s.unemployment - s.natural_unemployment),
   };
   const rawDefault = Object.values(terms).reduce((a, b) => a + b, 0);
-  s.default_rate = Math.max(0.05, rawDefault);
+  // judgement: defaults never reach zero. Nothing sources a floor this far
+  // below the baseline — it is 1/20th of DEFAULT_RATE_BASELINE and exists so
+  // an extreme boom cannot drive the rate negative, which would make
+  // write-offs ADD to the credit stock two rules later.
+  const DEFAULT_RATE_FLOOR = 0.05;   // judgement, see above
+  s.default_rate = Math.max(DEFAULT_RATE_FLOOR, rawDefault);
   trace.record('default_rate', { ...terms,
     'floor (defaults never reach zero)': s.default_rate - rawDefault,
   }, s.default_rate, {
@@ -259,9 +264,17 @@ export function updateDefaults(s, trace) {
   // the target ratio.
   s.loan_losses = s.default_rate / 100 * P.LOSS_GIVEN_DEFAULT.value * s.private_credit;
   const excessLosses = annualToMonthlyFlow(s.loan_losses - s.loan_losses_ss);
+  // judgement: banks rebuild 2% of the distance to their target ratio each
+  // month, a ~34-month half-life. Basel sources the LEVELS
+  // (BANK_CAPITAL_MINIMUM) and not the speed of retention; the post-2008
+  // rebuild took banks several years, which is the shape this reproduces.
+  // 30% is an absurdity ceiling — no banking system holds it.
+  const CAPITAL_REBUILD_SPEED = 0.02;   // judgement, see above
+  const CAPITAL_RATIO_MAX = 30;         // judgement: absurdity bound
   s.bank_capital_ratio = clamp(
     s.bank_capital_ratio - excessLosses +
-      0.02 * (s.bank_capital_ss - s.bank_capital_ratio), 0, 30);
+      CAPITAL_REBUILD_SPEED * (s.bank_capital_ss - s.bank_capital_ratio),
+    0, CAPITAL_RATIO_MAX);
 
   // How far below the floor banks are defending. Positive means they are
   // cutting lending to get back above it, which is the quantity leg of the
@@ -283,17 +296,36 @@ export function updateDefaults(s, trace) {
  * and left the parameter unread (docs/07 M5).
  */
 export function updateCreditSpread(s, trace) {
+  // judgement, the three unsourced weights below. Two of this function's six
+  // terms ARE sourced — CREDIT_SPREAD_UNEMP and BANK_CAPITAL_TO_LOAN_RATE —
+  // and they were the two the audits went after. These three carry the
+  // balance-sheet story that a spread widens on leverage, on falling
+  // collateral and on realised losses. Every one of those is established in
+  // direction and none in magnitude for an aggregate spread. They are the
+  // largest remaining unsourced block in the credit chain, and they matter:
+  // this spread is inside `market_rate`, which is what borrowers pay.
+  const SPREAD_W_LEVERAGE = 0.8;     // judgement, see above
+  const SPREAD_W_COLLATERAL = 0.5;   // judgement, see above
+  const SPREAD_W_DEFAULTS = 0.3;     // judgement, see above
   const terms = {
     'normal cost of risk': s.credit_spread_ss,
-    'how leveraged borrowers are': 0.8 * (s.leverage - s.leverage_ss),
-    'collateral values': -0.5 * (s.asset_prices / s.asset_fundamental - 1),
+    'how leveraged borrowers are': SPREAD_W_LEVERAGE * (s.leverage - s.leverage_ss),
+    'collateral values':
+      -SPREAD_W_COLLATERAL * (s.asset_prices / s.asset_fundamental - 1),
     'unemployment': P.CREDIT_SPREAD_UNEMP.value * (s.unemployment - s.natural_unemployment),
-    'loans going bad': 0.3 * (s.default_rate - 1.0),
+    'loans going bad':
+      SPREAD_W_DEFAULTS * (s.default_rate - P.DEFAULT_RATE_BASELINE.value),
     'how much capital banks hold':
       -(P.BANK_CAPITAL_TO_LOAN_RATE.value / 100) * (s.bank_capital_ratio - s.bank_capital_ss),
   };
   const target = Object.values(terms).reduce((a, b) => a + b, 0);
-  s.credit_spread = Math.max(0.2, s.credit_spread + 0.3 * (target - s.credit_spread));
+  // judgement: the spread closes 30% of the distance to target each month (a
+  // ~2-month half-life, so it is fast but not instant), with a floor at 0.2pp
+  // because no lender prices credit risk at zero.
+  const SPREAD_ADJUSTMENT_SPEED = 0.3;   // judgement, see above
+  const SPREAD_FLOOR = 0.2;              // judgement, see above
+  s.credit_spread = Math.max(SPREAD_FLOOR,
+    s.credit_spread + SPREAD_ADJUSTMENT_SPEED * (target - s.credit_spread));
   trace.record('credit_spread', terms, target, { actual_after_smoothing: s.credit_spread });
 }
 
@@ -378,7 +410,13 @@ export function updateCreditGap(s, trace) {
   // the month-to-month move, which is worth having and is not a stability
   // guarantee. The credit GAP looks tamer than the stock because credit_trend
   // chases the stock; that is updateCreditTrend's doing, not this line's.
-  s.credit_impulse = 0.85 * s.credit_impulse + 0.15 * rawImpulse;
+  // judgement: a one-quarter EMA. The weight is 1 - 1/3 to the month, i.e.
+  // exactly "smooth over a quarter", which is the shape of the claim rather
+  // than an estimate of it. The comment above records what this line does NOT
+  // do — it is a filter, not the stability guard its old comment claimed.
+  const IMPULSE_SMOOTHING = 0.85;   // judgement, see above
+  s.credit_impulse = IMPULSE_SMOOTHING * s.credit_impulse +
+                     (1 - IMPULSE_SMOOTHING) * rawImpulse;
 
   // FORCED DELEVERAGING — the quantity leg of the doom loop, and the piece
   // that was missing. A bank below its capital floor cuts lending rather than
@@ -386,8 +424,16 @@ export function updateCreditGap(s, trace) {
   // leverage, which forces more selling. Supply, not demand: it does not fade
   // and it does not care what borrowers want.
   const forcedDelever = -P.BANK_DELEVER_STRENGTH.value * s.bank_capital_shortfall;
+  // judgement: absurdity bounds on the credit impulse, in pp of annual credit
+  // growth either side of nominal GDP growth. Asymmetric on purpose and the
+  // asymmetry is the sourced part of the story — a credit bust is faster than
+  // a credit boom (the same one-sidedness as the fire-sale term). Ireland and
+  // Spain ran roughly +10 to +15pp above nominal growth for years before 2008;
+  // deleveraging episodes have run past -20. Neither edge should bind in a
+  // playable run.
+  const CREDIT_IMPULSE_MIN = -25, CREDIT_IMPULSE_MAX = 12;   // judgement, see above
   s.credit_growth_annual = nominalGrowth +
-    clamp(s.credit_impulse + forcedDelever, -25, 12);
+    clamp(s.credit_impulse + forcedDelever, CREDIT_IMPULSE_MIN, CREDIT_IMPULSE_MAX);
 
   // WRITE-OFFS. Debt that defaults leaves the credit stock, and that is what
   // finally ENDS a deleveraging spiral: the fire sale drives prices down,
@@ -398,13 +444,19 @@ export function updateCreditGap(s, trace) {
   // Only defaults ABOVE the normal-times rate are netted off, exactly as
   // updateDefaults only charges losses above the baseline to bank capital.
   // Ordinary churn is already inside credit_growth_annual.
-  s.write_offs = annualRateToMonthlyLinear((s.default_rate - 1.0) / 100) *
-                 s.private_credit;
+  s.write_offs = annualRateToMonthlyLinear(
+    (s.default_rate - P.DEFAULT_RATE_BASELINE.value) / 100) * s.private_credit;
 
   const beforeCredit = s.private_credit;
   // credit/GDP moves only by the DIFFERENCE between credit growth and nominal
   // GDP growth — this is what keeps the ratio stationary at the steady state.
-  s.private_credit = Math.max(20, beforeCredit *
+  // judgement: absurdity floor. 20% of GDP of private credit is below any
+  // advanced economy on record (the lowest in the BIS series are around 50)
+  // and exists so a deleveraging spiral cannot drive the stock to zero, which
+  // would make the credit/GDP gap meaningless and divide-by-zero the leverage
+  // ratio.
+  const PRIVATE_CREDIT_FLOOR = 20;   // judgement, see above
+  s.private_credit = Math.max(PRIVATE_CREDIT_FLOOR, beforeCredit *
     (1 + annualRateToMonthlyLinear((s.credit_growth_annual - nominalGrowth) / 100))
     - s.write_offs);
 
@@ -423,7 +475,8 @@ export function updateCreditGap(s, trace) {
     'private borrowing (% of GDP)': s.private_credit,
     'its own slow trend': -s.credit_trend,
   }, s.credit_to_gdp_gap, {
-    warning_at: 3, danger_at: P.CREDIT_GAP_CRISIS_THRESHOLD.value,
+    warning_at: P.CREDIT_GAP_WARNING.value,
+    danger_at: P.CREDIT_GAP_CRISIS_THRESHOLD.value,
     credit_growth: s.credit_growth_annual,
     banks_forced_to_delever: forcedDelever < 0 ? -forcedDelever : 0,
     note: forcedDelever < 0
@@ -439,20 +492,28 @@ export function updateCreditGap(s, trace) {
  * crises, so the combination raises risk above either alone.
  */
 export function updateCrisisRisk(s, trace) {
-  const ONE_SD = 6.0;
-  const excess = Math.max(0, s.credit_to_gdp_gap - 3.0);
-  const sds = Math.min(excess / ONE_SD, 2.5);
+  // EVERY NUMBER IN THIS FUNCTION USED TO BE A BARE LITERAL [4th audit 5.3],
+  // in the function that decides whether the game's central event fires. The
+  // sourced coefficient (CRISIS_PROB_PER_SD_CREDIT) was quoted per STANDARD
+  // DEVIATION and the SD itself was an undeclared 6.0 — a number that does as
+  // much to the meter as the coefficient does, since halving it doubles the
+  // probability at any given gap. The warning line was written three separate
+  // times, so the gauge's stated threshold and its own arithmetic could drift.
+  const warning = P.CREDIT_GAP_WARNING.value;
+  const excess = Math.max(0, s.credit_to_gdp_gap - warning);
+  const sds = Math.min(excess / P.CREDIT_GAP_ONE_SD.value, P.CRISIS_PROB_SD_CAP.value);
 
   const base = P.CRISIS_PROB_PER_SD_CREDIT.value * sds;
-  const assetBoom = s.asset_prices / s.asset_fundamental > 1.25;
-  const rZone = assetBoom && s.credit_to_gdp_gap > 3 ? base * 0.6 : 0;
+  const assetBoom = s.asset_prices / s.asset_fundamental > P.ASSET_BOOM_THRESHOLD.value;
+  const inRZone = assetBoom && s.credit_to_gdp_gap > warning;
+  const rZone = inRZone ? base * P.CRISIS_PROB_RZONE_UPLIFT.value : 0;
 
-  s.crisis_prob = clamp(base + rZone, 0, 40);
+  s.crisis_prob = clamp(base + rZone, 0, P.CRISIS_PROB_MAX.value);
   trace.record('crisis_prob', {
     'excess borrowing above trend': base,
     'credit boom AND asset boom together': rZone,
   }, s.crisis_prob, {
-    note: assetBoom && s.credit_to_gdp_gap > 3
+    note: inRZone
       ? 'the R-zone — credit-financed bubbles preceded 64% of crises'
       : 'annual probability, not a vibe',
   });

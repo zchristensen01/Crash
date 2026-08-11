@@ -46,7 +46,16 @@ export function monetaryEasingScale(s) {
   // Ramped, not switched. A step here is the same class of defect as the old
   // Okun switch: it puts a discontinuity in the middle of the range the
   // player actually occupies, and the response jumps across it.
-  const inRecession = lerp(1.0, 0.75, clamp(-s.output_gap / 3, 0, 1));
+  // judgement: a cut works about a quarter less well in a deep slump than at
+  // potential, ramped in over three points of gap. The DIRECTION is sourced —
+  // the same balance-sheet and confidence story behind MONETARY_ASYMMETRY_RATIO
+  // — and neither the depth nor the ramp width is. Kept small deliberately:
+  // MONETARY_ASYMMETRY_RATIO and ZLB_RATE_EFFECTIVENESS are the two sourced
+  // scalings on this line and this one must not swamp them.
+  const RECESSION_EASING_FLOOR = 0.75;   // judgement, see above
+  const RECESSION_RAMP_GAP = 3;          // judgement: pp of gap to reach it
+  const inRecession = lerp(1.0, RECESSION_EASING_FLOOR,
+                           clamp(-s.output_gap / RECESSION_RAMP_GAP, 0, 1));
   const room = clamp((s.policy_rate_demand - P.SS_ELB.value) /
                      P.ZLB_EFFECTIVE_BAND.value, 0, 1);
   const atBound = lerp(P.ZLB_RATE_EFFECTIVENESS.value, 1, room);
@@ -124,7 +133,14 @@ export function updateInvestment(s, trace) {
     (P.INVESTMENT_RATE_ELASTICITY.value / 100) * stance * scale;
 
   // Accelerator: firms build when demand is already strong.
-  const accelerator = 0.15 * s.output_gap;
+  // judgement: the flexible-accelerator mechanism is textbook and its
+  // magnitude in an aggregate model is not. 0.15pp of investment per pp of gap
+  // is deliberately at the weak end — this term competes with the rate channel
+  // for the same movement, and INVESTMENT_RATE_ELASTICITY is the sourced one.
+  // A larger value would make investment mostly an echo of the output gap and
+  // the model would stop being able to tell demand from the cost of capital.
+  const ACCELERATOR_STRENGTH = 0.15;   // judgement, see above
+  const accelerator = ACCELERATOR_STRENGTH * s.output_gap;
 
   // Crowding out, switched off by slack and at the lower bound. It reads the
   // CYCLICALLY-ADJUSTED deficit: borrowing that only happened because the
@@ -144,7 +160,12 @@ export function updateInvestment(s, trace) {
   // the same band. Crowding out is about the cost of funds the economy is
   // actually facing, so it reads policy_rate_demand and fades over the same
   // ZLB_EFFECTIVE_BAND.
-  const slack = clamp(-s.output_gap / 2, 0, 1);
+  // judgement: crowding out fades to nothing by two points of slack. Same
+  // shape and same lack of a source as RECESSION_RAMP_GAP above; the sourced
+  // claim is that crowding out is absent when saving is idle, not the width of
+  // the ramp. Ramped rather than switched (docs/07 L6).
+  const CROWDING_OUT_SLACK_BAND = 2;   // judgement, see above
+  const slack = clamp(-s.output_gap / CROWDING_OUT_SLACK_BAND, 0, 1);
   const elbRoom = clamp((s.policy_rate_demand - P.SS_ELB.value) /
                         P.ZLB_EFFECTIVE_BAND.value, 0, 1);
   const deficitExcess = s.structural_deficit_felt - s.structural_deficit_ss;
@@ -195,7 +216,12 @@ export function updateInvestment(s, trace) {
   // deeply negative, and an unbounded rate term drove investment to 700% of
   // GDP, which exploded the capital stock and then potential output itself.
   // No economy invests more than ~45% of output in a year.
-  s.investment = clamp(raw, 2, 45);
+  // judgement: absurdity bounds, and the numbers are invariants.js check 8's
+  // own band so there is one source rather than two (open_items D2). No
+  // economy has ever invested 45% of output in a year for long, and none has
+  // sustained 2%; both exist so a divergent run stays readable.
+  const INVESTMENT_MIN = 2, INVESTMENT_MAX = 45;   // judgement, see above
+  s.investment = clamp(raw, INVESTMENT_MIN, INVESTMENT_MAX);
   trace.record('investment', { ...terms,
     'bounded to a physically possible range': s.investment - raw,
   }, s.investment, {

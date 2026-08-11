@@ -9,8 +9,13 @@ import { clamp, annualRateToMonthlyLinear, annualToMonthlyFlow } from '../units.
  * repricing the debt on its own. Used twice: once as the trigger for the
  * panic term in the yield, once as the zero point of fiscal_space, and those
  * two must be the same number or the gauge lies about the cliff.
+ *
+ * PROMOTED to DEBT_SERVICE_PANIC_SHARE in 5.3. A local const kept the two
+ * uses consistent with each other and not with anything else; it now has a
+ * range, a confidence and a source like every other coefficient. Aliased here
+ * because the name reads better at the two call sites than `P.…value` does.
  */
-const INTEREST_PANIC_SHARE = 0.25;
+const INTEREST_PANIC_SHARE = P.DEBT_SERVICE_PANIC_SHARE.value;
 
 /**
  *   yield = expected short rate + term premium - QE + risk premium
@@ -49,7 +54,7 @@ export function updateBondYield(s, trace) {
   // Panic: self-fulfilling repricing once interest costs eat the budget.
   const interestShare = s.interest_cost / Math.max(1, s.tax_revenue);
   const panic = interestShare > INTEREST_PANIC_SHARE
-    ? 8 * (interestShare - INTEREST_PANIC_SHARE) : 0;
+    ? P.BOND_YIELD_PANIC_SLOPE.value * (interestShare - INTEREST_PANIC_SHARE) : 0;
 
   // Portfolio balance: buying the bonds pushes their yield down, and the
   // whole curve with it. Small per pound — the literature median is ~50bp for
@@ -122,8 +127,14 @@ export function updateAutoStabilisers(s, trace) {
   // UNEMPLOYMENT_BENEFIT_SHARE; the code used to multiply a NEGATIVE
   // elasticity by an invented 0.1 and negate the result — two compensating
   // sign errors around a magnitude nobody had derived (docs/07 hygiene).
+  // judgement: a DIVISION GUARD, not an economic floor. natural_unemployment
+  // is the denominator, and a scenario is free to set it to zero; 0.5% is
+  // below any natural rate ever estimated for an advanced economy, so this
+  // cannot bind on a real vector and exists only to stop a divide-by-zero
+  // becoming an Infinity in the benefit bill.
+  const NATURAL_U_FLOOR = 0.5;   // judgement: division guard, see above
   const excessUnemployed = (s.unemployment - s.natural_unemployment) /
-                           Math.max(0.5, s.natural_unemployment);
+                           Math.max(NATURAL_U_FLOOR, s.natural_unemployment);
   const benefitTarget = P.UNEMPLOYMENT_BENEFIT_SHARE.value *
                         P.AUTOSTAB_BENEFIT_ELASTICITY.value * excessUnemployed;
   s.autostab_benefit = towards(s.autostab_benefit, benefitTarget,

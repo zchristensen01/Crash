@@ -4,6 +4,19 @@
 import { P } from '../params.js';
 
 /**
+ * How far above target expected inflation must sit before the spiral gate can
+ * open, in percentage points.
+ *
+ * judgement: the sourced part of this gate is
+ * WAGE_PRICE_SPIRAL_CREDIBILITY_GATE and the acceleration condition — Alvarez
+ * et al. find spirals need expectations to have come unmoored AND inflation to
+ * be still rising. Neither the paper nor any other gives a margin above target
+ * at which "unmoored" begins. 2pp doubles the 2% target, which is the reading
+ * this model takes, and it is a judgement rather than a measurement.
+ */
+const SPIRAL_EXPECTATION_MARGIN = 2;
+
+/**
  *   desired = expected_inflation + slope(u)*(u* - u) + productivity_growth
  *
  * slope(u) is a KINK, not a line: roughly flat above WAGE_PC_KINK (5%
@@ -47,7 +60,7 @@ export function updateWages(s, trace) {
   const accelerating = prevInflation !== undefined && s.inflation > prevInflation;
   s.spiral_active =
     s.credibility < P.WAGE_PRICE_SPIRAL_CREDIBILITY_GATE.value &&
-    s.expected_inflation > s.inflation_target + 2 &&
+    s.expected_inflation > s.inflation_target + SPIRAL_EXPECTATION_MARGIN &&
     accelerating;
 
   trace.record('wage_growth', { ...terms,

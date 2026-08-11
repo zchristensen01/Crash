@@ -358,11 +358,37 @@ guard green. Phase 6 is unblocked.
       rule loses `stagflation` to hyperinflation at m24 when 2.4 established it
       wins; §7 still called the closed bifurcation "the biggest hole". All of
       §1 and §3–§7 rebuilt and re-stamped. **open_items B1 is closed.**
-- [ ] 5.3 Lint check (f): numeric literals in `src/rules/`
-      **Phase 2 added no new numeric literals to `src/rules/`** (verified by
-      diff against the pass's start) — both new coefficients went through
-      `parameters.py`. Count against the current tree, not the brief's numbers,
-      which docs/13 already flags as read-not-measured.
+- [x] 5.3 Lint check (f): numeric literals in `src/rules/`
+      **COUNTED AGAINST THE TREE, AND THE BRIEF'S NUMBERS ARE WRONG.** D3 says
+      credit 23 / prices 16 / crisis 16. Measured: **credit 21, prices 10,
+      crisis 2** — an eightfold overstatement on the last. Raw occurrences
+      **84**; after excluding `trace.record` scope (display, the same carve-out
+      check (e) makes) and array indices, **71 actionable across 11 files**.
+      Now **zero**: lint clean at 6 checks.
+      **THE TRIAGE, and the split is the plan's own.** 12 promoted to
+      `parameters.py` (131 -> 143 params) — every one of them decides a GATE or
+      an ENDING, which is what the plan said to prioritise: the whole of
+      `updateCrisisRisk`'s arithmetic (`CREDIT_GAP_WARNING`,
+      `CREDIT_GAP_ONE_SD`, `CRISIS_PROB_SD_CAP`, `ASSET_BOOM_THRESHOLD`,
+      `CRISIS_PROB_RZONE_UPLIFT`, `CRISIS_PROB_MAX`), the debt-crisis trigger
+      (`DEBT_SERVICE_PANIC_SHARE`, `BOND_YIELD_PANIC_SLOPE` — the plan's `8`),
+      the hyperinflation engine (`VELOCITY_FLIGHT_CONVEXITY`,
+      `PRINTING_CREDIBILITY_EROSION` — the plan's `0.0015`), and
+      `DEFAULT_RATE_BASELINE`. The remaining ~46 are named locally with an
+      explicit `judgement` label and a reason.
+      **`DEFAULT_RATE_BASELINE` IS THE FIND: the same `1.0` in FIVE places** —
+      the baseline default term, the zero point of the spread's loans-going-bad
+      term, the zero point of write-offs, `newState`'s opening `default_rate`
+      and `loan_losses_ss`. The whole "only losses above normal times eat
+      capital" design needs all five to agree. **And the check nearly missed
+      it**: comparing numerically rather than textually so `1.0` and `1` are
+      treated alike also made this coefficient allowed.
+      **BEHAVIOUR-NEUTRAL, MEASURED:** all six scenarios x 96 months x 22
+      fields **byte-identical to 15 significant figures**, and `docs/11`'s
+      1464-number fingerprint is unmoved (`86c1b104fab5561d`).
+      All three failure modes verified to fire: a new bare literal, a marker
+      with a too-short reason, and a **stale** marker — the third did not fire
+      on the first attempt and the check was fixed.
 - [x] 5.4 Derive the credit trend speed
       `0.20` was a bare literal with no derivation, under a comment citing an HP
       filter it does not resemble. Promoted to **`CREDIT_TREND_CATCHUP` =

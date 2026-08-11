@@ -44,10 +44,21 @@ export function updateEmployment(s, trace) {
   const stretch = s.labour_hoarding_policy === false ? 0
     : clamp(Math.abs(s.output_gap) / P.OKUN_HOARDING_GAP.value, 0, 1);
   const beta = lerp(P.OKUN_BETA.value, P.OKUN_LABOUR_HOARDING.value, stretch);
-  const hoarding = stretch > 0.5;
+  // judgement: a DISPLAY threshold — `hoarding` is written to the trace and
+  // read by nothing. `stretch` is already a continuous 0-1 ramp and beta is
+  // interpolated along it; this only decides when the trace says the word.
+  const HOARDING_LABEL_AT = 0.5;   // judgement: display only, see above
+  const hoarding = stretch > HOARDING_LABEL_AT;
   s.okun_beta_effective = beta;
 
-  const target = Math.max(1.5, s.natural_unemployment - beta * s.output_gap);
+  // judgement: absurdity floor on the unemployment TARGET. Post-war advanced
+  // economies have touched 1.5% only in wartime-style mobilisations; Okun's
+  // law is a local relationship and extrapolating it to a 10-point boom would
+  // otherwise produce a negative target. Distinct from the clamp on the LEVEL
+  // below, which is the bound on where unemployment can actually get to.
+  const UNEMPLOYMENT_TARGET_FLOOR = 1.5;   // judgement, see above
+  const target = Math.max(UNEMPLOYMENT_TARGET_FLOOR,
+                          s.natural_unemployment - beta * s.output_gap);
   const gapToTarget = target - s.unemployment;
 
   const rising = gapToTarget > 0;
@@ -57,7 +68,12 @@ export function updateEmployment(s, trace) {
 
   const change = speed * gapToTarget;
   const before = s.unemployment;
-  s.unemployment = clamp(before + change, 0.5, 40);
+  // judgement: absurdity bounds on the level. 40% is above the worst
+  // measured in the Great Depression; 0.5% is below anything a market economy
+  // has recorded. Neither is calibration — they exist so a divergent run stays
+  // readable rather than going negative and poisoning Okun's own denominator.
+  const UNEMPLOYMENT_MIN = 0.5, UNEMPLOYMENT_MAX = 40;   // judgement, see above
+  s.unemployment = clamp(before + change, UNEMPLOYMENT_MIN, UNEMPLOYMENT_MAX);
 
   // Momentum builds while hiring, collapses immediately when firing starts.
   s.hiring_momentum = rising ? 0

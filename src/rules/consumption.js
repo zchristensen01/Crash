@@ -25,11 +25,30 @@ import { quarterlyToMonthly, clamp } from '../units.js';
 export function updateConsumption(s, trace) {
   const mpcQ = P.MPC_BASE.value +
     P.MPC_UNEMPLOYMENT_SLOPE.value * (s.unemployment - s.natural_unemployment);
-  const mpc = clamp(quarterlyToMonthly(clamp(mpcQ, 0.05, 0.95), true), 0.01, 0.6);
+  // judgement: absurdity bounds on a propensity, not calibration. A marginal
+  // propensity to consume is a fraction by definition, so the quarterly clamp
+  // is "strictly inside [0, 1]" and the monthly one is "strictly inside the
+  // quarterly figure". Neither binds anywhere the model reaches — MPC_BASE is
+  // 0.5 and MPC_UNEMPLOYMENT_SLOPE would need an unemployment move of 20pp to
+  // reach either edge. They exist so a NaN or a runaway shows up as a stuck
+  // value rather than as a negative propensity three rules downstream.
+  const MPC_Q_MIN = 0.05, MPC_Q_MAX = 0.95;   // judgement, see above
+  const MPC_M_MIN = 0.01, MPC_M_MAX = 0.6;    // judgement, see above
+  const mpc = clamp(quarterlyToMonthly(clamp(mpcQ, MPC_Q_MIN, MPC_Q_MAX), true),
+                    MPC_M_MIN, MPC_M_MAX);
   s.mpc_effective = mpc;
 
   // Permanent income: a slow adjustment toward current disposable income.
-  s.yd_permanent += 0.05 * (s.disposable_income - s.yd_permanent);
+  // judgement: 5% a month is a ~13-month mean lag on the perceived-permanent
+  // level. Friedman's permanent-income hypothesis fixes the SHAPE — households
+  // consume out of a smoothed income concept — and gives no adjustment speed;
+  // the empirical literature spans roughly one to five years depending on
+  // whether it is estimated on micro panels or aggregate consumption. Not
+  // promoted to parameters.py because a range that wide would be a fiction of
+  // precision. It matters: it is why a tax cut's consumption response builds
+  // over quarters in docs/11 §2 instead of landing at once.
+  const YD_PERMANENT_SPEED = 0.05;   // judgement, see above
+  s.yd_permanent += YD_PERMANENT_SPEED * (s.disposable_income - s.yd_permanent);
 
   const permanent = s.apc_ss * s.yd_permanent;
   const transitory = mpc * (s.disposable_income - s.yd_permanent);

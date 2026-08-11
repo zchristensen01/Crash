@@ -25,8 +25,19 @@ export function updateInflation(s, trace) {
 
   // ULC pressure enters only as a DEVIATION from expected inflation, or the
   // wage block would double-count what expectations already carry.
-  const ulcPressure = 0.5 * (s.ulc_growth - s.expected_inflation) *
-                      (s.spiral_active ? 2.0 : 1.0);
+  //
+  // judgement: half of an excess unit-labour-cost move reaches prices within
+  // the month, doubling once the spiral gate is open. The labour SHARE of
+  // value added is about 0.6 and is sourced (`labour_share`), which is the
+  // arithmetic upper bound on pass-through in one period; 0.5 sits just under
+  // it and the remainder is margin absorption, which this model does not
+  // carry a markup block to derive. The doubling is the only thing
+  // `spiral_active` does to prices, and WAGE_PRICE_SPIRAL_CREDIBILITY_GATE
+  // sources when the gate opens, not how much harder it bites.
+  const ULC_PASSTHROUGH = 0.5;      // judgement, see above
+  const ULC_SPIRAL_MULTIPLIER = 2.0;  // judgement, see above
+  const ulcPressure = ULC_PASSTHROUGH * (s.ulc_growth - s.expected_inflation) *
+                      (s.spiral_active ? ULC_SPIRAL_MULTIPLIER : 1);
 
   const terms = {
     'what people already expect': s.expected_inflation,
@@ -36,7 +47,13 @@ export function updateInflation(s, trace) {
     'money printing': s.monetisation_passthrough,
   };
   const total = Object.values(terms).reduce((a, b) => a + b, 0);
-  s.inflation = Math.max(-4, total);
+  // judgement: absurdity floor. The deepest sustained deflation in a modern
+  // advanced economy is Japan's, at a fraction of a point a year; the Great
+  // Depression reached about -10% in the US at its worst quarter. -4% is past
+  // anything this model is calibrated over and exists so a deflationary
+  // spiral stays readable rather than running to a negative price level.
+  const DEFLATION_FLOOR = -4;   // judgement, see above
+  s.inflation = Math.max(DEFLATION_FLOOR, total);
 
   trace.record('inflation', { ...terms,
     'deflation floor': s.inflation - total,
@@ -47,7 +64,14 @@ export function updateInflation(s, trace) {
   });
 
   s.price_level *= 1 + annualRateToMonthlyLinear(s.inflation / 100);
-  s.supply_shock *= 0.85;              // shocks fade
+  // judgement: a supply shock loses 15% of itself a month, a ~4-month
+  // half-life. Oil-price and shipping-cost shocks are commonly modelled as
+  // persistent AR(1)s with quarterly coefficients around 0.6-0.9 and nothing
+  // pins the monthly figure for a composite "supply shock" that stands for
+  // oil, war and shortages at once. It decides how long a stagflation lasts
+  // without any policy at all, which is why it is named rather than buried.
+  const SUPPLY_SHOCK_DECAY = 0.85;   // judgement, see above
+  s.supply_shock *= SUPPLY_SHOCK_DECAY;              // shocks fade
 }
 
 /**
@@ -60,12 +84,36 @@ export function updateInflation(s, trace) {
  */
 export function updateExpectations(s, trace) {
   const excess = Math.max(0, s.inflation - s.inflation_target);
-  const wQ = clamp(P.EXPECTATION_ADAPTIVE_WEIGHT.value * (1 + 0.15 * excess), 0, 0.95);
-  const w = quarterlyToMonthly(wQ, true) * (1 - s.credibility * 0.5);
+  // judgement, all three. EXPECTATION_ADAPTIVE_WEIGHT is the sourced backward
+  // -looking weight at target; these say how it changes AWAY from target, and
+  // that state dependence is the shape the anchoring literature establishes
+  // qualitatively and does not quantify. STATE_DEPENDENCE is the steepness
+  // (15% more backward-looking per pp of excess inflation), CEILING stops the
+  // weight reaching 1.0 where expectations would be purely adaptive and the
+  // target would mean nothing, and CREDIBILITY_DAMPING is how much a credible
+  // central bank suppresses the whole adaptive term.
+  const EXPECTATION_STATE_DEPENDENCE = 0.15;   // judgement, see above
+  const EXPECTATION_WEIGHT_CEILING = 0.95;     // judgement, see above
+  const EXPECTATION_CREDIBILITY_DAMPING = 0.5; // judgement, see above
+  const wQ = clamp(P.EXPECTATION_ADAPTIVE_WEIGHT.value *
+                   (1 + EXPECTATION_STATE_DEPENDENCE * excess),
+                   0, EXPECTATION_WEIGHT_CEILING);
+  const w = quarterlyToMonthly(wQ, true) *
+            (1 - s.credibility * EXPECTATION_CREDIBILITY_DAMPING);
 
   const before = s.expected_inflation;
   const toActual = w * (s.inflation - before);
-  const toTarget = (1 - w) * 0.08 * s.credibility * (s.inflation_target - before);
+  // judgement: the forward-looking half closes 8% of the distance to target a
+  // month, scaled by credibility. This is the model's ENTIRE anchoring
+  // mechanism and it has no source, because the object the literature
+  // measures — a survey or breakeven expectation — is what this is trying to
+  // reproduce rather than an input to it. It is deliberately weak: strong
+  // enough that a credible central bank pulls expectations home over a couple
+  // of years, weak enough that it cannot rescue a run that has got away.
+  // See open_items C1 — a proper forward-guidance block would replace this.
+  const EXPECTATION_TARGET_PULL = 0.08;   // judgement, see above
+  const toTarget = (1 - w) * EXPECTATION_TARGET_PULL * s.credibility *
+                   (s.inflation_target - before);
 
   s.expected_inflation = before + toActual + toTarget;
 
@@ -102,7 +150,12 @@ export function updateCredibility(s, trace) {
   const repairM = quarterlyToMonthly(P.CREDIBILITY_REPAIR.value, false);
 
   const lostToOvershoot = -decayM * over;
-  const lostToUndershoot = -decayM * under / 3;      // the sign trap, fixed
+  // judgement: undershooting the target costs a third as much credibility as
+  // overshooting it. The asymmetry is the finding — a central bank that
+  // misses low is thought soft rather than dishonest — and the literature
+  // (Japan, the euro area post-2013) establishes the direction, not the ratio.
+  const UNDERSHOOT_CREDIBILITY_RATIO = 3;   // judgement, see above
+  const lostToUndershoot = -decayM * under / UNDERSHOOT_CREDIBILITY_RATIO;
   const regained = (over === 0 && under === 0) ? repairM * (1 - s.credibility) : 0;
 
   const before = s.credibility;

@@ -306,6 +306,26 @@ were taken on a tree with this hazard live.
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
 
+### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
+Surfaced by 5.3's literal sweep rather than fixed by it. Four of the six terms
+in the credit spread are judgement with no source — the weights on leverage
+(0.8), on collateral (0.5), on realised defaults (0.3) and the 30%/month
+adjustment speed — against two that are sourced (`CREDIT_SPREAD_UNEMP`,
+`BANK_CAPITAL_TO_LOAN_RATE`). They are now labelled rather than bare, which is
+all 5.3 promised.
+
+Why it matters more than most judgement blocks: `credit_spread` is a term in
+`market_rate`, which is what every private borrower pays, and since 5.2 it also
+sets the rate the whole private debt STOCK walks toward. It is the largest
+remaining unsourced block in the credit chain.
+
+```
+node tools/lint.mjs                       # clean; the labels are in credit.js
+grep -n "judgement, the three unsourced" src/rules/credit.js
+```
+Not chased because promoting them would mean inventing ranges. A Monte Carlo
+over the judgement set (7.1) is the honest next step.
+
 ### E4. Every generated artefact has a `--check`; every number re-typed into prose has none — `OPEN`
 Found by Phase 5 verification, which turned up **five** stale prose numbers and
 **one inverted claim** in one afternoon of re-measuring — see docs/13
