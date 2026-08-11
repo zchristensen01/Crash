@@ -16,7 +16,29 @@
  */
 import { P } from '../params.js';
 import { clamp } from '../units.js';
-import { applyDialChange } from './dials.js';
+import { DIALS, applyDialChange } from './dials.js';
+
+/**
+ * THE RATE DIAL IS THE ONLY SOURCE OF ITS OWN BOUNDS.
+ *
+ * This used to be a bare `25` while dials.js said `max: 20`, and
+ * applyDialChange truncated the difference in silence: the rule asked for up
+ * to 25% and could never get more than 20%, and nothing anywhere reported it
+ * (4th audit brief A2). Measured, the two clamps are behaviour-identical —
+ * max path difference 0.00e+0 across all six scenarios over 96 months —
+ * because the smoothing term reads back s.policy_rate, which applyDialChange
+ * has already truncated, so the higher internal ceiling can never persist for
+ * even one month. It was a lie the code told about itself rather than a live
+ * defect, which is exactly why it survived: nothing it did could be measured.
+ *
+ * THE NUMBER ITSELF IS STILL WRONG and is deliberately not fixed here. The
+ * binding constraint is `max_expected_inflation + a positive real rate`, and
+ * that requirement moves sharply once the transmission lag is split (Phase
+ * 2.1). Choosing it now would be guessing; it is derived in Phase 2.4.
+ * Measured today, `stagflation` under this rule sits pegged at the ceiling for
+ * 87 of its 96 months.
+ */
+const RATE_DIAL = DIALS.find((d) => d.key === 'policy_rate');
 
 /**
  *   i* = r* + pi + A*(pi - target) + B*gap,  smoothed, floored at the ELB
@@ -32,7 +54,7 @@ export function taylorRate(s) {
 
   const rho = P.TAYLOR_SMOOTHING.value;          // central banks move in steps
   const smoothed = rho * s.policy_rate + (1 - rho) * desired;
-  return clamp(smoothed, P.SS_ELB.value, 25);
+  return clamp(smoothed, RATE_DIAL.min, RATE_DIAL.max);
 }
 
 /**

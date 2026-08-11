@@ -22,7 +22,10 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       `test/divergence.test.js`, 2 `todo` tests, both failing until Phase 3.5.
       43/87 permanent dial settings diverge; 2 through the undeclared bubble
       loop, isolated by switch-off. See docs/13 Corrections 4 and 5.
-- [ ] 1.2 Make the autopilot clamp and the dial max agree, and assert it
+- [x] 1.2 Make the autopilot clamp and the dial max agree, and assert it
+      `taylorRate` reads `DIALS` now; `test/autopilot.test.js` asserts they
+      agree in BOTH directions. Behaviour-neutral: 0.00e+0 path difference
+      across all six scenarios. See docs/13 Correction 6.
 - [ ] 1.3 Report when a dial request is truncated
 - [ ] 1.4 Delete the asserted defeat in `autopilot.js:14`
 

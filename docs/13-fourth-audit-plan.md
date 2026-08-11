@@ -235,11 +235,50 @@ until Phase 3.*
 > 3.2 permits declaring it only with a demonstration that loop gain is below
 > one, and a loop with gain below one does not diverge. Stated in the test.
 
-**1.2 — Make the autopilot's clamp and the dial's max agree, and assert it.**
+**1.2 — Make the autopilot's clamp and the dial's max agree, and assert it. — DONE**
 `autopilot.js:35` clamps to 25; `dials.js:16` clamps to 20; `applyDialChange`
 silently truncates. Fix the *inconsistency* now (assert neither is ever tighter
 than the other, in either direction) and defer the choice of the final number to
 2.4, when A1 has landed and the requirement is measurable rather than guessed.
+
+> #### As built — `taylorRate` reads `DIALS`; `test/autopilot.test.js`, 2 tests.
+>
+> **CORRECTION 6 — A2's inconsistency is real but it is not a live defect, and
+> the brief's framing of it is wrong.** The brief says the rule *"silently asks
+> for up to 25% and can never get more than 20%"*, implying policy is being lost.
+> Measured: replacing the internal `25` with the dial's own `20` changes
+> **nothing at all** — max path difference **0.00e+0** on `policy_rate`,
+> `inflation`, `output_gap` and `unemployment` across **all six scenarios over
+> 96 months.**
+>
+> The reason is structural, not lucky. `taylorRate`'s smoothing term is
+> `rho * s.policy_rate + (1 - rho) * desired`, and `s.policy_rate` is what
+> `applyDialChange` has *already truncated*. So the higher internal ceiling
+> cannot persist for even one month — it is overwritten by the truncated value
+> on the next call. **It was a lie the code told about itself, not a leak.**
+> That is precisely why it survived: nothing it did could be measured.
+>
+> This does not weaken A2's *conclusion*, which is about the ceiling of 20 being
+> too low, and that stands untouched. It relocates the defect: the number is
+> wrong, the duplication was only ever a trap for the next reader.
+>
+> **A better number than the brief's for the ceiling problem.** The brief says
+> the dial *"pegs at its maximum in month 12 and stays there"*. Measured across
+> the full term, `stagflation` under the Taylor rule sits pegged at 20 for
+> **87 of its 96 months — 91% of the game.** Every A-table figure measured with
+> the autopilot on is therefore read off a saturated instrument, which is the
+> Phase 0 argument for moving A2 forward, now with a number on it.
+>
+> **The assertion is in both directions and that is the point.** "The rule must
+> not ask for more than the dial can give" is satisfiable by clamping the rule
+> to 5%, which is a far worse bug wearing a passing test. So the test sweeps 250
+> states and requires the rule both to stay inside `[min, max]` *and* to reach
+> both ends of it. A second, static test fails if the clamp contains a numeric
+> literal at all. Verified against the old code: both fail, the first with
+> *"taylorRate asked for 20.68% ... the dial is [−0.75, 20]"*.
+>
+> Pinning them to each other rather than to a number is what lets **2.4 move the
+> ceiling by editing `dials.js` alone.**
 
 **1.3 — A trace/telemetry assertion that a dial request was truncated.**
 Nothing anywhere reports it today. Cheap, and it is what would have surfaced 1.2
