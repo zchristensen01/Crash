@@ -250,9 +250,13 @@ test('THE CRASH ARC: every published magnitude at once', () => {
 });
 
 test('THE CRASH ARC: the unemployment cost of a banking crisis', {
-  todo: 'MOVED BY THE A1 TRANSMISSION SPLIT, AND GATED ON PHASE 4.1. ' +
-    'Unemployment now peaks +1.93pp against a published 2-5 for a banking ' +
-    'crisis; it was inside the band before the split. The four other ' +
+  todo: 'STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment ' +
+    'peaks +1.86pp against a published 2-5 for a banking crisis, having been ' +
+    '+1.93 before the re-solve and inside the band before Phase 2. Note the ' +
+    'trough itself is now EXACTLY on target at -9.000% — so the output hole is ' +
+    'the right depth and the labour market does not follow it down. That is ' +
+    'Okun, and it is the same demand-block finding recorded on the five-year ' +
+    'loss below. The four other ' +
     'magnitudes in the crash arc — peak-to-trough, the month of the trough, ' +
     'the five-year loss against trend and the absence of a rebound — all still ' +
     'hold, which is why this is one assertion rather than the whole test. ' +
@@ -269,18 +273,19 @@ test('THE CRASH ARC: the unemployment cost of a banking crisis', {
 });
 
 test('THE CRASH ARC: the five-year loss against trend', {
-  todo: 'GATED ON PHASE 4.1, LIKE THE UNEMPLOYMENT COST ABOVE. Output is now ' +
-    '-5.97% below trend at five years against CRISIS_HYSTERESIS_SCAR = 10. ' +
-    'This is not a new disagreement with Cerra & Saxena — it is the same ' +
-    'constant needing re-solving. CRISIS_SCAR_AMPLIFICATION was solved FROM ' +
-    'this model to turn an exogenous capacity cut into the published loss, and ' +
-    '3.1 removed a 4.6x overshoot from the wealth channel, so the amplification ' +
-    'the demand block supplies has fallen with it: the model now turns a 3.25pp ' +
-    'cut into a 5.97% loss (2.03x) where the constant says 3.14x. The ' +
-    'companion test below is the guard that says so, and it is meant to fail ' +
-    'until the constant is re-derived. Do not nudge either constant to move ' +
-    'the trough — 4.2 records that they are calibration constants, not ' +
-    'measurements of the world. ' +
+  todo: 'PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.25% below ' +
+    'trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after ' +
+    'CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.196. It CANNOT be closed ' +
+    'by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside ' +
+    'its published [2.0, 4.5], and would make the exogenous capacity cut supply ' +
+    '7.9-9.5 of the 10 while the model supplies almost nothing — destroying the ' +
+    'deconvolution the constant exists to be. Measured with no exogenous scar ' +
+    'at all, the model used to produce 8.4% of the loss endogenously and now ' +
+    'produces 3.65%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND ' +
+    'RECOVERS. That is a demand-block finding, it is the same one as the UK ' +
+    'sacrifice ratio and TAX_SHOCK_TO_GDP, and it is not a calibration ' +
+    'problem. Do not nudge either constant to move it — 4.2 records what they ' +
+    'are. ' +
     'THE SECOND ASSERTION HERE IS OPEN #1, AND IT MOVED THE OPPOSITE WAY TO ' +
     'THE PLAN\'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be ' +
     'downstream of Section B, so fixing B should have slowed it. Measured, it ' +
@@ -301,14 +306,22 @@ test('THE CRASH ARC: the five-year loss against trend', {
 });
 
 test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', {
-  todo: 'FIRING EXACTLY AS DESIGNED, AND PHASE 4.1 IS WHAT ANSWERS IT. This ' +
-    'test exists to fail whenever the demand block changes, and 3.1 changed it ' +
-    'by 4.6x in the wealth channel. Measured now: the model turns a 3.25pp ' +
-    'exogenous capacity cut into a 5.97% loss against trend, 2.03x, where ' +
-    'CRISIS_SCAR_AMPLIFICATION says 3.14. The impulse constant still reconciles. ' +
-    'Both must be RE-SOLVED rather than carried forward, and only after Phase 3 ' +
-    'has stopped moving the demand block — re-solving now would mean doing it ' +
-    'twice and believing the first answer.',
+  todo: 'HALF RE-SOLVED IN 4.1, AND THE HALF THAT WOULD NOT SOLVE IS THE ' +
+    'FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.196 and now ' +
+    'reconciles: the realised trough is -9.000% against CRISIS_OUTPUT_TROUGH ' +
+    'exactly, at month 15. CRISIS_SCAR_AMPLIFICATION was left at 3.14 on ' +
+    'purpose. Re-solved against Cerra & Saxena it lands at 1.06-1.26, outside ' +
+    'its published [2.0, 4.5], which would make the exogenous capacity cut 7.9 ' +
+    'to 9.5 of the 10 and leave the model supplying almost nothing. THE POINT ' +
+    'OF THIS CONSTANT IS A DECONVOLUTION — the model generates most of the ' +
+    'observed loss endogenously and the exogenous cut is only the remainder — ' +
+    'and forcing it there would load the missing propagation onto an exogenous ' +
+    'constant, which is rule 4 and is the defect the deconvolution was built ' +
+    'to remove. MEASURED: with no exogenous scar at all the model used to ' +
+    'produce 8.4% of the 10 by itself and now produces 3.22%. That is a ' +
+    'demand-block finding and the fourth independent sighting of it, alongside ' +
+    'the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity ' +
+    'paradox. Re-solve when the demand block has been addressed.',
 }, () => {
   // The guard that stops CRISIS_IMPULSE_AMPLIFICATION and
   // CRISIS_SCAR_AMPLIFICATION becoming tuning dials. They are properties of

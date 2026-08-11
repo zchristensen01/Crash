@@ -184,13 +184,23 @@ experiment that isolates it.
 
 ## Phase 4 — Re-measure everything **(HARD GATE)**
 
-- [ ] 4.1 Re-solve the two crisis amplification constants
-      **ALREADY WAITING FOR YOU:** `THE CRASH ARC: the unemployment cost of a
-      banking crisis` is a `todo` gated explicitly on this task — unemployment
-      peaks +1.93pp against a published 2–5 since the A1 split. The companion
-      test `THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS` still PASSES, so the
-      constants have not yet drifted past its tolerance; they will after
-      Phase 3, which is why re-solving now would mean doing it twice.
+- [x] 4.1 Re-solve the two crisis amplification constants
+      **HALF RE-SOLVED, AND THE HALF THAT WOULD NOT SOLVE IS THE FINDING.**
+      `CRISIS_IMPULSE_AMPLIFICATION` **2.59 -> 2.1855** (inside [1.8, 3.4]);
+      the realised trough is now **-9.0000%** against CRISIS_OUTPUT_TROUGH
+      exactly, at month 15. Solved against `test/crisis.test.js`'s own harness,
+      which settles 24 months — solving against a 36-month settle gave 2.196
+      and would not have reconciled.
+      `CRISIS_SCAR_AMPLIFICATION` **LEFT AT 3.14 DELIBERATELY.** It re-solves to
+      1.06–1.26, outside its published [2.0, 4.5], which would make the
+      exogenous capacity cut supply 7.9–9.5 of Cerra-Saxena's 10 while the
+      model supplies almost nothing — destroying the deconvolution the constant
+      exists to be, and imposing the observed reduced form as a structural
+      input (rule 4).
+      **THE REAL MEASUREMENT: endogenous crisis propagation fell from 8.4% to
+      3.65%.** The model no longer propagates a crisis; it gets hit and
+      recovers. Fourth independent sighting of the same demand-block finding.
+
 - [ ] 4.2 Record that they are calibration constants, not measurements
 - [ ] 4.3 Regenerate cause-effect, report, IRF, paths
       **AND RE-MEASURE EVERY SCENARIO'S STARTING VECTOR.** `bubble` was

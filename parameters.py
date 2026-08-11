@@ -949,34 +949,51 @@ CRISIS_YEARS_TO_RECOVER = P(
 # --------------------------------------------------------------------
 
 CRISIS_IMPULSE_AMPLIFICATION = P(
-    2.59, 1.8, 3.4, "x — this model's amplification of a crisis-state demand impulse into a realised output trough",
+    2.1855, 1.8, 3.4, "x — this model's amplification of a crisis-state demand impulse into a realised output trough",
     "judgement", "DERIVED FROM THIS MODEL by solving for the value that makes "
     "the realised peak-to-trough fall equal CRISIS_OUTPUT_TROUGH. Re-measured "
     "by test/crisis.test.js on every run.",
-    "The structural demand impulse is CRISIS_OUTPUT_TROUGH / this = 3.47pp of "
-    "GDP, and the model turns that into the observed -9.0% peak-to-trough at "
-    "month 14. Measured amplification is 1.32x on the first tick and rises to "
-    "2.59x by the trough as the consumption multiplier, the accelerator and "
-    "the falling capital stock compound. It is NOT constant in the size of the "
-    "impulse — at the old 9pp impulse it was only 1.68x, because investment "
-    "hit its floor clamp and the amplification saturated. That nonlinearity is "
-    "why this had to be solved rather than read off a single measurement, and "
-    "it is the range.")
+    "[4TH AUDIT 4.1] RE-SOLVED from 2.59 to 2.1855 after Phases 2 and 3 changed "
+    "the demand block. This is not a correction of an error: the constant is "
+    "DEFINED as this model's amplification, the model's amplification fell, "
+    "and so did the constant. The structural demand impulse is "
+    "CRISIS_OUTPUT_TROUGH / this = 4.118pp of GDP, up from 3.47, and the model "
+    "turns that into the observed -9.0% peak-to-trough at month 15. "
+    "It is NOT constant in the size of the impulse — at the old 9pp impulse it "
+    "was only 1.68x, because investment hit its floor clamp and the "
+    "amplification saturated. That nonlinearity is why this had to be solved "
+    "rather than read off a single measurement, and it is the range. "
+    "SEE CRISIS_SCAR_AMPLIFICATION: its companion could NOT be re-solved "
+    "inside its own range, and the reason is a finding about the demand block "
+    "rather than about either constant.")
 
 CRISIS_SCAR_AMPLIFICATION = P(
     3.14, 2.0, 4.5, "x — this model's amplification of an exogenous capacity cut into a total loss against trend",
     "judgement", "DERIVED FROM THIS MODEL by solving for the value that puts "
     "output CRISIS_HYSTERESIS_SCAR below the pre-crisis trend at 60 months, "
     "the horizon Cerra & Saxena measure.",
-    "Cerra & Saxena's ~10% is the TOTAL observed divergence from trend, and "
-    "the model already generates most of it endogenously: measured with no "
-    "exogenous scar at all, output is still 8.4% below trend at 60 months, "
-    "from capital destruction, the collapsed credit stock and an output gap "
-    "that has not closed. So the exogenous capacity cut is 10 / this = 3.2% "
-    "and the model supplies the rest — which is what not double-counting "
-    "means. A 3.2% exogenous cut also sits sensibly against "
-    "CRISIS_HYSTERESIS_SCAR's own note that a balance-of-payments crisis is "
-    "~5% and a twin crisis ~15%.")
+    "[4TH AUDIT 4.1] IT NO LONGER SOLVES INSIDE ITS OWN RANGE, AND THAT IS THE "
+    "FINDING — NOT A REASON TO MOVE IT. Left at 3.14 deliberately. "
+    "The logic of this constant is a DECONVOLUTION: Cerra & Saxena's ~10% is "
+    "the TOTAL observed divergence from trend, the model generates most of it "
+    "endogenously, and the exogenous capacity cut is only what is left over. "
+    "That is what not double-counting means. Measured with no exogenous scar "
+    "at all, the model used to produce 8.4% of the 10 by itself — capital "
+    "destruction, a contracted credit stock, and an output gap that had not "
+    "closed at five years. IT NOW PRODUCES 3.65%. "
+    "Re-solved against the 10% target it lands at 1.06-1.26 depending on "
+    "whether its companion is solved with it, which would make the exogenous "
+    "cut 7.9-9.5% of the 10 and leave the model supplying almost nothing. "
+    "Forcing it there would load the model's missing propagation onto an "
+    "exogenous constant — imposing the observed reduced form as a structural "
+    "input, which is rule 4 and is the exact defect the deconvolution was "
+    "built to remove. "
+    "WHAT THIS ACTUALLY MEASURES is that the demand block propagates a shock "
+    "too weakly, and it is the fourth independent sighting of that: the UK "
+    "1979-83 sacrifice ratio (0.38 against Ball's 2-4), TAX_SHOCK_TO_GDP (0.46 "
+    "against Romer-Romer's 2-3), the missing austerity paradox, and this. "
+    "Re-solve it when the demand block has been addressed, not before.")
+
 
 CRISIS_HYSTERESIS_SCAR = P(
     10.0, 5.0, 15.0, "% PERMANENT output-level loss",
