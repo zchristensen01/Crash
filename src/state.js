@@ -278,6 +278,18 @@ export function pushHistory(s) {
   h.govt_debt.push(s.govt_debt);
   h.credibility.push(s.credibility);
   h.growth.push(yoyGrowth(h.output));
+  // WIRED IN 5.6, and from the same expression rather than a second one.
+  // `gdp_growth_annual` was carried in START, documented as "display", and
+  // read by nothing — while `history.growth` computed exactly it, every tick,
+  // one line up. Two representations of one quantity, one of them frozen at
+  // its starting value forever. Assigned from the history so there is one
+  // source and they cannot drift, the way updateConsumption's bounds are
+  // taken from invariants.js check 8.
+  //
+  // It reads 0 for the first twelve months by construction — yoyGrowth needs
+  // thirteen observations — which is honest: there is no year-on-year growth
+  // rate until there has been a year.
+  s.gdp_growth_annual = h.growth[h.growth.length - 1];
   for (const k of Object.keys(h)) if (h[k].length > MAX) h[k].shift();
 }
 

@@ -52,8 +52,8 @@ numbers below are what it currently produces.
 | `capital_output_ratio` | RATE | 3.0 | K/Y, annual |
 | `investment_share` | FLOW | 22.5% | The steady-state share, `(δ+g)×K/Y`. Not the same as `investment` |
 | `labour_share` | RATE | 0.62 | Labour's share of income |
-| `gdp_growth_annual` | RATE | 1.5% | Carried in START; display |
-| `participation` | RATE | 63% | Carried in START; not yet a mechanism |
+| `gdp_growth_annual` | RATE | 1.5% → computed | **WIRED IN 5.6.** Was carried in START, documented "display", and read by nothing — while `history.growth` computed exactly it every tick, one line away. Now assigned from that same expression in `pushHistory`, so there is one source. Reads 0 for the first twelve months by construction (YoY needs thirteen observations). Nothing displays it yet — that is 8.10 |
+| `participation` | RATE | 63% | **DEFERRED IN 5.6** (`START_DEFERRED`). Wiring it is not a matter of reading the field: participation is a share OF A WORKING-AGE POPULATION and this model has no population — `labour_force` is 100 and constant, so there is nothing for 63% to be 63% of. Task 6.4 |
 | `tick` | STOCK | 0 | Months elapsed |
 
 **Why potential_output matters more than anything:** it's the answer to "why
@@ -247,7 +247,7 @@ decision each time:
 | `dial_truncated_count` | How many requests have been refused over the run. The count is the load-bearing half: one truncation is a player pushing a slider into its stop, 87 of them is a benchmark that spent 91% of the game against its own ceiling, and nothing else in the run says so |
 | `history` | Capped ring buffers for the charts and year-over-year |
 | `labour_hoarding_policy` | Optional override: `false` disables the Okun hoarding ramp |
-| `current_account`, `fx_change` | Carried in START for the deferred open economy. No rule reads them |
+| `current_account`, `fx_change` | Carried in START for the deferred open economy. No rule reads them, and **5.6 put both in `START_DEFERRED` so a test says so** — neither was named by the task; they were found by counting the dead fields |
 
 ---
 

@@ -439,7 +439,42 @@ guard green. Phase 6 is unblocked.
       `game/scenarios.js` (49) and `game/indicators.js` (42). Most are
       presentation, but `scenarios.js` is DATA the model is calibrated against
       and `invariants.js` (21) holds the bounds. Recorded as open_items E6.
-- [ ] 5.6 Wire or defer `participation` and `gdp_growth_annual`
+- [x] 5.6 Wire or defer `participation` and `gdp_growth_annual`
+      **THE TASK NAMES TWO DEAD FIELDS AND THERE ARE FOUR.** Measured against
+      `START`'s 36 fields: `gdp_growth_annual`, `participation`,
+      `current_account` and `fx_change` are read by nothing.
+      `current_account` and `fx_change` were found by counting, not by reading
+      the task.
+      **`gdp_growth_annual` WIRED**, and from the expression that already
+      existed: `pushHistory` computes `yoyGrowth(h.output)` into
+      `history.growth` every tick and the state field sat frozen at its START
+      value beside it — two representations of one quantity. Assigned from the
+      history so there is one source. Reads 0 for twelve months by
+      construction. **`participation` DEFERRED to 6.4** — it is a share of a
+      working-age population and the model has no population, so there is
+      nothing for 63% to be 63% of. **`current_account` and `fx_change`
+      DEFERRED** to the open economy (decision A5).
+      **THE STRUCTURAL FIX: a `START_DEFERRED` register**, enforced in both
+      directions by `test/params.test.js` exactly as `DEFERRED` and
+      `SOLVED_FROM_MODEL` are. `DEFERRED` covers `P` entries and **nothing
+      covered `START`**, so a starting-vector field could be carried,
+      documented and read by nothing with no test noticing. Both directions
+      verified to fire. **The first version of the test was wrong** — it
+      counted mentions, and START's keys are SPREAD into `s`, so a field read
+      exactly once appears once; it flagged `capital_output_ratio`,
+      `labour_share` and `term_premium`, all three properly wired. Now: wired
+      = read somewhere, or assigned by something.
+      **AND WIRING THE DEAD FIELD IMMEDIATELY FOUND A MODEL DEFECT — see
+      open_items A5, which is the biggest thing in Phase 5.** `gdp_growth_annual`
+      reads **1.056%** at rest against a `potential_growth` of 1.5.
+      `supply.js:25` adds `annualToMonthlyFlow(s.investment)` — a PERCENT OF
+      POTENTIAL — to `capital_stock`, a LEVEL. Predicted and measured: K
+      converges to a constant `I/δ` = 22.5/0.065 = **346.15** (measured
+      346.154), long-run growth decays to `gA` = **0.930%** (measured 0.9345),
+      K/Y falls 3.0 -> 2.05 by m600. Isolated by scaling the flow by
+      `potential_output`: growth returns to 1.493% and K/Y to 2.83.
+      **NOT FIXED HERE** — it moves potential output in every scenario and is a
+      Phase-3-sized task with its own gate.
 
 ## Phase 6 — What to add
 

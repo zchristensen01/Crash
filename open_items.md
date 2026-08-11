@@ -117,6 +117,77 @@ it buys a third as much. Nobody has explained it. It also made the capacity-clif
 test a coin toss for as long as it has existed — that test passed by 0.004 and
 failed by 0.006 across an unrelated change.
 
+### A5. THE CAPITAL LAW OF MOTION TREATS A SHARE AS A LEVEL — `OPEN`, and it is the biggest thing found in Phase 5
+`supply.js:25` is
+
+```js
+const investM = annualToMonthlyFlow(s.investment);   // % of potential, monthly
+```
+
+`s.investment` is a **percent of potential output**, which is this model's
+stated convention for every flow (`docs/01`, and `state.js`'s own header:
+*"potential_output is the only level"*). It is added to `capital_stock`, which
+is a **level**. So the investment flow feeding the capital stock is frozen at
+its month-zero value — 22.5 units a year — while potential output grows away
+from 100. **Same class as B2's asset-price semi-elasticity: a share used where
+a level belongs.**
+
+Three predictions, all measured, none approximate:
+
+| | predicted | measured |
+|---|---|---|
+| K converges to a CONSTANT `I/δ` = 22.5/0.065 | **346.15** | **346.154** at m2400 |
+| long-run potential growth decays to `gA = potential_growth·(1−α)` | **0.930%** | **0.9345%** at m1200, still falling |
+| K/Y falls without bound from 3.0 | — | 2.89 (m96) · 2.66 (m240) · **2.05** (m600) |
+
+```
+node -e "import('./test/harness.mjs').then(h=>{const w=h.world({});h.advance(w,600);
+  console.log(w.s.capital_stock/w.s.output, w.s.gdp_growth_annual)})"
+```
+
+**THE ISOLATING EXPERIMENT.** Change the line to
+`annualToMonthlyFlow(s.investment / 100 * s.potential_output)` and re-run:
+
+| | as built | units fixed |
+|---|---|---|
+| K/Y at m96 | 2.892 | **2.939** |
+| K/Y at m600 | 2.053 | **2.828** |
+| potential at m600 | 167.74 | **204.12** |
+| `gdp_growth_annual` at m600 | 0.95 | **1.493** |
+
+Growth converges on the stated 1.5% instead of decaying to 0.93%, and **the
+steady state stays exact to 9dp** — so the fix is compatible with the gate.
+
+**WHY NOTHING CAUGHT IT, AND THIS IS THE PART THAT GENERALISES.**
+`test/steady-state.test.js` checks `output_gap` (a ratio), `inflation` (a rate)
+and `consumption` (a percent of potential). **Every one of them is invariant to
+this defect, because output and potential drift together.** The test that
+exists to catch drift cannot see a common drift in the level. It was found only
+because 5.6 wired `gdp_growth_annual`, which had been carried in `START` as a
+frozen 1.5 and read by nothing — the model has had no real-growth number
+anywhere, so nobody could look at one.
+
+**A SECOND DEFECT SITS UNDER IT.** `test/params.test.js`'s identity check reads
+
+```js
+const iy = (0.06 + s.potential_growth / 100) * s.capital_output_ratio * 100;
+```
+
+a hardcoded **0.06** against `DEPRECIATION_RATE = 0.065`. At the real value the
+share that holds K/Y constant is `(0.065+0.015)×3×100 = ` **24.0**, not 22.5.
+So even with the units fixed, K/Y drifts down slowly — 2.83 at m600 above. The
+identity test passes because it asserts the vector against a literal that
+disagrees with the parameter. That literal is exactly what lint check (f)
+polices, and (f) does not cover `test/`.
+
+**NOT FIXED HERE, DELIBERATELY.** Correcting it changes potential output in
+every scenario, which moves every measurement in the audit — the six starting
+vectors, `docs/11`, the crisis constants (`CRISIS_IMPULSE_AMPLIFICATION` is
+solved against a trough measured relative to potential), and `investment_share`
+itself, which must be re-derived from 22.5 to 24.0. That is a Phase-3-sized
+task with its own gate, not a line in 5.6. **It is the strongest candidate for
+the next task**, alongside A2.
+
 ### A4. The bond yield has no expected-inflation term — `OPEN`, and it BLOCKS 5.1
 `updateBondYield` computes the 10-year yield as policy rate + term premium
 + risk premium. **There is no Fisher term.** That is fine while the central bank

@@ -72,6 +72,10 @@ def main():
         "// test/params.test.js enforces this register in both directions.\n"
         f"export const DEFERRED = {js(K.DEFERRED)};\n")
     out.append(
+        "// START fields deliberately read by no rule, and why.\n"
+        "// test/params.test.js enforces this register in both directions.\n"
+        f"export const START_DEFERRED = {js(K.START_DEFERRED)};\n")
+    out.append(
         "// Stated values that disagree with how the model behaves, where\n"
         "// resolving the disagreement needs research, not wiring.\n"
         f"export const CONFLICTS = {js(K.CONFLICTS)};\n")

@@ -1987,6 +1987,34 @@ DEFERRED = {
 DEFERRED.pop("GOVT_INVESTMENT_MULT_SPLIT_PLACEHOLDER")
 
 
+# START FIELDS deliberately read by no rule, and why.
+#
+# [4TH AUDIT 5.6] THE DEFERRED REGISTER'S BLIND SPOT. DEFERRED covers `P`
+# entries and nothing covered START, so a starting-vector field could be
+# carried, documented and read by absolutely nothing with no test noticing.
+# Measured when this was written: FOUR of START's 36 fields were dead, and the
+# task that produced this register named two of them. The other two were found
+# only by counting. Enforced in BOTH directions by test/params.test.js, the same
+# way DEFERRED is — nothing may be idle without saying so, and nothing may claim
+# to be idle while a rule reads it.
+START_DEFERRED = {
+    "participation":
+        "deferred lever: demographics (task 6.4). Wiring it is not a matter of "
+        "reading the field — participation is a share OF A WORKING-AGE "
+        "POPULATION, and this model has no population. `labour_force` is "
+        "normalised to 100 and constant, so there is nothing for 63% to be 63% "
+        "of. The mechanism it belongs to is ageing and the participation "
+        "response to a hot labour market; both need a demographic block.",
+    "current_account":
+        "deferred: open economy, decision A5. Same deferral as ERPT_IMPORT_"
+        "PRICES and ERPT_CPI in DEFERRED above. NOT named by task 5.6 — found "
+        "by counting the dead fields rather than by reading the task.",
+    "fx_change":
+        "deferred: open economy, decision A5. As current_account. The model is "
+        "closed; net_exports is an exogenous shock channel, not a balance.",
+}
+
+
 # Parameters whose stated value disagrees with how the model behaves, where
 # resolving the disagreement needs research rather than wiring. Never a
 # licence to leave the disagreement unstated: it is surfaced in docs/07 and

@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Fifteen corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Seventeen corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1374,6 +1374,71 @@ not count.**
 
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
+
+> #### As built — the task names two and there are four, and wiring one of them found a unit error in the supply block.
+>
+> ### CORRECTION 16 — D5 names two dead START fields; there are four.
+>
+> Measured across `START`'s 36 fields: `gdp_growth_annual`, `participation`,
+> **`current_account`** and **`fx_change`** are read by nothing in `src/`. The
+> last two were found by counting, not by reading the task. `docs/01` already
+> described them as idle in prose — which is exactly the failure mode this
+> project keeps finding: a true statement in a document that no test enforces.
+>
+> **`gdp_growth_annual` is wired**, and from the expression that already
+> existed. `pushHistory` computes `yoyGrowth(h.output)` into `history.growth`
+> every tick, and the state field sat frozen at its START value one line away —
+> two representations of one quantity, one of them never updated. Assigned from
+> the history so they cannot drift. **`participation` deferred to 6.4**:
+> wiring it is not a matter of reading the field, because participation is a
+> share OF A WORKING-AGE POPULATION and this model has none — `labour_force` is
+> 100 and constant, so there is nothing for 63% to be 63% of.
+> `current_account` and `fx_change` deferred to the open economy (A5).
+>
+> **The structural fix is a `START_DEFERRED` register**, enforced in both
+> directions by `test/params.test.js` exactly as `DEFERRED` and
+> `SOLVED_FROM_MODEL` are. Both directions verified. The first version of the
+> test was wrong and is worth recording: it counted mentions, but START's keys
+> are SPREAD into `s`, so a field that is never explicitly assigned appears
+> exactly once — as its only read — and the test flagged `capital_output_ratio`,
+> `labour_share` and `term_premium`, all three properly wired.
+>
+> ### CORRECTION 17 — wiring the dead field immediately found a model defect, and it is the largest thing in Phase 5.
+>
+> `gdp_growth_annual` reads **1.056%** at the steady state against a
+> `potential_growth` of 1.5. `supply.js:25` adds
+> `annualToMonthlyFlow(s.investment)` — a **percent of potential output** — to
+> `capital_stock`, a **level**. The investment flow feeding the capital stock
+> is frozen at its month-zero value while potential grows away from 100. Same
+> class as B2.
+>
+> | prediction | measured |
+> |---|---|
+> | K converges to a constant `I/δ` = 22.5/0.065 = **346.15** | **346.154** at m2400 |
+> | growth decays to `gA = g·(1−α)` = **0.930%** | **0.9345%** at m1200, still falling |
+> | K/Y falls from 3.0 | 2.89 (m96) · 2.66 (m240) · **2.05** (m600) |
+>
+> Isolated by scaling the flow by `potential_output`: growth returns to
+> **1.493%** and K/Y to 2.83, and **the steady state stays exact to 9dp**.
+>
+> **Why nothing caught it, and this generalises.**
+> `test/steady-state.test.js` checks `output_gap` (a ratio), `inflation` (a
+> rate) and `consumption` (a percent of potential). **All three are invariant
+> to this defect, because output and potential drift together.** The gate that
+> exists to catch drift cannot see a common drift in the level, and the model
+> had no real-growth number anywhere for anyone to look at — which is precisely
+> what the dead field was.
+>
+> A second defect sits under it: `test/params.test.js`'s identity check
+> hardcodes `0.06` against `DEPRECIATION_RATE = 0.065`, so the share that holds
+> K/Y constant is **24.0**, not 22.5. A bare literal in a test, which is the
+> class check (f) polices and does not cover.
+>
+> **Not fixed here.** It moves potential output in every scenario, so it moves
+> every measurement in this audit — the six vectors, `docs/11`, the crisis
+> constants, and `investment_share` itself. Phase-3-sized, with its own gate.
+> Recorded as open_items **A5** and it is the strongest candidate for the next
+> task alongside A2.
 
 ---
 

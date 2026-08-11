@@ -5,9 +5,79 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { P, SOLVED_FROM_MODEL, START, LAGS_MONTHS, KERNELS, KERNEL_SHAPE_K } from '../src/params.js';
+import { readFileSync, readdirSync } from 'node:fs';
+import { P, SOLVED_FROM_MODEL, START, START_DEFERRED, LAGS_MONTHS, KERNELS, KERNEL_SHAPE_K } from '../src/params.js';
 
 const CONFIDENCE = new Set(['strong', 'moderate', 'weak', 'contested', 'judgement']);
+
+/**
+ * EVERY START FIELD IS READ, OR DECLARED IDLE [4th audit 5.6].
+ *
+ * The DEFERRED register covers `P` entries and NOTHING covered `START`, so a
+ * starting-vector field could be carried, documented in `docs/01`, and read by
+ * absolutely nothing, with no test noticing. That is exactly what had
+ * happened: measured when this was written, **four of START's 36 fields were
+ * dead**, and task 5.6 — the task that produced this register — named two of
+ * them. `current_account` and `fx_change` were found only by counting.
+ *
+ * Same shape and same reasoning as DEFERRED and SOLVED_FROM_MODEL: enforced in
+ * BOTH directions, because a stale register is worse than none.
+ *
+ * WHAT COUNTS AS WIRED, and the first attempt at this test got it wrong.
+ * Counting mentions does not work: START's keys are SPREAD into `s`, so a
+ * field that is never explicitly assigned appears exactly once — as its only
+ * read — and a "more than one mention" rule flags `capital_output_ratio`,
+ * `labour_share` and `term_premium`, all three of which are properly wired.
+ *
+ * A field is wired if EITHER
+ *   - something READS it (it appears somewhere that is not an assignment
+ *     target), or
+ *   - something COMPUTES it (`s.<field> = …` in a rule or in pushHistory).
+ *
+ * The second clause is what makes `gdp_growth_annual` legal after 5.6: nothing
+ * displays it yet — that is Phase 8.10 — but it is no longer a frozen START
+ * constant, it is recomputed from the output history every tick. The failure
+ * this register exists to catch is a value carried in the starting vector that
+ * NOTHING EVER TOUCHES.
+ */
+test('every START field is read by something, or is declared idle', () => {
+  const files = [];
+  (function walk(dir) {
+    for (const e of readdirSync(new URL(dir, import.meta.url), { withFileTypes: true })) {
+      if (e.isDirectory()) walk(`${dir}${e.name}/`);
+      else if (e.name.endsWith('.js') && e.name !== 'params.js') files.push(`${dir}${e.name}`);
+    }
+  })('../src/');
+  const src = files
+    .map((f) => readFileSync(new URL(f, import.meta.url), 'utf8'))
+    .join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
+  const assigned = (k) => new RegExp(`\\bs\\.${k}\\s*(=[^=]|\\+=|-=|\\*=|/=)`).test(src);
+  // A read is a mention that survives deleting every assignment TARGET.
+  const read = (k) => new RegExp(`\\b${k}\\b`).test(
+    src.replace(new RegExp(`\\bs\\.${k}\\s*(=[^=]|\\+=|-=|\\*=|/=)`, 'g'), ''));
+  const isRead = (k) => read(k) || assigned(k);
+
+  const deadAndUndeclared = Object.keys(START)
+    .filter((k) => !isRead(k) && !(k in START_DEFERRED));
+  assert.deepEqual(deadAndUndeclared, [],
+    `these START fields are read by nothing and are not in parameters.py ` +
+    `START_DEFERRED. A starting vector that carries values no rule consumes is ` +
+    `a vector nobody can trust at a glance — wire them or say why they are idle.`);
+
+  const declaredButRead = Object.keys(START_DEFERRED).filter(isRead);
+  assert.deepEqual(declaredButRead, [],
+    `these are declared idle in START_DEFERRED but something reads them. ` +
+    `Delete the entry — a stale register is worse than none.`);
+
+  for (const [k, reason] of Object.entries(START_DEFERRED)) {
+    assert.ok(k in START, `START_DEFERRED lists ${k}, which is not a START field`);
+    assert.ok((reason || '').trim().length > 40,
+      `${k} is declared idle with no real reason. "Because it is" is how ` +
+      `docs/07 L1 survived three passes.`);
+  }
+});
 
 test('every parameter has a value inside its range', () => {
   for (const [name, p] of Object.entries(P)) {
