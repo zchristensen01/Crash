@@ -624,6 +624,50 @@ BOND_YIELD_FOREIGN_MULTIPLIER = P(
     "way one equation reproduces both cases. Requires the foreign_share state "
     "variable.")
 
+SOVEREIGN_TO_CORPORATE_PASSTHROUGH = P(
+    0.6, 0.3, 1.0, "share of a SOVEREIGN risk premium that passes into private borrowing costs",
+    "contested", "Neri, Bank of Italy Occasional Paper 170 (2013): euro-area "
+    "periphery sovereign-spread pass-through to lending rates ~0.4-0.7 within "
+    "a few quarters. Zoli, IMF WP/13/84 (2013) on Italy: ~0.5-0.7. Bofondi, "
+    "Carpinelli & Sette, JEEA 16:696-729 (2018), bank lending channel. "
+    "Almeida, Cunha, Ferreira & Restrepo, J.Finance 72:249-290 (2017), 'The "
+    "Real Effects of Credit Ratings: The Sovereign Ceiling Channel'. "
+    "Borensztein, Cowan & Valenzuela, JBF 37:4014-4024 (2013).",
+    "[AUDIT-3 NEW, docs/12 M2] THE SOVEREIGN YIELD USED TO REACH NOTHING. It "
+    "was read in exactly two places — the government's own interest bill and "
+    "the debt-crisis ending — so a country could carry a 7% yield with 60% of "
+    "its debt held abroad and the private economy would not notice. That is "
+    "why `debt_trap` was provably inert: the Taylor arm was BIT-IDENTICAL to "
+    "doing nothing over 48 months, because output_gap sat at 0.000000 the "
+    "whole time and nothing the player could do was visible against compound "
+    "interest. The channel restores the loop that IS a debt trap: yield -> "
+    "private borrowing cost -> investment -> output -> revenue -> debt -> "
+    "yield. "
+    "IT PASSES THE RISK PREMIUM, NOT THE YIELD. The yield already contains "
+    "the expected policy rate, and investment gets that through "
+    "policy_rate_demand; passing the whole yield would count the policy rate "
+    "twice. Contested because the estimates are almost entirely from the "
+    "2010-12 euro periphery, where banks held their own sovereign in size — "
+    "the pass-through is plainly weaker for a country borrowing in its own "
+    "currency from domestic savers, which is what BOND_YIELD_FOREIGN_MULTIPLIER "
+    "already encodes on the yield itself.")
+
+DEBT_AVERAGE_MATURITY_YEARS = P(
+    7.0, 5.0, 15.0, "years — average term to maturity of outstanding government debt",
+    "strong", "OECD Sovereign Borrowing Outlook 2023: OECD average term to "
+    "maturity ~7.5 years. US ~5.8, euro area ~7-8, Japan ~9, UK ~14 (the "
+    "outlier, and the reason this is a range rather than a constant).",
+    "[AUDIT-3 NEW, docs/12 M2] THE ENTIRE DEBT STOCK USED TO REPRICE "
+    "INSTANTLY: interest_cost = govt_debt * yield_10y / 100, so a country with "
+    "140% of GDP of debt issued over decades paid this month's ten-year yield "
+    "on all of it. Only the maturing fraction refinances, which is 1/this per "
+    "year. Two consequences the model had backwards. A hike does NOT bite the "
+    "interest bill on impact, so a debt trap gives the player a window instead "
+    "of a knife-edge — and the window closing is the lesson. And docs/11's "
+    "claim that 'debt is the second fastest thing to respond to a rate cut, "
+    "and almost nobody expects that' was an artefact of this defect rather "
+    "than a result; nobody expects it because it is not true.")
+
 BOND_YIELD_NONLINEAR_THRESHOLD = P(
     100.0, 80.0, 120.0, "% debt/GDP above which sensitivity rises for own-currency debt",
     "moderate", "Ardagna, Caselli & Lane 2007; Baldacci & Kumar IMF 2010",
@@ -710,6 +754,26 @@ CREDIT_GAP_CRISIS_THRESHOLD = P(
     "3 years with more false positives. THIS IS YOUR CRASH METER. Also serves "
     "as leverage_max in the asset-price fire-sale term.")
 
+BANK_WOBBLE_FRAGILITY_GAIN = P(
+    3.0, 1.5, 5.0, "x — extra severity of a bank scare at the BIS danger line versus at trend credit",
+    "moderate", "Baron, Verner & Xiong, 'Banking Crises Without Panics', QJE "
+    "136:51-113 (2021): bank equity declines predict far worse real outcomes "
+    "when they follow high credit growth, and most bank distress episodes "
+    "without a preceding boom pass with little real damage. Jorda, Schularick "
+    "& Taylor JMCB 45:3-28 (2013), the same source as CRISIS_OUTPUT_TROUGH.",
+    "[AUDIT-3 NEW, docs/12 M3] bank_wobble was one of three shocks the player "
+    "could not detect: measured -0.19pp of output in `bubble` and -0.28pp in "
+    "`calm`, and IDENTICAL across every capital position, because a flat -1.0pp "
+    "hit to a ratio that rebuilds toward 13% never reached BANK_CAPITAL_MINIMUM "
+    "and so never armed the delever trigger. The shock now scales with how "
+    "stretched the system already is, measured on the credit gap — the model's "
+    "own fragility gauge, the same one crisis_prob reads, rather than a new "
+    "one. At trend credit it is exactly what it always was; at the BIS line it "
+    "takes enough capital to arm the doom loop. THE STATE-DEPENDENCE IS THE "
+    "LESSON: the same news is a non-event in a sound system and a near-crisis "
+    "in a stretched one, which is also why the credit gap is the gauge worth "
+    "watching.")
+
 CRISIS_PROB_PER_SD_CREDIT = P(
     3.5, 2.6, 5.3, "pp crisis probability per 1 SD of excess credit growth",
     "moderate", "Schularick & Taylor 2012; Greenwood, Hanson & Shleifer 2020",
@@ -754,7 +818,72 @@ CRISIS_YEARS_TO_RECOVER = P(
     5.0, 4.0, 8.0, "years for output to climb back toward the prior trend",
     "strong", "JST 2013; IMF WP20/73 'Hysteresis and Business Cycles'",
     "[PASS2 NEW] The financial-crisis path still lies below the "
-    "normal-recession path at five years.")
+    "normal-recession path at five years. [AUDIT-3, docs/12] Now used TWICE, "
+    "on one time constant tau = 12*value/ln(10): the transitory demand "
+    "collapse DECAYS on it and the permanent scar GROWS on it. That is not a "
+    "convenience — it is the hysteresis mechanism stated as arithmetic. The "
+    "scar IS the part of the collapse that never came back, so the two have "
+    "to be the same clock. At 60 months the drag is down to 10% of the "
+    "impulse and the scar is up to 90% of its eventual value.")
+
+# --------------------------------------------------------------------
+# THE TWO DECONVOLUTION CONSTANTS      [AUDIT-3, docs/12 section 2]
+#
+# These are the only two parameters in this file that describe THIS MODEL
+# rather than the world, and they exist to undo a specific error: feeding a
+# REDUCED FORM in as a STRUCTURAL INPUT.
+#
+# CRISIS_OUTPUT_TROUGH (-9%) and CRISIS_HYSTERESIS_SCAR (10%) are OBSERVATIONS.
+# Each already contains everything the economy did in response — the
+# multiplier, the accelerator, the capital channel, the balance sheet. crisis.js
+# used to hand both of them to the model as exogenous impulses, and the model
+# then did all of that a SECOND time. Measured before the fix: a -9%
+# observation produced a realised trough of -23.5%, and the 10% scar landed in
+# full on month one.
+#
+# So each observation is divided by the model's own measured amplification of
+# it. The observations do not move. If the demand block changes, these must be
+# RE-MEASURED, never nudged — test/crisis.test.js re-derives the realised arc
+# on every run and fails if it has left the published bands.
+#
+# AND THE TWO OBSERVATIONS ARE MEASURED AGAINST DIFFERENT BASELINES, which is
+# the part that had gone unnoticed and which made them look contradictory:
+#   CRISIS_OUTPUT_TROUGH    peak-to-trough, vs the pre-crisis LEVEL
+#   CRISIS_HYSTERESIS_SCAR  years later,    vs the pre-crisis TREND
+# At 1.5% trend growth, -10% vs trend at 60 months is only -2.2% vs the level.
+# Comparing both to one baseline — which docs/11 and the audit brief both did —
+# makes a permanent loss look DEEPER than the trough it followed.
+# --------------------------------------------------------------------
+
+CRISIS_IMPULSE_AMPLIFICATION = P(
+    2.59, 1.8, 3.4, "x — this model's amplification of a crisis-state demand impulse into a realised output trough",
+    "judgement", "DERIVED FROM THIS MODEL by solving for the value that makes "
+    "the realised peak-to-trough fall equal CRISIS_OUTPUT_TROUGH. Re-measured "
+    "by test/crisis.test.js on every run.",
+    "The structural demand impulse is CRISIS_OUTPUT_TROUGH / this = 3.47pp of "
+    "GDP, and the model turns that into the observed -9.0% peak-to-trough at "
+    "month 14. Measured amplification is 1.32x on the first tick and rises to "
+    "2.59x by the trough as the consumption multiplier, the accelerator and "
+    "the falling capital stock compound. It is NOT constant in the size of the "
+    "impulse — at the old 9pp impulse it was only 1.68x, because investment "
+    "hit its floor clamp and the amplification saturated. That nonlinearity is "
+    "why this had to be solved rather than read off a single measurement, and "
+    "it is the range.")
+
+CRISIS_SCAR_AMPLIFICATION = P(
+    3.14, 2.0, 4.5, "x — this model's amplification of an exogenous capacity cut into a total loss against trend",
+    "judgement", "DERIVED FROM THIS MODEL by solving for the value that puts "
+    "output CRISIS_HYSTERESIS_SCAR below the pre-crisis trend at 60 months, "
+    "the horizon Cerra & Saxena measure.",
+    "Cerra & Saxena's ~10% is the TOTAL observed divergence from trend, and "
+    "the model already generates most of it endogenously: measured with no "
+    "exogenous scar at all, output is still 8.4% below trend at 60 months, "
+    "from capital destruction, the collapsed credit stock and an output gap "
+    "that has not closed. So the exogenous capacity cut is 10 / this = 3.2% "
+    "and the model supplies the rest — which is what not double-counting "
+    "means. A 3.2% exogenous cut also sits sensibly against "
+    "CRISIS_HYSTERESIS_SCAR's own note that a balance-of-payments crisis is "
+    "~5% and a twin crisis ~15%.")
 
 CRISIS_HYSTERESIS_SCAR = P(
     10.0, 5.0, 15.0, "% PERMANENT output-level loss",

@@ -77,8 +77,14 @@ test('waiting past the window costs you the discount', () => {
                        dial(w, 'govt_spending', w.s.govt_spending + P.RECAP_FULL_RESPONSE.value); },
   });
   const passive = crash({ months: 36 });
-  assert.ok(Math.abs(late.hit.scar - passive.hit.scar) < 0.01,
-    'spending after the window still bought a smaller scar');
+  // Compared on scar_target, not scar. Since docs/12 the scar PHASES IN over
+  // CRISIS_YEARS_TO_RECOVER, so `scar` depends on how many months have elapsed
+  // — and the late arm has run 14 months longer, inside its own response
+  // callback. scar_target is the quantity the window is supposed to freeze,
+  // and it is the one this test has always meant.
+  assert.ok(Math.abs(late.hit.scar_target - passive.hit.scar_target) < 0.01,
+    `spending after the window still bought a smaller scar: ` +
+    `${late.hit.scar_target.toFixed(4)} vs ${passive.hit.scar_target.toFixed(4)}`);
 });
 
 test('forced selling fires in the bubble, and then stops', () => {
@@ -159,4 +165,190 @@ test('a crash is survivable and the economy is still playable afterwards', () =>
   assert.doesNotThrow(() => advance(w, 72));
   assert.ok(w.s.unemployment < 14, `unemployment ended at ${w.s.unemployment.toFixed(1)}`);
   assert.ok(w.s.output_gap > -20, `output gap ended at ${w.s.output_gap.toFixed(1)}`);
+});
+
+test('RECAPITALISATION IS A QUANTITY, NOT A GESTURE', () => {
+  // docs/12 L1, and the single most exploitable thing the game had. crisis.js
+  // read `extra` as the CURRENT SPENDING RATE and took a running Math.max over
+  // it, while RECAP_FULL_RESPONSE is denominated in "pp of GDP of extra public
+  // spending in year one" — a CUMULATIVE injection. So a one-month +5pp spike
+  // costing 0.42pp-years bought the full 50% scar reduction (recap 1.000),
+  // while +1pp held for a full year — 2.4x the money — bought 20%.
+  //
+  // The test is the economics: MORE MONEY MUST ALWAYS BUY MORE.
+  const arm = (extra, months) => crash({
+    months: 48,
+    response: (w) => {
+      const base = w.s.govt_spending;
+      dial(w, 'govt_spending', base + extra);
+      advance(w, months);
+      dial(w, 'govt_spending', base);
+    },
+  });
+  const gesture = arm(5, 1);          // 0.42 pp-years
+  const programme = arm(1, 12);       // 1.00 pp-years
+  const full = arm(5, 12);            // 5.00 pp-years
+
+  assert.ok(programme.hit.recap_promptness > gesture.hit.recap_promptness,
+    `+1pp for a year (1.00pp-yr) scored ${programme.hit.recap_promptness.toFixed(3)} and ` +
+    `+5pp for one month (0.42pp-yr) scored ${gesture.hit.recap_promptness.toFixed(3)} — ` +
+    `the cheaper response cannot score higher`);
+  assert.ok(programme.hit.scar < gesture.hit.scar,
+    `and it has to buy a smaller scar: ${programme.hit.scar.toFixed(3)} vs ${gesture.hit.scar.toFixed(3)}`);
+  assert.ok(full.hit.recap_promptness > programme.hit.recap_promptness,
+    'and 5x the money again has to score higher still');
+
+  // recap_promptness is exactly the money spent over the parameter.
+  assert.ok(Math.abs(gesture.hit.recap_promptness - (5 / 12) / P.RECAP_FULL_RESPONSE.value) < 1e-9,
+    `a month of +5pp injects 5/12 pp-years; recap should be that over ` +
+    `RECAP_FULL_RESPONSE, got ${gesture.hit.recap_promptness}`);
+});
+
+/* ------------------------------------------------------------------------
+ * THE WHOLE ARC, and the two deconvolution constants that produce it.
+ * docs/12 section 2. Before this pass the crash was 2.6x too deep, and the
+ * cause was not a magnitude: two OBSERVATIONS were being fed in as STRUCTURAL
+ * INPUTS, so the model reproduced its own response on top of them.
+ * ---------------------------------------------------------------------- */
+
+/** Measured against BOTH baselines, because the two observations use both. */
+function crashArc({ response = null, months = 120 } = {}) {
+  const base = world({ overrides: SCENARIOS.bubble.overrides, assert: false });
+  const hit = world({ overrides: SCENARIOS.bubble.overrides, assert: false });
+  advance(base, 24); advance(hit, 24);
+  const preCrisisLevel = hit.s.output;
+  CRASH.apply(hit.s);
+  if (response) response(hit);
+  let trough = 0, troughM = 0, uPeak = 0;
+  const vsTrend = {};
+  for (let m = 1; m <= months; m++) {
+    advance(base, 1); advance(hit, 1);
+    const lvl = (hit.s.output / preCrisisLevel - 1) * 100;
+    if (lvl < trough) { trough = lvl; troughM = m; }
+    uPeak = Math.max(uPeak, hit.s.unemployment - base.s.unemployment);
+    vsTrend[m] = (hit.s.output / base.s.output - 1) * 100;
+  }
+  return { trough, troughM, uPeak, vsTrend, hit: hit.s };
+}
+
+test('THE CRASH ARC: every published magnitude at once', () => {
+  const r = crashArc();
+  // 1. Peak-to-trough, against the pre-crisis LEVEL — what JST and
+  //    Reinhart-Rogoff measure. Was -23.5% against a published -6 to -15.
+  assert.ok(r.trough <= P.CRISIS_OUTPUT_TROUGH.high && r.trough >= P.CRISIS_OUTPUT_TROUGH.low,
+    `peak-to-trough ${r.trough.toFixed(2)}%, published ` +
+    `${P.CRISIS_OUTPUT_TROUGH.low} to ${P.CRISIS_OUTPUT_TROUGH.high}`);
+  // 2. And it bottoms out in about a year.
+  assert.ok(r.troughM >= 9 && r.troughM <= 18,
+    `the trough is at month ${r.troughM}; JST put it at about a year`);
+  // 3. Unemployment.
+  assert.ok(r.uPeak >= 2 && r.uPeak <= 5,
+    `unemployment peaked +${r.uPeak.toFixed(2)}pp; a banking crisis costs 2-5`);
+  // 4. Against the pre-crisis TREND at the horizon Cerra & Saxena measure.
+  //    A DIFFERENT BASELINE from (1), and conflating the two is what made the
+  //    trough and the permanent loss look mutually contradictory.
+  assert.ok(Math.abs(r.vsTrend[60] + P.CRISIS_HYSTERESIS_SCAR.value) < 2,
+    `output is ${r.vsTrend[60].toFixed(2)}% below trend at five years, against ` +
+    `CRISIS_HYSTERESIS_SCAR = ${P.CRISIS_HYSTERESIS_SCAR.value}`);
+  // 5. NO REBOUND while the game is running. Output must not climb back
+  //    toward trend during a term.
+  assert.ok(r.vsTrend[96] < -5,
+    `output had recovered to ${r.vsTrend[96].toFixed(2)}% of trend by month 96 — ` +
+    `Cerra & Saxena find the trend moves down and stays down`);
+});
+
+test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', () => {
+  // The guard that stops CRISIS_IMPULSE_AMPLIFICATION and
+  // CRISIS_SCAR_AMPLIFICATION becoming tuning dials. They are properties of
+  // this model's demand block; if the demand block changes they must be
+  // RE-DERIVED, and this fails until they are.
+  const r = crashArc();
+  const impulse = Math.abs(P.CRISIS_OUTPUT_TROUGH.value) / P.CRISIS_IMPULSE_AMPLIFICATION.value;
+  const realised = -r.trough / impulse;
+  assert.ok(Math.abs(realised - P.CRISIS_IMPULSE_AMPLIFICATION.value) < 0.25,
+    `the model now amplifies the crisis impulse ${realised.toFixed(3)}x, but ` +
+    `CRISIS_IMPULSE_AMPLIFICATION says ${P.CRISIS_IMPULSE_AMPLIFICATION.value}. ` +
+    `RE-MEASURE it — do not nudge it to move the trough.`);
+  const scarShare = -r.vsTrend[60] / (r.hit.scar_target / r.hit.potential_output * 100);
+  assert.ok(Math.abs(scarShare - P.CRISIS_SCAR_AMPLIFICATION.value) < 0.6,
+    `the model now turns a ${r.hit.scar_target.toFixed(2)}pp exogenous capacity cut ` +
+    `into a ${(-r.vsTrend[60]).toFixed(2)}% loss against trend (${scarShare.toFixed(2)}x), ` +
+    `but CRISIS_SCAR_AMPLIFICATION says ${P.CRISIS_SCAR_AMPLIFICATION.value}`);
+});
+
+test('the scar PHASES IN rather than landing on month one', () => {
+  // It used to be 10.221 at month 1 and 10.221 at month 12. Cerra & Saxena
+  // measure a divergence from trend over YEARS; nothing in that paper says a
+  // banking crisis removes a tenth of capacity in thirty days, and landing it
+  // instantly made a horizon measurement into a second contribution to the
+  // trough.
+  const w = world({ overrides: SCENARIOS.bubble.overrides, assert: false });
+  advance(w, 24);
+  CRASH.apply(w.s);
+  advance(w, 1); const m1 = w.s.scar;
+  advance(w, 11); const m12 = w.s.scar;
+  advance(w, 48); const m60 = w.s.scar;
+  const target = w.s.scar_target;
+  assert.ok(m1 < target * 0.1, `the scar was ${(m1 / target * 100).toFixed(0)}% arrived after one month`);
+  assert.ok(m12 > m1 * 2, `the scar barely grew between month 1 and month 12`);
+  assert.ok(m60 > target * 0.85 && m60 <= target,
+    `the scar is ${(m60 / target * 100).toFixed(0)}% arrived at five years — ` +
+    `CRISIS_YEARS_TO_RECOVER is ${P.CRISIS_YEARS_TO_RECOVER.value}`);
+});
+
+test('MEASURED: the model rebounds after year five and Cerra-Saxena say it should not', {
+  todo: 'OPEN. Within the 96-month game the loss is right: -10.0% of trend at ' +
+    'five years and -7.4% at eight. But run it to ten years and the model has ' +
+    'recovered to -4.7%, because most of the five-year loss is a persistent ' +
+    'OUTPUT GAP rather than lost capacity, and the gap eventually closes. Only ' +
+    'the 3.2pp exogenous capacity cut is genuinely permanent. Cerra & Saxena ' +
+    'find no significant rebound at ANY horizon. Closing this by inflating the ' +
+    'exogenous scar is not available: it would push the five-year loss to -14% ' +
+    'and the trough outside the published band, so the two ends of the arc ' +
+    'cannot both be matched with one constant. What it actually says is that ' +
+    'the model heals a demand gap faster than the data does — a statement ' +
+    'about the demand block, and the same shape as the TAX_SHOCK_TO_GDP and ' +
+    'austerity-paradox findings.',
+}, () => {
+  const r = crashArc({ months: 120 });
+  assert.ok(r.vsTrend[120] < -8,
+    `output recovered to ${r.vsTrend[120].toFixed(2)}% of trend at ten years, from ` +
+    `${r.vsTrend[60].toFixed(2)}% at five. That is a rebound.`);
+});
+
+test('WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was', () => {
+  // Jorda, Schularick & Taylor is CRISIS_OUTPUT_TROUGH's own cited source and
+  // its central claim — "more credit-intensive booms produce deeper busts" —
+  // had never been tested. It is not coded anywhere either: it falls out of
+  // leverage, the fire-sale gate and the size of the credit stock there is to
+  // write off. The credit gap is the only gauge that warns the player, so the
+  // model owing them a worse crash for ignoring it is the whole design.
+  const arc = (scenario) => {
+    const base = world({ overrides: SCENARIOS[scenario].overrides, assert: false });
+    const hit = world({ overrides: SCENARIOS[scenario].overrides, assert: false });
+    advance(base, 24); advance(hit, 24);
+    const creditGap = hit.s.credit_to_gdp_gap, lvl0 = hit.s.output;
+    CRASH.apply(hit.s);
+    let trough = 0, troughM = 0, uPeak = 0;
+    for (let m = 1; m <= 72; m++) {
+      advance(base, 1); advance(hit, 1);
+      const l = (hit.s.output / lvl0 - 1) * 100;
+      if (l < trough) { trough = l; troughM = m; }
+      uPeak = Math.max(uPeak, hit.s.unemployment - base.s.unemployment);
+    }
+    return { creditGap, trough, troughM, uPeak };
+  };
+  const bubble = arc('bubble'), calm = arc('calm'), recession = arc('recession');
+  assert.ok(bubble.creditGap > calm.creditGap && calm.creditGap > recession.creditGap,
+    'the scenarios are not ordered by credit intensity, so this test proves nothing');
+  assert.ok(bubble.trough < calm.trough && calm.trough < recession.trough,
+    `troughs are ${bubble.trough.toFixed(2)} / ${calm.trough.toFixed(2)} / ` +
+    `${recession.trough.toFixed(2)} for credit gaps ${bubble.creditGap.toFixed(1)} / ` +
+    `${calm.creditGap.toFixed(1)} / ${recession.creditGap.toFixed(1)} — a bust after a ` +
+    `bigger boom has to be worse`);
+  assert.ok(bubble.uPeak > calm.uPeak && calm.uPeak > recession.uPeak,
+    'and it has to cost more jobs');
+  assert.ok(bubble.troughM > calm.troughM,
+    `the credit-intensive bust bottoms at month ${bubble.troughM} and the calm one at ` +
+    `${calm.troughM} — JST find them longer as well as deeper`);
 });

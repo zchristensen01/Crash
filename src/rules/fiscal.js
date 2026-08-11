@@ -56,6 +56,9 @@ export function updateBondYield(s, trace) {
   // a full programme — and it does not care where the policy rate is.
   s.qe_rate_relief = P.QE_TO_YIELD.value / 100 * s.qe_stock;
 
+  // lint-allow-dial: bond markets price the ANNOUNCED path of the policy rate, and
+  // they price it the day it is announced. This is the one place in the model where
+  // reading the slider directly is the correct economics rather than a leak.
   const expectedShort = s.policy_rate;
   const terms = {
     'expected path of the policy rate': expectedShort,
@@ -179,7 +182,38 @@ export function updateAutoStabilisers(s, trace) {
  * stopped being a constant.
  */
 export function updateBudget(s, trace) {
-  s.interest_cost = s.govt_debt * s.yield_10y / 100;
+  // DEBT HAS A MATURITY, AND ONLY THE MATURING SLICE REPRICES (docs/12 M2).
+  // This was `govt_debt * yield_10y / 100` — the whole stock, at this month's
+  // ten-year yield, every month. A country carrying 140% of GDP of debt issued
+  // over decades does not refinance all of it in January. It refinances
+  // 1/DEBT_AVERAGE_MATURITY_YEARS of it a year, so the rate it actually PAYS
+  // walks toward the market yield over about seven years.
+  //
+  // This is what gives a debt trap a window rather than a knife-edge: hiking
+  // does not bite the interest bill on impact, and cutting does not rescue it.
+  // The window closing slowly, while it still looks survivable, is the lesson —
+  // and it is why every year of delay makes the consolidation larger.
+  const rollover = annualRateToMonthlyLinear(1 / P.DEBT_AVERAGE_MATURITY_YEARS.value);
+  const prevCoupon = s.average_coupon;
+  s.average_coupon += rollover * (s.yield_10y - prevCoupon);
+  s.interest_cost = s.govt_debt * s.average_coupon / 100;
+  // Split the way a finance ministry would: how much of this month's bill is
+  // the debt we already had at the rate we were already paying, and how much
+  // is the slice that just refinanced at today's rate. The second number is
+  // the one that answers "why is the interest bill still rising when I cut".
+  trace.record('interest_cost', {
+    'the debt we had, at the rate we were already paying': s.govt_debt * prevCoupon / 100,
+    'the slice that refinanced at today\'s market rate':
+      s.govt_debt * (s.average_coupon - prevCoupon) / 100,
+  }, s.interest_cost, {
+    market_yield_today: s.yield_10y,
+    share_refinanced_this_month: rollover,
+    note: Math.abs(s.yield_10y - s.average_coupon) < 0.05
+      ? 'the stock has caught up with the market'
+      : s.yield_10y > s.average_coupon
+        ? 'still rolling onto more expensive debt — this bill is going up for years'
+        : 'still rolling off expensive debt — the saving arrives slowly',
+  });
 
   const deficitTerms = {
     'government spending': s.govt_spending,

@@ -63,14 +63,31 @@ export const EVENTS = [
     name: 'Bank wobble',
     chance: 15,
     when: (s) => s.credit_to_gdp_gap > 5 || s.bank_capital_ratio < 11,
+    // SCALED BY HOW STRETCHED THE SYSTEM ALREADY IS (docs/12 M3).
+    //
+    // A flat -1.0pp of capital was one of three shocks the player could not
+    // detect: -0.19pp of output in `bubble`, -0.28pp in `calm`, and identical
+    // at every capital position, because capital rebuilds toward 13% and a
+    // 1pp hit never reached BANK_CAPITAL_MINIMUM, so the delever trigger — the
+    // quantity leg of the doom loop — never armed.
+    //
+    // Baron, Verner & Xiong: most bank distress WITHOUT a preceding credit
+    // boom passes with little real damage, and the same distress AFTER one
+    // predicts severe outcomes. So the severity reads the credit gap, which is
+    // the model's existing fragility gauge and the one crisis_prob already
+    // uses. At trend credit this is exactly the event it always was.
     apply: (s) => {
-      s.credit_spread += 0.8;
-      s.bank_capital_ratio -= 1.0;
+      const fragility = Math.max(0, Math.min(1,
+        (s.credit_to_gdp_gap - 3.0) / P.CREDIT_GAP_CRISIS_THRESHOLD.value));
+      const severity = 1 + P.BANK_WOBBLE_FRAGILITY_GAIN.value * fragility;
+      s.credit_spread += 0.8 * severity;
+      s.bank_capital_ratio -= 1.0 * severity;
       s.approval -= 6;
     },
     text: 'A mid-sized bank nearly fails. Nothing has broken yet, but ' +
       'lending just got more expensive and everyone is looking for the next ' +
-      'weak spot.',
+      'weak spot. How much this matters depends entirely on how much ' +
+      'borrowing has already piled up.',
   },
   {
     key: 'financial_crisis',
@@ -82,6 +99,7 @@ export const EVENTS = [
       s.crisis_active = true;
       s.crisis_months = 0;
       s.recap_promptness = 0;
+      s.recap_spent = 0;
       // Snapshot the fiscal stance AT the crash. Everything spent above this
       // inside RECAP_WINDOW_MONTHS counts as recapitalising the banks and
       // shrinks the permanent scar (crisis.js). Recorded here rather than on
@@ -112,17 +130,20 @@ export const EVENTS = [
       // the tick and the C+I+G identity still closes. It fades on
       // FOREIGN_DEMAND_SHOCK_HALFLIFE in aggregate.js.
       s.net_exports -= 1.2;
+      // The confidence leg, absorbed from the deleted `confidence_slump`
+      // event (docs/12 M3). A trading partner falling into recession is
+      // exactly the sort of news that dents household sentiment, and
+      // attaching it to a shock with real fundamentals behind it is the
+      // faithful representation of what research pass 2 concluded: confidence
+      // is ~80% an ECHO of fundamentals. As a standalone event it was worth
+      // -0.17pp of output at CONFIDENCE_INDEP_PREDICTIVE's central value and
+      // -0.34pp at the top of its contested range — invisible either way, and
+      // inflating a contested coefficient to make an event detectable is the
+      // one thing this project does not do.
+      s.consumer_confidence -= 12;
       s.approval -= 4;
     },
-    text: 'Your biggest trading partner hits a recession and stops buying.',
-  },
-  {
-    key: 'confidence_slump',
-    name: 'Confidence slump',
-    chance: 10,
-    when: (s) => s.consumer_confidence > 45,
-    apply: (s) => { s.consumer_confidence -= 12; },
-    text: 'Something spooked people — a headline, an election, a war ' +
-      'somewhere. Spending pulls back for no reason the numbers explain.',
+    text: 'Your biggest trading partner hits a recession and stops buying. ' +
+      'Orders are down and people have started reading the news nervously.',
   },
 ];

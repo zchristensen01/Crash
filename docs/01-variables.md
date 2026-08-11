@@ -140,6 +140,8 @@ is half the point of the automatic-stabiliser block.
 | `neutral_real_rate` | RATE | 0.5% | r\*. Neutral NOMINAL is r\* + target = 2.5% |
 | `term_premium` | RATE | 0.75pp | |
 | `yield_10y` | RATE | 3.25% | Policy + term premium − QE + risk premium |
+| `average_coupon` | RATE | 3.25% | The rate actually PAID on the outstanding debt stock. Walks toward `yield_10y` as 1/`DEBT_AVERAGE_MATURITY_YEARS` of it refinances each year. The whole stock used to reprice instantly (docs/12 M2) |
+| `sovereign_premium_felt` | RATE | 0.0 | The share of the government's risk premium that private borrowers pay, via `SOVEREIGN_TO_CORPORATE_PASSTHROUGH`. The sovereign yield used to reach nothing outside the government's own books |
 | `risk_premium` | RATE | 0.0 | The debt-driven part of the yield. Display |
 | `qe_rate_relief` | RATE | 0.0 | pp taken off the whole curve by bond buying |
 | `private_credit_gdp` | STOCK | 150% | The scenario's starting credit level. Seeds `private_credit`, `credit_trend` and `credit_ss` |
@@ -185,8 +187,10 @@ is half the point of the automatic-stabiliser block.
 | `crisis_prob` | RATE | 0.0 | ANNUAL probability from the credit gap, capped past ~2 SD |
 | `crisis_months` | STOCK | 0 | |
 | `transitory_shock` | FLOW | 0.0 | Peak-to-trough demand fall, ~9%. Decays into `crisis_drag` |
-| `scar` | STOCK | 0.0 | **Permanent** capacity loss. Output does not cycle back |
+| `scar` | STOCK | 0.0 | **Permanent** capacity loss, PHASED IN over `CRISIS_YEARS_TO_RECOVER`. Output does not cycle back |
+| `scar_target` | STOCK | 0.0 | Where `scar` is headed. Revisable for `RECAP_WINDOW_MONTHS`, then fixed. Split from `scar` because the scar used to land in full on month one (docs/12 §2) |
 | `recap_promptness` | RATE | 0.0 | 0–1. Earned by spending inside `RECAP_WINDOW_MONTHS` of a crash, and it halves the scar |
+| `recap_spent` | STOCK | 0.0 | pp-**years** of GDP injected since the crash. `recap_promptness` is this over `RECAP_FULL_RESPONSE`. A quantity, not a rate — comparing the rate let a one-month gesture beat a year-long programme (docs/12 L1) |
 | `potential_at_crisis` | STOCK | 100 | Snapshotted when the crash lands |
 | `crisis_spending_baseline` | FLOW | 22.0 | Also snapshotted, so a same-month response still counts |
 

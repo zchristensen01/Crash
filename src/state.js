@@ -41,12 +41,19 @@ export function newState(overrides = {}) {
   // Self-correction 1, and it was missing entirely.
   s.supply_cost = P.SUPPLY_SHOCK_INCOME_LOSS.value * Math.max(0, s.supply_shock);
   s.disposable_income = s.market_income - s.tax_revenue + s.transfers - s.supply_cost;
+  // The rate actually PAID on the outstanding stock, which is not this
+  // month's market yield: only 1/DEBT_AVERAGE_MATURITY_YEARS of the debt
+  // refinances each year (docs/12 M2). Equal to the yield at the start, so
+  // every scenario opens internally consistent and the steady state is
+  // unmoved.
+  s.average_coupon = s.yield_10y;
+
   // The CYCLICALLY-ADJUSTED PRIMARY deficit: what would be borrowed at
   // potential, before interest. This is what crowding out reads, so it needs
   // its own steady-state anchor — comparing it against the headline
   // deficit_ss leaves a permanent 3.25pp wedge (the interest bill) and the
   // model crowds investment IN forever, at rest.
-  s.structural_deficit = s.deficit - s.govt_debt * s.yield_10y / 100;
+  s.structural_deficit = s.deficit - s.govt_debt * s.average_coupon / 100;
   s.structural_deficit_felt = s.structural_deficit;
   s.autostab_tax = 0;                      // lagged stabiliser legs
   s.autostab_benefit = 0;
@@ -94,12 +101,24 @@ export function newState(overrides = {}) {
   s.crisis_active = false;
   s.crisis_months = 0;
   s.recap_promptness = 0;
+  // Cumulative extra public spending since the crash, in pp-YEARS of GDP —
+  // an injected QUANTITY, which is what RECAP_FULL_RESPONSE is denominated in.
+  // crisis.js integrates the spending rate into this; comparing the rate
+  // itself against the parameter let a one-month gesture outscore a year-long
+  // programme that spent 2.4x more (docs/12 L1).
+  s.recap_spent = 0;
   s.transitory_shock = 0;
   // Set when a crash lands, and declared here so a SCENARIO can start
   // mid-crisis without crisis.js reading undefined.
   s.potential_at_crisis = s.potential_output;
   s.crisis_spending_baseline = s.govt_spending + s.money_printed;
   s.scar = 0;
+  // Where the scar is HEADED. It is revisable for RECAP_WINDOW_MONTHS and then
+  // fixed, while `scar` walks toward it over CRISIS_YEARS_TO_RECOVER. Split in
+  // two because the scar used to land in full on month one, which turned a
+  // horizon measurement into a contribution to the trough (docs/12 §2).
+  // Re-derived below the override block, because a scenario may set `scar`.
+  s.scar_target = 0;
 
   // Sentiment. business_confidence and misery are listed as derived in
   // docs/01 and nothing computed them; sentiment.js does now.
@@ -164,7 +183,19 @@ export function newState(overrides = {}) {
   s.credit_growth_annual = s.potential_growth + s.inflation;
   s.ulc_growth = s.inflation_target;
   s.spiral_active = false;
-  s.velocity_v0 = P.VELOCITY_INTEREST_SEMIELAST.value * Math.log(1 + s.policy_rate / 100);
+  // BUILT FROM NEUTRAL, like every other anchor that mixes a rate with the
+  // inflation target (docs/12 M1). This read s.policy_rate — the rate the
+  // SCENARIO happens to open at — which is precisely the class of error
+  // docs/08 §8 fixed for policy_rate_ss and market_real_rate_ss two dozen
+  // lines above, and it was missed here. velocity_v0 is the rate at which
+  // velocity is NORMAL, so anchoring it on the opening rate declared "normal
+  // velocity" to mean "velocity at whatever rate this scenario starts at",
+  // and velocity multiplies the monetisation pass-through. The same printing
+  // then bought a different amount of inflation in `recession` than in
+  // `stagflation` for a reason that is not economics. Asserted across all six
+  // scenarios by test/scenarios.test.js.
+  s.velocity_v0 = P.VELOCITY_INTEREST_SEMIELAST.value *
+                  Math.log(1 + s.policy_rate_ss / 100);
 
   // POLICY TRANSMISSION. The dial is what you SET; these are what the economy
   // has actually FELT so far. applyDialChange schedules the difference into
@@ -188,8 +219,11 @@ export function newState(overrides = {}) {
   s.user_cost = s.market_rate - s.expected_inflation + P.DEPRECIATION_RATE.value * 100;
   s.okun_beta_effective = P.OKUN_BETA.value;
   s.risk_premium = 0;
-  s.interest_cost = s.govt_debt * s.yield_10y / 100;
+  s.interest_cost = s.govt_debt * s.average_coupon / 100;
   s.qe_rate_relief = 0;
+  // How much of the SOVEREIGN risk premium private borrowers are paying.
+  // Zero in every scenario but debt_trap, where it is the whole mechanism.
+  s.sovereign_premium_felt = 0;
   s.fired_event = null;
   s.ending_counters = {};
 
@@ -202,6 +236,12 @@ export function newState(overrides = {}) {
   // scenario cannot set credit_trend, asset_fundamental or any other field
   // that newState computes for itself, and the scenario silently reverts.
   Object.assign(s, overrides);
+
+  // Derived FROM a field a scenario is allowed to override, so it has to be
+  // computed after the overrides land. A scenario that opens mid-damage
+  // (stagflation carries a 3% capacity loss) must not have that damage
+  // silently unwind the first time updateCrisisRecovery runs.
+  s.scar_target = overrides.scar_target ?? s.scar;
   return s;
 }
 

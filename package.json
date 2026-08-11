@@ -7,13 +7,15 @@
   "scripts": {
     "params": "python3 tools/gen_params.py",
     "build": "npm run params && node tools/build.mjs",
-    "test": "npm run params && node --test test/*.test.js",
-    "check": "npm run params && node tools/build.mjs && node --test test/*.test.js",
+    "test": "npm run params && node tools/lint.mjs && node --test test/*.test.js",
+    "check": "npm run params && node tools/build.mjs && node tools/lint.mjs && node --test test/*.test.js",
     "dev": "npm run build && echo '\\nBuilt index.html \u2014 open it in a browser.'",
     "demo": "npm run params --silent && node tools/demo.mjs",
     "start": "npm run build && node tools/serve.mjs",
     "serve": "node tools/serve.mjs",
-    "open": "npm run build && (explorer.exe index.html 2>/dev/null || xdg-open index.html 2>/dev/null || open index.html)"
+    "open": "npm run build && (explorer.exe index.html 2>/dev/null || xdg-open index.html 2>/dev/null || open index.html)",
+    "lint": "node tools/lint.mjs",
+    "report": "node tools/report.mjs"
   },
   "dependencies": {},
   "devDependencies": {},

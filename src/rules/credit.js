@@ -122,6 +122,13 @@ export function updateLeverage(s, trace) {
  * the standard controls — it is not merely a proxy for output.
  */
 export function updateDefaults(s, trace) {
+  // lint-allow-dial: KNOWN DEFECT, RECORDED NOT FIXED (docs/12 M2 follow-on). This
+  // is the same error the government's interest bill had until this pass: the whole
+  // PRIVATE debt stock reprices the month the dial moves, i.e. every mortgage and
+  // every corporate loan is floating-rate with no lag. Fixing it properly needs a
+  // private-debt maturity structure to sit alongside DEBT_AVERAGE_MATURITY_YEARS,
+  // which is a modelling change with its own parameter and source, not a keystroke.
+  // Surfaced by a todo test in test/validation.test.js rather than half-fixed here.
   const dsr = s.private_credit * (s.policy_rate + s.credit_spread) / 100;
   const terms = {
     'baseline defaults': 1.0,

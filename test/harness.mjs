@@ -69,6 +69,51 @@ export function nudge(w, key, delta) {
 }
 
 /**
+ * IMPULSE RESPONSE to a TEMPORARY move — the only experiment that can show a
+ * peak, and the one the project had never run (docs/12 L4).
+ *
+ * Everything ever measured in this project before this function was a
+ * PERMANENT held move. A permanent change in the stance has a permanent
+ * effect, so the response accumulates for years and never turns over: asking
+ * "what month does it peak" of a permanent move is a category error, and
+ * docs/11 §1's "share of the eventual move delivered by month N" cannot show a
+ * peak by construction. docs/07 M9 found no impulse response had a peak at
+ * all and closed the finding without ever running this.
+ *
+ * So: move the dial, hold it for `hold` months, put it back, and difference
+ * against an untouched baseline that settled identically. What comes back is
+ * the actual shape — rise, peak, decay — which is what a published VAR IRF is
+ * and what the model can finally be compared against.
+ *
+ * @returns {{path: Array, peak: (k: string) => {m: number, v: number}}}
+ */
+export function irf({ shock, unshock, hold = 12, months = 48, settle = 36,
+                      keys = ['output_gap', 'unemployment', 'inflation'], ...opts }) {
+  const base = world({ assert: false, ...opts });
+  const hit = world({ assert: false, ...opts });
+  advance(base, settle); advance(hit, settle);
+  shock(hit);
+  const path = [];
+  for (let m = 1; m <= months; m++) {
+    if (m === hold + 1) (unshock ?? (() => {}))(hit);
+    advance(base, 1); advance(hit, 1);
+    const row = { m };
+    for (const k of keys) row[k] = hit.s[k] - base.s[k];
+    // output is a LEVEL that grows at potential, so it is differenced as a
+    // percentage. Everything else is already in percentage points.
+    row.output_pct = (hit.s.output - base.s.output) / base.s.output * 100;
+    path.push(row);
+  }
+  return {
+    path,
+    peak: (k) => {
+      const p = path.reduce((a, b) => (Math.abs(b[k]) > Math.abs(a[k]) ? b : a));
+      return { m: p.m, v: p[k] };
+    },
+  };
+}
+
+/**
  * Settle two identical worlds, apply `shock` to one, run both on, and return
  * the difference. The only honest way to read a response out of a model with
  * this many loops.

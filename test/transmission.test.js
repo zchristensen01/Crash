@@ -16,6 +16,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { P } from '../src/params.js';
+import { readFileSync } from 'node:fs';
+import { SCENARIOS } from '../src/game/scenarios.js';
 import { world, advance, dial, nudge, compare } from './harness.mjs';
 
 const cut = (nx, months = 24) =>
@@ -152,4 +154,121 @@ test('the ONE cliff in the model is the capacity ceiling, and it is where it say
     `against ${below.dOutput.toFixed(3)} below it`);
   assert.ok(above.dInflation > below.dInflation,
     'demand blocked from becoming output has to show up in prices');
+});
+
+/* ------------------------------------------------------------------------
+ * THE DIAL IS NOT THE STANCE — the transmitted-driver rule, enforced on the
+ * two channels where it had leaked (docs/12 L3 and L5).
+ *
+ * Both were the same shape: a rule read s.policy_rate, the SLIDER, to decide
+ * how a mechanism behaves. That hands the player an INSTANTANEOUS change in
+ * the structure of the economy, in a model whose entire thesis is that nothing
+ * is instant. Both inverted a lesson, and neither showed up in any existing
+ * test because both only bite within ZLB_EFFECTIVE_BAND of the lower bound —
+ * which is the recession scenario, the post-crash state, and Japan.
+ * ---------------------------------------------------------------------- */
+
+test('L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT', () => {
+  // monetaryEasingScale's `room` read the dial. At the bound the whole easing
+  // stance is suppressed; moving the DIAL up 1pp took `room` from 0.500 to
+  // 1.000 in one month while the economy had felt 0.007pp of it, so all the
+  // suppressed easing counted at once. Measured before the fix, from the
+  // `recession` scenario's opening rate of 0.00: +1pp bought dY +0.08 at month
+  // 1 and +0.08 at month 3, turning negative only at month 6.
+  // What survives is a genuine second-order term of the OPPOSITE size class:
+  // +1.05e-4% at month 1 for a 1pp hike, from crowding-IN strengthening as the
+  // transmitted rate leaves the bound. That is 1/800th of the defect and it is
+  // gone by month 2, so the assertions are about materiality and shape rather
+  // than about the sign of a rounding-scale number.
+  for (const hike of [0.25, 0.75, 1.0, 2.0]) {
+    const base = world({ overrides: SCENARIOS.recession.overrides });
+    const hit = world({ overrides: SCENARIOS.recession.overrides });
+    advance(base, 6); advance(hit, 6);
+    nudge(hit, 'policy_rate', hike);
+    let prev = Infinity;
+    for (let m = 1; m <= 24; m++) {
+      advance(base, 1); advance(hit, 1);
+      const dY = (hit.s.output - base.s.output) / base.s.output * 100;
+      if (m === 1) {
+        assert.ok(Math.abs(dY) < 0.005,
+          `a +${hike}pp hike moved output ${dY.toFixed(4)}% in its FIRST month. ` +
+          `Nothing about a rate move is instant; a material month-1 response means ` +
+          `a rule is reading the dial instead of a transmitted driver.`);
+      } else {
+        assert.ok(dY < 0,
+          `a +${hike}pp HIKE from the bound RAISED output by ${dY.toFixed(4)}% at month ${m}`);
+      }
+      assert.ok(dY <= prev + 1e-9,
+        `a +${hike}pp hike's output cost got SMALLER between month ${m - 1} and ${m} ` +
+        `(${prev.toFixed(4)} -> ${dY.toFixed(4)}) — tightening must accumulate`);
+      prev = dY;
+    }
+  }
+});
+
+test('L3: the fiscal multiplier has no step in it as the rate falls to the bound', () => {
+  // investment.js gated crowding out on `s.policy_rate <= SS_ELB + 0.26` — a
+  // hard step, on the dial, with an unsourced magic number. Measured before
+  // the fix, at a gap held at zero by an offsetting external demand shock, the
+  // 24-month multiplier jumped 1.392 -> 1.998 across a SINGLE 0.1pp dial
+  // click. It now ramps over ZLB_EFFECTIVE_BAND on the transmitted rate.
+  //
+  // The gap is held with net_exports, never with the rate: setting the state
+  // with the lever under test is what made the first attempt at this sweep
+  // read the capacity ceiling instead (harness.mjs convention 1).
+  const gapAt = (rate, nx) => {
+    try {
+      const w = world({ externalDemand: nx, assert: false });
+      advance(w, 6); dial(w, 'policy_rate', rate); advance(w, 90);
+      return Number.isFinite(w.s.output_gap) ? w.s.output_gap : Infinity;
+    } catch { return Infinity; }
+  };
+  const solveNx = (rate) => {
+    let lo = -12, hi = 8;
+    for (let i = 0; i < 22; i++) {
+      const mid = (lo + hi) / 2;
+      if (gapAt(rate, mid) < 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const multiplierAt = (rate) => {
+    const nx = solveNx(rate);
+    const prep = (w) => { advance(w, 6); dial(w, 'policy_rate', rate); advance(w, 90); };
+    const base = world({ externalDemand: nx, assert: false });
+    const hit = world({ externalDemand: nx, assert: false });
+    prep(base); prep(hit);
+    const y0 = base.s.output;
+    nudge(hit, 'govt_spending', +1);
+    advance(base, 24); advance(hit, 24);
+    return (hit.s.output - base.s.output) / y0 * 100;
+  };
+  let prev = null;
+  for (let r = 0.4; r >= P.SS_ELB.value - 1e-9; r -= 0.1) {
+    const m = multiplierAt(Math.round(r * 100) / 100);
+    if (prev !== null) {
+      assert.ok(m >= prev - 1e-6,
+        `the multiplier FELL from ${prev.toFixed(4)} to ${m.toFixed(4)} as the rate ` +
+        `fell to ${r.toFixed(2)} — crowding out must weaken toward the bound`);
+      assert.ok(m - prev < 0.15,
+        `the multiplier jumped ${(m - prev).toFixed(4)} across one 0.1pp step at ` +
+        `rate ${r.toFixed(2)} — that is a switch, not a ramp`);
+    }
+    prev = m;
+  }
+});
+
+test('investment.js reads the rate DIAL only to display it', () => {
+  // The structural version of the two findings above, and the cheapest to
+  // keep: the dial's value has no business in the arithmetic of a demand rule.
+  // It is still legitimate INSIDE a trace, where showing the dial next to the
+  // transmitted rate is the whole teaching point of the pipeline panel — so
+  // the test allows exactly that one line and nothing else.
+  // tools/lint.mjs runs the same check across all of src/rules/.
+  const src = readFileSync(new URL('../src/rules/investment.js', import.meta.url), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  const reads = (src.match(/^.*\bs\.policy_rate\b(?!_).*$/gm) || [])
+    .filter((line) => !/rate_on_the_dial:\s*s\.policy_rate,?\s*$/.test(line.trim()));
+  assert.deepEqual(reads, [],
+    's.policy_rate — the dial — is used in arithmetic inside investment.js. ' +
+    'Demand rules read policy_rate_demand; the dial may only be displayed.');
 });

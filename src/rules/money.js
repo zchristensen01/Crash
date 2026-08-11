@@ -37,6 +37,9 @@ import { clamp } from '../units.js';
  * anchored advanced economy.
  */
 export function updateVelocity(s, trace) {
+  // lint-allow-dial: money demand is a portfolio choice against the CURRENT market
+  // rate, so it responds on the announcement. Velocity's own adjustment speed is
+  // 0.1/month either way, which swamps the one-month difference a driver would add.
   const i = Math.max(0, s.policy_rate);
   const rateTerm = P.VELOCITY_INTEREST_SEMIELAST.value *
                    Math.log(1 + i / 100) - s.velocity_v0;

@@ -185,10 +185,39 @@ disposable income ↑
 ```
 disposable income ↓ → consumption ↓ → output ↓ → unemployment ↑
 tax_revenue ↑ → deficit ↓ → debt ↓ → bond_yield ↓
-  BUT: if you raise taxes into a recession, output falls, and revenue may not
-       rise at all because you're taxing a smaller economy.
-       ← the austerity paradox. Encode it; it's real and counterintuitive.
+  BUT: raising taxes into a recession collects markedly LESS than you
+       legislated, because you are taxing a smaller economy. +3pp of tax
+       yields +2.30pp of revenue at a zero gap and +1.96pp at a -6% gap —
+       23% and 35% of the rise lost respectively, rising to 46% at -15%.
+       ← the austerity paradox, at the strength this model actually has.
 ```
+
+> **CORRECTED AGAINST MEASUREMENT (docs/12 L2).** This block used to say
+> "revenue may not rise at all", and both this document and the tax dial's own
+> help text promised the player a sign reversal. **The model does not produce
+> one at any playable gap, and neither does the literature it is built from.**
+>
+> The arithmetic is closed-form. With `revenue = τ + AUTOSTAB_TAX_ELASTICITY ·
+> (τ/100) · gap`, revenue falls only if `+1pp` of tax costs more than **3.11%**
+> of output at a zero gap, or **2.87%** at −6%. The model delivers **0.99%**.
+> Reaching the sign flip needs a tax multiplier at or above the top of
+> Romer–Romer (2.0–3.0), which is already the largest in the literature and is
+> already recorded as an open disagreement by `TAX_SHOCK_TO_GDP`'s `todo` test.
+> Only in the far corner of the joint parameter space — elasticity at its high
+> end of 1.8 *and* a −12% gap — does the requirement (1.76) fall inside
+> Romer–Romer at all.
+>
+> So the two findings are one finding, and nobody had connected them: **the
+> austerity paradox is missing because the tax multiplier is small.** That is a
+> statement about the model's demand block, not a coefficient to bend.
+> `test/multipliers.test.js` asserts the leak, which is real, and prints the
+> multiplier the sign reversal would require.
+>
+> `docs/08` §2 records this as fixed when market income stopped being a
+> constant. It was not: that change created the gradient (23% → 46% across the
+> gap range) and could not create the sign flip. The test `docs/07` L4 proposed
+> to catch exactly this — `revenueChange(-6,+3) < revenueChange(0,+3)*0.5` —
+> was never written; it measures 1.96 against a threshold of 1.15 and fails.
 
 **Timing rule that falls out of this:** cut taxes in a downturn, raise them in
 a boom. Politically this is exactly backwards from what's easy, which is why

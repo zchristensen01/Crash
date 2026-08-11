@@ -25,10 +25,17 @@ export const DIALS = [
     label: 'Tax',
     min: 0, max: 70, step: 0.25, unit: '% of GDP',
     neutral: 24.75,
+    // The last sentence used to promise that revenue "may not even rise".
+    // It always rises, at every playable gap, and it was never going to do
+    // otherwise: the sign flip needs a tax multiplier above Romer-Romer's
+    // (docs/12 L2). What the model DOES deliver is the leak, so that is what
+    // the player is now told. Never promise the player a mechanism the model
+    // does not have — they will run the experiment.
     help: 'Tax take. HIGH leaves less in people\'s pockets but pays down ' +
       'debt. LOW lets people spend, but the deficit grows. Raise it in a ' +
-      'recession and revenue may not even rise — you are taxing a smaller ' +
-      'economy.',
+      'recession and you collect noticeably less than you legislated — you ' +
+      'are taxing a smaller economy, and the deeper the slump the more of ' +
+      'the rise disappears.',
   },
   {
     key: 'govt_spending',

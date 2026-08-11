@@ -34,11 +34,11 @@ rather than a coefficient being quietly nudged.
 
 | | |
 |---|---|
-| Model | 23 rules, ~4,100 lines of dependency-free JavaScript |
-| Parameters | 121, of which 41 are registered as deliberately unread |
-| Tests | 95 — 92 pass, 0 fail, 3 documented `todo` disagreements, ~0.4 s |
-| Deliverable | one self-contained `index.html`, 324 kB, no CDN, no `node_modules` |
-| Docs | 13 files, ~44,000 words |
+| Model | 23 rules, ~4,300 lines of dependency-free JavaScript |
+| Parameters | 126, of which 41 are registered as deliberately unread |
+| Tests | 136 — 125 pass, 0 fail, 11 documented `todo` disagreements, plus a 5-check linter |
+| Deliverable | one self-contained `index.html`, no CDN, no `node_modules` |
+| Docs | 14 files, ~52,000 words |
 | Runtime deps | none. Node 20+ to build and test, Python 3 to regenerate parameters |
 
 ## What works
@@ -82,9 +82,35 @@ same-seed restarts depend on it and a test greps for `Math.random`.
 
 Ordered by how much it matters, and none of it hidden.
 
+### THE ONE THAT MATTERS: the model cannot reproduce any historical episode
+
+`docs/12` built `test/episodes.test.js` — the thing this section used to list as
+the highest-value missing work. Fed the actual policy paths of US 2008–12, US
+2021–23, UK 1979–83 and Japan 1995–2005, **the model fails all four, and it
+fails them the same way.**
+
+**It does not disinflate gradually. It either stabilises or diverges, with a
+two-percentage-point knife-edge between them.** From 8% inflation, a policy rate
+of 7% reaches 217% and a rate of 9% reaches 0.69%. Worse, the *path* flips the
+outcome as surely as the destination: 15% reached immediately produces
+deflation, and the same 15% reached over 24 months produces 250%.
+
+The mechanism is one thing. Demand responds to the real user cost, expectations
+are formed entirely from realised inflation, and the transmitted rate takes
+about three years to arrive — so expectations respond to inflation faster than
+the transmitted rate responds to the dial, and the real rate moves the *wrong
+way* when inflation rises. Credibility compounds it: it falls only on realised
+misses, so it collapses exactly when it is most needed.
+
+**This is the next piece of work, and it comes before anything else.** The
+acceptance test is already written (`test/episodes.test.js` → *"a bifurcation in
+the playable range"*). Do not build forward guidance on top of it first — see
+`docs/12`, "What I deliberately did not build".
+
 ### Open disagreements with the literature
 
-Recorded as `todo` tests that print their measured value on every run:
+Recorded as `todo` tests that print their measured value on every run. There are
+now eleven; the four largest are the episode failures above. Older ones:
 
 | | Model | Published | Why it is not being closed |
 |---|---|---|---|
@@ -97,12 +123,13 @@ And one parameter conflict, in `parameters.py` `CONFLICTS`:
 |---|---|
 | `ENERGY_TO_CPI` | Says 0.04pp of CPI per 10% energy rise, which makes the oil event's 60% spike worth 0.24pp. The event uses 2.4pp. Exactly 10×, and 0.04 looks like a transcription error for 0.4. Needs the source, not a keystroke |
 
-And one magnitude error found while writing `11-cause-and-effect.md`, tracked
-the same way:
-
-| | Model | Published | |
-|---|---|---|---|
-| `CRISIS_OUTPUT_TROUGH` | −24% | −6 to −15 | A REDUCED FORM USED AS A STRUCTURAL SHOCK. −9% is the *observed* peak-to-trough fall, which already contains the multiplier; `crisis.js` feeds it in as an exogenous demand impulse and the model multiplies it again. `CRISIS_HYSTERESIS_SCAR` compounds it by landing as an immediate cut to potential when Cerra-Saxena measure divergence from *trend* over years. Same class of error as decision A3 |
+`CRISIS_OUTPUT_TROUGH` used to be listed here at −24% against a published −6 to
+−15. **It is fixed** and its test is now a real assertion: the crash troughs at
+−8.96% of the pre-crisis level in month 14, with unemployment +2.07pp and output
+9.98% below the pre-crisis *trend* at five years. What fixed it was separating
+two reduced forms from the structural inputs they were being used as — and
+noticing that the two published numbers are measured against *different
+baselines*. See `docs/12` §2.
 
 ### Structural absences
 
@@ -117,6 +144,9 @@ These bound what the game can teach. Each is registered in `parameters.py`
    represent the groups.
 3. **Expectations are entirely adaptive.** No forward guidance, no announcement
    effects, no reason credibility is worth anything *before* it is tested.
+   **This is no longer a "structural absence" — it is the defect above.** Every
+   historical disinflation was won by moving expectations ahead of the outturn,
+   and the model has no channel through which that can happen.
 4. **No household or firm balance sheets.** A bank capital ratio and an
    aggregate credit stock, and that is all. Debt-service distribution — where
    mortgage resets and refinancing walls live — is absent.
@@ -131,27 +161,36 @@ These bound what the game can teach. Each is registered in `parameters.py`
 
 ### Validation that has not been done
 
-This is the honest answer to "is it accurate". Six reduced forms are checked at
-a single horizon; that is the floor, not the ceiling.
+~~**No historical episode test.**~~ **Built** — `test/episodes.test.js`, and it
+is the reason the section above exists. It was indeed the highest-value thing
+left, and it found something larger than everything the audit brief anticipated.
 
-1. **No historical episode test.** `UNKNOWNS['validation_target_paths']` says it
-   out loud: the research passes gave starting vectors but no target *paths*.
-   Feeding the model the actual policy path of US 2008–12, US 2021–23, Japan
-   1995–2005 or UK 1979–83 and checking it produces the qualitative arc is the
-   highest-value thing left, and nothing else substitutes for it.
-2. **No uncertainty propagation.** Every parameter carries `low`/`high` and
+~~**No impulse-response shapes.**~~ **Built** — `test/irf.test.js`, using the
+temporary-impulse harness. `docs/07` M9 had looked for these and found no
+response peaked at all, because it was measuring *permanent* moves, which cannot
+peak by construction.
+
+~~**Paths were never tested.**~~ **Built** — `test/paths.test.js`. Round trip,
+hike-hold-cut, stop-go.
+
+What is still missing:
+
+1. **No uncertainty propagation.** Every parameter carries `low`/`high` and
    nothing runs the model across them. The whole model is currently one draw
    from a wide joint distribution. A Monte Carlo would say which lessons are
    robust and which are artefacts of a point estimate — and it is exactly what
    "show the range rather than pretending to a point estimate" implies.
 3. **No impulse-response shapes.** Published VAR IRFs give a whole curve; the
    validation suite checks one point on it.
-4. **No step-size independence check.** The model is a monthly forward-Euler
+2. **No step-size independence check.** The model is a monthly forward-Euler
    integration and nobody has verified the answers are not partly an artefact
    of the discretisation.
-5. **No global stability map.** `stability.test.js` linearises at the steady
-   state; the audit added two sweeps over the gap; there is no systematic map
-   of the state space.
+3. **No global stability map**, and this one has been promoted by the episode
+   finding: `stability.test.js` linearises at the steady state, and there is now
+   a known bifurcation sitting in the middle of the playable range. A Monte
+   Carlo over the joint parameter distribution would say what fraction of the
+   space is on the divergent side, which is a question this model badly needs
+   answered.
 
 ### Interface gaps
 
@@ -168,9 +207,9 @@ merely unpolished.
 
 ### Engineering
 
-No CI, no lint, no type checking, no coverage. The type checking matters more
-than it sounds: JSDoc plus `tsc --checkJs` would have caught the ten undeclared
-state fields statically, before they needed an audit to find.
+**`tools/lint.mjs` exists** and runs as part of `npm test` — five zero-dependency
+static checks, each named for the finding it prevents, verified against a
+deliberate negative control. Still no CI, no type checking, no coverage.
 
 ## What "accurate" can and cannot mean here
 
@@ -200,7 +239,8 @@ sourced — and, unusually, that it tells you where they are not.
 ## Reading order
 
 1. `10-state-of-the-project.md` — this file
-2. `00-design-brief.md` — what the game is and what it must teach
+2. `12-third-audit.md` — the most recent pass, and the open defect
+3. `00-design-brief.md` — what the game is and what it must teach
 3. `11-cause-and-effect.md` — what every input actually does, measured
 4. `02-causal-map.md` — the causal chains, with the audit's corrections inline
 5. `01-variables.md` — every state variable, current

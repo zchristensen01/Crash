@@ -59,17 +59,34 @@ test('the core macro block is stable around the steady state', () => {
 test('the debt loop diverges, but slowly enough to be playable', () => {
   // Divergent BY DESIGN. What matters is the timescale: a small shock must
   // not become a crisis inside a term through arithmetic alone.
-  const eps = 1e-4;
-  const s = newState(); s.govt_debt += eps;
-  const base = newState();
-  run(s, 1, { assertEveryTick: false, events: false }); run(base, 1, { assertEveryTick: false, events: false });
-  const perTick = (s.govt_debt - base.govt_debt) / eps;
+  //
+  // MEASURED OVER A HORIZON, NOT ONE TICK, since docs/12 M2. This used to
+  // perturb debt, run a SINGLE month, and raise the one-tick amplification to
+  // the 96th power. That was a fair approximation while the whole debt stock
+  // repriced instantly; it is not one now that only 1/DEBT_AVERAGE_MATURITY
+  // of it refinances each year, because the whole content of that fix is that
+  // the feedback is NOT instantaneous. The one-month figure is now 0.9998 —
+  // below one, because the growth-and-inflation erosion term acts immediately
+  // and the interest response does not — while the loop is plainly divergent
+  // from six months out. Compounding a first derivative measured on the wrong
+  // timescale is the same error as reading a lag off the impact response.
+  const amplification = (n) => {
+    const eps = 1e-4;
+    const s = newState(); s.govt_debt += eps;
+    const base = newState();
+    const opts = { assertEveryTick: false, events: false, endings: false };
+    run(s, n, opts); run(base, n, opts);
+    return (s.govt_debt - base.govt_debt) / eps;
+  };
+  const short = amplification(12);
+  const overATerm = amplification(96);
 
-  assert.ok(perTick > 1.0,
-    'the debt-service spiral has stopped diverging — the debt-crisis ending ' +
-    'is now unreachable and Self-correction 5 has no teeth');
+  assert.ok(short > 1.0 && overATerm > short,
+    `a debt shock amplifies ${short.toFixed(4)}x at a year and ` +
+    `${overATerm.toFixed(4)}x over a term — the debt-service spiral has ` +
+    `stopped diverging, so the debt-crisis ending is unreachable and ` +
+    `Self-correction 5 has no teeth`);
 
-  const overATerm = Math.pow(perTick, 96);
   assert.ok(overATerm < 3.0,
     `a 1pp debt shock compounds ${overATerm.toFixed(2)}x over a 96-month ` +
     `term. Faster than ~3x and the player cannot recover from an early ` +

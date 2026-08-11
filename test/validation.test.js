@@ -142,30 +142,42 @@ test('RATE_TO_INFLATION: the model is about half the published estimate', {
   assert.ok(inRange(v, P.RATE_TO_INFLATION), report(v, P.RATE_TO_INFLATION));
 });
 
-test('CRISIS_OUTPUT_TROUGH: the crash is about 2.6x deeper than the literature', {
-  todo: 'KNOWN, AND A REDUCED FORM USED AS A STRUCTURAL SHOCK. -9% is the ' +
-        'OBSERVED peak-to-trough fall, which already contains the multiplier; ' +
-        'crisis.js feeds it in as an exogenous demand impulse and the model ' +
-        'multiplies it again. CRISIS_HYSTERESIS_SCAR compounds it by landing ' +
-        'as an immediate cut to potential when Cerra-Saxena measure divergence ' +
-        'from TREND over years. Measured trough ~-24% of output. Fixing it ' +
-        'means separating the structural impulse from the observed trough and ' +
-        'phasing the scar in — a modelling decision, not a smaller number. ' +
-        'This is the same class of error as decision A3.',
-}, async () => {
+test('CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range', async () => {
+  // WAS A `todo` FOR TWO PASSES, and is now a real assertion (docs/12 §2).
+  // What closed it was not a smaller number: -9% is an OBSERVED peak-to-trough
+  // fall that already contains the multiplier, and crisis.js was feeding it in
+  // as an exogenous demand impulse for the model to multiply a second time.
+  // The structural impulse is now the observation divided by the model's own
+  // measured amplification (CRISIS_IMPULSE_AMPLIFICATION), and the scar is
+  // deconvolved and phased the same way.
+  //
+  // MEASURED AGAINST THE PRE-CRISIS LEVEL, because that is what a published
+  // peak-to-trough is. This test used to difference against a baseline growing
+  // at trend, which is the CRISIS_HYSTERESIS_SCAR baseline, not this one —
+  // mixing the two is what made the trough and the permanent loss look
+  // mutually contradictory.
   const { EVENTS } = await import('../src/game/events.js');
   const { SCENARIOS } = await import('../src/game/scenarios.js');
   const crash = EVENTS.find((e) => e.key === 'financial_crisis');
-  const base = world({ overrides: SCENARIOS.calm.overrides, assert: false });
-  const hit = world({ overrides: SCENARIOS.calm.overrides, assert: false });
-  advance(base, 36); advance(hit, 36);
+  // MEASURED IN `bubble`, not `calm`. crisis_prob is driven by the credit gap,
+  // so that is where the model's own machinery actually puts a crash — and the
+  // published -6 to -15 is estimated on real crises, which by construction
+  // follow credit booms. Forced into `calm` the same event troughs at -6.9% in
+  // month 3, and into `recession` at -1.2%; that ordering is JST's "When
+  // Credit Bites Back" and is asserted separately in test/crisis.test.js.
+  const hit = world({ overrides: SCENARIOS.bubble.overrides, assert: false });
+  advance(hit, 24);
+  const preCrisisLevel = hit.s.output;
   crash.apply(hit.s);
-  let trough = 0;
-  for (let m = 0; m < 36; m++) {
-    advance(base, 1); advance(hit, 1);
-    trough = Math.min(trough, (hit.s.output - base.s.output) / base.s.output * 100);
+  let trough = 0, troughM = 0;
+  for (let m = 1; m <= 36; m++) {
+    advance(hit, 1);
+    const lvl = (hit.s.output / preCrisisLevel - 1) * 100;
+    if (lvl < trough) { trough = lvl; troughM = m; }
   }
   assert.ok(inRange(trough, P.CRISIS_OUTPUT_TROUGH), report(trough, P.CRISIS_OUTPUT_TROUGH));
+  assert.ok(troughM >= 9 && troughM <= 18,
+    `the trough is at month ${troughM}; JST put it at about a year`);
 });
 
 test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
@@ -181,4 +193,31 @@ test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
   const r = compare({ shock: (w) => nudge(w, 'tax_rate', +1), months: 30 });
   const v = -r.dOutput / r.base.output * 100;
   assert.ok(inRange(v, P.TAX_SHOCK_TO_GDP), report(v, P.TAX_SHOCK_TO_GDP));
+});
+
+test('PRIVATE debt reprices instantly, and government debt no longer does', {
+  todo: 'RECORDED, NOT FIXED (docs/12, E1). credit.js computes the debt-service ' +
+    'burden as private_credit * (policy_rate + credit_spread) / 100 — the DIAL, ' +
+    'and the whole stock. That is exactly the error the government\'s interest ' +
+    'bill carried until DEBT_AVERAGE_MATURITY_YEARS was added this pass: every ' +
+    'mortgage and every corporate loan is floating-rate with no lag, so the ' +
+    'default rate responds to a rate move the month it is announced. The ' +
+    'asymmetry is now visible and odd — the state refinances over seven years ' +
+    'while its households refinance overnight. Fixing it needs a private-debt ' +
+    'maturity parameter with its own source (the fixed/floating mix differs ' +
+    'enormously across countries, which is most of why the 2022 hiking cycle ' +
+    'hurt the UK and Australia so much more than the US), so it is a modelling ' +
+    'change rather than a keystroke. tools/lint.mjs holds the exception with a ' +
+    'declared reason so it cannot be forgotten.',
+}, () => {
+  // A rate move must not move the default rate on impact.
+  const base = world({ assert: false });
+  const hit = world({ assert: false });
+  advance(base, 24); advance(hit, 24);
+  nudge(hit, 'policy_rate', +3);
+  advance(base, 1); advance(hit, 1);
+  const dDefault = hit.s.default_rate - base.s.default_rate;
+  assert.ok(Math.abs(dDefault) < 1e-4,
+    `a 3pp hike moved the default rate ${dDefault.toFixed(5)}pp in its FIRST month. ` +
+    `Borrowers do not all reprice in thirty days.`);
 });

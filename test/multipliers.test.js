@@ -32,6 +32,7 @@ import { Trace } from '../src/trace.js';
 import { LagPipeline } from '../src/lags.js';
 import { makeRng } from '../src/rng.js';
 import { applyAutopilot } from '../src/game/autopilot.js';
+import { applyDialChange } from '../src/game/dials.js';
 
 // events: false — a random oil shock landing in one arm of a comparison
 // and not the other would make every multiplier reading noise.
@@ -180,4 +181,87 @@ test('printing buys real things when there is slack to buy them with', () => {
   assert.ok(hot.dInflation > slack.dInflation,
     `printing moved inflation ${hot.dInflation.toFixed(2)} at capacity vs ` +
     `${slack.dInflation.toFixed(2)} with slack`);
+});
+
+/* ------------------------------------------------------------------------
+ * THE AUSTERITY PARADOX — what is actually there, and what the doc promised.
+ *
+ * docs/02 DIAL 3 and the tax dial's own help text both promised the player
+ * that raising tax into a recession might not raise revenue at all. It always
+ * does, at every playable gap, and docs/08 §2's claim that market income
+ * becoming variable fixed this is wrong (docs/12 L2). What that change created
+ * was the LEAK — the share of a legislated rise that the shrinking economy
+ * eats — which is real, monotone in the gap, and worth teaching. So the leak
+ * is asserted, and the sign flip is recorded with the number it would need.
+ * ---------------------------------------------------------------------- */
+
+/** Standing external demand shock that lands the settled gap on `target`. */
+function nxForGap(target) {
+  if (target === 0) return 0;
+  const gapAt = (nx) => { const w = world(nx, { taylor: false }); advance(w, 36); return w.s.output_gap; };
+  let lo = -20, hi = 0;
+  for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (gapAt(m) < target) lo = m; else hi = m; }
+  return (lo + hi) / 2;
+}
+
+function taxRise(gapTarget, pp, months = 24) {
+  const nx = nxForGap(gapTarget);
+  const base = world(nx, { taylor: false });
+  const hit = world(nx, { taylor: false });
+  advance(base, 36); advance(hit, 36);
+  const g0 = base.s.output_gap;
+  applyDialChange(hit.s, hit.pipeline, 'tax_rate', hit.s.tax_rate + pp);
+  advance(base, months); advance(hit, months);
+  return {
+    g0,
+    dRevenue: hit.s.tax_revenue - base.s.tax_revenue,
+    dOutputPct: (hit.s.output - base.s.output) / base.s.output * 100,
+    leak: 1 - (hit.s.tax_revenue - base.s.tax_revenue) / pp,
+  };
+}
+
+test('AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack', () => {
+  // The true half of the doc's claim, and it needs a sweep rather than two
+  // points: the whole content is that the leak GROWS with the slack.
+  const rows = [0, -3, -6, -9, -12].map((g) => taxRise(g, 3));
+  for (const r of rows) {
+    assert.ok(r.dRevenue < 3,
+      `at a ${r.g0.toFixed(1)}% gap, +3pp of tax collected ${r.dRevenue.toFixed(3)}pp — ` +
+      `it cannot collect the full legislated amount, the economy shrinks`);
+    assert.ok(r.dRevenue > 0,
+      `at a ${r.g0.toFixed(1)}% gap revenue FELL by ${(-r.dRevenue).toFixed(3)}. That is ` +
+      `the paradox the docs used to promise; if it now happens, this test is ` +
+      `the wrong one and docs/02 DIAL 3 needs rewriting again.`);
+  }
+  for (let i = 1; i < rows.length; i++) {
+    assert.ok(rows[i].leak > rows[i - 1].leak,
+      `the leak did not grow between a ${rows[i - 1].g0.toFixed(1)}% gap ` +
+      `(${(rows[i - 1].leak * 100).toFixed(1)}%) and a ${rows[i].g0.toFixed(1)}% gap ` +
+      `(${(rows[i].leak * 100).toFixed(1)}%) — taxing a smaller economy has to cost more`);
+  }
+  assert.ok(rows[0].leak > 0.15 && rows[rows.length - 1].leak > 0.35,
+    `leak is ${(rows[0].leak * 100).toFixed(1)}% at a zero gap and ` +
+    `${(rows[rows.length - 1].leak * 100).toFixed(1)}% at -12% — both look too small ` +
+    `to be worth teaching`);
+});
+
+test('THE SIGN FLIP THE DOCS PROMISED: how far away is it', {
+  todo: 'OPEN, AND THE SAME FINDING AS TAX_SHOCK_TO_GDP. Revenue rises at every ' +
+    'playable gap and no plausible parameter draw changes that. Closed form: ' +
+    'with revenue = tau + e*(tau/100)*gap, revenue falls only if +1pp of tax ' +
+    'costs more than 3.11% of output at a zero gap or 2.87% at -6%. The model ' +
+    'delivers 0.99%. The requirement drops to 1.76% only at the elasticity\'s ' +
+    'high end (1.8) AND a -12% gap, which is the one corner where it lands ' +
+    'inside Romer-Romer (2.0-3.0) at all. So the austerity paradox is absent ' +
+    'BECAUSE the tax multiplier is small — one finding, not two, and the fix ' +
+    'is a statement about the demand block rather than a coefficient to bend. ' +
+    'docs/07 L4 proposed exactly this test and it was never written.',
+}, () => {
+  const e = P.AUTOSTAB_TAX_ELASTICITY.value, tau = 24.75;
+  const gap = -6;
+  const required = (1 + e * gap / 100) / (e * (tau / 100));   // % of output per pp of tax
+  const delivered = -taxRise(gap, 1, 30).dOutputPct;
+  assert.ok(delivered >= required,
+    `the sign flip needs +1pp of tax to cost ${required.toFixed(2)}% of output at a ` +
+    `${gap}% gap; the model delivers ${delivered.toFixed(2)}%. Romer-Romer is 2.0-3.0.`);
 });

@@ -77,6 +77,9 @@ export function updateApproval(s, trace) {
       (incomeGrowth - s.potential_growth),
     'unemployment': -w * (s.unemployment - s.natural_unemployment),
     'cost of living': -1.0 * Math.max(0, s.inflation - s.inflation_target),
+    // lint-allow-dial: voters resent the tax rate that was ANNOUNCED, not the one
+    // that has finished arriving in pay packets. The political reaction is to the
+    // budget speech; tax_rate_effective is what the economics responds to.
     'tax resentment': -0.15 * (s.tax_rate - s.tax_rate_ss),
   };
   const target = s.approval_base + Object.values(terms).reduce((a, b) => a + b, 0);
