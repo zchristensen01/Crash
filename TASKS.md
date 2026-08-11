@@ -423,9 +423,15 @@ guard green. Phase 6 is unblocked.
       **CARRY FORWARD the section 4.2 added** — "Two numbers in this model are
       not evidence, and one of them is the crash". It is the only place the
       epistemic status of the crash magnitude is written down for a reader.
-- [ ] 10.2 Regenerate `docs/11` — **THE MOST STALE FILE IN THE REPO.** Not
-      touched since the third audit (a2b7ce0). Every number predates Phase 2.
-- [ ] 10.3 Regenerate `TEST-RESULTS.md`
+- [~] 10.2 Regenerate `docs/11` — **tables done, prose PARTLY done**
+      Regenerated in 4.3 and again in 5.4; all six section-2 dial tables are
+      current and the doc carries a fingerprint of all 1464 measured numbers,
+      checked by `npm test`. **STILL OUTSTANDING: the prose in sections 1 and
+      3-7 has never been checked number-by-number** (open_items B1). The
+      fingerprint asserts the doc was generated against this model; it does not
+      assert every sentence was re-read.
+- [~] 10.3 Regenerate `TEST-RESULTS.md` — done repeatedly, redo at the end
+      `node tools/report.mjs`. Currently 160 tests, 143 pass, 0 fail, 17 open.
 - [ ] 10.4 Update `docs/02`
       **PARTLY DONE:** 2.3 added a new section, "THE MOST IMPORTANT SINGLE FACT
       ABOUT THIS MODEL'S DYNAMICS", carrying the 0.37 → 1.83 transmitted Taylor
