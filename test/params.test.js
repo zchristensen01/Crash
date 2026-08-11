@@ -79,6 +79,21 @@ test('every START field is read by something, or is declared idle', () => {
   }
 });
 
+test('the two depreciation rates are equal, as both their notes require', () => {
+  // DEPRECIATION_RATE's note has always ended "Keep them equal" and
+  // SS_DEPRECIATION's says it supersedes the old 0.065. They were 0.065 and
+  // 0.06 for the life of the model: a stated invariant that the values
+  // violated, in the file whose whole claim is that it is the authority.
+  // One is used by the steady-state identities and the other by the capital
+  // law of motion, so a gap between them means the starting vector cannot
+  // sustain the capital stock the model accumulates.
+  assert.equal(P.DEPRECIATION_RATE.value, P.SS_DEPRECIATION.value,
+    `DEPRECIATION_RATE is ${P.DEPRECIATION_RATE.value} and SS_DEPRECIATION is ` +
+    `${P.SS_DEPRECIATION.value}. START.investment_share is solved as ` +
+    `(delta + g) * K/Y from SS_DEPRECIATION, and supply.js accumulates capital ` +
+    `with DEPRECIATION_RATE. Different values mean the vector cannot hold K/Y.`);
+});
+
 test('every parameter has a value inside its range', () => {
   for (const [name, p] of Object.entries(P)) {
     assert.ok(p.low <= p.value && p.value <= p.high,
@@ -136,10 +151,15 @@ test('START satisfies the accounting identities', () => {
   assert.ok(Math.abs(s.yield_10y - (s.policy_rate + s.term_premium)) < 1e-9,
     'yield != policy rate + term premium');
 
-  const iy = (0.06 + s.potential_growth / 100) * s.capital_output_ratio * 100;
+  // READS THE PARAMETER, NOT A LITERAL [4th audit 5.7]. This was a hardcoded
+  // 0.06 against a DEPRECIATION_RATE of 0.065 — so the check asserted the
+  // starting vector against a depreciation rate the capital law of motion did
+  // not use, and passed. Both are 0.06 now and this line is what keeps them so.
+  const delta = P.SS_DEPRECIATION.value;
+  const iy = (delta + s.potential_growth / 100) * s.capital_output_ratio * 100;
   assert.ok(Math.abs(iy - s.investment_share) < 1e-9,
     `investment share ${s.investment_share}% will not hold K/Y at ` +
-    `${s.capital_output_ratio} — needs ${iy.toFixed(2)}%. NB the textbook ` +
+    `${s.capital_output_ratio} at delta=${delta} — needs ${iy.toFixed(2)}%. NB the textbook ` +
     `I = delta*K gives 18% and is the ZERO-growth case.`);
 
   assert.equal(s.output_gap, 0, 'a steady state has no output gap');
@@ -167,7 +187,7 @@ test('START satisfies the accounting identities', () => {
  *
  * WHAT IS ACTUALLY EVIDENCE is the residual — how much of the published
  * magnitude the model supplies BY ITSELF. That number can fail, and in this
- * audit it fell from 8.4% to 3.65%.
+ * audit it fell from 8.4% to 3.82%.
  */
 test('every constant solved from the model is declared, in both directions', () => {
   const entries = Object.entries(SOLVED_FROM_MODEL);

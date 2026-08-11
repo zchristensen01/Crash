@@ -40,6 +40,52 @@ test('200 ticks of no input and nothing drifts', () => {
   }
 });
 
+/**
+ * THE LEVEL, NOT THE RATIO — AND THIS TEST FILE COULD NOT SEE IT [4th audit 5.7].
+ *
+ * Every quantity in TOLERANCE above is a ratio, a rate, or a percent of
+ * potential. `output_gap` is output OVER potential. `consumption` is a percent
+ * OF potential. `inflation` and `unemployment` are rates. **All of them are
+ * invariant to output and potential drifting together**, so the milestone test
+ * — the one this file opens by calling load-bearing — was blind to an entire
+ * class of defect for the life of the model.
+ *
+ * It was blind to a real one. `supply.js` added `s.investment`, a PERCENT OF
+ * POTENTIAL, to `capital_stock`, a LEVEL, so the investment flow feeding the
+ * capital stock was frozen at its month-zero value while potential grew away
+ * from 100. Measured before the fix: K/Y fell 3.0 → 2.89 (m96) → 2.05 (m600),
+ * K converged to a constant `I/δ` = 346.15, and long-run potential growth
+ * decayed to 0.93%/yr against a stated 1.5. Nothing in this file moved.
+ *
+ * So: assert the two LEVEL facts a growth model must satisfy at rest, both
+ * derived rather than pinned. The economy grows at the rate it says it grows
+ * at, and the capital-output ratio it was built around stays put.
+ */
+test('THE LEVEL: potential grows at potential_growth, and K/Y stays put', () => {
+  const s = newState();
+  const kOverY0 = s.capital_stock / s.potential_output;
+  run(s, 200, QUIET);
+
+  // 1. Realised growth equals the stated rate. The residual is the linear-vs-
+  //    compound convention units.js documents, which is ~0.7% of the rate.
+  const realised = s.gdp_growth_annual;
+  assert.ok(Math.abs(realised - s.potential_growth) < 0.05,
+    `the economy grew at ${realised.toFixed(4)}%/yr against a potential_growth ` +
+    `of ${s.potential_growth}%. Output and potential can drift TOGETHER without ` +
+    `moving a single ratio above, which is how the capital-units defect of 5.7 ` +
+    `survived: it took long-run growth to 0.93% and nothing here noticed.`);
+
+  // 2. K/Y is what START was solved to hold. investment_share is
+  //    (delta + g) * K/Y, so if this drifts either the share or one of the two
+  //    depreciation rates is wrong — and they were both wrong at once.
+  const kOverY = s.capital_stock / s.potential_output;
+  assert.ok(Math.abs(kOverY - kOverY0) < 0.02,
+    `K/Y went ${kOverY0.toFixed(4)} -> ${kOverY.toFixed(4)} over 200 quiet ` +
+    `months. START.investment_share is SOLVED as (delta + g) * K/Y to hold it ` +
+    `fixed; a drift means the share, SS_DEPRECIATION or DEPRECIATION_RATE ` +
+    `disagree, or the capital law of motion has a unit error.`);
+});
+
 test('credibility rises when the target is hit, and slowly', () => {
   const s = newState();
   const before = s.credibility;

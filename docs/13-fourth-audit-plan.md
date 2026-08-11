@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Seventeen corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Nineteen corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1434,11 +1434,49 @@ anywhere in `src/`. Wire or defer.
 > K/Y constant is **24.0**, not 22.5. A bare literal in a test, which is the
 > class check (f) polices and does not cover.
 >
-> **Not fixed here.** It moves potential output in every scenario, so it moves
-> every measurement in this audit — the six vectors, `docs/11`, the crisis
-> constants, and `investment_share` itself. Phase-3-sized, with its own gate.
-> Recorded as open_items **A5** and it is the strongest candidate for the next
-> task alongside A2.
+> **Fixed in 5.7, as its own task with its own gate**, and two of the three
+> predictions in this block turned out to be wrong in the useful direction.
+>
+> ### CORRECTION 18 — the blast radius was four quantities, not "every measurement".
+>
+> Correction 17 said the fix "moves every measurement in this audit". Measured
+> across all six scenarios at m96, **only four moved**: `potential_output`,
+> `capital_stock`, `gdp_growth_annual` and `approval`. Every ratio — output
+> gap, inflation, unemployment, consumption, investment, debt, asset prices,
+> credit gap, crisis probability — is identical to four decimals.
+>
+> **The model is almost entirely ratio-invariant, and that is the same fact as
+> "nothing caught this for the model's whole life".** The one thing a player
+> could have felt is `approval`, because it reads year-on-year REAL INCOME — a
+> level — so it was the only channel through which a sagging ceiling reached
+> the score.
+>
+> ### CORRECTION 19 — `investment_share` did not need re-deriving. The two depreciation rates needed equalising.
+>
+> Correction 17 said the share must go 22.5 → 24.0 because
+> `DEPRECIATION_RATE = 0.065`. **The right reading is the opposite**, and both
+> parameters say so themselves: `DEPRECIATION_RATE`'s note has always ended
+> *"Keep them equal"*, and `SS_DEPRECIATION`'s says it *"Supersedes the old
+> DEPRECIATION_RATE=0.065"*. A stated invariant that the values violated, in
+> the file whose whole claim is that it is the authority — the retirement was
+> decided and never applied. Equalised at **0.06**, which makes
+> `(δ+g)·K/Y = (0.06+0.015)·3 = 0.225` and `investment_share = 22.5` correct as
+> it stands. `test/params.test.js` now reads the parameter rather than a
+> hardcoded 0.06, and a new test asserts the two are equal.
+>
+> **The invariant caught the fix on tick 2**, because `invariants.js` check 4
+> carried the *same* unit error — which is precisely why it never caught the
+> defect. Two copies of one wrong formula agree with each other perfectly.
+>
+> **Re-measured rather than left**, since a `SOLVED_FROM_MODEL` constant must
+> be re-solved whenever the model changes: `CRISIS_IMPULSE_AMPLIFICATION`
+> 2.1855 → **2.0461**, trough −9.000000 at month 12. Endogenous propagation
+> 3.65 → **3.82**, UK sacrifice ratio 0.35 → **0.36**, `TAX_SHOCK_TO_GDP`
+> 0.487 → **0.484**, transmitted Taylor response 1.96 → **1.94**, and
+> `RATE_TO_INFLATION` at 24 months 0.1227 → **0.0797** — halved, because a hike
+> used to be measured against a ceiling that was itself sagging.
+>
+> **`test/steady-state.test.js` gained the LEVEL assertion it never had.**
 
 ---
 

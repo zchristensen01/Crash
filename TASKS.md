@@ -101,7 +101,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Seventeen** corrections to the
+Recorded here and against the individual tasks. **Nineteen** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -118,7 +118,9 @@ produced them.
 | 14 | D3's literal counts were read, not run — `crisis.js` is out by 8x | closed |
 | 15 | 5.5's "wire it or correct the note" offers a repair that would have been a unit error | closed |
 | 16 | D5 names two dead START fields; there are four | closed |
-| 17 | **`supply.js` adds a percent-of-potential flow to a capital STOCK** — capacity grows at 0.93%/yr against a stated 1.5 | **OPEN — open_items A5** |
+| 17 | **`supply.js` adds a percent-of-potential flow to a capital STOCK** — capacity grows at 0.93%/yr against a stated 1.5 | closed by 5.7 |
+| 18 | Correction 17's blast radius was wrong: **four quantities moved, not "every measurement"** — the model is almost entirely ratio-invariant, which is the same fact as nothing having caught it | closed |
+| 19 | `investment_share` did NOT need re-deriving. **`DEPRECIATION_RATE` and `SS_DEPRECIATION` needed equalising** — both notes already said so and the values violated it | closed |
 
 **Both claims docs/13 flagged as READ, NOT MEASURED are now checked.**
 `credit.js:218`'s EMA comment was measured in 3.2 and the brief was right.
@@ -498,30 +500,45 @@ guard green. Phase 6 is unblocked.
 Each has a matching `open_items.md` entry with the reproduction. These are
 tasks, not notes — the pass found them and did not fix them.
 
-- [ ] 5.7 **The capital law of motion treats a share as a level** — `open_items` A5
-      **The largest model defect found in Phase 5.** `supply.js:25` adds
-      `annualToMonthlyFlow(s.investment)` — a PERCENT OF POTENTIAL — to
-      `capital_stock`, a LEVEL, so the investment flow feeding the capital
-      stock is frozen at its month-zero value while potential grows away from
-      100. Measured: K converges to a constant `I/δ` = 22.5/0.065 = **346.15**
-      (measured 346.154 at m2400); long-run potential growth decays to
-      `gA = g·(1−α)` = **0.930%** (measured 0.9345% at m1200, still falling)
-      against a stated `potential_growth` of 1.5; K/Y falls 3.0 → 2.89 (m96) →
-      **2.05** (m600).
-      **Isolated:** scaling the flow by `potential_output` returns growth to
-      **1.493%** and K/Y to 2.83, and the steady state stays exact to 9dp.
-      **A SECOND DEFECT SITS UNDER IT:** `test/params.test.js`'s identity check
-      hardcodes `0.06` against `DEPRECIATION_RATE = 0.065`, so the share that
-      holds K/Y constant is **24.0**, not 22.5. `investment_share` must be
-      re-derived with it.
-      **This needs its own gate.** It moves potential output in every scenario,
-      so it moves the six starting vectors, all of `docs/11`, and
-      `CRISIS_IMPULSE_AMPLIFICATION` (solved against a trough measured relative
-      to potential). Treat it like Phase 3: fix, re-measure everything, re-stamp.
-      **`test/steady-state.test.js` CANNOT SEE IT** — it checks `output_gap` (a
-      ratio), `inflation` (a rate) and `consumption` (a percent of potential),
-      and all three are invariant when output and potential drift together. Add
-      a level assertion as part of this task or the next drift is invisible too.
+- [x] 5.7 **The capital law of motion treated a share as a level** — `open_items` A5
+      `supply.js` added `annualToMonthlyFlow(s.investment)` — a PERCENT OF
+      POTENTIAL — to `capital_stock`, a LEVEL, so the investment flow feeding
+      the capital stock was frozen at its month-zero value while potential grew
+      away from 100. Predicted and measured, all three exact: K converged to a
+      constant `I/δ` = 22.5/0.065 = **346.15** (346.154 at m2400); growth
+      decayed to `gA` = **0.930%** (0.9345% at m1200); K/Y fell 3.0 → **2.05**
+      by m600. Now **K/Y 2.999923 and growth 1.5107%** against a stated 1.5.
+      **A SECOND DEFECT UNDER IT, AND THE CODE STATED THE RULE IT BROKE.**
+      `DEPRECIATION_RATE` was 0.065 against `SS_DEPRECIATION`'s 0.06, while its
+      own note ended *"Keep them equal"* and `SS_DEPRECIATION`'s said it
+      *"supersedes the old 0.065"*. Equalised at 0.06 — **which is what makes
+      `investment_share = 22.5` correct**, so it did NOT need re-deriving to
+      24.0 as this task's original entry predicted. `test/params.test.js` now
+      reads the parameter instead of a hardcoded 0.06, and a new test asserts
+      the two rates are equal.
+      **THE INVARIANT CAUGHT THE FIX, ON TICK 2** — `invariants.js` check 4
+      carried the *same* unit error, which is why it had never caught the
+      defect: two copies of one wrong formula agree perfectly. Both corrected.
+      **THE BLAST RADIUS WAS FAR SMALLER THAN PREDICTED, and that is the
+      finding.** Across all six scenarios at m96 **only four quantities moved**:
+      `potential_output`, `capital_stock`, `gdp_growth_annual` and `approval`.
+      Every ratio is identical to 4dp. **The model is almost entirely
+      ratio-invariant, which is exactly why nothing caught this for its whole
+      life** — and `approval` is the one thing a player would have felt, because
+      it reads year-on-year REAL INCOME, a level.
+      **RE-MEASURED, NOT LEFT:** `CRISIS_IMPULSE_AMPLIFICATION` re-solved
+      **2.1855 → 2.0461** (compulsory — `SOLVED_FROM_MODEL`), trough −9.000 at
+      month 12; endogenous propagation 3.65 → **3.82**; UK sacrifice ratio
+      0.35 → **0.36**; `TAX_SHOCK_TO_GDP` 0.487 → **0.484**; transmitted Taylor
+      response 1.96 → **1.94**; `RATE_TO_INFLATION` @24m 0.1227 → **0.0797**,
+      which halved because a hike used to be measured against a sagging
+      ceiling. `docs/11` regenerated and re-stamped `5133ba7bc882334a`.
+      **`test/steady-state.test.js` GAINED THE LEVEL ASSERTION IT NEVER HAD.**
+      Every quantity it checked was a ratio, a rate or a percent of potential,
+      and all of them are invariant when output and potential drift together —
+      the milestone test was blind to an entire class of defect. It now asserts
+      that potential grows at `potential_growth` and that K/Y stays where START
+      solved it.
 
 - [ ] 5.8 Give `updateBondYield` an expected-inflation term — `open_items` A4
       **UNBLOCKS 5.1 AND 5.5's `HAND_TO_MOUTH_SHARE` WIRING.** The 10-year yield

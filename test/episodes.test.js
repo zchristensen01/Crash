@@ -23,9 +23,9 @@
  *
  * WHAT THE FOUR NOW SAY, WHICH IS FOUR DIFFERENT THINGS:
  *   UK 1979-83   THE BIG WINNER. The disinflation now happens, and on roughly
- *                the historical timetable (peak month 10 vs the UK's 13,
+ *                the historical timetable (peak month 11 vs the UK's 13,
  *                against month 60 before). It is still far too cheap:
- *                sacrifice ratio 0.35 against Ball's 2-4.
+ *                sacrifice ratio 0.36 against Ball's 2-4.
  *   US 2021-23   Materially better — inflation now peaks inside the window at
  *                all — and what remains is ENTIRELY the expectations block:
  *                credibility collapses to zero on realised misses alone.
@@ -262,7 +262,7 @@ test('UK 1979-83: low credibility really does make inflation more expensive', ()
     'inflation should still be rising six months in, while the hike transmits');
   // The PEAK LEVEL assertion that used to sit here has moved into the episode's
   // magnitude test below, where the rest of its disagreements with history
-  // already live. The A1 split took the peak from 20.39% to 16.17% against a UK
+  // already live. The A1 split took the peak from 20.39% to 16.18% against a UK
   // RPI of 21.9% — the hike now reaches borrowers, so inflation turns over
   // sooner and lower. That is a magnitude, not a mechanism, and this test is
   // the mechanism one: kappa on its unanchored branch is what made the episode
@@ -271,18 +271,18 @@ test('UK 1979-83: low credibility really does make inflation more expensive', ()
 
 test('UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES', {
   todo: 'THE BIGGEST IMPROVEMENT OF PHASE 2, AND IT STILL FAILS ON THE PRICE. ' +
-    'The TIMING is now right: inflation peaks in month 10 where the UK peaked ' +
+    'The TIMING is now right: inflation peaks in month 11 where the UK peaked ' +
     'in month 13, against month 60 before the A1 split — the disinflation now ' +
-    'happens, and on roughly the historical timetable. It falls to 7.59% at ' +
+    'happens, and on roughly the historical timetable. It falls to 7.82% at ' +
     'four years, against 13.71% before (UK: 4.6%). The felt rate at month 12 ' +
     'went from 13.12% to 16.86% against a 17% MLR, which is the whole of why: ' +
     'Howe\'s budget is now actually contractionary in the model rather than ' +
     'nominally so. ' +
     'WHAT STILL FAILS IS THE PRICE, AND IT FAILS IN BOTH DIRECTIONS. The peak ' +
-    'is 16.17% against a UK 21.9% — the model no longer overshoots into a late ' +
+    'is 16.18% against a UK 21.9% — the model no longer overshoots into a late ' +
     'spiral, but it never reaches the historical peak either. And the recession ' +
-    'is still absent: unemployment rises 0.66pp where the UK went 5.4 -> 11.9, ' +
-    'so the sacrifice ratio is 0.35 point-years per pp against Ball 1994\'s 2-4 ' +
+    'is still absent: unemployment rises 0.65pp where the UK went 5.4 -> 11.9, ' +
+    'so the sacrifice ratio is 0.36 point-years per pp against Ball 1994\'s 2-4 ' +
     'for this exact episode. A disinflation this cheap is not a disinflation ' +
     'anyone would recognise. That is a statement about the DEMAND BLOCK — the ' +
     'same finding as TAX_SHOCK_TO_GDP and the missing austerity paradox, where ' +

@@ -22,7 +22,35 @@ import { annualRateToMonthlyLinear, annualToMonthlyFlow } from '../units.js';
  */
 export function updatePotentialOutput(s, trace) {
   const deltaM = annualRateToMonthlyLinear(P.DEPRECIATION_RATE.value);
-  const investM = annualToMonthlyFlow(s.investment);   // % of potential, monthly
+  // INVESTMENT IS A SHARE AND THE CAPITAL STOCK IS A LEVEL [4th audit 5.7].
+  //
+  // This was `annualToMonthlyFlow(s.investment)`. `s.investment` is a PERCENT
+  // OF POTENTIAL OUTPUT — this model's convention for every flow, stated at
+  // the top of state.js: "potential_output is the only level" — and it was
+  // being added to `capital_stock`, which is a level. So the investment flow
+  // feeding the stock was FROZEN at its month-zero value while potential grew
+  // away from 100. Same class as the asset-price semi-elasticity of B2: a
+  // share used where a level belongs.
+  //
+  // Three consequences, all measured before the fix and all exact:
+  //
+  //   K converged to a CONSTANT I/delta, not to a growing path
+  //       predicted 22.5/0.065 = 346.15, measured 346.154 at m2400
+  //   potential growth decayed to the TFP term alone
+  //       predicted gA = g*(1-alpha) = 0.930%, measured 0.9345% at m1200
+  //   K/Y fell without bound from 3.0
+  //       2.89 at m96, 2.66 at m240, 2.05 at m600
+  //
+  // NOTHING CAUGHT IT FOR THE WHOLE LIFE OF THE MODEL, and the reason is worth
+  // keeping: test/steady-state.test.js checks output_gap (a ratio), inflation
+  // (a rate) and consumption (a percent of potential), and ALL THREE ARE
+  // INVARIANT to this defect because output and potential drift together. The
+  // gate that exists to catch drift cannot see a common drift in the level.
+  // It surfaced only when 5.6 wired `gdp_growth_annual`, which had been
+  // carried in START as a frozen 1.5 and read by nothing — so the model had no
+  // real-growth number anywhere for anyone to look at. There is a level
+  // assertion in that test file now.
+  const investM = annualToMonthlyFlow(s.investment / 100 * s.potential_output);
 
   const depreciation = -deltaM * s.capital_stock;
   const kBefore = s.capital_stock;

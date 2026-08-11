@@ -52,10 +52,22 @@ export function checkInvariants(s, prev, tick) {
   }
 
   // 4. Capital law of motion. Investment is LAST tick's, because supply runs
-  //    before the demand block: K[t] = (1-delta_m)K[t-1] + I[t-1]/12.
+  //    before the demand block:
+  //        K[t] = (1-delta_m)K[t-1] + (I[t-1]/100 * Y*[t-1])/12
+  //
+  //    INVESTMENT IS A SHARE OF POTENTIAL, NOT A LEVEL [4th audit 5.7], and
+  //    this identity carried the same unit error as the rule it pins — which
+  //    is exactly why it did not catch it. Two copies of one wrong formula
+  //    agree with each other perfectly. It DID catch the fix, on tick 2, which
+  //    is the invariant doing its job in the only direction it could.
+  //
+  //    Potential is also last tick's: updatePotentialOutput computes the
+  //    investment slice before it overwrites s.potential_output, so the value
+  //    it multiplies by is the ceiling the economy had when the spending
+  //    happened.
   const deltaM = annualRateToMonthlyLinear(P.DEPRECIATION_RATE.value);
   const expectedK = prev.capital_stock * (1 - deltaM)
-                  + annualToMonthlyFlow(prev.investment);
+                  + annualToMonthlyFlow(prev.investment / 100 * prev.potential_output);
   if (Math.abs(s.capital_stock - expectedK) > 1e-6) {
     fail('capital law of motion', s.capital_stock, expectedK, tick);
   }

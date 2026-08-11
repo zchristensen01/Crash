@@ -331,8 +331,8 @@ TAYLOR_INFLATION = P(0.5, 0.5, 1.0, "coefficient", "strong", "Taylor 1993",
                      "principle and TRANSMISSION VIOLATED IT, which is why the "
                      "model bifurcated — a rule can be above unity on paper and "
                      "below it in effect, and only the effect stabilises "
-                     "anything. IT IS NOW 1.96 over the same window, and the "
-                     "real rate felt at month 12 went from -14.50% to -1.77%. "
+                     "anything. IT IS NOW 1.94 over the same window, and the "
+                     "real rate felt at month 12 went from -14.50% to -1.81%. "
                      "(2.3 recorded 1.80 and docs/02 recorded 1.83; 3.1's asset-"
                      "units fix moved both to 1.96 and neither was updated. "
                      "Re-measured in Phase 5 verification.) "
@@ -344,7 +344,8 @@ TAYLOR_INFLATION = P(0.5, 0.5, 1.0, "coefficient", "strong", "Taylor 1993",
                      "Re-measured after Phases 2-4, raising this to 1.0 — the "
                      "TOP of the sourced range — takes `stagflation` under the "
                      "rule from 7.12% to 3.24% at m48 and 3.15% to 1.42% at "
-                     "m96. It now has plenty of traction. The reason to leave "
+                     "m96 (measured before 5.7; that fix moved the transmitted "
+                     "response 1.96 -> 1.94 and nothing about this argument). It now has plenty of traction. The reason to leave "
                      "it at 0.5 is that the defect WAS transmission, fixing "
                      "transmission fixed it, and moving a sourced coefficient "
                      "to cover a structural error is rule 4. "
@@ -1196,11 +1197,14 @@ CRISIS_YEARS_TO_RECOVER = P(
 # --------------------------------------------------------------------
 
 CRISIS_IMPULSE_AMPLIFICATION = P(
-    2.1855, 1.8, 3.4, "x — this model's amplification of a crisis-state demand impulse into a realised output trough",
+    2.0461, 1.8, 3.4, "x — this model's amplification of a crisis-state demand impulse into a realised output trough",
     "judgement", "DERIVED FROM THIS MODEL by solving for the value that makes "
     "the realised peak-to-trough fall equal CRISIS_OUTPUT_TROUGH. Re-measured "
     "by test/crisis.test.js on every run.",
     "[4TH AUDIT 4.1] RE-SOLVED from 2.59 to 2.1855 after Phases 2 and 3 changed "
+    "\n"
+    "\n"
+    "[4TH AUDIT 5.7] RE-SOLVED AGAIN, 2.1855 -> 2.0461, and this is the register working rather than a correction. 5.7 fixed a unit error in the capital law of motion; potential output now grows at the rate it is told to, so the trend the trough is measured against moved, and the realised peak-to-trough fell to -8.7118. Re-solved by bisection on the same crashArc harness 4.1 used: the trough is -9.000000 exactly, at month 12 against month 15 before, and 12 is if anything closer to JST's 'about a year'. Still inside [1.8, 3.4]. THE POINT OF THE SOLVED_FROM_MODEL REGISTER IS THAT THIS IS COMPULSORY: the constant is defined by the solve, so a model change that moves the trough and leaves the constant alone leaves a test passing on a number that means nothing."
     "the demand block. This is not a correction of an error: the constant is "
     "DEFINED as this model's amplification, the model's amplification fell, "
     "and so did the constant. The structural demand impulse is "
@@ -1506,11 +1510,27 @@ AUTOSTAB_BENEFIT_LAG = P(
     "moderate", "OECD", "The fastest channel in the model.")
 
 DEPRECIATION_RATE = P(
-    0.065, 0.04, 0.10, "fraction of the capital stock per year",
+    0.06, 0.04, 0.10, "fraction of the capital stock per year",
     "moderate", "standard growth accounting",
-    "K[t] = (1-delta)*K[t-1] + I[t]. Consistent with SS_DEPRECIATION (0.06) "
-    "to within its range; SS_DEPRECIATION is the one used by the steady-state "
-    "identities, this one by the capital law of motion. Keep them equal.")
+    "K[t] = (1-delta)*K[t-1] + I[t]. SS_DEPRECIATION is the one used by the "
+    "steady-state identities, this one by the capital law of motion, and the "
+    "note here has always ended KEEP THEM EQUAL.\n"
+    "\n"
+    "[4TH AUDIT 5.7] THEY WERE NOT EQUAL. This was 0.065 against "
+    "SS_DEPRECIATION's 0.06 — a stated invariant that the two values violated, "
+    "in a file whose whole claim is that it is the authority. SS_DEPRECIATION's "
+    "own note says it SUPERSEDES the old 0.065, so the retirement was decided "
+    "and never applied. Set to 0.06 here, which is what makes START's "
+    "investment_share of 22.5 correct: the share that holds K/Y fixed is "
+    "(delta + g) * K/Y = (0.06 + 0.015) * 3 = 0.225. At 0.065 it would have "
+    "needed 24.0, and the model would have been running a capital stock the "
+    "starting vector could not sustain.\n"
+    "\n"
+    "The gap was invisible because the capital law of motion was ALSO wrong in "
+    "units (see supply.js), so K/Y was falling for a much larger reason and "
+    "nothing was left to notice half a point of depreciation. "
+    "test/params.test.js's identity check now reads SS_DEPRECIATION rather "
+    "than a hardcoded 0.06, so the two cannot drift apart again silently.")
 
 
 # =====================================================================

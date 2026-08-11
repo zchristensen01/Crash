@@ -263,7 +263,7 @@ test('THE CRASH ARC: every published magnitude at once', () => {
 
 test('THE CRASH ARC: the unemployment cost of a banking crisis', {
   todo: 'STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment ' +
-    'peaks +1.86pp against a published 2-5 for a banking crisis, having been ' +
+    'peaks +1.91pp against a published 2-5 for a banking crisis, having been ' +
     '+1.93 before the re-solve and inside the band before Phase 2. Note the ' +
     'trough itself is now EXACTLY on target at -9.000% — so the output hole is ' +
     'the right depth and the labour market does not follow it down. That is ' +
@@ -277,7 +277,7 @@ test('THE CRASH ARC: the unemployment cost of a banking crisis', {
     'so they absorb exactly this kind of change and Phase 4.1 re-solves them ' +
     'after Phases 2 and 3. Re-solving them before the demand block has stopped ' +
     'moving would mean doing it twice and believing the first answer. Note the ' +
-    'shortfall is 0.07pp: this is a band edge, not a collapse.',
+    'shortfall is 0.09pp: this is a band edge, not a collapse.',
 }, () => {
   const r = crashArc();
   assert.ok(r.uPeak >= 2 && r.uPeak <= 5,
@@ -285,15 +285,17 @@ test('THE CRASH ARC: the unemployment cost of a banking crisis', {
 });
 
 test('THE CRASH ARC: the five-year loss against trend', {
-  todo: 'PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.25% below ' +
+  todo: 'PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.60% below ' +
     'trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after ' +
-    'CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.1855. It CANNOT be closed ' +
+    'CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.0461 (2.59 in the third ' +
+    'audit, 2.1855 in 4.1, and again in 5.7 when the capital-units fix moved ' +
+    'the trend this is measured against). It CANNOT be closed ' +
     'by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside ' +
     'its published [2.0, 4.5], and would make the exogenous capacity cut supply ' +
     '7.9-9.5 of the 10 while the model supplies almost nothing — destroying the ' +
     'deconvolution the constant exists to be. Measured with no exogenous scar ' +
     'at all, the model used to produce 8.4% of the loss endogenously and now ' +
-    'produces 3.65%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND ' +
+    'produces 3.82%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND ' +
     'RECOVERS. That is a demand-block finding, it is the same one as the UK ' +
     'sacrifice ratio and TAX_SHOCK_TO_GDP, and it is not a calibration ' +
     'problem. Do not nudge either constant to move it — 4.2 records what they ' +
@@ -301,7 +303,7 @@ test('THE CRASH ARC: the five-year loss against trend', {
     'THE SECOND ASSERTION HERE IS OPEN #1, AND IT MOVED THE OPPOSITE WAY TO ' +
     'THE PLAN\'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be ' +
     'downstream of Section B, so fixing B should have slowed it. Measured, it ' +
-    'sped up: output is back to -4.63% of trend by month 96 against a required ' +
+    'sped up: output is back to -5.16% of trend by month 96 against a required ' +
     '-5. That is not a new defect — it is the same shallower crisis, since a ' +
     'crash that digs a 5.97% hole instead of a 10% one has less to climb out ' +
     'of. Both numbers should move together when the constant is re-solved, and ' +
@@ -319,9 +321,10 @@ test('THE CRASH ARC: the five-year loss against trend', {
 
 test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', {
   todo: 'HALF RE-SOLVED IN 4.1, AND THE HALF THAT WOULD NOT SOLVE IS THE ' +
-    'FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.196 and now ' +
-    'reconciles: the realised trough is -9.000% against CRISIS_OUTPUT_TROUGH ' +
-    'exactly, at month 15. CRISIS_SCAR_AMPLIFICATION was left at 3.14 on ' +
+    'FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.1855 in 4.1 ' +
+    'and 2.1855 -> 2.0461 in 5.7, and it reconciles: the realised trough is ' +
+    '-9.000% against CRISIS_OUTPUT_TROUGH exactly, at month 12. ' +
+    'CRISIS_SCAR_AMPLIFICATION was left at 3.14 on ' +
     'purpose. Re-solved against Cerra & Saxena it lands at 1.06-1.26, outside ' +
     'its published [2.0, 4.5], which would make the exogenous capacity cut 7.9 ' +
     'to 9.5 of the 10 and leave the model supplying almost nothing. THE POINT ' +
@@ -331,9 +334,9 @@ test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', 
     'constant, which is rule 4 and is the defect the deconvolution was built ' +
     'to remove. MEASURED, with CRISIS_HYSTERESIS_SCAR set to 0 so there is no ' +
     'exogenous scar at all: the model used to produce 8.4% of the 10 by itself ' +
-    'and now produces 3.65% (this message said 3.22% until Phase 5 ' +
-    'verification re-ran it; the crash-arc test above always said 3.65 and the ' +
-    'two disagreed for four commits). That is a ' +
+    'and now produces 3.82% (this message said 3.22% until Phase 5 ' +
+    'verification re-ran it, when both were 3.65 and had disagreed for four ' +
+    'commits; 5.7 moved them together to 3.82). That is a ' +
     'demand-block finding and the fourth independent sighting of it, alongside ' +
     'the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity ' +
     'paradox. Re-solve when the demand block has been addressed.',
@@ -381,15 +384,15 @@ test('MEASURED: the model rebounds after year five and Cerra-Saxena say it shoul
     'docs/13 expected this to be downstream of Section B — "the 10-year ' +
     'recovery coincides with the credit/asset loop re-inflating" — so fixing ' +
     'B should have slowed it. THE CREDIT GAP IS NEGATIVE THROUGHOUT THE ' +
-    'RECOVERY and never re-inflates above trend: -6.40 at m24, -8.26 at m60, ' +
-    '-4.70 at m96, -2.82 at m120. It is a depressed credit stock closing on ' +
+    'RECOVERY once the boom has unwound: +5.71 at m24, -0.79 at m60, ' +
+    '-3.83 at m96, -4.61 at m120. It is a depressed credit stock closing on ' +
     'its trend from BELOW, not a new boom. ' +
-    'Output against the pre-crisis trend now reads -9.74 (m12), -10.16 (m24), ' +
-    '-6.25 (m60), -4.63 (m96), -3.87 (m120), troughing at -10.17 in month 22 ' +
-    'and recovering 6.30pp. ' +
+    'Output against the pre-crisis trend now reads -10.00 (m12), -10.39 (m24), ' +
+    '-6.60 (m60), -5.16 (m96), -4.51 (m120), troughing at -10.40 in month 22 ' +
+    'and recovering 5.89pp. ' +
     'THE ISOLATING EXPERIMENT: switch OFF both the collateral channel and the ' +
-    'wealth effect and the crisis is shallower (trough -6.19) but 2.83pp of it ' +
-    'still comes back — 46% of the trough recovered with both amplifiers gone. ' +
+    'wealth effect and the crisis is shallower (trough -6.43) but 2.49pp of it ' +
+    'still comes back — 39% of the trough recovered with both amplifiers gone. ' +
     'So the rebound is not Section B at all. It is the demand block closing an ' +
     'output gap faster than the data says it should, which is the same finding ' +
     'as the UK 1979-83 sacrifice ratio, TAX_SHOCK_TO_GDP, the missing ' +

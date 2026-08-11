@@ -182,10 +182,19 @@ test('RATE_TO_INFLATION: the model is about half the published estimate', {
     'PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly ' +
     'the lag burying the response beyond the 24-month window", so the A1 ' +
     'transmission split should have moved it. It did not: 0.1227pp at 24 ' +
-    'months against the 0.122 recorded before. But the response keeps ' +
-    'arriving — 0.0586 at 12 months, 0.1227 at 24, 0.1756 at 36, and 0.2192 at ' +
-    '48, WHICH IS INSIDE THE PUBLISHED 0.2-0.4. The window is doing as much of ' +
-    'the disagreement as the model is. ' +
+    'months against the 0.122 recorded before. ' +
+    'RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, ' +
+    '0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / ' +
+    '0.2192 and the 48-month figure was INSIDE the published band. That is not ' +
+    'a regression in the rate channel. 5.7 fixed a unit error in the capital ' +
+    'law of motion, so potential output now grows at the rate it is told to ' +
+    'rather than decaying toward 0.93%/yr — a hike used to be measured against ' +
+    'a ceiling that was itself sagging, which flattered the disinflation. ' +
+    'AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months ' +
+    'and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why ' +
+    'they differ and the published range is estimated across both directions, ' +
+    'so this test measures the weaker half of an asymmetry on purpose. ' +
+    'The window is doing as much of the disagreement as the model is. ' +
     'What is left is the anchored Phillips slope doing exactly what docs/02 ' +
     'says it should: with kappa at 0.05 the demand channel barely moves prices, ' +
     'and real surges are supposed to come from supply shocks and unanchoring. ' +
