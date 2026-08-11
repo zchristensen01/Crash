@@ -33,11 +33,25 @@ The scenario was **calibrated against the asset-price unit error** that 3.1
 fixed. Nothing about the fix is wrong. A hidden danger that resolves itself
 teaches that ignoring it works, which is the inverse of the point.
 
-Guarded by a `todo`. **Must not be closed by re-inflating the wealth channel** —
-the channel now matches its own literature. The scenario is DATA; its starting
-vector is the thing to revisit, and the regime must still be DRIVEN rather than
-asserted. Phase 6.1 (countercyclical buffer) is the other half, because a
-bubble the player cannot act on is a spectacle rather than a decision.
+**DIAGNOSED IN 4.3, and it is not the vector.** The cause is **D2**, an
+already-known sourced defect: `updateCreditTrend` chases the stock at 0.20/year
+(41.6-month half-life) while its stated source is a one-sided HP filter at
+λ = 400,000, whose trend constant is **10–15 years**. The gauge mean-reverts
+3–4× faster than the indicator it approximates, so it under-reads persistent
+booms — the exact situation it exists for. Measured, bubble's credit gap by
+trend catch-up speed:
+
+| annual speed | m24 | m48 | m72 | m96 |
+|---|---|---|---|---|
+| 0.20 (as built) | 8.39 | 9.80 | 7.99 | **3.37** |
+| 0.06 (sourced) | 10.29 | 13.99 | 14.20 | **10.34** |
+| 0.05 (sourced) | 10.44 | 14.37 | 14.82 | **11.14** |
+
+**Phase 5.4 is the fix**, and the plan already required it to come after Phase 3
+— which is now done. Must not be closed by re-inflating the wealth channel
+(rule 3, and the channel matches its literature) **nor by retuning the starting
+vector**, which is what this entry previously recommended. Phase 6.1 is the
+other half: a bubble the player cannot act on is a spectacle, not a decision.
 
 ### A2. The demand block moves too little, and it is one finding seen four ways — `OPEN`
 The most important thing in this audit and it is not in the original brief.
@@ -195,9 +209,12 @@ third generated artefact appears, it needs one too.
 
 ## F. Not started
 
-- **4.3 second half** — re-measure every scenario's starting vector. `bubble` is
-  known bad (A1); the other five have not been checked against their own
-  `describe`/`trap` text since Phase 3.
+- **4.3 is now complete.** All six vectors re-measured; five are fine or
+  improved (`overheating` and `stagflation` give the player longer — m34→m51 and
+  m17→m23 — and `recession`'s spurious end-of-term boom shrank from OVERHEATING
+  at a +8.30 credit gap to GOLDILOCKS at +3.15). Only `bubble` regressed, and
+  its cause is now diagnosed as D2 rather than the vector. Guarded by a new
+  full-term characterisation test in `test/scenarios.test.js`.
 - **4.4** — OPEN #1 and #9. #9 is already measured and **the plan's expectation
   for it is wrong**: A1 did not move the 24-month figure (0.1227 against 0.122),
   but the response is slow rather than absent — 0.0586 at 12m, 0.1227 at 24m,

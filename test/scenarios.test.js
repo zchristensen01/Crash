@@ -74,10 +74,19 @@ test('the bubble does not deflate on its own before the term ends', {
     'still holds (9.80pp at m48, over the BIS line, with every visible gauge ' +
     'healthy), so what is lost is the second half of the term. ' +
     'DO NOT CLOSE THIS BY RE-INFLATING THE WEALTH CHANNEL — that is rule 3, and ' +
-    'the channel now matches its own literature. The scenario is DATA, not ' +
-    'code: its starting vector is the thing to revisit, and it must still ' +
-    'DRIVE the regime rather than assert it (rule 6). Phase 4 re-measures every ' +
-    'scenario; 6.1 (the countercyclical buffer) is the other half of the answer, ' +
+    'the channel now matches its own literature. ' +
+    'AND DO NOT RETUNE THE STARTING VECTOR EITHER, which is what this message ' +
+    'used to recommend. Phase 4.3 measured the cause and it is D2, an already-' +
+    'known sourced defect: updateCreditTrend chases the stock at 0.20/year, a ' +
+    '41.6-month half-life, while its stated source is a one-sided HP filter at ' +
+    'lambda=400,000 whose trend constant is 10-15 YEARS. The gauge mean-reverts ' +
+    '3-4x faster than the indicator it approximates, so it systematically ' +
+    'under-reads persistent booms — the exact situation it exists for. At the ' +
+    'sourced speed the gap climbs and STAYS: measured, m24/m48/m72/m96 = ' +
+    '10.29/13.99/14.20/10.34 at 0.06 per year and 10.44/14.37/14.82/11.14 at ' +
+    '0.05, against 8.39/9.80/7.99/3.37 as built. The design promise is ~14.5pp. ' +
+    'PHASE 5.4 IS THE FIX and the plan already says it must come after Phase 3, ' +
+    'which is now done. 6.1 (the countercyclical buffer) is the other half, ' +
     'because a bubble the player cannot act on is a spectacle rather than a ' +
     'decision.',
 }, () => {
@@ -326,4 +335,74 @@ test('a hike does not bite the interest bill on impact', () => {
   assert.ok(dCoupon[23] > dCoupon[0] * 10 && dCoupon[23] < dYield[23],
     `after two years the coupon has moved ${dCoupon[23].toFixed(3)}pp of the yield's ` +
     `${dYield[23].toFixed(3)}pp — it must be catching up, and must not have arrived`);
+});
+
+/**
+ * WHAT EACH PRESET DOES OVER A FULL TERM, WITH NOBODY AT THE CONTROLS.
+ *
+ * `every scenario starts in, and stays a quarter in, its advertised regime`
+ * guards the opening. Nothing guarded the other 93 months, which is where a
+ * scenario's actual teaching happens — and it is where `bubble` quietly stopped
+ * working after the Phase 3 asset-price fix.
+ *
+ * Measured across the whole fourth audit (start of pass -> now):
+ *
+ *   calm         GOLDILOCKS throughout, every value pinned          unchanged
+ *   overheating  hyperinflates with no input, m34 -> m51            improved
+ *   stagflation  hyperinflates with no input, m17 -> m23            improved
+ *   debt_trap    debt 140 -> 174, debt_crisis ending at m74         works
+ *   recession    heals; ends the term GOLDILOCKS +2.50 gap where it
+ *                used to end OVERHEATING at +5.78 with a +8.30 gap  improved
+ *   bubble       credit gap peaks m48 and unwinds                   REGRESSED
+ *
+ * Two of these are scenarios ENDING on their own, and that is the model being
+ * right rather than a defect: game/autopilot.js's own note says a scenario
+ * blowing up with no policy is correct, because a fixed nominal rate against
+ * rising inflation is a Taylor-principle violation. What matters is that the
+ * player gets enough months to act, and both got longer.
+ */
+test('CHARACTERISATION: what each preset does over a full term, unattended', () => {
+  const out = {};
+  for (const key of Object.keys(SCENARIOS)) {
+    const s = newState(SCENARIOS[key].overrides);
+    let ended = null;
+    for (let m = 1; m <= 96 && !ended; m++) {
+      run(s, 1, { assertEveryTick: false, events: false, endings: true });
+      if (s.ending) ended = { key: s.ending.key, m };
+    }
+    out[key] = { ended, regime: regime(s), gap: s.output_gap, cg: s.credit_to_gdp_gap,
+                 u: s.unemployment, debt: s.govt_debt };
+    console.log(`  ${key.padEnd(12)} ${ended ? `ENDED ${ended.key} @m${ended.m}` :
+      `${regime(s)} gap ${s.output_gap.toFixed(2)} cgap ${s.credit_to_gdp_gap.toFixed(2)} ` +
+      `u ${s.unemployment.toFixed(2)} debt ${s.govt_debt.toFixed(0)}`}`);
+  }
+
+  // calm is the steady state and must not drift at all.
+  assert.equal(out.calm.ended, null, 'calm ended on its own');
+  assert.ok(Math.abs(out.calm.gap) < 1e-6 && Math.abs(out.calm.cg) < 1e-6,
+    `calm drifted: gap ${out.calm.gap}, credit gap ${out.calm.cg}`);
+
+  // The two that are SUPPOSED to run away must still do so — and must leave
+  // the player enough months to act. Under a quarter of the term is a fuse,
+  // not a scenario.
+  for (const key of ['overheating', 'stagflation']) {
+    assert.ok(out[key].ended, `${key} no longer ends unattended, so the Taylor ` +
+      `principle has stopped operating in the one place the game demonstrates it`);
+    assert.ok(out[key].ended.m >= 20,
+      `${key} ends at month ${out[key].ended.m}. The player needs time to act ` +
+      `before the scenario resolves itself.`);
+  }
+
+  // debt_trap's whole mechanism is the spiral reaching its ending.
+  assert.equal(out.debt_trap.ended?.key, 'debt_crisis',
+    `debt_trap ended as ${out.debt_trap.ended?.key ?? 'nothing'} — the scenario ` +
+    `is built so interest costs outgrow the economy, and that has to be what gets you`);
+
+  // recession must heal — that is its argument — but must not end the term in
+  // a boom, which would teach that a balance-sheet recession fixes itself and
+  // then some. It used to end OVERHEATING with a +8.30 credit gap.
+  assert.equal(out.recession.ended, null, 'recession ended on its own');
+  assert.ok(out.recession.cg < 6,
+    `recession ends the term with a credit gap of ${out.recession.cg.toFixed(2)}pp. ` +
+    `Doing nothing for eight years must not produce a credit boom.`);
 });

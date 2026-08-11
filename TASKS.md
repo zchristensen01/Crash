@@ -232,8 +232,12 @@ experiment that isolates it.
       validates its bytecode cache on mtime in WHOLE SECONDS. Two edits inside
       one second left a stale `.pyc` that looked valid. Fixed with
       `sys.dont_write_bytecode`, verified against the repro.
-      **STILL TO DO under 4.3:** re-measure every scenario's starting vector
-      (`bubble` no longer produces its designed regime — Correction 11).
+      **All six starting vectors re-measured.** Five fine or improved:
+      `overheating` m34->m51 and `stagflation` m17->m23 before they end
+      unattended, `recession`'s end-of-term boom shrank from OVERHEATING at a
+      +8.30 credit gap to GOLDILOCKS at +3.15, `calm` and `debt_trap` unchanged.
+      Only `bubble` regressed — and **its cause is D2, not the vector**, so the
+      fix is 5.4. New full-term characterisation test guards all six.
 
 - [ ] 4.4 Re-measure OPEN #1 and OPEN #9
       **#9 IS ALREADY MEASURED AND THE PLAN'S EXPECTATION WAS WRONG.** The plan
@@ -262,7 +266,12 @@ experiment that isolates it.
       diff against the pass's start) — both new coefficients went through
       `parameters.py`. Count against the current tree, not the brief's numbers,
       which docs/13 already flags as read-not-measured.
-- [ ] 5.4 Derive the credit trend speed
+- [ ] 5.4 Derive the credit trend speed — **NOW ALSO FIXES A LESSON REGRESSION**
+      4.3 measured this as the cause of `bubble` losing its design promise. At
+      the sourced HP-filter speed (0.05-0.06/year) the credit gap climbs to
+      14.0-14.8pp and STAYS, against 9.80 peaking and unwinding to 3.37 as
+      built. The design promise is ~14.5pp. Unblocked: the plan required this
+      to come after Phase 3, which is done.
 - [ ] 5.5 Fix `CREDIT_GAP_CRISIS_THRESHOLD`'s note and `HAND_TO_MOUTH_SHARE`
       **WATCH ONE THING WHEN TIGHTENING THE REGISTER:** 2.1 added
       `RATE_PASSTHROUGH_TO_BORROWERS` to `DEFERRED` with the reason "consumed
