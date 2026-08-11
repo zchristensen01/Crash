@@ -55,7 +55,13 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       `INVESTMENT_ADJUSTMENT_SPEED`. Knife-edge moved from 8–9% to 6–7%;
       investment IRF peak 13 -> 9 months, matching the published value;
       stagflation 242.34% -> 29.55% at m48. See docs/13 Correction 8.
-- [ ] 2.2 Re-measure the A-table from the model itself
+- [x] 2.2 Re-measure the A-table from the model itself
+      3 tests in `test/transmission.test.js`. Curve is monotone at all 29 grid
+      points; threshold now brackets the Fisher point. **Correction 9**: the
+      stated "second difference sign changes" criterion is grid-dependent and
+      ranks the smoothest curve worst — replaced by steepest local
+      sensitivity. Knife-edge -366.7 -> -149.2pp/pp (A1), -22.5 with the
+      wealth channel off. Residual is Section B; `todo` until Phase 3.
 - [ ] 2.3 Record the effective transmitted Taylor response (0.37)
 - [ ] 2.4 Derive the dial ceiling
 - [ ] 2.5 Re-run the four historical episodes and re-report

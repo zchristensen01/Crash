@@ -539,11 +539,66 @@ The shape, which must keep `docs/07` L1 closed:
 instantly): A1 builds exactly the machinery that finding needs. Do them together
 — see 5.1.
 
-**2.2 — Re-measure the A-table from the model itself.**
+**2.2 — Re-measure the A-table from the model itself. — DONE**
 **ACCEPTANCE, restated (Correction 3):** the inflation-at-m60 response across
 policy rates 5–12% must be **monotone**, and its **second difference must not
 change sign more than once** — i.e. one smooth curve, no plateau-then-cliff.
 Report the curve; do not assert a step size.
+
+> #### As built — three tests in `test/transmission.test.js`, measured on a 0.25pp grid.
+>
+> **The curve, inflation at m60 from 8% inflation / 7% expected:**
+>
+> | 5% | 6% | 7% | 8% | 9% | 10% | 12% |
+> |---|---|---|---|---|---|---|
+> | 259.3 | 126.9 | **5.5** | 1.6 | −0.8 | −3.5 | −4.0 |
+>
+> **Monotone: yes**, at every one of the 29 grid points. The threshold bracket
+> is asserted against Fisher rather than against a number — the model must
+> stabilise by `expected_inflation + neutral_real` = 7.5% (it does, 3.1%) and
+> must *not* already be stable at 5% (it is not, 259.3%).
+>
+> ### CORRECTION 9 — the stated acceptance criterion is ill-posed, and it passes for the wrong reason.
+>
+> "Second difference must not change sign more than once" is **grid-dependent**
+> and noise-dominated. Measured on both grids:
+>
+> | grid | as built | wealth channel OFF |
+> |---|---|---|
+> | 1pp (5,6,…,10) | 1 sign change — **passes** | 0 — passes |
+> | 0.25pp | **4** — fails | **10** — fails harder |
+>
+> The wealth-off curve is visibly the *smoothest* one in the project
+> (35.9, 25.3, 14.5, 7.9, 5.3, 4.2, 3.3, 2.6, 1.9, 1.3, 0.7, 0.1, −0.5) and it
+> scores **worst** on the criterion, because once the curve flattens its second
+> differences are ~1e-2 and rounding flips their sign repeatedly. A criterion
+> that ranks the smooth curve below the sharp one is measuring the wrong thing.
+>
+> **Correction 3's own summary was right and 2.2's restatement of it was not.**
+> Correction 3 says *"monotonicity plus a **bounded second difference**"*; 2.2
+> turned that into a sign-change count. The bounded version is the correct one,
+> and the natural bounded measure is the **steepest local sensitivity**
+> `|d inflation@m60 / d policy rate|`, which is what "knife-edge" means in the
+> units the player experiences.
+>
+> #### The knife-edge, decomposed. A1 halved it; it is still there.
+>
+> | | steepest slope | at rate | slope ratio |
+> |---|---|---|---|
+> | pre-A1, as built | **−366.7** | 7.75% | 138× |
+> | post-A1, as built | **−149.2** | 6.25% | 80× |
+> | post-A1, wealth channel off | **−22.5** | 5.50% | 19× |
+>
+> A1 removed **59%** of the knife-edge and moved it 1.5pp toward the Fisher
+> point. Switching `WEALTH_EFFECT` off removes **85% of what remains**. Together
+> that is a 94% reduction, and it is the isolating experiment: **the residual
+> bifurcation is the asset-wealth channel, which is Section B.**
+>
+> So 2.2's acceptance is recorded as a `todo` whose target is **not a picked
+> number** — it is what the model itself does with the offending channel
+> switched off, re-measured on every run. Phase 3 closes it. A third test guards
+> against regression above 200pp/pp, which would mean the rate had been put back
+> on the investment response kernel.
 
 **2.3 — Record the effective transmitted Taylor response (0.37).**
 The Taylor principle is satisfied on the dial (1 + 0.5 = 1.5) and violated in

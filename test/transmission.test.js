@@ -272,3 +272,122 @@ test('investment.js reads the rate DIAL only to display it', () => {
     's.policy_rate — the dial — is used in arithmetic inside investment.js. ' +
     'Demand rules read policy_rate_demand; the dial may only be displayed.');
 });
+
+/* ----------------------------------------------------------------------
+ * THE A-TABLE — the disinflation response curve, measured from the model.
+ *
+ * The fourth audit brief's Section A leads with a decomposition: from 8%
+ * inflation and 7% expected, move the rate once and read inflation at month
+ * 60. As built it produced 555.73 at a 5% rate and 1.76 at 9% — "the model
+ * does not disinflate gradually, it either stabilises or diverges".
+ *
+ * TWO THINGS THIS MEASURES, and the second one is the point.
+ *
+ * 1. WHERE THE THRESHOLD IS. Fisher says a nominal peg stabilises when it
+ *    delivers a positive real rate — here expected_inflation + neutral_real =
+ *    7.5%. Before the A1 split the model needed 8-9%, because the player had
+ *    to overshoot by ~2pp to pay for a year in which the economy felt nothing
+ *    while expectations kept climbing. It now needs 6-7%.
+ *
+ * 2. HOW SHARP THE THRESHOLD IS — the knife-edge itself. This is measured as
+ *    the steepest LOCAL SENSITIVITY, |d(inflation at m60) / d(policy rate)|,
+ *    on a 0.25pp grid.
+ *
+ * ON A 0.25 GRID, NOT A 1pp ONE, and that matters: the whole finding sits
+ * between grid points otherwise. Ground rule 2.
+ * ---------------------------------------------------------------------- */
+
+const A_TABLE_START = {
+  inflation: 8, expected_inflation: 7, credibility: 0.5,
+  policy_rate: 2.5, yield_10y: 3.25,
+};
+
+/** inflation at month 60 after a single rate move at month 0. */
+function disinflationCurve({ noWealth = false } = {}) {
+  const saved = P.WEALTH_EFFECT.value;
+  if (noWealth) P.WEALTH_EFFECT.value = 0;
+  try {
+    const rates = [], inflation = [];
+    for (let r = 5; r <= 12.0001; r += 0.25) {
+      const rate = Number(r.toFixed(2));
+      const w = world({ assert: false, overrides: A_TABLE_START });
+      dial(w, 'policy_rate', rate);
+      advance(w, 60);
+      rates.push(rate);
+      inflation.push(w.s.inflation);
+    }
+    const slopes = inflation.slice(1).map((v, i) => (v - inflation[i]) / 0.25);
+    let steepest = 0, steepestAt = 0;
+    slopes.forEach((v, i) => { if (Math.abs(v) > Math.abs(steepest)) { steepest = v; steepestAt = rates[i]; } });
+    return { rates, inflation, slopes, steepest, steepestAt };
+  } finally {
+    P.WEALTH_EFFECT.value = saved;
+  }
+}
+
+test('A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it', () => {
+  const c = disinflationCurve();
+  const at = (r) => c.inflation[c.rates.indexOf(r)];
+
+  console.log(`  disinflation curve @m60: ` +
+    [5, 6, 7, 8, 9, 10, 12].map((r) => `${r}%:${at(r).toFixed(1)}`).join(' '));
+  console.log(`  steepest ${c.steepest.toFixed(1)}pp of inflation per pp of policy, at ${c.steepestAt}%`);
+
+  for (let i = 1; i < c.inflation.length; i++) {
+    assert.ok(c.inflation[i] <= c.inflation[i - 1] + 1e-9,
+      `the curve is not monotone: a higher rate at ${c.rates[i]}% left MORE ` +
+      `inflation (${c.inflation[i].toFixed(2)}) than ${c.rates[i - 1]}% ` +
+      `(${c.inflation[i - 1].toFixed(2)}). Tightening more must never inflate more.`);
+  }
+
+  // The threshold sits at expected_inflation + neutral_real = 7.5. Asserting
+  // the BRACKET, not a number: the model must stabilise by 7.5% and must not
+  // already be stable at 5%, which would mean a nominal peg 2.5pp below the
+  // Fisher point was somehow fine.
+  assert.ok(at(7.5) < 10,
+    `inflation is ${at(7.5).toFixed(2)}% at m60 from a 7.5% peg. That is ` +
+    `expected_inflation + neutral_real — the point at which the arithmetic ` +
+    `says a peg stops feeding itself — and the model still diverges there.`);
+  assert.ok(at(5) > 10,
+    `a 5% peg against 7% expected inflation left only ${at(5).toFixed(2)}% at ` +
+    `m60. A nominal rate 2.5pp below the Fisher point must not be stable; if it ` +
+    `is, the Taylor principle has stopped operating and that is a bigger ` +
+    `finding than the knife-edge.`);
+});
+
+test('A-TABLE: the knife-edge is the wealth channel, and it is still there', {
+  todo: 'PHASE 3 CLOSES THIS. Measured as the steepest local sensitivity on a ' +
+    '0.25pp grid, |d inflation@m60 / d policy rate|: ' +
+    'pre-A1 as built -366.7 at 7.75% (slope ratio 138x); ' +
+    'post-A1 as built -149.2 at 6.25% (slope ratio 80x); ' +
+    'post-A1 with no wealth channel -22.5 at 5.50% (slope ratio 19x). ' +
+    'Splitting the transmission lag halved the knife-edge and moved it toward ' +
+    'the Fisher point, but did not remove it. Switching WEALTH_EFFECT off ' +
+    'removes 85% of what is left, which is the isolating experiment: the ' +
+    'residual bifurcation is the asset-wealth channel, and that is Section B. ' +
+    'The target below is not a picked number — it is what the model itself ' +
+    'does with the offending channel switched off, re-measured on every run.',
+}, () => {
+  const live = disinflationCurve();
+  const off = disinflationCurve({ noWealth: true });
+  console.log(`  steepest slope: as built ${live.steepest.toFixed(1)} at ` +
+    `${live.steepestAt}%; wealth channel off ${off.steepest.toFixed(1)} at ${off.steepestAt}%`);
+  assert.ok(Math.abs(live.steepest) <= Math.abs(off.steepest) * 1.1,
+    `the live model's steepest response is ${Math.abs(live.steepest).toFixed(1)}pp ` +
+    `of inflation per pp of policy, against ${Math.abs(off.steepest).toFixed(1)} ` +
+    `with WEALTH_EFFECT switched off. The wealth channel is contributing ` +
+    `${(Math.abs(live.steepest) / Math.abs(off.steepest)).toFixed(1)}x the ` +
+    `curvature of the rest of the model put together.`);
+});
+
+test('A-TABLE: the A1 split made the response curve measurably smoother', () => {
+  // A REGRESSION GUARD, not an acceptance. The pre-A1 tree measured -366.7pp
+  // per pp at 7.75%; if this climbs back above 200 something has undone the
+  // transmission split.
+  const c = disinflationCurve();
+  assert.ok(Math.abs(c.steepest) < 200,
+    `the steepest response is ${Math.abs(c.steepest).toFixed(1)}pp of inflation ` +
+    `per pp of policy. Before the A1 transmission split it was 366.7 and after ` +
+    `it was 149.2 — above 200 means the rate is being lagged on the investment ` +
+    `response again.`);
+});
