@@ -66,7 +66,11 @@ Tracker for the fourth audit. Full detail, reasoning and acceptance criteria:
       Into `docs/02` (new section), `TAYLOR_INFLATION`'s note, and a test.
       2.1 moved it: **0.37 -> 1.80**, and it now clears unity. Real rate felt
       at m12 of stagflation: -14.50% -> -2.21%.
-- [ ] 2.4 Derive the dial ceiling
+- [x] 2.4 Derive the dial ceiling
+      `max: 20` -> `max: 50`, derived as a FIXED POINT over 360 runs with
+      events on. **The Taylor rule now WINS stagflation**: 5.69% @m48,
+      1.91% @m96, refused 0/96 — against 29.55% / 1020.91% / 86-96 at a
+      ceiling of 20. Closes A4 by measurement.
 - [ ] 2.5 Re-run the four historical episodes and re-report
 - [ ] 2.6 Rewrite OPEN #6's message
 

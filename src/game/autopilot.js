@@ -11,36 +11,40 @@
  *      A scenario blowing up with no policy is the model being RIGHT.
  *   2. It is the benchmark to score a player against — "the rule would have
  *      kept approval at 61; you got 48."
- *   3. It demonstrates the rule is not magic. It still loses `stagflation` as
- *      built — 29.55% inflation at month 48 and 1020.91% by month 96 — and the
- *      reason is NOT the supply shock.
+ *   3. It demonstrates the rule is not magic — but it is not helpless either.
+ *      **It now WINS `stagflation`**: 5.69% inflation at month 48, 1.91% at
+ *      month 96, and it is refused its own request in 0 of the 96 months.
  *
- * That last clause used to read "because no rule handles a supply shock well",
- * which was a defeat written into a comment and then read back as a design
- * property. Rule 6 says a regime must be DRIVEN, not asserted; this was the
- * same error pointing the other way, and it protected the defect underneath it
- * for three passes.
+ * THIS COMMENT HAS BEEN WRONG TWICE AND IS THE THIRD VERSION. It used to read
+ * "it still loses the stagflation scenario, because no rule handles a supply
+ * shock well" — a defeat written into a comment and then read back as a design
+ * property, which is rule 6 pointing the other way, and it protected the
+ * defect underneath it for three passes. The second version recorded the loss
+ * as a measurement (29.55% at m48) and named the cause. Both are now history,
+ * because the cause was fixed.
  *
- * THE EXPERIMENT THAT ISOLATES IT. Change one thing at a time and leave the
- * supply shock, the 3% capacity loss and the 9% opening inflation alone.
- * Measured, inflation at m48 / m96, and the months the dial refused the rule:
+ * THE EXPERIMENT THAT ISOLATED IT, and it now runs in the other direction:
+ * put the ceiling back to 20 and change nothing else — the supply shock, the
+ * 3% capacity loss, the 9% opening inflation, the smoothing and
+ * TAYLOR_INFLATION all identical.
  *
- *      as built (ceiling 20)          29.55 / 1020.91    refused 86/96
- *      ceiling 40                      5.69 /    1.91    refused  0/96
- *      no smoothing (rho 0)            6.31 /    3.33    refused 14/96
- *      TAYLOR_INFLATION 1.0            10.22 /    1.66   refused 37/96
- *      no supply shock at all          5.26 /    2.93    refused  0/96
+ *      ceiling 50 (derived, 2.4)       5.69 @m48 /    1.91 @m96   refused  0/96
+ *      ceiling 20 (as it was)         29.55 @m48 / 1020.91 @m96   refused 86/96
  *
- * Every arm that touches the INSTRUMENT wins. The arm that removes the SHOCK
- * wins by no more than they do, so the shock was never what beat it.
+ * The shock never moved. What beat the rule was the instrument: for 86 of 96
+ * months it was holding a dial it had already run out of, and once expected
+ * inflation passes the ceiling no setting of the dial produces a positive real
+ * rate at all. test/autopilot.test.js runs both arms so this cannot rot again.
  *
- * Before the A1 transmission split these numbers were 242.34 / 22711.39 as
- * built, and only the ceiling arm won. Splitting the rate lag from the
- * investment-response lag is worth ~213pp of month-48 inflation here on its
- * own, which is the single largest effect measured in this pass.
+ * TWO CHANGES GOT IT THERE, and both were structural rather than coefficients:
+ *   A1 (2.1) split the rate lag off the investment-response lag — worth ~213pp
+ *      of month-48 inflation on its own, from 242.34 to 29.55.
+ *   A2 (2.4) derived the ceiling as a fixed point instead of picking it, 20 -> 50.
  *
- * What is left is the CEILING: the rule is refused its own request in 86 of 96
- * months, and lifting it to 40 wins with ZERO refusals. Phase 2.4 derives it.
+ * What the rule still cannot do is the LOWER bound. In `recession` it asks to
+ * go below the ELB in 31 of 96 months and cannot, because that bound is
+ * physics rather than layout. That is the honest remaining sense in which the
+ * rule is not magic, and it is why QE exists.
  */
 import { P } from '../params.js';
 import { applyDialChange } from './dials.js';

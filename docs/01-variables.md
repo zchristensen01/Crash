@@ -120,7 +120,7 @@ anything tries to schedule into a field a rule owns.
 
 | Dial | Start | Range | Transmitted as | Peak |
 |---|---|---|---|---|
-| `policy_rate` | 2.5% | −0.75 to 20 | `policy_rate_demand` | 3 months |
+| `policy_rate` | 2.5% | −0.75 to 50 | `policy_rate_demand` | 3 months |
 | " | | | `policy_rate_markets` | 1 month |
 | `tax_rate` | 24.75% | 0 to 70 | `tax_rate_effective` | 3 months |
 | `govt_spending` | 22.0% | 0 to 70 | *(immediate — it IS demand)* | 0 |

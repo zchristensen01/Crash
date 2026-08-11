@@ -541,8 +541,8 @@ a slow spending decision (`INVESTMENT_ADJUSTMENT_SPEED`), the same measurement
 now gives:
 
 ```
-effective response         1.80     <- above unity
-real rate felt at m12    -2.21%     (was -14.50%)
+effective response         1.83     <- above unity
+real rate felt at m12    -2.03%     (was -14.50%)
 ```
 
 `test/transmission.test.js` re-measures this on every run, so it cannot go

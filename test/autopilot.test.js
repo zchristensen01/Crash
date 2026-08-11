@@ -144,10 +144,14 @@ test('the truncation count makes a saturated benchmark visible in one number', (
   }
   console.log(`  months the Taylor rule was refused its own request, of 96: ` +
     Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', '));
-  assert.ok(counts.stagflation > 60,
-    `stagflation truncated in only ${counts.stagflation} of 96 months. If this ` +
-    `has fallen, the ceiling problem has moved and Phase 2.4's derivation ` +
-    `needs re-running — this number is the reason that task exists.`);
+  // stagflation used to be 87/96 against a ceiling of 20. Phase 2.4 derived
+  // the ceiling as a fixed point and it is now 0/96 — the UPPER bound has
+  // stopped binding anywhere. What remains is the lower one, which is physics.
+  assert.equal(counts.stagflation, 0,
+    `the rule was refused ${counts.stagflation} times in stagflation. The ` +
+    `ceiling was derived in Phase 2.4 so that it never has to be — if this is ` +
+    `back above zero, either the ceiling has been lowered or the demand block ` +
+    `has moved enough that the derivation needs re-running.`);
   assert.ok(counts.recession > 0,
     `the rule was never refused in recession. It should be: the scenario opens ` +
     `with the rate on the floor and a large negative gap, so the rule asks to ` +
@@ -175,7 +179,7 @@ test('the truncation count makes a saturated benchmark visible in one number', (
  * the instrument rather than the economy. The shock, the capacity loss, the
  * opening inflation, the smoothing and the gain are identical in both arms.
  */
-test('the Taylor rule loses stagflation to the CEILING, not to the supply shock', () => {
+test('the Taylor rule wins stagflation at the derived ceiling and loses at 20', () => {
   const rate = DIALS.find((d) => d.key === 'policy_rate');
   const original = rate.max;
 
@@ -196,38 +200,34 @@ test('the Taylor rule loses stagflation to the CEILING, not to the supply shock'
   };
 
   try {
-    const built = play();
-    rate.max = 40;
-    const lifted = play();
+    const derived = play();
+    rate.max = 20;
+    const old = play();
 
     console.log(`  stagflation under the Taylor rule: ceiling ${original} -> ` +
-      `${built[48].toFixed(2)}% @m48, ${built[96].toExponential(2)}% @m96 ` +
-      `(refused ${built.truncated}/96); ceiling 40 -> ${lifted[48].toFixed(2)}% @m48, ` +
-      `${lifted[96].toFixed(2)}% @m96 (refused ${lifted.truncated}/96)`);
+      `${derived[48].toFixed(2)}% @m48, ${derived[96].toFixed(2)}% @m96 ` +
+      `(refused ${derived.truncated}/96); ceiling 20 -> ${old[48].toFixed(2)}% @m48, ` +
+      `${old[96].toExponential(2)}% @m96 (refused ${old.truncated}/96)`);
 
-    // Measured at m96, not m48. The A1 transmission split took the m48 figure
-    // from 242.34% to 29.55% — the largest single effect in this pass — so a
-    // month-48 threshold now measures how much of A1 has landed rather than
-    // whether the rule wins. By the end of the term it still diverges.
-    assert.ok(built[96] > 100,
-      `the rule now holds stagflation to ${built[96].toFixed(2)}% at month 96 as ` +
-      `built, having been at 1020.91%. If this has been fixed, say so in ` +
-      `autopilot.js's header — the comment there states the loss as a measured ` +
-      `fact and it must not become stale the way its predecessor did.`);
+    // THE RULE WINS, at the ceiling Phase 2.4 derived.
+    assert.ok(derived[48] < 20 && derived[96] < 20,
+      `the rule left inflation at ${derived[48].toFixed(2)}% at m48 and ` +
+      `${derived[96].toFixed(2)}% at m96. A Taylor rule handles a one-off supply ` +
+      `shock adequately in every standard model, and autopilot.js's header now ` +
+      `states that it does here too.`);
+    assert.equal(derived.truncated, 0,
+      `the rule was still refused ${derived.truncated} times at the derived ` +
+      `ceiling. 2.4 derived it as the fixed point at which it never has to be.`);
 
-    assert.ok(lifted[48] < 20 && lifted[96] < 20,
-      `raising ONLY the dial's ceiling to 40 leaves inflation at ` +
-      `${lifted[48].toFixed(2)}% at m48 and ${lifted[96].toFixed(2)}% at m96. The ` +
-      `claim in autopilot.js — that the rule loses to the instrument and not to ` +
-      `the shock — rests on this arm winning with the shock untouched.`);
-
-    assert.equal(lifted.truncated, 0,
-      `at a ceiling of 40 the rule was still refused ${lifted.truncated} times. ` +
-      `Phase 2.4 derives the ceiling from exactly this: the lowest bound the ` +
-      `rule never has to be refused at.`);
-
-    assert.ok(built.truncated > 60,
-      `the rule was refused its request in only ${built.truncated} of 96 months`);
+    // AND IT LOSES AT 20, WITH THE SHOCK UNTOUCHED. This is the isolating
+    // experiment that killed "no rule handles a supply shock well": the only
+    // thing that differs between the two arms is the bound on the instrument.
+    assert.ok(old[96] > 100,
+      `putting the ceiling back to 20 left inflation at ${old[96].toFixed(2)}% at ` +
+      `m96, so the rule now survives the old ceiling too. That would mean the ` +
+      `ceiling was never what beat it and A2's whole finding needs re-deriving.`);
+    assert.ok(old.truncated > 60,
+      `at a ceiling of 20 the rule was refused only ${old.truncated} times`);
   } finally {
     rate.max = original;
   }

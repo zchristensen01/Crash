@@ -12,7 +12,41 @@ export const DIALS = [
   {
     key: 'policy_rate',
     label: 'Rate',
-    min: P.SS_ELB.value, max: 20, step: 0.25, unit: '%',
+    // THE CEILING IS DERIVED, NOT PICKED [4th audit A2 / 2.4].
+    //
+    // It was 20, and 20 was unwinnable by a UI bound: `stagflation` under the
+    // model's own Taylor rule sat pegged against it for 87 of 96 months, and
+    // once expected inflation passes the ceiling no setting of this dial can
+    // produce a positive real rate at all. That is not difficulty, it is the
+    // instrument running out.
+    //
+    // THE REQUIREMENT IS A FIXED POINT, because a ceiling that is too low
+    // CREATES ITS OWN REQUIREMENT: it refuses the rule, inflation runs, and the
+    // rate the rule then wants climbs further. Measured over 360 runs — six
+    // scenarios x 60 seeds, events ON, which is the game as actually played —
+    // the highest rate the rule ever asks for, given the ceiling it is under:
+    //
+    //     ceiling   p90 request   p99      max      runs left above 20% at m96
+    //        20        246.0     7637.3  13117.6      51/360
+    //        25         25.8     3375.5   7852.6      17/360
+    //        30         27.8     1199.9   4044.2      14/360
+    //        35         27.8       37.2   1328.0       4/360
+    //        40         27.8       41.4    165.5       1/360
+    //        50         27.8       45.4     50.7       0/360
+    //        60         27.8       45.4     51.9       0/360
+    //
+    // 50 is the lowest value at which no run in the sample ends with the
+    // economy out of control, and the request distribution has converged by
+    // then — 60 buys nothing. The residual is stated rather than hidden: the
+    // single worst event sequence still asks for 50.7%, so it is refused by
+    // 0.7pp once in 360 runs.
+    //
+    // WITHOUT EVENTS the requirement is far lower — 21.13 to stabilise
+    // `stagflation`, 27.84 never to be refused — and the six scenarios are
+    // bit-identical at any ceiling from 28 up. The gap between 28 and 50 is
+    // entirely the shock tail, which is exactly the situation a rate ceiling
+    // exists for.
+    min: P.SS_ELB.value, max: 50, step: 0.25, unit: '%',
     neutral: 2.5,                       // r* + target: neither helps nor hurts
     help: 'Interest rate. LOW makes borrowing cheap — more spending, more ' +
       'inflation. HIGH cools everything down and costs jobs. It takes about ' +

@@ -7,7 +7,12 @@
 > re-measured against the current tree before any of it was accepted. Three
 > claims did not survive, and one of them changes the order of the work.
 >
-> Nothing after Phase 0 has been started.
+> **Each task, as it lands, is annotated in place with an "As built" block:
+> what was measured, what was built, and where the plan turned out to be
+> wrong.** Nine corrections so far. Corrections 4–9 were found while doing the
+> work rather than in Phase 0 — including **Correction 7, which invalidates a
+> Phase 0 table**, so the verification pass is not above being re-verified.
+> `TASKS.md` is the checklist; this file is the reasoning.
 
 ---
 
@@ -628,6 +633,10 @@ Report the curve; do not assert a step size.
 > window where inflation is *rising*; in `overheating` the same window has
 > inflation falling and the "response" comes out at −3.90, which is arithmetic,
 > not economics. The test asserts a positive denominator before reporting.
+>
+> ---
+>
+> *The plan's original text follows.*
 
 **2.3 — Record the effective transmitted Taylor response (0.37).**
 The Taylor principle is satisfied on the dial (1 + 0.5 = 1.5) and violated in
@@ -635,6 +644,67 @@ transmission: between months 3 and 12 of `stagflation`, inflation rises 9.92pp
 while the felt rate rises 3.67pp. **Nothing anywhere records this and it is the
 single most important fact about the model's dynamics.** Into `docs/02` and
 `TAYLOR_INFLATION`'s note.
+
+**2.4 — Choose the dial ceiling, derived rather than picked. — DONE**
+
+> #### As built — `max: 20` becomes `max: 50`, derived as a FIXED POINT.
+>
+> **A ceiling that is too low creates its own requirement.** It refuses the
+> rule, inflation runs, and the rate the rule then wants climbs further. So the
+> requirement cannot be read off one run — it has to be solved for. Measured
+> over **360 runs** (6 scenarios × 60 seeds, **events ON**, which is the game as
+> actually played), the highest rate the rule ever asks for *given the ceiling
+> it is operating under*:
+>
+> | ceiling | p90 request | p99 | max | runs left above 20% inflation at m96 |
+> |---|---|---|---|---|
+> | 20 | 246.0 | 7637.3 | 13117.6 | **51/360** |
+> | 25 | 25.8 | 3375.5 | 7852.6 | 17/360 |
+> | 30 | 27.8 | 1199.9 | 4044.2 | 14/360 |
+> | 35 | 27.8 | 37.2 | 1328.0 | 4/360 |
+> | 40 | 27.8 | 41.4 | 165.5 | 1/360 |
+> | **50** | 27.8 | 45.4 | **50.7** | **0/360** |
+> | 60 | 27.8 | 45.4 | 51.9 | 0/360 |
+>
+> **50 is the lowest value at which no run in the sample ends with the economy
+> out of control**, and the distribution has converged by then — 60 buys
+> nothing. The residual is stated rather than hidden: the single worst event
+> sequence still asks for 50.7%, refused by 0.7pp once in 360 runs.
+>
+> **Without events the requirement is far lower** — 21.13 to stabilise
+> `stagflation`, 27.84 never to be refused, and the six scenarios are
+> bit-identical at any ceiling from 28 up. The whole gap between 28 and 50 is
+> the shock tail, which is exactly what a rate ceiling exists for.
+>
+> #### THE RESULT: the Taylor rule now WINS `stagflation`.
+>
+> | | inflation @ m48 | @ m96 | months refused |
+> |---|---|---|---|
+> | ceiling 50 (derived) | **5.69** | **1.91** | **0/96** |
+> | ceiling 20 (as it was) | 29.55 | 1020.91 | 86/96 |
+>
+> The supply shock, the capacity loss and the opening inflation are identical in
+> both arms. **This closes A4 by measurement**: "no rule handles a supply shock
+> well" was never true here — the rule was holding a dial it had run out of.
+> `autopilot.js`'s header is now on its third version and says so, with both
+> arms pinned by a test so it cannot rot again.
+>
+> **The upper bound has stopped binding anywhere.** The truncation counter is
+> now 0/96 in five of six scenarios. What remains is `recession`'s **31/96
+> against the LOWER bound**, which is physics rather than layout and is why QE
+> exists.
+>
+> #### Knock-on corrections, all made
+>
+> Raising the ceiling moved the 2.3 numbers slightly, because the rule is no
+> longer truncated: transmitted response **1.80 → 1.83**, real rate felt at m12
+> **−2.21% → −2.03%**. Updated in `docs/02` and `TAYLOR_INFLATION`'s note.
+> `docs/01`'s dial range updated 20 → 50. The A-table is unchanged: it sets the
+> rate explicitly to at most 12%, so the ceiling never touched it.
+>
+> ---
+>
+> *The plan's original text follows.*
 
 **2.4 — Choose the dial ceiling, derived rather than picked.**
 The binding constraint is `max_expected_inflation + a positive real rate`. After
