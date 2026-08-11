@@ -372,7 +372,14 @@ export function updateCreditGap(s, trace) {
     (1 + annualRateToMonthlyLinear((s.credit_growth_annual - nominalGrowth) / 100))
     - s.write_offs);
 
-  const trendSpeed = annualRateToMonthlyLinear(0.20);
+  // DERIVED FROM THE FILTER THIS GAUGE CLAIMS TO BE [4th audit 5.4]. Was a
+  // bare 0.20 with no derivation, under a comment citing an HP filter at
+  // lambda = 400,000. Matching the two at their half-power cutoff — Ravn-Uhlig
+  // scaled to monthly — gives 0.127 a year, a 5.5-year half-life against the
+  // 3.5 the literal implied. See CREDIT_TREND_CATCHUP's note, including why
+  // the two filters cannot be made equivalent by any choice of speed: the BIS
+  // trend carries a slope state and this one does not.
+  const trendSpeed = annualRateToMonthlyLinear(P.CREDIT_TREND_CATCHUP.value);
   s.credit_trend += trendSpeed * (s.private_credit - s.credit_trend);
   s.credit_to_gdp_gap = s.private_credit - s.credit_trend;
 

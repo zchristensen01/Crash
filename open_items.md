@@ -47,8 +47,12 @@ trend catch-up speed:
 | 0.06 (sourced) | 10.29 | 13.99 | 14.20 | **10.34** |
 | 0.05 (sourced) | 10.44 | 14.37 | 14.82 | **11.14** |
 
-**Phase 5.4 is the fix**, and the plan already required it to come after Phase 3
-— which is now done. Must not be closed by re-inflating the wealth channel
+**5.4 has now run and only got part of the way.** The derivation from the
+stated lambda gives 0.127/year, not the 0.05–0.06 that would restore 14.5pp:
+peak gap 9.82 → **12.00**, m96 3.37 → **6.20**. Pushing further would be tuning
+to a target. What remains is probably structural — the BIS trend carries a slope
+state and this one does not, so it lags a growing credit stock permanently and
+no choice of speed fixes it. Must not be closed by re-inflating the wealth channel
 (rule 3, and the channel matches its literature) **nor by retuning the starting
 vector**, which is what this entry previously recommended. Phase 6.1 is the
 other half: a bubble the player cannot act on is a spectacle, not a decision.

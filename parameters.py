@@ -839,6 +839,36 @@ BANK_CAPITAL_TO_GDP = P(
 
 CREDIT_GAP_HP_LAMBDA = 400_000   # one-sided HP filter, quarterly (Borio & Lowe 2002)
 
+CREDIT_TREND_CATCHUP = P(
+    0.127, 0.090, 0.253, "annual fraction of the credit/GDP gap the trend closes",
+    "moderate", "DERIVED from CREDIT_GAP_HP_LAMBDA above (Borio & Lowe 2002) by "
+    "matching the half-power cutoff of this model's one-sided exponential trend "
+    "to that of the HP filter at the BIS lambda",
+    "[4TH AUDIT 5.4] Was a bare 0.20 literal in credit.js with no derivation at "
+    "all, under a comment citing the HP filter it does not resemble. "
+    "THE DERIVATION. lambda = 400,000 is for QUARTERLY data; Ravn-Uhlig scales "
+    "it by the 4th power of the observation frequency, so monthly lambda is "
+    "400,000 x 3^4 = 32.4 million. The HP trend's gain is 1/(1 + 4*lambda*"
+    "(1-cos w)^2) and this model's trend is a one-sided exponential whose gain "
+    "is a/sqrt(1 - 2(1-a)cos w + (1-a)^2). Matching where each falls to "
+    "1/sqrt(2) gives a monthly a of 0.010577, i.e. 0.127 a year: a half-life of "
+    "5.5 years against the 3.5 the old 0.20 implied. The range spans lambda "
+    "from 25,000 to 1.6 million, which is the spread of credit-gap lambdas in "
+    "the literature. "
+    "THE AUDIT BRIEF SAYS THE METER IS 3-4x TOO FAST. MEASURED, IT IS 1.58x. "
+    "The brief's 10-15 year 'trend time constant' does not follow from lambda = "
+    "400,000 by any matching this derivation could reproduce; the implied "
+    "cutoff PERIOD is 49 years and the implied half-life is 5.5. "
+    "AND A STRUCTURAL CAVEAT THAT MATTERS MORE THAN THE NUMBER: the BIS trend "
+    "is a LOCAL LINEAR trend — it carries a slope state, so it tracks a "
+    "steadily growing credit stock without lagging. This model's is level-only "
+    "and lags any trend permanently. Fitting the two empirically on the model's "
+    "own credit paths gives 0.598, 0.010, 0.468 and 0.010 across four "
+    "scenarios: no single speed makes them equivalent, because they are not the "
+    "same kind of filter. The frequency-domain match above is therefore the "
+    "honest derivation available, and the residual difference is a known "
+    "limitation rather than a tuning opportunity.")
+
 CREDIT_GAP_CRISIS_THRESHOLD = P(
     9.0, 3.0, 10.0, "pp of credit/GDP above trend",
     "strong", "BIS Aldasoro, Borio & Drehmann 2018",

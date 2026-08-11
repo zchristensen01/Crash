@@ -85,10 +85,16 @@ test('the bubble does not deflate on its own before the term ends', {
     'sourced speed the gap climbs and STAYS: measured, m24/m48/m72/m96 = ' +
     '10.29/13.99/14.20/10.34 at 0.06 per year and 10.44/14.37/14.82/11.14 at ' +
     '0.05, against 8.39/9.80/7.99/3.37 as built. The design promise is ~14.5pp. ' +
-    'PHASE 5.4 IS THE FIX and the plan already says it must come after Phase 3, ' +
-    'which is now done. 6.1 (the countercyclical buffer) is the other half, ' +
-    'because a bubble the player cannot act on is a spectacle rather than a ' +
-    'decision.',
+    'PHASE 5.4 HAS NOW RUN, AND IT ONLY GOT PART OF THE WAY. The derivation ' +
+    'from the stated lambda gives 0.127/year, not the 0.05-0.06 that would ' +
+    'restore 14.5pp — which took the peak from 9.82 to 12.00 and the m96 gap ' +
+    'from 3.37 to 6.20. Pushing further would be tuning to a target (rule 3), ' +
+    'so it was not done. WHAT IS LEFT IS PROBABLY STRUCTURAL: the BIS trend is ' +
+    'a LOCAL LINEAR trend carrying a slope state and this one is level-only, ' +
+    'so it lags a growing credit stock permanently and no speed fixes that. ' +
+    'See CREDIT_TREND_CATCHUP\'s note. 6.1 (the countercyclical buffer) is the ' +
+    'other half of the answer, because a bubble the player cannot act on is a ' +
+    'spectacle rather than a decision.',
 }, () => {
   const s = newState(SCENARIOS.bubble.overrides);
   let peak = -Infinity, peakMonth = 0;

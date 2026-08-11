@@ -294,12 +294,25 @@ guard green. Phase 6 is unblocked.
       diff against the pass's start) — both new coefficients went through
       `parameters.py`. Count against the current tree, not the brief's numbers,
       which docs/13 already flags as read-not-measured.
-- [ ] 5.4 Derive the credit trend speed — **NOW ALSO FIXES A LESSON REGRESSION**
-      4.3 measured this as the cause of `bubble` losing its design promise. At
-      the sourced HP-filter speed (0.05-0.06/year) the credit gap climbs to
-      14.0-14.8pp and STAYS, against 9.80 peaking and unwinding to 3.37 as
-      built. The design promise is ~14.5pp. Unblocked: the plan required this
-      to come after Phase 3, which is done.
+- [x] 5.4 Derive the credit trend speed
+      `0.20` was a bare literal with no derivation, under a comment citing an HP
+      filter it does not resemble. Promoted to **`CREDIT_TREND_CATCHUP` =
+      0.127/year** [0.090, 0.253], derived by matching the half-power cutoff of
+      the model's one-sided exponential trend to the HP filter at the stated
+      lambda, Ravn-Uhlig-scaled quarterly->monthly (400,000 x 3^4 = 32.4m).
+      Half-life 3.5 -> 5.5 years.
+      **The brief says the meter is 3-4x too fast. Measured, it is 1.58x.**
+      Its "10-15 year trend time constant" does not follow from lambda=400,000
+      by any matching I could reproduce — the implied cutoff PERIOD is 49 years.
+      **A structural caveat that matters more than the number:** the BIS trend
+      is a LOCAL LINEAR trend with a slope state; this one is level-only and
+      lags any trend permanently. Fitting them empirically on the model's own
+      credit paths gives 0.598/0.010/0.468/0.010 across four scenarios — no
+      single speed makes them equivalent, because they are not the same filter.
+      **Bubble: peak gap 9.82 -> 12.00, m96 3.37 -> 6.20.** Better, not fixed.
+      Reaching 14.5 needs 0.05-0.06, which the derivation does not support and
+      rule 3 forbids reaching for.
+
 - [ ] 5.5 Fix `CREDIT_GAP_CRISIS_THRESHOLD`'s note and `HAND_TO_MOUTH_SHARE`
       **WATCH ONE THING WHEN TIGHTENING THE REGISTER:** 2.1 added
       `RATE_PASSTHROUGH_TO_BORROWERS` to `DEFERRED` with the reason "consumed
