@@ -231,6 +231,18 @@ function crashArc({ response = null, months = 120 } = {}) {
   return { trough, troughM, uPeak, vsTrend, hit: hit.s };
 }
 
+/**
+ * WHAT THIS TEST CAN AND CANNOT TELL YOU.
+ *
+ * Assertion 1 — that the trough equals CRISIS_OUTPUT_TROUGH — CANNOT FAIL ON
+ * MAGNITUDE. CRISIS_IMPULSE_AMPLIFICATION is defined as the value that makes
+ * it true (parameters.py SOLVED_FROM_MODEL). It is a consistency check, not a
+ * validation, and it read as the latter for two passes.
+ *
+ * What the assertions below DO test, and can fail: the SHAPE — that the trough
+ * arrives at about a year, and that output does not climb back toward trend
+ * inside a term. Neither is pinned by either constant.
+ */
 test('THE CRASH ARC: every published magnitude at once', () => {
   const r = crashArc();
   // 1. Peak-to-trough, against the pre-crisis LEVEL — what JST and

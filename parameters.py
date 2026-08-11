@@ -1030,6 +1030,48 @@ RECAP_WINDOW_MONTHS = P(
 
 # The three loops with no balancing counterpart. These generate crises.
 # A model with only balancing loops can never teach one.
+# =====================================================================
+# CONSTANTS SOLVED FROM THIS MODEL, NOT MEASURED FROM THE WORLD
+# =====================================================================
+#
+# READ THIS BEFORE QUOTING ANY TEST THAT CHECKS ONE OF THEM.
+#
+# Every other parameter in this file is an estimate of something in the world,
+# with a source and a range, and a test that compares the model against it can
+# FAIL — which is what makes it evidence. The entries below are different in
+# kind. Their value is DEFINED as whatever makes this model reproduce a
+# published magnitude. That has two consequences and both are easy to forget:
+#
+#   1. THE TEST THAT CHECKS THEM CANNOT FAIL ON MAGNITUDE, because the constant
+#      is solved to make it pass. test/crisis.test.js asserting that the crash
+#      troughs at CRISIS_OUTPUT_TROUGH is therefore a CONSISTENCY CHECK, not a
+#      validation. The crash's headline magnitude is pinned by construction and
+#      is not independent evidence about the model.
+#   2. WHEN THE MODEL CHANGES, THEY MUST BE RE-SOLVED. They absorb whatever the
+#      rest of the model stops doing, silently, and a stale one reads as a
+#      healthy magnitude while the mechanism underneath it has gone.
+#
+# They are not a defect — deconvolving an observation into a structural input
+# is the correct move, and the alternative (feeding the observed magnitude in
+# directly) is rule 4's error. They just must never be mistaken for findings.
+#
+# WHAT THEY ARE WORTH IS THE RESIDUAL. The useful question is never "does the
+# trough match" — it is solved to match — but "how much of the published
+# magnitude does the model supply BY ITSELF". That number is evidence, it is
+# measured on every run, and in the 4th audit it fell from 8.4% to 3.65%.
+SOLVED_FROM_MODEL = {
+    "CRISIS_IMPULSE_AMPLIFICATION":
+        "solved so the realised peak-to-trough equals CRISIS_OUTPUT_TROUGH. "
+        "Re-solved 2.59 -> 2.1855 in the 4th audit after Phases 2 and 3 changed "
+        "the demand block.",
+    "CRISIS_SCAR_AMPLIFICATION":
+        "solved so output sits CRISIS_HYSTERESIS_SCAR below trend at 60 months. "
+        "NOT re-solved in the 4th audit: it lands at 1.06-1.26, outside its own "
+        "range, which would make the exogenous cut supply 9.5 of the 10 and "
+        "destroy the deconvolution. The refusal is the finding.",
+}
+
+
 UNBALANCED_LOOPS = [
     "fire_sale_deleveraging",           # Shleifer & Vishny 2011. The engine.
     "deposit_insurance_moral_hazard",   # slow, invisible, builds for decades
@@ -1691,6 +1733,30 @@ def validate():
     for channel in KERNEL_SHAPE_K:
         if channel not in LAGS_MONTHS:
             problems.append(f"KERNEL_SHAPE_K['{channel}'] has no entry in LAGS_MONTHS")
+    for name in sorted(SOLVED_FROM_MODEL):
+        p = globals().get(name)
+        if not isinstance(p, P):
+            problems.append(f"SOLVED_FROM_MODEL lists '{name}', which is not a parameter")
+            continue
+        if p.confidence != "judgement":
+            problems.append(
+                f"{name} is solved from the model but its confidence is "
+                f"'{p.confidence}'. A value defined by a solve is not an estimate "
+                f"of anything; it must be labelled judgement.")
+        if "DERIVED FROM THIS MODEL" not in p.source:
+            problems.append(
+                f"{name} is in SOLVED_FROM_MODEL but its source does not say "
+                f"'DERIVED FROM THIS MODEL'. The register and the parameter have "
+                f"to agree or one of them is lying.")
+    # The other direction, like DEFERRED: a parameter that says it is derived
+    # from the model must be in the register.
+    for name, p in sorted(globals().items()):
+        if isinstance(p, P) and "DERIVED FROM THIS MODEL" in p.source \
+                and name not in SOLVED_FROM_MODEL:
+            problems.append(
+                f"{name}'s source says DERIVED FROM THIS MODEL but it is not in "
+                f"SOLVED_FROM_MODEL. Anything solved from the model has to be "
+                f"declared, or a test that checks it looks like validation.")
     for name in sorted(DEFERRED):
         if not isinstance(globals().get(name), P):
             problems.append(f"DEFERRED lists '{name}', which is not a parameter")

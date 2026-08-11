@@ -65,6 +65,13 @@ def main():
         f"export const CONFLICTS = {js(K.CONFLICTS)};\n")
     out.append(f"export const CREDIT_GAP_HP_LAMBDA = {K.CREDIT_GAP_HP_LAMBDA};\n")
     out.append(f"export const UNBALANCED_LOOPS = {js(K.UNBALANCED_LOOPS)};\n")
+    out.append(
+        "// Constants whose value is DEFINED by solving this model against a\n"
+        "// published magnitude, rather than estimated from the world. A test\n"
+        "// that checks one of them is a CONSISTENCY CHECK, not a validation:\n"
+        "// it cannot fail on magnitude, because the constant is whatever makes\n"
+        "// it pass. They must be re-solved whenever the model changes.\n"
+        f"export const SOLVED_FROM_MODEL = {js(K.SOLVED_FROM_MODEL)};\n")
 
     dest = ROOT / "src" / "params.js"
     dest.write_text("\n".join(out), encoding="utf-8")

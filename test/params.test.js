@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { P, START, LAGS_MONTHS, KERNELS, KERNEL_SHAPE_K } from '../src/params.js';
+import { P, SOLVED_FROM_MODEL, START, LAGS_MONTHS, KERNELS, KERNEL_SHAPE_K } from '../src/params.js';
 
 const CONFIDENCE = new Set(['strong', 'moderate', 'weak', 'contested', 'judgement']);
 
@@ -75,4 +75,55 @@ test('START satisfies the accounting identities', () => {
   assert.equal(s.output_gap, 0, 'a steady state has no output gap');
   assert.equal(s.credit_to_gdp_gap, 0, 'a steady state has no credit gap');
   assert.equal(s.unemployment, s.natural_unemployment, 'unemployment != natural');
+});
+
+/**
+ * CONSTANTS SOLVED FROM THE MODEL ARE DECLARED, AND WHAT THAT MEANS IS STATED.
+ *
+ * The 4th audit brief's best unrecorded structural observation: the crash's
+ * headline magnitude is pinned BY CONSTRUCTION and is no longer independent
+ * evidence about the model. CRISIS_IMPULSE_AMPLIFICATION is defined as the
+ * value that makes the realised trough equal CRISIS_OUTPUT_TROUGH, so
+ * test/crisis.test.js asserting exactly that CANNOT FAIL ON MAGNITUDE. It is a
+ * consistency check wearing a validation's clothes, and it read as the latter
+ * for two passes.
+ *
+ * This is not a defect. Deconvolving an observation into a structural input is
+ * the correct move and the alternative — feeding the observed magnitude in
+ * directly — is rule 4's error. It just has to be declared, so the register is
+ * enforced in both directions the way DEFERRED is: nothing may be solved from
+ * the model without saying so, and nothing may claim to be without being
+ * listed.
+ *
+ * WHAT IS ACTUALLY EVIDENCE is the residual — how much of the published
+ * magnitude the model supplies BY ITSELF. That number can fail, and in this
+ * audit it fell from 8.4% to 3.65%.
+ */
+test('every constant solved from the model is declared, in both directions', () => {
+  const entries = Object.entries(SOLVED_FROM_MODEL);
+  assert.ok(entries.length > 0, 'the register is empty — it should hold at least the two crisis constants');
+
+  for (const [name, reason] of entries) {
+    const p = P[name];
+    assert.ok(p, `SOLVED_FROM_MODEL lists ${name}, which is not a parameter`);
+    assert.ok((reason || '').trim().length > 20,
+      `${name} is declared solved-from-the-model with no real reason`);
+    assert.equal(p.confidence, 'judgement',
+      `${name} is solved from the model but is labelled '${p.confidence}'. A ` +
+      `value defined by a solve is not an estimate of anything in the world.`);
+    assert.ok(/DERIVED FROM THIS MODEL/.test(p.source),
+      `${name} is in the register but its source does not say so`);
+  }
+
+  // The other direction. A parameter that says it is derived from the model
+  // and is NOT declared is the dangerous case: a test checking it looks like
+  // validation and is not.
+  const undeclared = Object.entries(P)
+    .filter(([n, p]) => p && typeof p.source === 'string'
+      && /DERIVED FROM THIS MODEL/.test(p.source) && !(n in SOLVED_FROM_MODEL))
+    .map(([n]) => n);
+  assert.deepEqual(undeclared, [],
+    'these parameters say they are derived from this model but are not in ' +
+    'SOLVED_FROM_MODEL. Anything solved from the model has to be declared, or ' +
+    'a test that checks it reads as evidence when it is arithmetic.');
 });

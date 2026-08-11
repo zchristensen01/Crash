@@ -201,7 +201,19 @@ experiment that isolates it.
       3.65%.** The model no longer propagates a crisis; it gets hit and
       recovers. Fourth independent sighting of the same demand-block finding.
 
-- [ ] 4.2 Record that they are calibration constants, not measurements
+- [x] 4.2 Record that they are calibration constants, not measurements
+      **Made structural, not prose.** New `SOLVED_FROM_MODEL` register in
+      `parameters.py`, enforced in BOTH directions like `DEFERRED` — by the
+      Python validator at import time and by `test/params.test.js`. Nothing can
+      be solved from the model without declaring it; nothing can claim to be
+      without being listed; and a registered constant must be labelled
+      `judgement`. Verified both failure modes fire.
+      The point stated in `docs/10`, in the register's own header and on
+      `crisis.test.js`'s crash-arc test: **that test cannot fail on magnitude**,
+      because the constant is whatever makes it pass. What IS evidence is the
+      residual — the model's endogenous share of the published loss, **8.4% ->
+      3.65%**. 10.1's rewrite of `docs/10` must carry this section forward.
+
 - [ ] 4.3 Regenerate cause-effect, report, IRF, paths
       **AND RE-MEASURE EVERY SCENARIO'S STARTING VECTOR.** `bubble` was
       calibrated against the asset-price unit error and no longer produces its
@@ -309,6 +321,9 @@ experiment that isolates it.
 ## Phase 10 — Documentation (throughout, not at the end)
 
 - [ ] 10.1 Rewrite `docs/10` wholesale
+      **CARRY FORWARD the section 4.2 added** — "Two numbers in this model are
+      not evidence, and one of them is the crash". It is the only place the
+      epistemic status of the crash magnitude is written down for a reader.
 - [ ] 10.2 Regenerate `docs/11` — **THE MOST STALE FILE IN THE REPO.** Not
       touched since the third audit (a2b7ce0). Every number predates Phase 2.
 - [ ] 10.3 Regenerate `TEST-RESULTS.md`

@@ -211,6 +211,47 @@ merely unpolished.
 static checks, each named for the finding it prevents, verified against a
 deliberate negative control. Still no CI, no type checking, no coverage.
 
+## Two numbers in this model are not evidence, and one of them is the crash
+
+**READ THIS BEFORE QUOTING THE CRASH MAGNITUDE.**
+
+Almost every parameter here is an estimate of something in the world, and a
+test comparing the model against it can fail — which is what makes it evidence.
+Two are different in kind. `CRISIS_IMPULSE_AMPLIFICATION` and
+`CRISIS_SCAR_AMPLIFICATION` are **solved from this model**: their value is
+defined as whatever makes the model reproduce a published magnitude.
+
+So when `test/crisis.test.js` reports that the crash troughs at
+`CRISIS_OUTPUT_TROUGH`, **that test cannot fail on magnitude.** The constant is
+whatever makes it pass. It is a consistency check wearing a validation's
+clothes, and it read as the latter for two passes. The crash's headline
+magnitude is pinned by construction and is not independent evidence about the
+model.
+
+This is not a defect. Deconvolving an observation into a structural input is
+the right move, and the alternative — feeding the observed magnitude straight
+in — is the "a reduced form is not a structural input" error. It has to be
+*declared*, which it now is: `parameters.py` carries a `SOLVED_FROM_MODEL`
+register, enforced in both directions like `DEFERRED`, so nothing can be solved
+from the model without saying so and nothing can claim to be without being
+listed.
+
+**What IS evidence is the residual** — how much of the published magnitude the
+model supplies by itself, with the exogenous constant switched off. That number
+can fail, and in the fourth audit it did:
+
+| | endogenous share of Cerra & Saxena's 10% loss |
+|---|---|
+| before | 8.4% |
+| after Phases 2 and 3 | **3.65%** |
+
+The model no longer propagates a crisis; it gets hit and recovers. That is the
+fourth independent sighting of one finding — alongside the UK 1979-83 sacrifice
+ratio (0.38 against Ball's 2–4), `TAX_SHOCK_TO_GDP` (0.46 against Romer-Romer's
+2–3) and the missing austerity paradox. **Every real quantity moves too little
+for the price change that caused it.** It is one finding in the demand block,
+not four, and it is not a calibration problem.
+
 ## What "accurate" can and cannot mean here
 
 Worth stating plainly, because it is the thing most likely to be
