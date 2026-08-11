@@ -120,7 +120,7 @@ anything tries to schedule into a field a rule owns.
 
 | Dial | Start | Range | Transmitted as | Peak |
 |---|---|---|---|---|
-| `policy_rate` | 2.5% | −0.75 to 20 | `policy_rate_demand` | 9 months |
+| `policy_rate` | 2.5% | −0.75 to 20 | `policy_rate_demand` | 3 months |
 | " | | | `policy_rate_markets` | 1 month |
 | `tax_rate` | 24.75% | 0 to 70 | `tax_rate_effective` | 3 months |
 | `govt_spending` | 22.0% | 0 to 70 | *(immediate — it IS demand)* | 0 |
@@ -129,6 +129,18 @@ anything tries to schedule into a field a rule owns.
 
 `transfers` is **not** a dial. It moves automatically with unemployment; that
 is half the point of the automatic-stabiliser block.
+
+**`policy_rate_demand` peaks at 3 months, not 9, since the fourth audit's A1
+split.** It is a PRICE — "what businesses pay to borrow" — and a borrower's
+rate reprices off today's policy rate within weeks, so it rides
+`rate_to_borrowing_cost` (`RATE_PASSTHROUGH_TO_BORROWERS`, ~1 quarter). It used
+to ride `rate_to_investment`, which is the published impulse response *of
+investment* to a monetary shock — a QUANTITY responding to a price, mean lag
+14.74 months — and `updateInvestment` then applied the rate elasticity to that
+already-lagged rate, using the same reduced form twice. **The slow half of the
+lag has not gone away: it moved to where the decision is**, as a partial
+adjustment on `investment` (`INVESTMENT_ADJUSTMENT_SPEED`). The two combined
+reproduce the published 9-month investment peak rather than assuming it.
 
 ## F. Money, credit and assets
 
