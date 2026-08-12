@@ -17,7 +17,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 |---|---|---|---|---|
 | A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
 | **A2 the demand block** | **11.1** | | | |
-| A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
+| A3 hotter buys less inflation | 7.3 | | | |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
@@ -25,9 +25,9 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, B7, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
+A5, B1, B7, B8, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
 E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
-**Fourteen `OPEN`/`PARTIAL` entries, fourteen tasks.** D4 was missing from this
+**Thirteen `OPEN`/`PARTIAL` entries, thirteen tasks.** D4 was missing from this
 accounting until 5.12's handoff check enumerated the statuses rather than
 reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
 legs.
@@ -118,7 +118,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-four** corrections to the
+Recorded here and against the individual tasks. **Thirty-five** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -141,6 +141,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 35 | **B8 named the wrong mechanism for its own finding** — the arms differ because of the WAGE KINK, not `monetaryEasingScale`. Remove the kink and the cut arm falls 0.2230 → 0.0616 and the asymmetry flips. The arm that PASSES was one kink crossing | closed by 5.14 |
 | 34 | **B7's proposed repair was a correction where the model needed an ANCHOR** — `updateInvestment` already held the right steady-state user cost as a local, so there were two anchors for one quantity. Hoisted to `s.user_cost_ss`; the gauge reads its declared 60 at rest | closed by 5.13 |
 | 33 | **Two of A2's five cells had no producer** — propagation and the rebound share were quoted in four places each and computed by nothing. Measured: 3.8202% and 38.68%, so nothing had drifted; the point is that nothing could have said so | closed by 5.22 |
 | 32 | **The plan's two candidate prose sweeps were measured and both are dead ends** — 97 sites/55 false positives, or 1 site. The class that rots is MEASURED QUANTITIES, which sit nowhere near a parameter name, so the citation must be declared. It then found TASKS' own Phase 11 table four cells stale | closed by 5.12 |
@@ -664,7 +665,7 @@ tasks, not notes — the pass found them and did not fix them.
       defaults, 5 disagree, and 4 are legitimate rounding** (0.68 vs 0.6799943).
       One real staleness, four false positives — so no guard is built here, for
       the same reason 5.12 rejected its sweep.
-- [ ] 5.14 Measure the monetary validation targets on BOTH arms — `open_items` B8
+- [x] 5.14 Measure the monetary validation targets on BOTH arms — `open_items` B8
       `MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes,
       on purpose. Both monetary validation tests shock with a HIKE and negate.
       `RATE_TO_INFLATION` @24m is **0.0795 on the hike arm and 0.2230 on the
@@ -674,6 +675,44 @@ tasks, not notes — the pass found them and did not fix them.
       the fix is to report the average and state the asymmetry separately,
       because a one-sided model measurement against a two-sided published
       estimate is not like-for-like.
+      **AS BUILT, AND THE ISOLATING EXPERIMENT REFUTED THE MESSAGE'S OWN
+      MECHANISM.** Both targets now measure both arms and assert the AVERAGE,
+      reporting each arm and their ratio. `RATE_TO_OUTPUT` **0.4154 / 0.3074,
+      average 0.3614** — inside 0.2–0.6, and it was inside on either arm.
+      `RATE_TO_INFLATION` **0.0795 / 0.2230, average 0.1513** against 0.2–0.4:
+      **still a `todo`, which is the point** — averaging halves the
+      arm-dependence and does not close the gap, and closing it by picking an
+      arm was never available.
+      **THE `todo` SAID `monetaryEasingScale` WAS WHY THE ARMS DIFFER. IT IS
+      NOT.** Sweeping the starting gap, hike/cut is 1.138 / 1.000 / 1.115 at
+      d = −6 / −4 / −2, **0.357 at 0**, and 0.984 at +2 — the asymmetry exists
+      at exactly one starting point, and the harness settles to it. Isolated by
+      making `WAGE_PC_KINK` unreachable: the hike arm does not move at all
+      (0.0795 — it never crossed) and **the cut arm falls 0.2230 → 0.0616**, so
+      the ratio goes 0.357 → 1.292 and the asymmetry flips into the direction
+      `monetaryEasingScale` actually implies, cuts WEAKER.
+      **SO THE CUT ARM'S 0.2230 — THE READING THAT PASSES — IS ONE KINK
+      CROSSING.** It is the only arm that goes from below potential to above it,
+      taking unemployment under `WAGE_PC_KINK` onto the steep branch of the wage
+      curve. `docs/11` §3 already records that the gap-zero row shows more
+      inflation than its neighbours **for every lever**, for this reason.
+      B8 said switching arms would be tuning to pass; it would have been worse —
+      reporting a kink crossing as the model's response to easing.
+      **The mechanism is a hard test, not a sentence.** It asserts the hike arm
+      does NOT move when the kink is removed (it never reaches it, so if that
+      moves the explanation is wrong) and that the kink accounts for >80% of the
+      gap between the arms. Measured: **113%** — removing it takes the cut arm
+      below the hike arm. Verified to fire.
+      `RATE_TO_OUTPUT`'s asymmetry is the real one: **1.351 with the kink and
+      1.361 without**, against a declared 1.5, because
+      `MONETARY_ASYMMETRY_RATIO` scales the easing channel and the other routes
+      from the rate to output are symmetric. Reported, not asserted.
+      Across horizons the inflation average runs **0.0704 / 0.1513 / 0.2170 /
+      0.2722** at 12 / 24 / 36 / 48 — it enters the published band at three
+      years, which is 4.4's "the window is doing as much of the disagreement as
+      the model is", now measured two-sided.
+      173 → **174 tests**, 158 pass, 0 fail, 16 todo. Behaviour hash
+      `7e517207065edb1c` unmoved — measurement protocol only, no model change.
 
 - [x] 5.9 Re-derive the rate ceiling — **50 survived it** — `open_items` D1
       2.4 derived `max: 50` as a fixed point over 360 runs with events on,
@@ -1064,7 +1103,7 @@ tasks, not notes — the pass found them and did not fix them.
       170 → **172 tests**, 156 pass, 0 fail, 16 todo.
 
 
-**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 173 tests, 157
+**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 174 tests, 158
 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
 scope), `index.html` current, `docs/11` current with **all twelve of its
 measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
@@ -1080,7 +1119,7 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.14, 5.15.
+rides on it. **Not started:** 5.15.
 **5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
 5 handoff, and between them `docs/11` now has **no numeric block that a tool
 does not generate and check**: 8 fenced tables, 453 cells across 21 pipe

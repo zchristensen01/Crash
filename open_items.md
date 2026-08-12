@@ -506,7 +506,7 @@ legitimate rounding** (`tfp` 0.68 vs 0.6799943, `labour_productivity` 1.05 vs
 staleness and four false positives, so no guard was built — the same arithmetic
 that made 5.12 reject its sweep.
 
-### B8. Two monetary validation targets are measured on ONE arm of a deliberately asymmetric channel — `OPEN`
+### B8. Two monetary validation targets were measured on ONE arm of a deliberately asymmetric channel — `FIXED in 5.14`, and this entry named the wrong mechanism
 `MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes, on
 purpose and with a source. Both monetary validation tests shock the model with
 a **hike** and negate. Measured on both arms:
@@ -532,6 +532,54 @@ rather than reporting a single number. Recorded in the message; the right fix
 is to measure the average of the two arms and state the asymmetry separately.
 Related to A2: the hike arm is the weak-response direction, so this is the
 demand-block finding showing up in the measurement protocol.
+
+**FIXED in 5.14 — AND THE SENTENCE ABOVE ABOUT `monetaryEasingScale` IS
+WRONG.** Both targets now measure both arms and assert the AVERAGE, reporting
+each arm and their ratio. `RATE_TO_OUTPUT` averages **0.3614** (inside 0.2–0.6,
+as it was on either arm). `RATE_TO_INFLATION` averages **0.1513** against
+0.2–0.4 — **still a `todo`**, which is the point: averaging removes the arm as
+the decider and does not close the gap.
+
+**THE ARMS DO NOT DIFFER BECAUSE OF `monetaryEasingScale`.** This entry and the
+test message both said so. Sweeping the starting gap:
+
+| starting gap `d` | −6 | −4 | −2 | **0** | +2 |
+|---|---|---|---|---|---|
+| hike / cut | 1.138 | 1.000 | 1.115 | **0.357** | 0.984 |
+
+The asymmetry exists at **exactly one starting point**, and the validation
+harness settles to it. Isolated by making the kink unreachable:
+
+```
+WAGE_PC_KINK = 5 :  hike 0.0795 / cut 0.2230 / ratio 0.357
+WAGE_PC_KINK = 0 :  hike 0.0795 / cut 0.0616 / ratio 1.292
+```
+
+The hike arm does not move by a single digit — it never reaches the kink — and
+the cut arm collapses, flipping the asymmetry into the direction
+`monetaryEasingScale` actually implies, cuts WEAKER. **So the cut arm's 0.2230
+is one kink crossing:** it is the only arm that goes from below potential to
+above it, taking unemployment under `WAGE_PC_KINK` and onto the steep branch of
+the wage curve. `docs/11` §3 already records that the gap-zero row shows more
+inflation than its neighbours for EVERY lever, for this reason.
+
+**This entry warned that switching arms would be tuning to pass. It would have
+been worse than that** — it would have reported a kink crossing as the model's
+response to easing. The warning was right and its reason was not.
+
+The mechanism is pinned by a hard test rather than a sentence: it asserts the
+hike arm does not move when the kink is removed, and that the kink explains
+more than 80% of the gap between the arms. Measured **113%**. Verified to fire.
+
+`RATE_TO_OUTPUT`'s asymmetry is the genuine one — **1.351 with the kink, 1.361
+without**, against a declared 1.5, because `MONETARY_ASYMMETRY_RATIO` scales
+the easing channel while the other routes from the rate to output are
+symmetric.
+
+Across horizons the two-armed average runs **0.0704 / 0.1513 / 0.2170 /
+0.2722** at 12 / 24 / 36 / 48 months, entering the published band at three
+years — 4.4's "the window is doing as much of the disagreement as the model
+is", now measured on both sides. The residual is still A2.
 
 ### B6. `debt_trap` was already fragile before 5.1 touched it — `OPEN`
 While measuring the D1 revert, two of `debt_trap`'s own tests were seen to sit

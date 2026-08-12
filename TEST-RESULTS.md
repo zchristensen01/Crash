@@ -35,8 +35,8 @@ that only showed the passing parts would be marketing.
 
 | | |
 |---|---|
-| Tests | **173** |
-| Passing | **157** |
+| Tests | **174** |
+| Passing | **158** |
 | Failing (regressions) | **0** |
 | Open disagreements (`OPEN`) | **16** |
 | Linter | **clean** |
@@ -250,12 +250,12 @@ model 0.019, literature 0.02-0.15
 
 *`test/validation.test.js`*
 
-RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
+RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. MEASURED ON BOTH ARMS SINCE 5.14, AND THE AVERAGE IS ASSERTED: hike 0.0795, cut 0.2230, average 0.1513 at 24 months. Across horizons the average runs 0.0704 / 0.1513 / 0.2170 / 0.2722 at 12 / 24 / 36 / 48, so it enters the published band at three years. The test used to shock with a hike and negate — ONE arm of a channel MONETARY_ASYMMETRY_RATIO makes asymmetric on purpose — against a published range identified across both directions, and for this target the choice of arm decided the verdict. THE CUT ARM IS NOT A SECOND OPINION, AND THIS MESSAGE USED TO SAY IT WAS. It claimed "monetaryEasingScale is why they differ". REFUTED by switching the kink off: with WAGE_PC_KINK unreachable the hike arm does not move at all (0.0795 — it never crossed) and the cut arm falls 0.2230 to 0.0616, so the ratio goes 0.357 to 1.292 and the asymmetry flips into the direction monetaryEasingScale actually implies, cuts WEAKER. The cut arm's 0.2230 is one kink crossing: it is the only arm that goes from below potential to above it, taking unemployment under WAGE_PC_KINK onto the steep branch of the wage curve. Sweeping the starting gap, hike/cut is 1.138 / 1.000 / 1.115 at -6 / -4 / -2, then 0.357 at 0 and 0.984 at +2 — the asymmetry exists at exactly one starting point, and the harness settles to it. docs/11 section 3 already records that the gap-zero row shows more inflation than its neighbours for every lever, for this reason. So switching arms would not merely be tuning to pass; it would be reporting a kink crossing as the response to easing. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
 
 **Measured on this run:**
 
 ```
-model 0.080, literature 0.2-0.4
+model 0.151 averaged over both arms (hike 0.0795, cut 0.2230, hike/cut 0.36), literature 0.2-0.4
 ```
 
 ### 16. TAX_SHOCK_TO_GDP: the model is far below Romer-Romer
@@ -431,13 +431,14 @@ with its number in the section above. `FAIL` = a regression.
 | 161 | a losing run reaches a named ending with a lesson | PASS |
 | 162 | the DEFERRED register matches the code, in both directions | PASS |
 | 163 | every recorded parameter conflict is still genuinely unresolved | PASS |
-| 164 | RATE_TO_OUTPUT: 1pp of policy rate, held a year | PASS |
+| 164 | RATE_TO_OUTPUT: 1pp of policy rate, held a year, measured on both arms | PASS |
 | 165 | AUTO_STABILISER_ABSORPTION: share of an income shock that never lands | PASS |
 | 166 | a tax cut RAISES output, and does it through consumption | PASS |
-| 169 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
-| 171 | CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere | PASS |
-| 172 | private debt reprices over YEARS, and the burden lands late | PASS |
-| 173 | the debt-service burden reads the transmitted rate, not the dial | PASS |
+| 169 | the two arms straddle the wage kink, which is why they disagree | PASS |
+| 170 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
+| 172 | CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere | PASS |
+| 173 | private debt reprices over YEARS, and the burden lands late | PASS |
+| 174 | the debt-service burden reads the transmitted rate, not the dial | PASS |
 
 ### `test/crisis.test.js`
 
@@ -502,7 +503,7 @@ with its number in the section above. `FAIL` = a regression.
 |---|---|---|
 | 167 | QE_TO_GDP: bond buying reaches output through the yield, and how much | **OPEN** |
 | 168 | RATE_TO_INFLATION: the model is about half the published estimate | **OPEN** |
-| 170 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
+| 171 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
 
 ---
 
@@ -1730,6 +1731,7 @@ ok 160 - a passive calm run reaches the end of the term and is scored
 ok 161 - a losing run reaches a named ending with a lesson
   ---
   ...
+#   RATE_TO_INFLATION @24m — hike 0.0795, cut 0.2230, average 0.1513; with the wage kink unreachable the cut arm is 0.0616
 # Subtest: the DEFERRED register matches the code, in both directions
 ok 162 - the DEFERRED register matches the code, in both directions
   ---
@@ -1738,8 +1740,8 @@ ok 162 - the DEFERRED register matches the code, in both directions
 ok 163 - every recorded parameter conflict is still genuinely unresolved
   ---
   ...
-# Subtest: RATE_TO_OUTPUT: 1pp of policy rate, held a year
-ok 164 - RATE_TO_OUTPUT: 1pp of policy rate, held a year
+# Subtest: RATE_TO_OUTPUT: 1pp of policy rate, held a year, measured on both arms
+ok 164 - RATE_TO_OUTPUT: 1pp of policy rate, held a year, measured on both arms
   ---
   ...
 # Subtest: AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
@@ -1753,7 +1755,7 @@ ok 166 - a tax cut RAISES output, and does it through consumption
 # Subtest: QE_TO_GDP: bond buying reaches output through the yield, and how much
 not ok 167 - QE_TO_GDP: bond buying reaches output through the yield, and how much # TODO FELL BELOW ITS PUBLISHED RANGE WHEN 3.1 FIXED THE ASSET-PRICE UNITS. The model delivers 0.019% of GDP per 1% of GDP purchased against a published 0.02-0.15 — just under the bottom, where it used to sit inside. QE reaches output through the long yield and then through asset prices, and the asset leg was overshooting its own sourced semi-elasticity by 4.6x, so part of what used to satisfy this range was the unit error. QE_TO_GDP is `weak` in parameters.py, with the note that the real-economy effect is genuinely contested and some argue near-zero outside market dysfunction — 0.019 is comfortably inside that judgement even though it is outside the stated band. Recorded rather than closed: raising it means raising QE_TO_YIELD or the wealth channel, and the wealth channel has just been shown to have been wrong in the other direction.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:154:1'
+  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:185:1'
   failureType: 'testCodeFailure'
   error: 'model 0.019, literature 0.02-0.15'
   code: 'ERR_ASSERTION'
@@ -1762,7 +1764,7 @@ not ok 167 - QE_TO_GDP: bond buying reaches output through the yield, and how mu
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:173:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:204:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1771,18 +1773,18 @@ not ok 167 - QE_TO_GDP: bond buying reaches output through the yield, and how mu
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: RATE_TO_INFLATION: the model is about half the published estimate
-not ok 168 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
+not ok 168 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. MEASURED ON BOTH ARMS SINCE 5.14, AND THE AVERAGE IS ASSERTED: hike 0.0795, cut 0.2230, average 0.1513 at 24 months. Across horizons the average runs 0.0704 / 0.1513 / 0.2170 / 0.2722 at 12 / 24 / 36 / 48, so it enters the published band at three years. The test used to shock with a hike and negate — ONE arm of a channel MONETARY_ASYMMETRY_RATIO makes asymmetric on purpose — against a published range identified across both directions, and for this target the choice of arm decided the verdict. THE CUT ARM IS NOT A SECOND OPINION, AND THIS MESSAGE USED TO SAY IT WAS. It claimed "monetaryEasingScale is why they differ". REFUTED by switching the kink off: with WAGE_PC_KINK unreachable the hike arm does not move at all (0.0795 — it never crossed) and the cut arm falls 0.2230 to 0.0616, so the ratio goes 0.357 to 1.292 and the asymmetry flips into the direction monetaryEasingScale actually implies, cuts WEAKER. The cut arm's 0.2230 is one kink crossing: it is the only arm that goes from below potential to above it, taking unemployment under WAGE_PC_KINK onto the steep branch of the wage curve. Sweeping the starting gap, hike/cut is 1.138 / 1.000 / 1.115 at -6 / -4 / -2, then 0.357 at 0 and 0.984 at +2 — the asymmetry exists at exactly one starting point, and the harness settles to it. docs/11 section 3 already records that the gap-zero row shows more inflation than its neighbours for every lever, for this reason. So switching arms would not merely be tuning to pass; it would be reporting a kink crossing as the response to easing. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:181:1'
+  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:212:1'
   failureType: 'testCodeFailure'
-  error: 'model 0.080, literature 0.2-0.4'
+  error: 'model 0.151 averaged over both arms (hike 0.0795, cut 0.2230, hike/cut 0.36), literature 0.2-0.4'
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected: true
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:209:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:257:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1790,15 +1792,19 @@ not ok 168 - RATE_TO_INFLATION: the model is about half the published estimate #
     Test.run (node:internal/test_runner/test:973:12)
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
+# Subtest: the two arms straddle the wage kink, which is why they disagree
+ok 169 - the two arms straddle the wage kink, which is why they disagree
+  ---
+  ...
 #   a 3pp hike, default rate: m1 0.00125pp, m12 0.23397, m36 0.53521, m60 0.66026. Impact is 0.19% of the five-year response (0.67538pp before 5.2, off the DIAL and the whole stock). Repricing switched off: 0.03160pp, 25.4x.
 # Subtest: CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
-ok 169 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
+ok 170 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
   ---
   ...
 # Subtest: TAX_SHOCK_TO_GDP: the model is far below Romer-Romer
-not ok 170 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.484% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it and 0.487 until 5.12 did: it was 0.487 from 3.1 until 5.7 fixed the capital law of motion, 0.492 before that, and 0.33 was never right in this pass. The assertion three lines below printed 0.484 while this message said 0.487 — one test, one measurement, two numbers, which is what the citation register now prevents.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
+not ok 171 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.484% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it and 0.487 until 5.12 did: it was 0.487 from 3.1 until 5.7 fixed the capital law of motion, 0.492 before that, and 0.33 was never right in this pass. The assertion three lines below printed 0.484 while this message said 0.487 — one test, one measurement, two numbers, which is what the citation register now prevents.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:250:1'
+  location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:350:1'
   failureType: 'testCodeFailure'
   error: 'model 0.484, literature 2-3'
   code: 'ERR_ASSERTION'
@@ -1807,7 +1813,7 @@ not ok 170 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. 
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:266:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/validation.test.js:366:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1816,21 +1822,21 @@ not ok 170 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
-ok 171 - CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
+ok 172 - CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
   ---
   ...
 # Subtest: private debt reprices over YEARS, and the burden lands late
-ok 172 - private debt reprices over YEARS, and the burden lands late
+ok 173 - private debt reprices over YEARS, and the burden lands late
   ---
   ...
 # Subtest: the debt-service burden reads the transmitted rate, not the dial
-ok 173 - the debt-service burden reads the transmitted rate, not the dial
+ok 174 - the debt-service burden reads the transmitted rate, not the dial
   ---
   ...
-1..173
-# tests 173
+1..174
+# tests 174
 # suites 0
-# pass 157
+# pass 158
 # fail 0
 # cancelled 0
 # skipped 0

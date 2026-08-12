@@ -115,10 +115,41 @@ test('every recorded parameter conflict is still genuinely unresolved', () => {
 const inRange = (v, p) => v >= p.low && v <= p.high;
 const report = (v, p) => `model ${v.toFixed(3)}, literature ${p.low}-${p.high}`;
 
-test('RATE_TO_OUTPUT: 1pp of policy rate, held a year', () => {
-  const r = compare({ taylor: false, shock: (w) => nudge(w, 'policy_rate', +1), months: 12 });
-  const v = -r.dOutput;
-  assert.ok(inRange(v, P.RATE_TO_OUTPUT), report(v, P.RATE_TO_OUTPUT));
+/**
+ * BOTH ARMS OF A DELIBERATELY ASYMMETRIC CHANNEL [4th audit 5.14, open_items B8].
+ *
+ * `MONETARY_ASYMMETRY_RATIO` makes cuts transmit at 1/1.5 of hikes, on purpose
+ * and with a source. Both monetary targets used to be measured by shocking
+ * with a HIKE and negating — one arm of a channel the model is built to make
+ * asymmetric — and compared against published estimates that are identified
+ * across both directions. That is not like-for-like, and for
+ * `RATE_TO_INFLATION` THE CHOICE OF ARM DECIDED THE VERDICT: 0.0795 on the
+ * hike arm against a published 0.2-0.4, and 0.2230 on the cut arm, inside it.
+ * `RATE_TO_OUTPUT` passes either way, which is why nobody looked.
+ *
+ * So both arms are measured and the AVERAGE is asserted, with both arms and
+ * their ratio reported. Switching to the arm that passes would be tuning, and
+ * 5.14 found a second reason it would have been worse than that — see the
+ * `RATE_TO_INFLATION` message below.
+ */
+function bothArms({ months, field }) {
+  const of = (dir) => -dir * compare({
+    taylor: false, shock: (w) => nudge(w, 'policy_rate', dir), months })[field];
+  const hike = of(+1), cut = of(-1);
+  return { hike, cut, average: (hike + cut) / 2, ratio: hike / cut };
+}
+const reportArms = (a, p) =>
+  `model ${a.average.toFixed(3)} averaged over both arms ` +
+  `(hike ${a.hike.toFixed(4)}, cut ${a.cut.toFixed(4)}, hike/cut ${a.ratio.toFixed(2)}), ` +
+  `literature ${p.low}-${p.high}`;
+
+test('RATE_TO_OUTPUT: 1pp of policy rate, held a year, measured on both arms', () => {
+  const a = bothArms({ months: 12, field: 'dOutput' });
+  // The realised asymmetry is 1.35, not the declared 1.5, because
+  // MONETARY_ASYMMETRY_RATIO scales the easing channel and the other routes
+  // from the rate to output are symmetric. Reported, not asserted: pinning it
+  // would be asserting a number nothing sources.
+  assert.ok(inRange(a.average, P.RATE_TO_OUTPUT), reportArms(a, P.RATE_TO_OUTPUT));
 });
 
 test('AUTO_STABILISER_ABSORPTION: share of an income shock that never lands', () => {
@@ -191,10 +222,28 @@ test('RATE_TO_INFLATION: the model is about half the published estimate', {
     'law of motion, so potential output now grows at the rate it is told to ' +
     'rather than decaying toward 0.93%/yr — a hike used to be measured against ' +
     'a ceiling that was itself sagging, which flattered the disinflation. ' +
-    'AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months ' +
-    'and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why ' +
-    'they differ and the published range is estimated across both directions, ' +
-    'so this test measures the weaker half of an asymmetry on purpose. ' +
+    'MEASURED ON BOTH ARMS SINCE 5.14, AND THE AVERAGE IS ASSERTED: hike 0.0795, ' +
+    'cut 0.2230, average 0.1513 at 24 months. Across horizons the average runs ' +
+    '0.0704 / 0.1513 / 0.2170 / 0.2722 at 12 / 24 / 36 / 48, so it enters the ' +
+    'published band at three years. The test used to shock with a hike and ' +
+    'negate — ONE arm of a channel MONETARY_ASYMMETRY_RATIO makes asymmetric on ' +
+    'purpose — against a published range identified across both directions, and ' +
+    'for this target the choice of arm decided the verdict. ' +
+    'THE CUT ARM IS NOT A SECOND OPINION, AND THIS MESSAGE USED TO SAY IT WAS. ' +
+    'It claimed "monetaryEasingScale is why they differ". REFUTED by switching ' +
+    'the kink off: with WAGE_PC_KINK unreachable the hike arm does not move at ' +
+    'all (0.0795 — it never crossed) and the cut arm falls 0.2230 to 0.0616, so ' +
+    'the ratio goes 0.357 to 1.292 and the asymmetry flips into the direction ' +
+    'monetaryEasingScale actually implies, cuts WEAKER. The cut arm\'s 0.2230 is ' +
+    'one kink crossing: it is the only arm that goes from below potential to ' +
+    'above it, taking unemployment under WAGE_PC_KINK onto the steep branch of ' +
+    'the wage curve. Sweeping the starting gap, hike/cut is 1.138 / 1.000 / ' +
+    '1.115 at -6 / -4 / -2, then 0.357 at 0 and 0.984 at +2 — the asymmetry ' +
+    'exists at exactly one starting point, and the harness settles to it. ' +
+    'docs/11 section 3 already records that the gap-zero row shows more ' +
+    'inflation than its neighbours for every lever, for this reason. ' +
+    'So switching arms would not merely be tuning to pass; it would be ' +
+    'reporting a kink crossing as the response to easing. ' +
     'The window is doing as much of the disagreement as the model is. ' +
     'What is left is the anchored Phillips slope doing exactly what docs/02 ' +
     'says it should: with kappa at 0.05 the demand channel barely moves prices, ' +
@@ -204,9 +253,60 @@ test('RATE_TO_INFLATION: the model is about half the published estimate', {
     'in a quarter now — it lives in the investment partial adjustment and the ' +
     'Phillips curve. Do not raise kappa to close this.',
 }, () => {
-  const r = compare({ taylor: false, shock: (w) => nudge(w, 'policy_rate', +1), months: 24 });
-  const v = -r.dInflation;
-  assert.ok(inRange(v, P.RATE_TO_INFLATION), report(v, P.RATE_TO_INFLATION));
+  const a = bothArms({ months: 24, field: 'dInflation' });
+  assert.ok(inRange(a.average, P.RATE_TO_INFLATION), reportArms(a, P.RATE_TO_INFLATION));
+});
+
+/**
+ * WHY THE CUT ARM IS NOT A SECOND OPINION [4th audit 5.14, open_items B8].
+ *
+ * B8 says switching to the cut arm would be tuning to pass. It is worse than
+ * that, and the isolating experiment says so: the cut arm's 0.2230 is almost
+ * entirely ONE KINK CROSSING, not the model's response to easing.
+ *
+ * Sweeping the starting gap, the asymmetry exists at exactly one point:
+ *
+ *   starting gap   -6      -4      -2       0      +2
+ *   hike/cut      1.138   1.000   1.115   0.357   0.984
+ *
+ * and at gap 0 the cut arm ends at +0.49 — it is the only arm that crosses
+ * from below potential to above it, i.e. takes unemployment under
+ * WAGE_PC_KINK and onto the steep branch of the wage curve. docs/11 §3 already
+ * records that the gap-zero row shows more inflation than its neighbours for
+ * EVERY lever, for this reason.
+ *
+ * Proved by removing the kink rather than by argument: with WAGE_PC_KINK
+ * unreachable the hike arm does not move at all (0.0795, it never crossed) and
+ * the cut arm falls 0.2230 -> 0.0616, so the ratio goes 0.357 -> 1.292 and the
+ * asymmetry flips into the direction MONETARY_ASYMMETRY_RATIO declares.
+ *
+ * THE VALIDATION HARNESS MEASURES FROM A SETTLED STEADY STATE, WHICH IS
+ * EXACTLY THE KINK. That is the one starting state where the two arms are not
+ * symmetric perturbations of the same economy, and it is the default.
+ */
+test('the two arms straddle the wage kink, which is why they disagree', () => {
+  const withKink = bothArms({ months: 24, field: 'dInflation' });
+  const saved = P.WAGE_PC_KINK.value;
+  let without;
+  try { P.WAGE_PC_KINK.value = 0; without = bothArms({ months: 24, field: 'dInflation' }); }
+  finally { P.WAGE_PC_KINK.value = saved; }
+
+  console.log(`  RATE_TO_INFLATION @24m — hike ${withKink.hike.toFixed(4)}, ` +
+    `cut ${withKink.cut.toFixed(4)}, average ${withKink.average.toFixed(4)}; ` +
+    `with the wage kink unreachable the cut arm is ${without.cut.toFixed(4)}`);
+
+  // The hike arm never reaches the kink, so removing it must not move that arm.
+  assert.ok(Math.abs(withKink.hike - without.hike) < 1e-9,
+    `removing WAGE_PC_KINK moved the HIKE arm ${withKink.hike} -> ${without.hike}. ` +
+    `A hike pushes unemployment UP, away from the kink, so if this moves then ` +
+    `the explanation below is wrong and the asymmetry is something else.`);
+  // And it must account for most of the gap between the arms.
+  const explained = (withKink.cut - without.cut) / (withKink.cut - withKink.hike);
+  assert.ok(explained > 0.8,
+    `the wage kink explains only ${(explained * 100).toFixed(0)}% of the gap between ` +
+    `the two arms (cut ${withKink.cut.toFixed(4)} -> ${without.cut.toFixed(4)} against a ` +
+    `hike arm of ${withKink.hike.toFixed(4)}). B8's message says it is the kink; ` +
+    `re-derive rather than leaving a mechanism claimed and unsupported.`);
 });
 
 test('CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range', async () => {

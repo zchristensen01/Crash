@@ -1997,6 +1997,60 @@ not count.**
 > 172 → **173 tests**, 157 pass, 0 fail, 16 todo. `index.html` rebuilt;
 > `docs/11`'s fingerprint unmoved.
 
+> #### As built — 5.14, and the finding's own explanation was wrong.
+>
+> ### CORRECTION 35 — B8 identified a real defect and named the wrong cause: the two arms differ because of the WAGE KINK, not `monetaryEasingScale`, and the arm that PASSES is a single kink crossing.
+>
+> Both monetary targets shocked with a hike and negated — one arm of a channel
+> `MONETARY_ASYMMETRY_RATIO` makes asymmetric on purpose — against published
+> ranges identified across both directions. For `RATE_TO_INFLATION` the arm
+> decided the verdict: 0.0795 against a published 0.2–0.4, and 0.2230 on the
+> cut arm, inside it. The repair B8 asks for is right and is what shipped: both
+> arms measured, the AVERAGE asserted, both arms and their ratio reported.
+> `RATE_TO_OUTPUT` averages 0.3614 and passes; `RATE_TO_INFLATION` averages
+> **0.1513 and still fails**, which is the correct outcome — averaging removes
+> the arm as the decider without closing the disagreement.
+>
+> **THE STANDING RULE EARNED ITS PLACE AGAIN.** B8 and the test message both
+> asserted that `monetaryEasingScale` is why the arms differ. Nobody had
+> switched it off. Sweeping the starting gap instead:
+>
+> | starting gap | −6 | −4 | −2 | **0** | +2 |
+> |---|---|---|---|---|---|
+> | hike/cut | 1.138 | 1.000 | 1.115 | **0.357** | 0.984 |
+>
+> **The asymmetry exists at exactly one starting point** — and the validation
+> harness settles to precisely that point. A channel-wide asymmetry cannot do
+> that. Making `WAGE_PC_KINK` unreachable settles it: the hike arm does not
+> move by a digit (0.0795 — it never crossed) and the cut arm falls
+> **0.2230 → 0.0616**, taking the ratio 0.357 → 1.292 and flipping the
+> asymmetry into the direction `monetaryEasingScale` actually implies, cuts
+> WEAKER.
+>
+> So the cut arm's 0.2230 is one kink crossing: it is the only arm that travels
+> from below potential to above it, putting unemployment under `WAGE_PC_KINK`
+> and onto the steep branch of the wage curve. **`docs/11` §3 has recorded for
+> two passes that the gap-zero row shows more inflation than its neighbours for
+> every lever, for exactly this reason** — the fact was written down and nobody
+> connected it to the validation harness measuring from a settled steady state,
+> which IS the gap-zero row.
+>
+> **B8 warned that switching arms would be tuning to pass. It would have been
+> worse:** it would have published a kink crossing as the model's response to
+> easing, and it would have "closed" a demand-block finding with a wage-curve
+> nonlinearity. The warning was right and its reason was not, which is the
+> third time in this audit that a correct conclusion rested on a wrong
+> mechanism (see also 1.1's kink and `docs/12`'s bifurcation).
+>
+> The mechanism is now a HARD test rather than a sentence: it asserts the hike
+> arm does NOT move when the kink is removed — if it does, the explanation is
+> wrong — and that the kink accounts for more than 80% of the gap between the
+> arms. Measured **113%**: removing it takes the cut arm below the hike arm.
+>
+> 173 → **174 tests**, 158 pass, 0 fail, 16 todo. Behaviour hash
+> `7e517207065edb1c` unmoved — this is a measurement protocol, not a model
+> change.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 
