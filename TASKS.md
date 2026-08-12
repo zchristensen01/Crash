@@ -14,8 +14,8 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5, E7→5.15. The entries with no task are the ones that want none: `FIXED` (A4,
-A5, B1, D1, D2, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+B8→5.14, A7→11.5, E7→5.15, E8→5.16. The entries with no task are the ones that want none: `FIXED` (A4,
+A5, B1, D1, D2, E1, E2, E8), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -690,6 +690,22 @@ tasks, not notes — the pass found them and did not fix them.
       they look alike is the class of error B2 and 5.5 both were.
       Behaviour-neutral: six scenarios x 96 months identical, `docs/11`'s
       fingerprint unmoved.
+
+- [x] 5.16 `TEST-RESULTS.md` is byte-stable and counts its own numbers — `open_items` E8
+      Found by checking whether the committed artefact matched a fresh run —
+      the thing it exists for. **It matched, and it did not**: regenerating on
+      an idle machine gave **334 differing lines, none of them a measurement**.
+      All were `duration_ms` timings pasted in with the raw TAP stream. An
+      artefact meant to be compared across passes could not distinguish *the
+      model moved* from *the machine was busy*.
+      Stripped in both forms. The first fix caught only `  duration_ms: 3.94`
+      and missed the summary `# duration_ms 845.7`, leaving it stable except
+      for one line — **worse than unstable, because it looks stable until you
+      diff it.** Verified byte-identical across two consecutive runs.
+      **The header also carried a hand-typed count**: "~126 sourced parameters"
+      against an actual **145**, in the file whose header promises "the output
+      of running the model, not a description of it". Now counted from `P` and
+      `RULES` at generation time.
 
 - [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
       `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks

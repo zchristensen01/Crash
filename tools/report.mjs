@@ -23,6 +23,8 @@ import { execSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { P } from '../src/params.js';
+import { RULES } from '../src/rules/index.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -141,6 +143,10 @@ const FILE_NOTES = {
 console.error('running the test suite...');
 const tap = run('npm run params --silent >/dev/null 2>&1; node --test --test-reporter=tap test/*.test.js');
 const results = parseTap(tap);
+
+// Counted from the source of truth rather than typed into the prose above.
+const PARAM_COUNT = Object.keys(P).length;
+const RULE_COUNT = RULES.length;
 const pass = results.filter((r) => r.ok && !r.todo).length;
 const todo = results.filter((r) => r.todo).length;
 const fail = results.filter((r) => !r.ok && !r.todo).length;
@@ -167,7 +173,12 @@ w('---');
 w();
 w('## How to read this');
 w();
-w('The model is a monthly macroeconomic simulation: 23 rules, ~126 sourced');
+// COUNTED, NOT TYPED [4th audit 5.16]. This said "~126 sourced parameters" and
+// the model has 145. A generated file carrying a hand-typed count is the same
+// defect as a document carrying a hand-typed measurement, in the one file whose
+// header promises "the output of running the model, not a description of it".
+w(`The model is a monthly macroeconomic simulation: ${RULE_COUNT} rules, ` +
+  `${PARAM_COUNT} sourced`);
 w('parameters, five policy dials, 96 monthly ticks. Every parameter carries a');
 w('plausible range, a confidence level and a citation.');
 w();
@@ -339,8 +350,19 @@ w('## RAW TAP OUTPUT');
 w();
 w('The unedited test stream, for anything the parsing above missed.');
 w();
+w('**`duration_ms` lines are stripped.** They are wall-clock timings, so with');
+w('them this file was never byte-stable: regenerating it on an idle machine');
+w('produced 334 differing lines and not one of them was a measurement. An');
+w('artefact whose job is to be COMPARED ACROSS PASSES has to be able to show');
+w('that nothing changed. Everything else is the raw stream.');
+w();
 w('```');
-w(tap.trimEnd());
+// Two forms: the per-test `  duration_ms: 3.94` and the summary
+// `# duration_ms 845.7`. The first attempt matched only the colon form and
+// left the summary line, so the file was stable except for one line — which is
+// worse than unstable, because it looks stable until you diff it.
+w(tap.trimEnd().split('\n')
+   .filter((l) => !/^[#\s]*duration_ms[:\s]/.test(l)).join('\n'));
 w('```');
 
 writeFileSync(join(ROOT, 'TEST-RESULTS.md'), out.join('\n') + '\n');

@@ -654,6 +654,32 @@ were taken on a tree with this hazard live.
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
 
+### E8. `TEST-RESULTS.md` was never byte-stable, and carried a hand-typed count — `FIXED in 5.16`
+Found when checking whether the committed artefact matched a fresh run, for the
+purpose it exists for: handing the audit record to someone else.
+
+**It matched, and it did not.** Regenerating on an idle machine produced **334
+differing lines and not one of them was a measurement** — every one was a
+`duration_ms` wall-clock timing pasted in with the raw TAP stream. For an
+artefact whose whole job is to be COMPARED ACROSS PASSES, that means you cannot
+tell *the model moved* from *the machine was busy* by diffing it, and every
+regeneration dirties the working tree for nothing.
+
+Stripped, in both forms. The first fix caught only the per-test
+`  duration_ms: 3.94` and missed the summary `# duration_ms 845.7`, leaving the
+file stable except for one line — **worse than unstable, because it looks
+stable until you diff it.** Verified byte-identical across two consecutive
+runs.
+
+**And the header carried a hand-typed parameter count.** It read *"~126 sourced
+parameters"*; the model has **145**. In the one file whose own header promises
+*"the output of running the model, not a description of it"*. Now counted from
+`P` and `RULES` at generation time.
+
+```
+node tools/report.mjs && cp TEST-RESULTS.md /tmp/a && node tools/report.mjs && diff /tmp/a TEST-RESULTS.md
+```
+
 ### E7. `s.dial_truncated` is null everywhere anything could read it, and a comment says otherwise — `OPEN`
 Found by 5.9's re-derivation, which it caught out first. Two halves.
 
