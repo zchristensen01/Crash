@@ -2161,6 +2161,29 @@ not count.**
 > `7e517207065edb1c` unmoved, 145 → 146 parameters. Its comment also called 13
 > months the *mean lag* — 13.5 is the half-life and the mean lag is 19.
 >
+> **COMPLETED AFTER THE FIRST WRITE-UP, and the gap is worth recording.** The
+> first version of this sweep covered four of A2's five sightings and silently
+> skipped the austerity paradox — in a correction whose whole point is that
+> five things had been treated as one. Measured: it rises with the tax
+> multiplier (0.611 / 0.901 / 1.240 / 1.484 / **1.595** across 0.025 → 1.00)
+> against the **2.866** a sign flip needs at a −6% gap, so it is on the HORIZON
+> axis, it is the same measurement as `TAX_SHOCK_TO_GDP` at a different gap,
+> and even with the smoothing gone it never arrives. **Two sightings on the
+> horizon axis, three on the persistence axis.**
+>
+> That sweep carries a confound the other four do not: the starting gap is set
+> with a standing external-demand shock and drifts from −5.34 to −7.37 across
+> the speeds, because the consumption response to that shock is the thing being
+> swept. Direction unambiguous, magnitude 2.6×, but not a clean same-state
+> comparison — recorded in A2 rather than left for someone to find.
+>
+> **WHAT THIS CORRECTION DOES NOT CLAIM:** the persistence axis is identified,
+> not measured. Which mechanism is short — hysteresis, the Phillips curve's
+> anchoring, or Okun — is untested, and is now task **11.6**, with 11.2 first.
+> A2's task pointer moves from 11.1 to 11.6; leaving it on a completed task
+> would have broken the coverage invariant one commit after the invariant was
+> re-enumerated.
+>
 > 175 tests, 159 pass, 0 fail, 16 todo; steady state exact to 9dp.
 
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads

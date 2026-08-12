@@ -173,12 +173,18 @@ WRONG WAY.**
 | `YD_PERMANENT_SPEED` | 0.025 | **0.05** | 0.10 | 0.20 | 1.00 | wanted |
 |---|---|---|---|---|---|---|
 | `TAX_SHOCK_TO_GDP` @30m | 0.190 | **0.484** | 0.829 | 1.082 | 1.210 | **higher** ✅ rises |
+| austerity paradox @−6% gap | 0.611 | **0.901** | 1.240 | 1.484 | 1.595 | **2.866** ✅ rises, never arrives |
 | UK sacrifice ratio | 0.38 | **0.36** | 0.33 | 0.33 | 0.33 | **higher** ❌ falls |
 | post-crisis rebound | 30.3% | **38.7%** | 46.0% | 50.3% | 57.1% | **lower** ❌ rises |
 | endogenous propagation | 3.37 | **3.82** | 3.64 | 3.13 | 2.76 | **higher** ❌ peaks here |
 
-**Only the tax multiplier improves as the demand block gets faster.** The
-sacrifice ratio and the rebound improve as it gets *slower*. And endogenous
+**Only the two tax measurements improve as the demand block gets faster** —
+and they are the same measurement at two starting gaps, both taken at 30
+months, which is why `multipliers.test.js` already says *"the austerity paradox
+is absent BECAUSE the tax multiplier is small — one finding, not two"*. Even
+with the smoothing gone entirely it reaches 1.595 against the **2.866** a sign
+flip needs, so the horizon axis does not deliver the paradox either. The
+sacrifice ratio and the rebound improve as the demand block gets *slower*. And endogenous
 propagation is a **hump whose maximum is the shipped value** — measured either
 side at 0.0125 / 0.025 / 0.05 / 0.075 / 0.10 / 0.20 / 1.00 it reads 2.72 /
 3.37 / **3.82** / 3.80 / 3.64 / 3.13 / 2.76, so it cannot be improved by moving
@@ -195,7 +201,8 @@ that this parameter trades off against each other:
   38% of it has arrived by month 30;
 - **a PERSISTENCE axis** — the sacrifice ratio, the crisis propagation and the
   rebound are short because the economy heals *too fast*, and they want the
-  demand block **slower**, not faster.
+  demand block **slower**, not faster. **This is A2's live half and it is now
+  task 11.6.**
 
 They are in tension through the one parameter that most obviously governs
 "how much does the demand block move". **So there is no single demand-block
@@ -207,6 +214,26 @@ hysteresis, the Phillips slope's anchoring, and Okun (B3).
 node --test test/validation.test.js 2>&1 | grep "literature 2.0-3.0"
 # and sweep P.YD_PERMANENT_SPEED, which 11.1 promoted so this is reproducible
 ```
+
+**WHAT 11.1 DID NOT ESTABLISH, stated so nobody reads more into it.**
+
+- **It did not measure the persistence axis, only that it exists and points
+  the other way.** Which mechanism is short — hysteresis, the Phillips curve's
+  anchoring, or Okun — is untested. That is **11.6**, and 11.2 first.
+- **The austerity-paradox sweep has a confound.** The starting gap is set with
+  a standing external demand shock, and the same shock produces a different gap
+  at each speed (−5.34 at 0.025 to −7.37 at 1.00), because consumption's
+  response to the shock is what the sweep is changing. The direction is
+  unambiguous and the movement is 2.6×, but the rows are not a clean
+  same-state comparison the way the other four are. Re-run it with the gap
+  pinned per speed before quoting the numbers precisely.
+- **It says nothing about whether 0.05 is the right value.** The sweep shows
+  what the parameter does, not where it belongs. Its range is now recorded and
+  7.1's Monte Carlo is the task that samples it.
+- **It does not unblock 11.3.** The model has not moved — the value shipped
+  unchanged and the behaviour hash is unmoved — so there is nothing to
+  re-solve `CRISIS_SCAR_AMPLIFICATION` against, and re-solving now would pin it
+  to a demand block 11.6 is about to move.
 
 **`YD_PERMANENT_SPEED` IS NOW A PARAMETER**, overturning 5.3's decision to
 leave it a local literal on the grounds that its range "would be a fiction of

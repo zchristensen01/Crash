@@ -16,7 +16,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | still open | task | | still open | task |
 |---|---|---|---|---|
 | A1 `bubble` deflates on its own | 6.1 | | B4 one mean-reversion speed | 6.3 |
-| **A2 the demand block** | **11.1** | | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 |
+| **A2 the demand block** | **11.6** (11.1 done) | | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 |
 | A3 hotter buys less inflation | 7.3 | | B6 `debt_trap` is fragile | 11.4 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
@@ -1301,9 +1301,16 @@ scenario paths that move if 11.5 changes that threshold's shape.
 
 ## Phase 11 — The demand block **(the pass's largest finding, and the plan has nothing for it)**
 
-Not in the fourth-audit brief and not in `docs/13`. It is **one finding seen
-five ways**, and every one of them is the same shape: *every real quantity
-moves too little for the price change that caused it.*
+Not in the fourth-audit brief and not in `docs/13`. Every one of these is the
+same shape — *every real quantity moves too little for the price change that
+caused it* — and this section used to call them **one finding seen five ways**.
+
+> **11.1 REFUTED THAT.** They respond to the demand block's own principal
+> speed in OPPOSITE directions, so they cannot share one cause located there.
+> **Two sit on a HORIZON axis** (`TAX_SHOCK_TO_GDP` and the austerity paradox —
+> which are the same measurement at two gaps, both taken at 30 months) and
+> **three on a PERSISTENCE axis** (sacrifice ratio, propagation, rebound),
+> which want the demand block SLOWER. See Correction 37 and `open_items` A2.
 
 | | model | literature |
 |---|---|---|
@@ -1347,8 +1354,11 @@ moves too little for the price change that caused it.*
       size residual survives removing the smoothing entirely — 1.36 against
       Romer-Romer's 2.0–3.0 — and that residual is `apc_ss` and the tax base,
       both sourced, so closing it is rule 3.
-      **(c) THE REFUTATION: the same sweep moves the other three the WRONG
-      WAY.** Only the tax multiplier improves as the demand block gets faster.
+      **(c) THE REFUTATION: the same sweep moves three of the other four the
+      WRONG WAY.** The austerity paradox rises with the tax multiplier — 0.611
+      → 0.901 → 1.240 → 1.484 → **1.595** across 0.025 → 1.00, against the
+      **2.866** it needs at a −6% gap, so it is the SAME measurement and never
+      arrives even with the smoothing gone. The other three move against it.
       The UK sacrifice ratio goes 0.38 → 0.36 → **0.33** and wants to be
       HIGHER; the post-crisis rebound goes 30.3 → 38.7 → **57.1%** and wants to
       be LOWER; and endogenous propagation is a **hump peaking at the shipped
@@ -1395,6 +1405,25 @@ moves too little for the price change that caused it.*
       re-open, not an oversight. **Do not close it by moving `overheating`
       away from the edge** — that is A6's job and it does not remove the
       bifurcation.
+- [ ] 11.6 The PERSISTENCE axis — three sightings that want the demand block
+      SLOWER *(new, from 11.1)*
+      **A2's live half after 11.1**, and where that entry now points. The
+      sacrifice ratio, the endogenous crisis propagation and the post-crisis
+      rebound all miss their literature in the direction of *the economy heals
+      too fast*, and all three get WORSE as the demand block is made to move
+      more. They cannot be fixed in the consumption function — 11.1 swept its
+      principal speed across a factor of 40 and propagation peaks at the
+      shipped value.
+      **So the candidates are the equilibrating forces, not the demand
+      response**: hysteresis (there is none except the exogenous
+      `CRISIS_HYSTERESIS_SCAR`), the Phillips curve's expectations anchoring —
+      which is what makes a disinflation cheap and is `docs/02`'s stated design
+      — and Okun, which is **11.2** and is probably the same finding from the
+      labour side.
+      **Sequencing:** do 11.2 first; it is the narrowest of the three and its
+      answer constrains the others. **Do not re-tune `CRISIS_SCAR_AMPLIFICATION`
+      to absorb this** — that is C2's whole argument and rule 4.
+      **11.3 waits on this, not on 11.1.**
 - [ ] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
       The crash trough is **exactly** on target (−9.0000% against
       `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.86pp against a
@@ -1405,6 +1434,13 @@ moves too little for the price change that caused it.*
       **Only after 11.1**, and 4.2's `SOLVED_FROM_MODEL` register is what makes
       that safe: the constant is DEFINED by a solve, so it must be re-solved
       whenever the demand block changes, and the register fails until it is.
+      **11.1 HAS RUN AND THIS IS STILL BLOCKED — read the precondition
+      carefully.** It is not "after the 11.1 task"; it is *after the demand
+      block has been addressed*, and 11.1 established that it has not been and
+      cannot be by one change. The model has not moved: `YD_PERMANENT_SPEED`
+      shipped at its existing value and the behaviour hash is unmoved, so there
+      is nothing to re-solve against. **Re-solving now would pin the constant
+      to a demand block that 11.6 is about to move.**
 - [ ] 11.4 Re-derive `debt_trap`'s starting vector — `open_items` B6
       Two of its own tests sit on very thin margins — *"the real economy
       responds to the yield at all"* passed on an output gap of 0.63 and failed
@@ -1471,9 +1507,16 @@ moves too little for the price change that caused it.*
       rest:** `CREDIT_TREND_CATCHUP`, `PRIVATE_DEBT_REPRICING_YEARS`, the
       twelve literals 5.3 promoted, `FIRESALE_LEVERAGE_TRIGGER`, and
       `CREDIT_GAP_CRISIS_THRESHOLD`'s false note — corrected in place with the
-      false claim quoted rather than quietly deleted. **STILL OUTSTANDING:**
-      macropru bounds (6.1), and `investment_share`'s re-derivation from 22.5
-      to 24.0 (5.7).
+      false claim quoted rather than quietly deleted. 11.1 added
+      `YD_PERMANENT_SPEED` with a derived range, overturning 5.3's decision to
+      leave it local.
+      **STILL OUTSTANDING: macropru bounds (6.1), and that is all.**
+      This entry used to also demand *"`investment_share`'s re-derivation from
+      22.5 to 24.0 (5.7)"*. **5.7 established that it does NOT need
+      re-deriving** — equalising `DEPRECIATION_RATE` with `SS_DEPRECIATION` at
+      0.06 is exactly what makes 22.5 correct, since `(δ+g)·K/Y =
+      (0.06+0.015)·3 = 0.225`. The instruction survived the task that refuted
+      it and would have sent the next person to break a solved steady state.
 - [-] 10.10 Write `docs/14` — the report — **NOT DOING, and the report is deleted**
       Written, then removed on instruction: **this project does not want audit
       reports.** A report is a document about the work rather than the work,
