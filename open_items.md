@@ -686,12 +686,34 @@ makes the trough equal `CRISIS_OUTPUT_TROUGH` — and that is the point. It is a
 CONSISTENCY check, and a consistency check that cannot report inconsistency is
 furniture.
 
-**THE CLASS IS THE FINDING, and it is now three deep.** A guard read as
-answering one question while structurally answering another:
-`docs/11`'s fingerprint (E9), this register (E10), and `s.dial_truncated`'s
-"both paths have to work" (E7). Every register and tripwire in this project
-deserves the question *what would have to be true for this to pass while the
-thing it guards is broken?*
+**THE CLASS IS THE FINDING, and it was three deep.** A guard read as answering
+one question while structurally answering another: `docs/11`'s fingerprint
+(E9), this register (E10), and `s.dial_truncated`'s "both paths have to work"
+(E7).
+
+**THE REST OF THE ESTATE WAS THEN INTERROGATED WITH THE SAME QUESTION — *what
+would have to be true for this to pass while the thing it guards is broken?* —
+AND ALL OF IT FIRES.** Each was broken deliberately and the guard checked:
+
+| guard | broken by | fires |
+|---|---|---|
+| lint (a) undeclared state field | a rule reads `s.a_field_that_does_not_exist` | ✅ |
+| lint (b) `Math.random` in `src/` | one call added | ✅ |
+| lint (c) bare `/ 12` outside `units.js` | one divisor added | ✅ |
+| lint (d) a rule assigns a transmitted driver | `s.policy_rate_demand = 1` | ✅ |
+| lint (e) a rule reads a dial unmarked | `s.policy_rate * 2` | ✅ |
+| lint (f) undeclared literal | all three modes, 5.3 | ✅ |
+| `build --check` | one character edited into `index.html` | ✅ |
+| `docs.test.js`, both directions | a new undocumented field; a doc entry for a deleted field | ✅ |
+| `DEFERRED`, both directions | 5.5 | ✅ |
+| `START_DEFERRED`, both directions | 5.6 | ✅ |
+| `CONFLICTS` | a rule made to read `ENERGY_TO_CPI` | ✅ |
+| `cause-effect --check` tables | a falsified cell, before and after `--stamp` | ✅ |
+
+So the three failures above are the whole of it, and the estate is otherwise
+sound. **What remains uncovered is not a broken guard but an absent one: the
+numbers quoted in PROSE (E4).** Every stale-number defect this audit found was
+in prose, and nothing checks prose.
 
 ### E9. `docs/11`'s fingerprint could be defeated by running `--stamp` — `FIXED in 5.17`
 The tripwire hashed **the model's measurements**, not **the document's

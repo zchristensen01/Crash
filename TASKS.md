@@ -751,11 +751,15 @@ tasks, not notes — the pass found them and did not fix them.
       exists to remove.
       Split into a **hard** test; only the scar half stays `todo`. Verified by
       setting the constant to 2.4461, which now fails.
-      **The class is the finding and it is three deep** — a guard read as
-      answering one question while structurally answering another: `docs/11`'s
-      fingerprint (E9), this register (E10), `s.dial_truncated`'s "both paths
-      have to work" (E7). Every tripwire deserves the question *what would have
-      to be true for this to pass while the thing it guards is broken?*
+      **The class was three deep** — a guard read as answering one question
+      while structurally answering another: `docs/11`'s fingerprint (E9), this
+      register (E10), `s.dial_truncated`'s "both paths have to work" (E7).
+      **The rest of the estate was then interrogated with the same question and
+      ALL OF IT FIRES**, each broken deliberately and checked: lint (a)–(f),
+      `build --check`, `docs.test.js` in both directions, `DEFERRED`,
+      `START_DEFERRED`, `CONFLICTS`, and the new `cause-effect` table check.
+      Table in `open_items` E10. **What remains uncovered is not a broken guard
+      but an absent one — the numbers quoted in PROSE (E4 / 5.12).**
 
 - [ ] 5.11 Extend lint check (f)- [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
       `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks
