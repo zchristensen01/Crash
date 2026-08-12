@@ -18,16 +18,19 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
 | **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
 | A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
-| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose (partial) | 5.12 (partial) |
-| | | | **E14 two A2 cells have no producer** | **5.22** |
+| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 | B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
-| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
+| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | **E14 two A2 cells have no producer** | **5.22** |
 
-The entries with no task are the ones that want none: **`FIXED`** (A4, A5, B1,
-D1, D2, E1, E2, E8, E9, E10, E11, E12, E13), **`WATCH`** (D3, D5, E3) and
-**`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
+The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
+A5, B1, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13), **`WATCH`** (D3, D4, D5,
+E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
+**Sixteen `OPEN`/`PARTIAL` entries, sixteen tasks.** D4 was missing from this
+accounting until 5.12's handoff check enumerated the statuses rather than
+reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
+legs.
 
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
