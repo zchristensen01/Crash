@@ -27,25 +27,36 @@ export const DIALS = [
     // the highest rate the rule ever asks for, given the ceiling it is under:
     //
     //     ceiling   p90 request   p99      max      runs left above 20% at m96
-    //        20        246.0     7637.3  13117.6      51/360
-    //        25         25.8     3375.5   7852.6      17/360
-    //        30         27.8     1199.9   4044.2      14/360
-    //        35         27.8       37.2   1328.0       4/360
-    //        40         27.8       41.4    165.5       1/360
-    //        50         27.8       45.4     50.7       0/360
-    //        60         27.8       45.4     51.9       0/360
+    //        20         22.1      153.1    165.3      41/360
+    //        25         25.6      139.2    157.3      17/360
+    //        30         26.9      117.5    156.2       9/360
+    //        35         26.9       37.0    118.8       3/360
+    //        40         26.9       41.2     82.8       1/360
+    //        50         26.9       44.5     51.4       0/360
+    //        60         26.9       44.5     56.2       0/360
     //
     // 50 is the lowest value at which no run in the sample ends with the
     // economy out of control, and the request distribution has converged by
     // then — 60 buys nothing. The residual is stated rather than hidden: the
-    // single worst event sequence still asks for 50.7%, so it is refused by
-    // 0.7pp once in 360 runs.
+    // single worst event sequence still asks for 51.4%, so it is refused by
+    // 1.4pp once in 360 runs.
     //
-    // WITHOUT EVENTS the requirement is far lower — 21.13 to stabilise
-    // `stagflation`, 27.84 never to be refused — and the six scenarios are
+    // WITHOUT EVENTS the requirement is far lower — 20.0-20.25 to stabilise
+    // `stagflation`, 26.92 never to be refused — and the six scenarios are
     // bit-identical at any ceiling from 28 up. The gap between 28 and 50 is
     // entirely the shock tail, which is exactly the situation a rate ceiling
     // exists for.
+    //
+    // RE-DERIVED IN 5.9, BECAUSE THE FIRST DERIVATION PREDATED PHASE 3
+    // (open_items D1). The table above is the re-run; the one it replaces had
+    // the same shape with tails an order of magnitude larger — max request at
+    // a ceiling of 20 was 13117.6 against 165.3 now — because 3.1 removed the
+    // asset-price overshoot and 5.7 and 5.8 followed. THE CONCLUSION IS
+    // UNCHANGED and that is the point of re-running it: 50 is still the lowest
+    // ceiling with no run out of control, 60 still buys nothing, and the
+    // no-events requirement is still ~21 to stabilise and ~28 to never be
+    // refused. A derivation that survives the model moving under it is worth
+    // more than one that was never checked.
     min: P.SS_ELB.value, max: 50, step: 0.25, unit: '%',
     neutral: 2.5,                       // r* + target: neither helps nor hurts
     help: 'Interest rate. LOW makes borrowing cheap — more spending, more ' +

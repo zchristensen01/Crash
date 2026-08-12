@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-three corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-four corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1326,6 +1326,44 @@ machinery; the fixed/floating mix is the sourced parameter and is most of why
 > (`86c1b104fab5561d`). **`open_items` B1 is closed.** The lesson is E4's: the
 > fingerprint asserts the document was generated against this model, and six of
 > its seven sections had never been generated at all.
+
+> #### As built — 5.9, and the answer did not move.
+>
+> ### CORRECTION 24 — D1's own estimate of the threshold was wrong, and the ceiling was right.
+>
+> `open_items` D1 flagged that 2.4's `max: 50` was derived before 3.1 removed
+> the wealth-channel overshoot, and estimated the stabilisation threshold had
+> moved "from 20–25 to **18–20**". Re-measured: it is **20.00–20.25**
+> (`stagflation` at m96 goes 22.65 → 8.70 across that quarter point). 2.4's
+> 21.13 came DOWN slightly rather than into the teens.
+>
+> The full derivation re-run — six scenarios x 60 seeds, events ON, recording
+> what the rule ASKS for — gives the same shape and the same answer:
+>
+> | ceiling | p90 | p99 | max | out of control at m96 |
+> |---|---|---|---|---|
+> | 20 | 22.1 | 153.1 | 165.3 | 41/360 |
+> | 40 | 26.9 | 41.2 | 82.8 | 1/360 |
+> | **50** | 26.9 | 44.5 | **51.4** | **0/360** |
+> | 60 | 26.9 | 44.5 | 56.2 | 0/360 |
+>
+> **The tails are an order of magnitude smaller and the conclusion is
+> identical.** The max request at a ceiling of 20 was 13117.6 and is 165.3.
+> 50 is still the lowest ceiling with no run out of control; 60 still buys
+> nothing; without events the six are still bit-identical from 28 up and the
+> rule is still never refused above ~27.
+>
+> **A derivation that survives the model moving under it is worth more than one
+> that was never checked**, which is the entire argument for having raised D1.
+> Nothing changed in the code except the numbers in three comment blocks —
+> `dials.js`, `autopilot.js` and `test/autopilot.test.js` were all still
+> quoting 1020.91%, 29.55% and 5.49%, none of which the model produces.
+>
+> **A note on capturing the request.** `s.dial_truncated` is cleared at the END
+> of the tick (Phase 1's V2 fix), so it cannot be read after `advance()`
+> returns and a naive sweep silently reports the ceiling as the request. The
+> re-run wraps the autopilot instead and records `taylorRate(s)` at source.
+> Worth knowing before anyone measures a truncation again.
 
 **5.3 — Lint check (f): numeric literals in `src/rules/`.**
 The check the third pass was asked for and did not write. Flag every literal not

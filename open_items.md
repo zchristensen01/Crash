@@ -529,16 +529,46 @@ not before.
 
 ## D. Things I changed that a later phase must re-verify
 
-### D1. The rate ceiling of 50 predates the Phase 3 fix — `WATCH`
-2.4 derived `max: 50` as a fixed point over 360 runs with events on. That was
-measured **before** 3.1 removed the wealth-channel overshoot, and the model is
-now much less explosive: at a ceiling of 20 the Taylor rule *survives*
-stagflation (5.49% at m96) where it used to reach 1020.91%. The A2 finding
-survives — the threshold moved from 20–25 to **18–20**, and the rule is still
-refused 39/96 months at 20 against 0/96 at 50 — but **the derivation itself
-should be re-run.** Noted in `test/autopilot.test.js`.
+### D1. The rate ceiling of 50 predated the Phase 3 fix — `CLOSED in 5.9, and 50 survived`
+2.4 derived `max: 50` as a fixed point over 360 runs with events on, **before**
+3.1 removed the wealth-channel overshoot. Re-run on the current model — six
+scenarios x 60 seeds, events ON, recording what the rule ASKS for rather than
+what it gets, since `s.dial_truncated` is cleared at the end of the tick:
 
-### D2. Two bounds are stated twice — `WATCH`
+| ceiling | p90 request | p99 | max | runs out of control at m96 |
+|---|---|---|---|---|
+| 20 | 22.1 | 153.1 | 165.3 | 41/360 |
+| 25 | 25.6 | 139.2 | 157.3 | 17/360 |
+| 30 | 26.9 | 117.5 | 156.2 | 9/360 |
+| 35 | 26.9 | 37.0 | 118.8 | 3/360 |
+| 40 | 26.9 | 41.2 | 82.8 | 1/360 |
+| **50** | 26.9 | 44.5 | **51.4** | **0/360** |
+| 60 | 26.9 | 44.5 | 56.2 | 0/360 |
+
+**Same shape as 2.4's table, same answer, and tails an order of magnitude
+smaller** — the max request at a ceiling of 20 was 13117.6 and is 165.3, which
+is Phase 3 plus 5.7 and 5.8. 50 is still the lowest ceiling at which no run
+ends out of control and the request distribution has converged by then; 60
+still buys nothing. The residual moved slightly and is stated: the single worst
+event sequence now asks for **51.4%**, so it is refused by 1.4pp once in 360
+runs, against 50.7% and 0.7pp before.
+
+Without events the requirement reproduces 2.4's almost exactly: the six
+scenarios are **bit-identical at any ceiling from 28 up**, the rule is never
+refused above **26.92**, and `stagflation` stabilises between **20.00 and
+20.25** (inflation at m96 goes 22.65 → 8.70 across that quarter point).
+
+**This entry's own estimate was slightly wrong.** It said the threshold moved
+to "18–20"; measured, it is 20.00–20.25, and 2.4's 21.13 moved down rather than
+into the teens. The A2 finding is intact — the rule is still refused 86/96
+months at a ceiling of 20 against 0/96 at 50, and `stagflation` still ends at
+22.65% against 3.16%.
+
+```
+node --test test/autopilot.test.js 2>&1 | grep "by ceiling"
+```
+
+### D2. Two bounds are stated twice### D2. Two bounds are stated twice — `WATCH`
 `updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8 asserts the
 same band; `updateInvestment` clamps to `[2, 45]` and check 8 asserts that too.
 Deliberate belt-and-braces, and the numbers were deliberately taken from the

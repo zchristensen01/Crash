@@ -28,17 +28,24 @@
  * 3% capacity loss, the 9% opening inflation, the smoothing and
  * TAYLOR_INFLATION all identical.
  *
- *      ceiling 50 (derived, 2.4)       5.69 @m48 /    1.91 @m96   refused  0/96
- *      ceiling 20 (as it was)         29.55 @m48 / 1020.91 @m96   refused 86/96
+ *      ceiling 50 (derived 2.4, re-derived 5.9)   7.89 @m48 /  3.16 @m96  refused  0/96
+ *      ceiling 20 (as it was)                     19.25 @m48 / 22.65 @m96  refused 86/96
  *
  * The shock never moved. What beat the rule was the instrument: for 86 of 96
  * months it was holding a dial it had already run out of, and once expected
  * inflation passes the ceiling no setting of the dial produces a positive real
  * rate at all. test/autopilot.test.js runs both arms so this cannot rot again.
  *
+ * BOTH ARMS ARE MUCH TAMER SINCE PHASE 3, AND THE CONCLUSION IS NOT. The
+ * ceiling-20 arm reached 1020.91% at m96 when 2.4 measured it and reaches
+ * 22.65% now, because 3.1 removed the asset-price overshoot. It is still an
+ * order of magnitude above target, still refused in 86 of 96 months, and the
+ * ceiling-50 arm still lands on target. 5.9 re-ran the whole derivation for
+ * exactly this reason (open_items D1) and 50 survived it.
+ *
  * TWO CHANGES GOT IT THERE, and both were structural rather than coefficients:
  *   A1 (2.1) split the rate lag off the investment-response lag — worth ~213pp
- *      of month-48 inflation on its own, from 242.34 to 29.55.
+ *      of month-48 inflation on its own, from 242.34 to 29.55 as measured then.
  *   A2 (2.4) derived the ceiling as a fixed point instead of picking it, 20 -> 50.
  *
  * What the rule still cannot do is the LOWER bound. In `recession` it asks to

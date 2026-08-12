@@ -226,18 +226,30 @@ test('the Taylor rule wins stagflation at the derived ceiling and loses at 20', 
     //
     // THE THRESHOLD MOVED WHEN 3.1 FIXED THE ASSET-PRICE UNITS, and the sweep
     // is here rather than a second fixed point because of it. A ceiling of 20
-    // used to leave inflation at 1020.91% by m96; it now leaves 5.49%, because
-    // the wealth channel was amplifying by 4.6x and no longer is. Measured
-    // across the whole range, inflation at m96:
+    // used to leave inflation at 1020.91% by m96 when 2.4 measured it. Measured
+    // across the whole range now, inflation at m96:
     //
-    //      ceiling  8  ->  3920.83     ceiling 18  ->  112.41
-    //      ceiling 12  ->  1486.28     ceiling 20  ->    5.49
-    //      ceiling 16  ->   324.10     ceiling 50  ->    3.15
+    //      ceiling  8  ->  619.9     ceiling 20  ->  22.65
+    //      ceiling 12  ->  532.3     ceiling 21  ->   5.18
+    //      ceiling 16  ->  379.6     ceiling 50  ->   3.16
     //
-    // Monotone, and the loss is real below ~18. NOTE FOR PHASE 4: 2.4 derived
-    // 50 from a 360-run events-on sweep of what the rule ASKS for, and it is
-    // still the only ceiling at which the rule is never refused (0/96 against
-    // 39/96 at 20) — but that derivation predates this fix and must be re-run.
+    // Monotone, and the loss is real below ~20. The stabilisation threshold is
+    // between 20.00 and 20.25 (22.65 -> 8.70), against the 21.13 2.4 recorded
+    // and the "18-20" open_items D1 estimated mid-Phase-3.
+    //
+    // THE DERIVATION WAS RE-RUN IN 5.9 AND 50 SURVIVED IT (D1 is closed). Six
+    // scenarios x 60 seeds, events ON, recording what the rule ASKS for:
+    //
+    //      ceiling   p90     p99      max     runs out of control at m96
+    //         20    22.1   153.1    165.3            41/360
+    //         30    26.9   117.5    156.2             9/360
+    //         40    26.9    41.2     82.8             1/360
+    //         50    26.9    44.5     51.4             0/360
+    //         60    26.9    44.5     56.2             0/360
+    //
+    // Same shape as 2.4's, with tails an order of magnitude smaller — the max
+    // request at a ceiling of 20 was 13117.6 and is 165.3 — and the same
+    // answer. See src/game/dials.js for the full table.
     const swept = [];
     for (const c of [8, 12, 16, 20]) {
       rate.max = c;

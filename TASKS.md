@@ -14,8 +14,8 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5. The entries with no task are the ones that want none: `FIXED` (A4, A5,
-B1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+B8→5.14, A7→11.5. The entries with no task are the ones that want none: `FIXED` (A4,
+A5, B1, D1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-three** corrections to the
+Recorded here and against the individual tasks. **Twenty-four** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -125,6 +125,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 24 | D1's own estimate of the rate threshold was wrong — "18–20"; it is **20.00–20.25**. The ceiling of 50 survived a full re-derivation | closed by 5.9 |
 | 23 | **5.1 is blocked on A2.** The obvious diagnosis (a shrinking transfer acting as an inflation tax) was REFUTED by freezing the transfer: 3.17 vs 3.27. It is the one-off propensity cut, and underneath it a −3.9% real rate held 200 months moves investment 0.8pp | **OPEN — open_items A6** |
 
 **Both claims docs/13 flagged as READ, NOT MEASURED are now checked.**
@@ -620,14 +621,36 @@ tasks, not notes — the pass found them and did not fix them.
       because a one-sided model measurement against a two-sided published
       estimate is not like-for-like.
 
-- [ ] 5.9 Re-derive the rate ceiling of 50 — `open_items` D1
+- [x] 5.9 Re-derive the rate ceiling — **50 survived it** — `open_items` D1
       2.4 derived `max: 50` as a fixed point over 360 runs with events on,
-      **before** 3.1 removed the wealth-channel overshoot. The model is much
-      less explosive now: at a ceiling of 20 the Taylor rule *survives*
-      stagflation (5.49% at m96) where it used to reach 1020.91%. The A2
-      finding survives — the threshold moved from 20–25 to **18–20** and the
-      rule is still refused 39/96 months at 20 against 0/96 at 50 — but the
-      derivation itself has not been re-run. Do it after 5.7, not before.
+      before 3.1 removed the wealth-channel overshoot. Re-run: six scenarios x
+      60 seeds, events ON, recording what the rule **asks for** rather than
+      what it gets — `s.dial_truncated` is cleared at the end of the tick (V2),
+      so the request has to be captured at source by wrapping the autopilot.
+
+      | ceiling | p90 | p99 | max | out of control at m96 |
+      |---|---|---|---|---|
+      | 20 | 22.1 | 153.1 | 165.3 | 41/360 |
+      | 30 | 26.9 | 117.5 | 156.2 | 9/360 |
+      | 40 | 26.9 | 41.2 | 82.8 | 1/360 |
+      | **50** | 26.9 | 44.5 | **51.4** | **0/360** |
+      | 60 | 26.9 | 44.5 | 56.2 | 0/360 |
+
+      **Same shape, same answer, tails an order of magnitude smaller** — the
+      max request at a ceiling of 20 was 13117.6 and is 165.3. The residual is
+      restated: the worst event sequence now asks **51.4%** and is refused by
+      1.4pp once in 360 runs, against 50.7% and 0.7pp.
+      Without events it reproduces 2.4 almost exactly: bit-identical across all
+      six from **28** up, never refused above **26.92**, `stagflation` stabilises
+      between **20.00 and 20.25**.
+      **D1's own estimate was wrong** — it said the threshold moved to "18–20";
+      it is 20.00–20.25, so 2.4's 21.13 came down rather than into the teens.
+      A2 is intact: refused **86/96** months at a ceiling of 20 against 0/96 at
+      50, and `stagflation` ends at **22.65%** against 3.16%.
+      **A derivation that survives the model moving under it is worth more than
+      one that was never checked** — which is the whole argument for D1 having
+      been raised. Tables in `dials.js`, `autopilot.js` and the autopilot test
+      all replaced; the stale 1020.91% / 29.55% / 5.49% figures are gone.
 
 - [ ] 5.10 The two bounds that are stated twice — `open_items` D2
       `updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8
