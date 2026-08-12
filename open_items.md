@@ -67,8 +67,15 @@ no choice of speed fixes it. Must not be closed by re-inflating the wealth chann
 vector**, which is what this entry previously recommended. Phase 6.1 is the
 other half: a bubble the player cannot act on is a spectacle, not a decision.
 
-### A2. The demand block moves too little, and it is one finding seen four ways — `OPEN`
+### A2. The demand block moves too little — `OPEN`, and **11.1 refuted the claim that it is one finding**
 The most important thing in this audit and it is not in the original brief.
+
+> **11.1 HAS RUN. THE OBSERVATION BELOW STANDS AND THE UNIFICATION DOES NOT.**
+> This entry has said since Phase 4 that the sightings "are not five findings;
+> they are one, in the demand block". Measured, they respond to the demand
+> block's own principal speed **in opposite directions**, so they cannot share
+> a single cause located there. The full diagnosis is at the foot of this
+> entry; the table and the sightings are unchanged and still all miss.
 
 | | model | literature |
 |---|---|---|
@@ -119,10 +126,97 @@ see A6. Every other sighting is a number outside a published range; this one is
 a scenario that cannot teach its own lesson.
 
 **Every real quantity moves too little for the price change that caused it.**
-These are not five findings; they are one, in the demand block, and it is not a
-calibration problem. It is why `CRISIS_SCAR_AMPLIFICATION` could not be
-re-solved (see C2), **and since A6 it is a blocker for a Phase 5 task rather
-than a candidate for the next pass.**
+That much is measured and unchanged. It is why `CRISIS_SCAR_AMPLIFICATION`
+could not be re-solved (see C2), **and since A6 it blocks a Phase 5 task rather
+than being a candidate for the next pass.**
+
+---
+
+#### 11.1 — THE DIAGNOSIS
+
+**1. THE INCOME-EXPENDITURE LOOP DOES CLOSE. Nobody had checked.** The plan
+asks whether it closes at all within a term. Held to convergence, a 1pp tax
+rise costs:
+
+| months | 12 | 30 | 60 | 120 | 240 | 480 |
+|---|---|---|---|---|---|---|
+| % of output | 0.273 | **0.484** | 0.781 | 1.091 | **1.272** | 1.275 |
+
+`TAX_SHOCK_TO_GDP` is measured at **30 months**, where the model has delivered
+**38% of its own converged value**. The loop is not broken; it is slow.
+
+> Measure this in RATIOS, not levels. `dOutput` as a level keeps rising to
+> month 600 purely because potential grows — 5.7's lesson, and it will mislead
+> anyone who repeats this sweep.
+
+**2. THE PERMANENT-INCOME SPEED CONTROLS THE HORIZON AND NOT THE SIZE.**
+`yd_permanent` closes 5% of the gap to current income each month — a **19-month
+mean lag**. Sweeping it:
+
+| speed | tax @30m | tax @240m |
+|---|---|---|
+| 0.025 | 0.190 | 1.24 |
+| **0.05** (shipped) | **0.484** | **1.272** |
+| 0.10 | 0.829 | 1.330 |
+| 0.20 | 1.082 | 1.350 |
+| 1.00 (no smoothing) | 1.210 | 1.361 |
+
+The 30-month figure moves **2.5×**; the converged figure moves **7%**. So the
+disagreement splits cleanly: **most of the gap at the measured horizon is
+speed, and a residual gap in SIZE survives removing the smoothing entirely** —
+1.36 against Romer-Romer's 2.0–3.0. The size residual is `apc_ss` and the tax
+base, both sourced, and closing it is rule 3.
+
+**3. AND HERE IS THE REFUTATION. The same sweep moves the other sightings the
+WRONG WAY.**
+
+| `YD_PERMANENT_SPEED` | 0.025 | **0.05** | 0.10 | 0.20 | 1.00 | wanted |
+|---|---|---|---|---|---|---|
+| `TAX_SHOCK_TO_GDP` @30m | 0.190 | **0.484** | 0.829 | 1.082 | 1.210 | **higher** ✅ rises |
+| UK sacrifice ratio | 0.38 | **0.36** | 0.33 | 0.33 | 0.33 | **higher** ❌ falls |
+| post-crisis rebound | 30.3% | **38.7%** | 46.0% | 50.3% | 57.1% | **lower** ❌ rises |
+| endogenous propagation | 3.37 | **3.82** | 3.64 | 3.13 | 2.76 | **higher** ❌ peaks here |
+
+**Only the tax multiplier improves as the demand block gets faster.** The
+sacrifice ratio and the rebound improve as it gets *slower*. And endogenous
+propagation is a **hump whose maximum is the shipped value** — measured either
+side at 0.0125 / 0.025 / 0.05 / 0.075 / 0.10 / 0.20 / 1.00 it reads 2.72 /
+3.37 / **3.82** / 3.80 / 3.64 / 3.13 / 2.76, so it cannot be improved by moving
+this parameter in *either* direction.
+
+**No value of it improves all four.** The steady state is exact at every point
+in the sweep, so this is not an artefact of a broken configuration.
+
+**WHAT THAT MEANS.** A2's five sightings sit on at least **two different axes**
+that this parameter trades off against each other:
+
+- **a HORIZON axis** — the tax multiplier, and anything else measured inside
+  three years, is short because the multiplier takes ~20 years to converge and
+  38% of it has arrived by month 30;
+- **a PERSISTENCE axis** — the sacrifice ratio, the crisis propagation and the
+  rebound are short because the economy heals *too fast*, and they want the
+  demand block **slower**, not faster.
+
+They are in tension through the one parameter that most obviously governs
+"how much does the demand block move". **So there is no single demand-block
+fix, and the next pass should stop looking for one.** The remaining candidates
+are on the persistence axis and are not in the consumption function:
+hysteresis, the Phillips slope's anchoring, and Okun (B3).
+
+```
+node --test test/validation.test.js 2>&1 | grep "literature 2.0-3.0"
+# and sweep P.YD_PERMANENT_SPEED, which 11.1 promoted so this is reproducible
+```
+
+**`YD_PERMANENT_SPEED` IS NOW A PARAMETER**, overturning 5.3's decision to
+leave it a local literal on the grounds that its range "would be a fiction of
+precision". Measured, it is first-order for four headline validation outcomes
+at once and could not be swept without editing `src/rules/consumption.js` —
+which is how this diagnosis had to be done. Range **[0.0164, 0.0769]** derived
+from the one-to-five-year mean lag its own comment already cited; value
+unchanged at 0.05, behaviour hash `7e517207065edb1c` unmoved. The comment also
+called 13 months the **mean lag**: 13.5 months is the half-life and the mean
+lag is 19.
 
 ### A3. A rate cut buys LESS inflation the hotter the economy — `OPEN`, undiagnosed
 Below the capacity ceiling, the inflation response to a 1pp cut **falls** as the

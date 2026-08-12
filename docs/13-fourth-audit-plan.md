@@ -2095,6 +2095,74 @@ not count.**
 > it is blocked on 11.1 (A2), and re-attempting it before that is explicitly
 > forbidden by its own entry.
 
+> #### As built — 11.1, and the finding it was written to diagnose is not one finding.
+>
+> ### CORRECTION 37 — A2's five sightings are not one finding. They respond to the demand block's own principal speed in OPPOSITE directions, and the shipped value is already the best compromise available on that axis.
+>
+> A2 has said since Phase 4 that the sightings "are not five findings; they are
+> one, in the demand block, and it is not a calibration problem". The second
+> half is right. The first is not.
+>
+> **THE LOOP CLOSES, AND NOBODY HAD CHECKED.** The task asks whether the
+> income-expenditure loop closes at all within a term. Run to convergence, a
+> 1pp tax rise costs 0.273 / **0.484** / 0.781 / 1.091 / **1.272** / 1.275% of
+> output at 12 / 30 / 60 / 120 / 240 / 480 months. `TAX_SHOCK_TO_GDP` is
+> measured at 30 months, where the model has delivered **38% of its own
+> converged value**. It is not broken; it is slow. (In RATIOS — `dOutput` as a
+> level keeps climbing to month 600 purely because potential grows. 5.7's
+> lesson, waiting for the next person to repeat this sweep.)
+>
+> **THE SPEED CONTROLS THE HORIZON AND NOT THE SIZE.** Sweeping the 5%/month
+> permanent-income adjustment, the 30-month figure moves 2.5× and the converged
+> figure moves 7%. So the disagreement splits: most of the gap at the measured
+> horizon is speed, and a size residual survives removing the smoothing
+> altogether — 1.36 against Romer-Romer's 2.0–3.0, which is `apc_ss` and the
+> tax base, both sourced, so closing it is rule 3.
+>
+> **AND THEN THE SAME SWEEP REFUTED THE ENTRY.**
+>
+> | `YD_PERMANENT_SPEED` | 0.025 | **0.05** | 0.10 | 0.20 | 1.00 | wanted |
+> |---|---|---|---|---|---|---|
+> | `TAX_SHOCK_TO_GDP` @30m | 0.190 | **0.484** | 0.829 | 1.082 | 1.210 | higher — rises |
+> | UK sacrifice ratio | 0.38 | **0.36** | 0.33 | 0.33 | 0.33 | higher — **falls** |
+> | post-crisis rebound | 30.3% | **38.7%** | 46.0% | 50.3% | 57.1% | lower — **rises** |
+> | endogenous propagation | 3.37 | **3.82** | 3.64 | 3.13 | 2.76 | higher — **peaks here** |
+>
+> Only the tax multiplier improves as the demand block gets faster. Two of the
+> others improve as it gets **slower**, and propagation is a hump whose maximum
+> is the shipped value — 2.72 / 3.37 / **3.82** / 3.80 / 3.64 / 3.13 / 2.76
+> across 0.0125 to 1.00 — so it cannot be improved by moving the parameter in
+> either direction. The steady state is exact at every point, so none of this
+> is a broken configuration.
+>
+> **A2 therefore sits on TWO axes that this parameter trades off against each
+> other:** a HORIZON axis, where anything measured inside three years is short
+> because the multiplier takes about twenty years to converge; and a
+> PERSISTENCE axis, where the sacrifice ratio, the propagation and the rebound
+> are short because the economy heals too fast and want the demand block
+> SLOWER. **There is no single demand-block fix. The next pass should stop
+> looking for one**, and the remaining candidates are not in the consumption
+> function at all — hysteresis, the Phillips slope's anchoring, and Okun (B3 /
+> 11.2).
+>
+> **This does not unblock 5.1**, and that is the useful part: it establishes
+> that 5.1's blocker cannot be removed by making the demand block move more,
+> because doing so costs three other sightings. A6's ordering stands.
+>
+> **`YD_PERMANENT_SPEED` IS NOW A PARAMETER, OVERTURNING 5.3.** 5.3 left it a
+> local literal because "a range that wide would be a fiction of precision".
+> The range is a factor of 4.7 — narrower than several already in the file —
+> and the constant turns out to be first-order for four headline validation
+> outcomes at once. The decisive argument is procedural: **this diagnosis could
+> only be done by editing `src/rules/consumption.js` with a regex**, which is
+> the throwaway-scratchpad hazard 5.17 named, and 7.1's Monte Carlo would have
+> hit the same wall. Range [0.0164, 0.0769] derived from the one-to-five-year
+> mean lag its own comment already cited; value unchanged, behaviour hash
+> `7e517207065edb1c` unmoved, 145 → 146 parameters. Its comment also called 13
+> months the *mean lag* — 13.5 is the half-life and the mean lag is 19.
+>
+> 175 tests, 159 pass, 0 fail, 16 todo; steady state exact to 9dp.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

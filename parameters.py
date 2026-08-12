@@ -370,6 +370,40 @@ MPC_UNEMPLOYMENT_SLOPE = P(
     "households spend more of what you give them — which is why stimulus "
     "works better in a slump.")
 
+YD_PERMANENT_SPEED = P(
+    0.05, 0.0164, 0.0769,
+    "monthly fraction of the gap between current and perceived-permanent "
+    "disposable income that is closed",
+    "weak", "Friedman 1957 fixes the SHAPE — households consume out of a "
+    "smoothed income concept — and pins no adjustment speed. The range is the "
+    "empirical spread the literature reports, roughly a one- to five-year "
+    "mean lag depending on whether it is estimated on micro panels or on "
+    "aggregate consumption.",
+    "Geometric partial adjustment, the direct analogue of "
+    "INVESTMENT_ADJUSTMENT_SPEED: mean lag is (1-speed)/speed, so 0.05 is 19 "
+    "months and the range 0.0164-0.0769 spans 60 to 12 months. NOTE the code "
+    "comment this replaced called 13 months the MEAN LAG; 13.5 months is the "
+    "HALF-LIFE and the mean lag is 19.\n"
+    "\n"
+    "PROMOTED IN 11.1, OVERTURNING 5.3'S DECISION ON MEASURED GROUNDS. 5.3 "
+    "left it a local literal because 'a range that wide would be a fiction of "
+    "precision'. The range is a factor of 4.7 — narrower than several "
+    "parameters already here — and 11.1 measured the constant to be "
+    "first-order for FOUR headline validation outcomes at once, which is "
+    "exactly what this file exists to hold. It also could not be swept "
+    "without editing source, and 7.1's Monte Carlo needs it here.\n"
+    "\n"
+    "IT MOVES THE FOUR IN DIFFERENT DIRECTIONS, WHICH IS 11.1'S FINDING. "
+    "Sweeping it (open_items A2): TAX_SHOCK_TO_GDP at 30 months goes "
+    "0.19/0.48/0.83/1.08/1.21 at 0.025/0.05/0.10/0.20/1.00, improving "
+    "monotonically toward Romer-Romer; the UK sacrifice ratio goes "
+    "0.38/0.36/0.33/0.33/0.33, moving AWAY from Ball; the post-crisis rebound "
+    "goes 30.3/38.7/46.0/50.3/57.1%, moving AWAY from Cerra-Saxena; and "
+    "endogenous crisis propagation is a HUMP that peaks at the shipped value "
+    "(2.72/3.37/3.82/3.80/3.64/3.13/2.76 at "
+    "0.0125/0.025/0.05/0.075/0.10/0.20/1.00). No value improves all four. DO "
+    "NOT TUNE IT TO ONE OF THEM.")
+
 WEALTH_EFFECT = P(
     0.04, 0.03, 0.05, "cents of consumption per $1 of housing wealth",
     "moderate", "standard range", "Judgement on the exact value.")

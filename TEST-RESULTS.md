@@ -11,7 +11,7 @@ to be readable cold, by someone who has never seen the project.
 
 ## How to read this
 
-The model is a monthly macroeconomic simulation: 23 rules, 145 sourced
+The model is a monthly macroeconomic simulation: 23 rules, 146 sourced
 parameters, five policy dials, 96 monthly ticks. Every parameter carries a
 plausible range, a confidence level and a citation.
 

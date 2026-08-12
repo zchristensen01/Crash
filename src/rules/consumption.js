@@ -40,16 +40,13 @@ export function updateConsumption(s, trace) {
   s.mpc_effective = mpc;
 
   // Permanent income: a slow adjustment toward current disposable income.
-  // judgement: 5% a month is a ~13-month mean lag on the perceived-permanent
-  // level. Friedman's permanent-income hypothesis fixes the SHAPE — households
-  // consume out of a smoothed income concept — and gives no adjustment speed;
-  // the empirical literature spans roughly one to five years depending on
-  // whether it is estimated on micro panels or aggregate consumption. Not
-  // promoted to parameters.py because a range that wide would be a fiction of
-  // precision. It matters: it is why a tax cut's consumption response builds
-  // over quarters in docs/11 §2 instead of landing at once.
-  const YD_PERMANENT_SPEED = 0.05;   // judgement, see above
-  s.yd_permanent += YD_PERMANENT_SPEED * (s.disposable_income - s.yd_permanent);
+  // Friedman fixes the SHAPE and pins no speed; the range is the empirical
+  // spread. PROMOTED TO parameters.py IN 11.1, overturning 5.3's decision on
+  // measured grounds: the constant is first-order for FOUR headline
+  // validation outcomes at once and could not be swept without editing this
+  // file. It moves them in DIFFERENT directions and no value improves all
+  // four — see its note and open_items A2. Do not tune it to one of them.
+  s.yd_permanent += P.YD_PERMANENT_SPEED.value * (s.disposable_income - s.yd_permanent);
 
   const permanent = s.apc_ss * s.yd_permanent;
   const transitory = mpc * (s.disposable_income - s.yd_permanent);

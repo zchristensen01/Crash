@@ -126,7 +126,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-six** corrections to the
+Recorded here and against the individual tasks. **Thirty-seven** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -149,6 +149,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 37 | **A2 is not one finding.** Its sightings respond to the demand block's own principal speed in OPPOSITE directions — the tax multiplier improves as it speeds up, the sacrifice ratio and rebound improve as it slows, and propagation peaks at the shipped value. Two axes, not one cause | closed by 11.1 |
 | 36 | **A comment described a design that was never built** — `s.dial_truncated`'s "both paths have to work" promised a UI read that does not exist. Corrected, and a test now pins the field to its three legitimate sites so 8.5 cannot add the read without fixing the comment | closed by 5.15 |
 | 35 | **B8 named the wrong mechanism for its own finding** — the arms differ because of the WAGE KINK, not `monetaryEasingScale`. Remove the kink and the cut arm falls 0.2230 → 0.0616 and the asymmetry flips. The arm that PASSES was one kink crossing | closed by 5.14 |
 | 34 | **B7's proposed repair was a correction where the model needed an ANCHOR** — `updateInvestment` already held the right steady-state user cost as a local, so there were two anchors for one quantity. Hoisted to `s.user_cost_ss`; the gauge reads its declared 60 at rest | closed by 5.13 |
@@ -1312,7 +1313,7 @@ moves too little for the price change that caused it.*
 | endogenous crisis propagation | **3.82** | was 8.4 of Cerra-Saxena's 10 |
 | post-crisis rebound | **39%** of the trough, both amplifiers off | Cerra-Saxena: none |
 
-- [ ] 11.1 Diagnose it — `open_items` A2 — **AND IT NOW BLOCKS 5.1**
+- [x] 11.1 Diagnose it — `open_items` A2 — **AND THE DIAGNOSIS REFUTES THE ENTRY**
       Promoted from "the strongest candidate for the next pass" to a blocker
       for a Phase 5 task. The sixth sighting is the one that breaks something:
       `overheating` pegs the rate at 1.0% against 5-6% expected inflation, and
@@ -1332,6 +1333,47 @@ moves too little for the price change that caused it.*
       whether the income-expenditure loop closes at all within a term.
       **Do 5.7 first** — the capital-units defect is in the supply block and
       changes the denominator every one of these is measured against.
+      **DIAGNOSED. THE OBSERVATION STANDS AND "ONE FINDING" DOES NOT.**
+      **(a) The income-expenditure loop DOES close, and nobody had checked.**
+      A 1pp tax rise costs 0.273 / **0.484** / 0.781 / 1.091 / **1.272** / 1.275
+      % of output at 12 / 30 / 60 / 120 / 240 / 480 months. `TAX_SHOCK_TO_GDP`
+      is measured at 30 months, where the model has delivered **38% of its own
+      converged value**. Not broken — slow. (Measure in RATIOS: `dOutput` as a
+      level keeps rising to m600 purely because potential grows, which is 5.7's
+      lesson and will mislead anyone repeating the sweep.)
+      **(b) The permanent-income speed controls the HORIZON, not the SIZE.**
+      Sweeping `yd_permanent`'s 5%/month: the 30-month figure moves **2.5×**
+      (0.190 → 1.210) and the converged figure moves **7%** (1.24 → 1.36). So a
+      size residual survives removing the smoothing entirely — 1.36 against
+      Romer-Romer's 2.0–3.0 — and that residual is `apc_ss` and the tax base,
+      both sourced, so closing it is rule 3.
+      **(c) THE REFUTATION: the same sweep moves the other three the WRONG
+      WAY.** Only the tax multiplier improves as the demand block gets faster.
+      The UK sacrifice ratio goes 0.38 → 0.36 → **0.33** and wants to be
+      HIGHER; the post-crisis rebound goes 30.3 → 38.7 → **57.1%** and wants to
+      be LOWER; and endogenous propagation is a **hump peaking at the shipped
+      value** — 2.72 / 3.37 / **3.82** / 3.80 / 3.64 / 3.13 / 2.76 across
+      0.0125 → 1.00 — so it cannot be improved by moving the parameter in
+      EITHER direction. The steady state is exact at every point in the sweep.
+      **A2's sightings sit on TWO axes that this parameter trades off against
+      each other:** a HORIZON axis (the tax multiplier and anything measured
+      inside three years) and a PERSISTENCE axis (sacrifice ratio, propagation,
+      rebound — which want the demand block SLOWER). **There is no single
+      demand-block fix and the next pass should stop looking for one.** What
+      remains is not in the consumption function: hysteresis, the Phillips
+      slope's anchoring, and Okun (11.2 / B3).
+      **`YD_PERMANENT_SPEED` PROMOTED, overturning 5.3 on measured grounds** —
+      it is first-order for four headline outcomes and could not be swept
+      without editing `src/rules/consumption.js`, which is how this had to be
+      done. Range **[0.0164, 0.0769]** derived from the one-to-five-year mean
+      lag its own comment cited; value unchanged, behaviour hash
+      `7e517207065edb1c` unmoved, 145 → **146 parameters**. Its comment also
+      called 13 months the *mean lag*: that is the half-life, the mean lag is
+      19 months.
+      **5.1 IS STILL BLOCKED.** This diagnosis does not unblock it — it
+      establishes that the blocker cannot be removed by speeding the demand
+      block up, because doing so costs three other sightings. A6's ordering
+      stands and 11.3's re-solve still waits.
 - [ ] 11.5 The capacity ceiling is a hard switch, and a scenario's lesson sits
       0.6pp from it — `open_items` A7
       Sweeping a standing demand shift through `overheating`, month-96
