@@ -17,6 +17,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { P } from '../src/params.js';
 import { readFileSync } from 'node:fs';
+import { citedIn } from './citations.mjs';
 import { SCENARIOS } from '../src/game/scenarios.js';
 import { world, advance, dial, nudge, compare } from './harness.mjs';
 
@@ -451,4 +452,18 @@ test('the TRANSMITTED Taylor response clears unity, not just the dial one', () =
     `satisfied where it is announced and violated where it acts — that is the ` +
     `mechanism behind the whole of Section A, and it was 0.37 before the ` +
     `transmission lag was split off the rate.`);
+
+  // DECLARED CITATIONS [5.12, open_items E4]. This number is written out by
+  // hand in two other places, and both of them were wrong for four commits:
+  // 2.3 wrote 1.80 into TAYLOR_INFLATION's note, the carry-forward wrote 1.83
+  // into docs/02, and 3.1 moved the real value with neither updated — past a
+  // HARD GATE whose stated job was to re-measure everything (Correction 12).
+  // A test that PRINTS a number does not test the number written down
+  // somewhere else, so the copies are named here and checked.
+  citedIn('the transmitted Taylor response', transmitted.toFixed(2), [
+    { file: 'docs/02-causal-map.md', near: /^\s*effective response/,
+      what: 'docs/02 calls this "the most important single fact about this model\'s dynamics"' },
+    { file: 'parameters.py', near: /IT IS NOW [\d.]+ over the same window/,
+      what: "TAYLOR_INFLATION's note" },
+  ]);
 });

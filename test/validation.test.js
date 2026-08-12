@@ -18,6 +18,7 @@
  * and cannot be forgotten — and so nobody quietly tunes to close it.
  */
 import { test } from 'node:test';
+import { citedIn } from './citations.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { P, DEFERRED, CONFLICTS } from '../src/params.js';
@@ -247,10 +248,13 @@ test('CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published r
 });
 
 test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
-  todo: 'KNOWN. A 1% of GDP tax rise costs 0.487% of output over 30 months ' +
+  todo: 'KNOWN. A 1% of GDP tax rise costs 0.484% of output over 30 months ' +
         'against a published 2.0-3.0. (This message said ~0.33% until Phase 5 ' +
-        'verification re-ran it; the model has been at 0.487 since 3.1 and was ' +
-        '0.492 before, so 0.33 was never right in this pass.) ' +
+        'verification re-ran it and 0.487 until 5.12 did: it was 0.487 from 3.1 ' +
+        'until 5.7 fixed the capital law of motion, 0.492 before that, and 0.33 ' +
+        'was never right in this pass. The assertion three lines below printed ' +
+        '0.484 while this message said 0.487 — one test, one measurement, two ' +
+        'numbers, which is what the citation register now prevents.) ' +
         'The Romer-Romer narrative multiplier is ' +
         'the largest in the literature and famously larger than structural ' +
         'models produce; the model also has a responding central bank and a ' +
@@ -259,9 +263,33 @@ test('TAX_SHOCK_TO_GDP: the model is far below Romer-Romer', {
         'tripling the consumption response to disposable income, which the ' +
         'MPC evidence does not support.',
 }, () => {
+  assert.ok(inRange(taxShockToGdp(), P.TAX_SHOCK_TO_GDP),
+            report(taxShockToGdp(), P.TAX_SHOCK_TO_GDP));
+});
+
+/**
+ * The output cost of a 1% of GDP tax rise over 30 months. Extracted so the
+ * `todo` above and the citation test below measure it once — the two used to
+ * be one expression and one hand-typed number, and they disagreed: the todo
+ * message said 0.487 while the assertion beside it printed 0.484, in the same
+ * test's output, which `report.mjs` publishes verbatim.
+ */
+function taxShockToGdp() {
   const r = compare({ shock: (w) => nudge(w, 'tax_rate', +1), months: 30 });
-  const v = -r.dOutput / r.base.output * 100;
-  assert.ok(inRange(v, P.TAX_SHOCK_TO_GDP), report(v, P.TAX_SHOCK_TO_GDP));
+  return -r.dOutput / r.base.output * 100;
+}
+
+/**
+ * DECLARED CITATIONS [5.12, open_items E4]. A HARD test: the `todo` above
+ * fails by design, so a check inside it could never report (open_items E10).
+ */
+test('CITED: TAX_SHOCK_TO_GDP\'s model value says the same thing everywhere', () => {
+  citedIn("TAX_SHOCK_TO_GDP's measured value", taxShockToGdp().toFixed(3), [
+    { file: 'open_items.md', near: /^\| `TAX_SHOCK_TO_GDP` \|/, what: "A2's table" },
+    { file: 'TASKS.md', near: /^\| `TAX_SHOCK_TO_GDP` \|/, what: "Phase 11's table" },
+    { file: 'test/validation.test.js', near: /tax rise costs [\d.]+% of output over 30 months/,
+      what: "this file's own todo message" },
+  ]);
 });
 
 /**

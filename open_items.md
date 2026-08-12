@@ -1078,7 +1078,7 @@ grep -n "judgement, the three unsourced" src/rules/credit.js
 Not chased because promoting them would mean inventing ranges. A Monte Carlo
 over the judgement set (7.1) is the honest next step.
 
-### E4. Every generated artefact has a `--check`; every number re-typed into prose has none — `OPEN`
+### E4. Every generated artefact has a `--check`; every number re-typed into prose has none — `PARTIAL: the register landed in 5.12, two quantities cannot join it`
 Found by Phase 5 verification, which turned up **five** stale prose numbers and
 **one inverted claim** in one afternoon of re-measuring — see docs/13
 Correction 12. The worst was the transmitted Taylor response: `docs/02` calls it
@@ -1134,6 +1134,74 @@ the headline measurements, each naming the files that quote it, with the test
 that measures the quantity asserting those files carry the current value.** It
 needs no heuristic and has no false positives, because the citation is
 declared rather than guessed.
+
+**BUILT IN 5.12 — `test/citations.mjs` — AND IT CAUGHT SIX STALE NUMBERS ON
+ITS FIRST RUN.** `citedIn(label, text, sites)`; the anchor must share a line
+with the number, which turns the convention this entry asked for into
+something enforceable: *a bare number in prose is checkable by nothing and
+should not be written*. Three quantities, eight sites:
+
+| quantity | measured | cited in |
+|---|---|---|
+| transmitted Taylor response | **1.94** | `docs/02`, `TAYLOR_INFLATION`'s note |
+| UK 1979-83 sacrifice ratio | **0.36** | A2 above, TASKS Phase 11, its own `todo` |
+| `TAX_SHOCK_TO_GDP` measured | **0.484** | A2 above, TASKS Phase 11, its own `todo` |
+
+```
+node --test test/episodes.test.js test/validation.test.js test/transmission.test.js
+```
+
+**What it found the moment it ran.** `TASKS.md`'s Phase 11 table was the
+**pre-5.7 copy of A2's table above** — 0.35 / 0.487 / 3.65 / 46% against
+0.36 / 0.484 / 3.82 / 39%. 5.7 re-measured all four cells and updated this
+document and not that one: **the same table, in two files, four
+disagreements.** And `validation.test.js` **disagreed with itself** — its
+`todo` said a tax rise costs 0.487% of output while the assertion three lines
+below it printed 0.484, in one test's output, with `report.mjs` publishing the
+`todo` verbatim.
+
+**The checks are HARD tests.** Both the sacrifice ratio and `TAX_SHOCK_TO_GDP`
+are measured inside `todo`s that fail by design, so a citation check living
+there would read `not ok … # TODO` whether the documents were current or not —
+**E10 again**, and 5.18's split is the precedent. Each measurement was also
+pulled into a single local helper so the `todo` and the citation test compute
+it once.
+
+**A missing anchor is a FAILURE, not a skip**, because the way this guard fails
+is the anchor silently ceasing to match. Both modes verified.
+
+**WHAT IS STILL OPEN, and it is E14:** two of A2's five cells — endogenous
+crisis propagation and the post-crisis rebound — are produced by nothing at
+all, so there was no measurement to register them against.
+
+### E14. Two of A2's five cells are quoted four times each and produced by nothing — `OPEN`, task 5.22
+Found by 5.12 while building the citation register: they could not be
+registered, because there was nothing to register them against.
+
+**`endogenous crisis propagation = 3.82` and `post-crisis rebound = 39%` are
+computed by no code in this repository.** They are quoted in
+`crisis.test.js`'s `todo` messages, in a `params.test.js` comment, in A2's
+table above and in `TASKS.md`'s Phase 11 table — four places each — and every
+one of them is a copy of a measurement somebody took out-of-band and typed in.
+
+```
+grep -rn "3\.82" test/ open_items.md TASKS.md     # four sites, no producer
+grep -rn "CRISIS_HYSTERESIS_SCAR.value = " test/   # nothing sets it to 0
+```
+
+**This is 5.21's defect, in the audit's most important table.** `debt_trap`'s
+policy table was hand-measured for `docs/12`, could not be re-run because its
+experiment was never written down, and had drifted four rows and one outcome
+by the time anyone looked. These two cells are in the same position, and they
+are two of the five sightings that constitute **A2 — the largest finding in
+this audit**. The other three are measured by tests and are now registered.
+
+The experiments are named in prose and have to be turned into code:
+propagation is measured with `CRISIS_HYSTERESIS_SCAR` set to 0 so there is no
+exogenous scar at all; the rebound with the collateral channel and the wealth
+effect both switched off. **Do not copy 3.82 or 39% into a test to make it
+pass** — measure, and if the measurement disagrees with them, that is the
+finding and A2's table moves.
 
 ### E3. Generated artefacts are gitignored, so staleness is local-only — `WATCH`
 `index.html` and `src/params.js` are both generated and both gitignored. That is

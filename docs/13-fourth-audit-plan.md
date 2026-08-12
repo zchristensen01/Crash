@@ -1844,6 +1844,76 @@ not count.**
 > numbers: new measurement, not corrected measurement. No rule and no parameter
 > moved; 168/152/0/16, steady state exact to 9dp.
 
+> #### As built — 5.12, and the register found the table it was built to protect.
+>
+> ### CORRECTION 32 — the plan's two candidate prose sweeps were both measured before building, and both are dead ends; the class that rots is MEASURED QUANTITIES, which sit nowhere near a parameter name.
+>
+> The task proposed *"a `docs/`-wide sweep that extracts `**N.NN**` patterns
+> near a named quantity"*. Measured first, as rule 1 requires:
+>
+> | sweep | sites | disagree |
+> |---|---|---|
+> | `` `PARAM_NAME` `` near a number, all of `docs/` + `README` + `TASKS` + `open_items` | 97 | **55** |
+> | the same, living documents only, number adjacent | **1** | 0 |
+>
+> The 55 are month numbers — `` `TAYLOR_INFLATION` `` followed by 48 is "at
+> m48" — and dated artefacts `docs/README` explicitly permits to describe the
+> past. **A checker that fires 55 times on a clean tree trains you to ignore
+> it**, which is worse than no checker; tightened until it is quiet it finds
+> one site. Neither is the guard.
+>
+> **The heuristic finds nothing because it is looking for the wrong thing.**
+> Every stale prose number this audit caught is a MEASURED QUANTITY, and none
+> of them sits next to a parameter name: the transmitted Taylor response, A2's
+> sacrifice ratio and `TAX_SHOCK_TO_GDP` cells, four `todo` messages, and the
+> four sentences 5.20 had to correct beside the cells they restate.
+>
+> So the citation is **declared, not guessed** — `test/citations.mjs`. The test
+> that measures a quantity names the places that quote it and asserts they say
+> what it just measured, and **the anchor must share a line with the number**.
+> That last constraint is the plan's own convention made enforceable: *a bare
+> number in prose is checkable by nothing and should not be written.*
+>
+> **IT FOUND THE THING IT WAS BUILT TO FIND, IMMEDIATELY, AND IN THIS FILE'S
+> OWN TRACKER.** `TASKS.md`'s Phase 11 table is the headline table of A2 — the
+> largest finding in the audit — and it was **the pre-5.7 copy**: 0.35 / 0.487
+> / 3.65 / 46% against 0.36 / 0.484 / 3.82 / 39%. 5.7 re-measured all four and
+> updated `open_items` and not the tracker. One table, two documents, four
+> disagreements, and it survived the Phase 5 handoff's coverage-invariant
+> re-check because that check counts entries, not numbers.
+>
+> **AND ONE TEST DISAGREED WITH ITSELF.** `validation.test.js`'s `todo` said a
+> 1% of GDP tax rise costs **0.487%** of output; the assertion three lines
+> below printed **0.484**. Same test, same run, same measurement, two numbers —
+> and `report.mjs` copies the `todo` into `TEST-RESULTS.md` verbatim, so the
+> published artefact carried the wrong one.
+>
+> **THE CHECKS HAD TO BE HARD TESTS, AND THAT IS E10 BEING OBEYED RATHER THAN
+> REDISCOVERED.** Both quantities are measured inside `todo`s that fail by
+> design, so a citation assertion placed there would have read
+> `not ok … # TODO` whether the documents were current or not — a guard
+> reporting nothing, which is precisely what 5.18 had to split apart. Each
+> measurement was also lifted into one local helper, so the `todo` and the
+> citation test compute it once: **two copies of a formula is how the numbers
+> they disagree about get made**, which is the whole finding one level down.
+>
+> **Both failure modes verified**, including the one the standing question
+> names: a cited document going stale is reported with file, line and what the
+> line actually says, and **a missing anchor is a failure rather than a skip**,
+> because a citation that quietly stops being checked is the defect this file
+> is a response to.
+>
+> **WHAT IT COULD NOT COVER IS THE NEXT TASK (5.22 / E14).** Two of A2's five
+> cells — endogenous crisis propagation (3.82) and the post-crisis rebound
+> (39%) — are quoted in four places each and **computed by nothing**. There was
+> no measurement to register them against. That is 5.21's defect again, in the
+> audit's most important table: a number with no reproduction. Their
+> experiments are named in prose (`CRISIS_HYSTERESIS_SCAR` set to 0; both
+> amplifiers off) and have to become code before they can be trusted or cited.
+>
+> 168 → **170 tests**, 154 pass, 0 fail, 16 todo. `TEST-RESULTS.md` regenerated
+> and byte-identical across two runs. No rule and no parameter moved.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

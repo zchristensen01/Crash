@@ -61,6 +61,7 @@
  *    private_credit, credit_trend and credit_to_gdp_gap are always set together.
  */
 import { test } from 'node:test';
+import { citedIn } from './citations.mjs';
 import assert from 'node:assert/strict';
 import { P } from '../src/params.js';
 import { EVENTS } from '../src/game/events.js';
@@ -250,6 +251,19 @@ function uk1979() {
   });
 }
 
+/**
+ * Ball 1994's sacrifice ratio: cumulative excess-unemployment point-years per
+ * point of disinflation. Extracted so the `todo` above and the citation test
+ * below compute it once — two copies of a formula is how the number they
+ * disagree about gets made.
+ */
+function sacrificeRatio(r) {
+  const pk = r.peak('inflation');
+  const excessU = r.h.slice(0, 48)
+    .reduce((a, x) => a + Math.max(0, x.unemployment - x.natural_unemployment), 0) / 12;
+  return excessU / (pk.inflation - r.at(48).inflation);
+}
+
 test('UK 1979-83: low credibility really does make inflation more expensive', () => {
   // What survives, and it is the mechanism docs/02 cares most about: starting
   // with credibility at 0.35 puts kappa on its unanchored branch within six
@@ -292,9 +306,7 @@ test('UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES', {
   const r = uk1979();
   const pk = r.peak('inflation');
   const uRise = r.peak('unemployment').unemployment - r.at(1).unemployment;
-  const excessU = r.h.slice(0, 48)
-    .reduce((a, x) => a + Math.max(0, x.unemployment - x.natural_unemployment), 0) / 12;
-  const ratio = excessU / (pk.inflation - r.at(48).inflation);
+  const ratio = sacrificeRatio(r);
   // `pk.inflation > 18` moved here from the mechanism test above when the A1
   // split took the peak below it. UK RPI peaked at 21.9%.
   assert.ok(pk.m <= 20 && pk.inflation > 18
@@ -516,4 +528,27 @@ test('THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone', () => {
     `reaching 15% immediately leaves inflation at ${fast.toFixed(2)}% and reaching ` +
     `the same 15% over 24 months leaves it at ${slow.toFixed(2)}%. Gradualism ` +
     `cannot be the difference between disinflation and hyperinflation.`);
+});
+
+/**
+ * DECLARED CITATIONS [5.12, open_items E4].
+ *
+ * A HARD test, and deliberately not folded into the `todo` above. That `todo`
+ * fails by design — the sacrifice ratio IS the disagreement it records — so a
+ * citation check living inside it would read `not ok … # TODO` whether the
+ * documents were current or not. That is exactly the defect 5.18 found in the
+ * SOLVED_FROM_MODEL register (open_items E10), and it is not repeated here.
+ *
+ * This is the headline cell of open_items A2, the largest finding in the
+ * audit, and it is written out in three places. When 5.7 moved it 0.35 → 0.36
+ * it was updated in two of them.
+ */
+test('CITED: the UK 1979-83 sacrifice ratio says the same thing everywhere', () => {
+  const ratio = sacrificeRatio(uk1979()).toFixed(2);
+  citedIn('the UK 1979-83 sacrifice ratio', ratio, [
+    { file: 'open_items.md', near: /^\| UK 1979-83 sacrifice ratio \|/, what: "A2's table" },
+    { file: 'TASKS.md', near: /^\| UK 1979-83 sacrifice ratio \|/, what: "Phase 11's table" },
+    { file: 'test/episodes.test.js', near: /so the sacrifice ratio is [\d.]+ point-years/,
+      what: "this file's own todo message, which report.mjs publishes verbatim" },
+  ]);
 });

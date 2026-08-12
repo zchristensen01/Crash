@@ -18,7 +18,8 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
 | **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
 | A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
-| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose has no check | 5.12 |
+| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose (partial) | 5.12 (partial) |
+| | | | **E14 two A2 cells have no producer** | **5.22** |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 | B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
@@ -114,7 +115,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-one** corrections to the
+Recorded here and against the individual tasks. **Thirty-two** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -137,6 +138,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 32 | **The plan's two candidate prose sweeps were measured and both are dead ends** — 97 sites/55 false positives, or 1 site. The class that rots is MEASURED QUANTITIES, which sit nowhere near a parameter name, so the citation must be declared. It then found TASKS' own Phase 11 table four cells stale | closed by 5.12 |
 | 31 | **`docs/11`'s own flag understated its staleness**: it said the `debt_trap` policy table's "do-nothing row alone has moved" — four of five had, and `rate to the floor` had changed OUTCOME while the prose drew a lesson from it | closed by 5.21 |
 | 30 | **5.17's scope decision was wrong the same way, one task further on**: "7 tables verified" meant seven ***fenced*** tables and docs/11 has **twelve** measured blocks. The other five were unchecked and **58 cells were stale** while the fingerprint was correct | closed by 5.20 |
 | 29 | **5.11's own scope decision was wrong one task later**: `indicators.js` held copies **five and six**, and named a danger line in prose it did not use | closed by 5.19 |
@@ -929,7 +931,9 @@ tasks, not notes — the pass found them and did not fix them.
       claim what is true: every TABLE is generated and checked, the PROSE still
       is not, and that is E4.
 
-- [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
+- [x] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
+      **PARTIAL BY DESIGN, AND THE SCOPE IS MEASURED.** It covers the measured
+      quantities that HAVE a producer; the two that do not are 5.22.
       **THE TWO OBVIOUS SWEEPS ARE MEASURED AND BOTH ARE DEAD ENDS** — see E4's
       table. Parameter-name-near-a-number over all of `docs/` is 97 sites and
       **55 disagreements**, almost all month numbers (`TAYLOR_INFLATION` … 48)
@@ -957,9 +961,60 @@ tasks, not notes — the pass found them and did not fix them.
       already claims to follow and did not. A stronger one: a `docs/`-wide
       sweep that extracts `**N.NN**` patterns near a named quantity and asks
       the tool for the current value.
+      **AS BUILT — `test/citations.mjs`, and it caught six stale numbers on its
+      first run.** `citedIn(label, text, sites)`: the test that MEASURES a
+      quantity declares the places that quote it and asserts each still says
+      what was just measured. **The anchor must share a line with the number**,
+      which is the convention this task was asked for, made enforceable — *a
+      bare number in prose is checkable by nothing and should not be written.*
+      **Three quantities, eight citation sites:** the transmitted Taylor
+      response **1.94** (`docs/02`, `TAYLOR_INFLATION`'s note); the UK
+      sacrifice ratio **0.36** and `TAX_SHOCK_TO_GDP` **0.484**, each in
+      `open_items` A2, TASKS Phase 11, and its own `todo` message.
+      **WHAT IT FOUND IMMEDIATELY. `TASKS.md`'s Phase 11 table was the pre-5.7
+      copy of `open_items` A2 — four stale cells**: 0.35 / 0.487 / 3.65 / 46%
+      against 0.36 / 0.484 / 3.82 / 39%. 5.7 re-measured all four and updated
+      `open_items` and not this file — the same table, two documents, four
+      disagreements. **And `validation.test.js` disagreed with ITSELF**: its
+      `todo` said a tax rise costs **0.487%** of output while the assertion
+      three lines below printed **0.484**. One test, one measurement, two
+      numbers, and `report.mjs` publishes the `todo` verbatim.
+      **THE CHECKS ARE HARD TESTS, NOT ADDITIONS TO THE `todo`s.** Both the
+      sacrifice ratio and `TAX_SHOCK_TO_GDP` are measured inside `todo`s that
+      fail by design, so a citation check placed there would read
+      `not ok … # TODO` whether the documents were current or not — **that is
+      exactly E10**, and 5.18's split is the precedent followed. Each
+      measurement was extracted into one local helper so the `todo` and the
+      citation test compute it once: two copies of a formula is how the numbers
+      they disagree about get made.
+      **Both failure modes verified.** A cited document going stale is named
+      with file, line and what the line actually says. And **a missing anchor
+      is a FAILURE, not a skip** — the standing question asked of this guard is
+      *what if the anchor stops matching?*, and a citation that quietly stops
+      being checked is the defect the file is a response to.
+      168 → **170 tests**, 154 pass, 0 fail, 16 todo. `TEST-RESULTS.md`
+      regenerated and verified byte-identical across two runs.
+
+- [ ] 5.22 Two of A2's five cells are quoted four times and produced by nothing
+      — `open_items` E14
+      Found by 5.12 while building the register. **Endogenous crisis
+      propagation (3.82) and the post-crisis rebound share (39%) are computed
+      by nothing.** They appear in `crisis.test.js`'s `todo` messages, in
+      `params.test.js`'s comments, in `open_items` A2 and in TASKS Phase 11 —
+      four places each — and no code produces either, so they could not be
+      registered in 5.12 and cannot be re-run by anyone who was not there.
+      **Same defect as `debt_trap`'s policy table (5.21): a number with no
+      reproduction** — and these two are cells of A2, the largest finding in
+      the audit.
+      Each needs its experiment written down first: propagation is measured
+      with `CRISIS_HYSTERESIS_SCAR` set to 0, the rebound with the collateral
+      channel and the wealth effect both switched off. Give each a hard test,
+      then register the citations as 5.12 did.
+      **Do not copy 3.82 or 39% into a test to make it pass.** Measure; if the
+      measurement disagrees with them, that is the finding.
 
 
-**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 168 tests, 152
+**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 170 tests, 154
 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
 scope), `index.html` current, `docs/11` current with **all twelve of its
 measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
@@ -975,7 +1030,7 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.12–5.15.
+rides on it. **Not started:** 5.13, 5.14, 5.15 and **5.22**.
 **5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
 5 handoff, and between them `docs/11` now has **no numeric block that a tool
 does not generate and check**: 8 fenced tables, 453 cells across 21 pipe
@@ -1130,11 +1185,11 @@ moves too little for the price change that caused it.*
 
 | | model | literature |
 |---|---|---|
-| UK 1979-83 sacrifice ratio | **0.35** | Ball 1994: 2–4 |
-| `TAX_SHOCK_TO_GDP` | **0.487** | Romer-Romer: 2–3 |
+| UK 1979-83 sacrifice ratio | **0.36** | Ball 1994: 2–4 |
+| `TAX_SHOCK_TO_GDP` | **0.484** | Romer-Romer: 2–3 |
 | austerity paradox | absent at every playable gap | — |
-| endogenous crisis propagation | **3.65** | was 8.4 of Cerra-Saxena's 10 |
-| post-crisis rebound | 46% of the trough with BOTH amplifiers off | Cerra-Saxena: none |
+| endogenous crisis propagation | **3.82** | was 8.4 of Cerra-Saxena's 10 |
+| post-crisis rebound | **39%** of the trough, both amplifiers off | Cerra-Saxena: none |
 
 - [ ] 11.1 Diagnose it — `open_items` A2 — **AND IT NOW BLOCKS 5.1**
       Promoted from "the strongest candidate for the next pass" to a blocker
