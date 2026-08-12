@@ -654,6 +654,45 @@ were taken on a tree with this hazard live.
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
 
+### E10. The `SOLVED_FROM_MODEL` register's only guard lived inside a failing `todo` — `FIXED in 5.18`
+Found by checking whether the other guards had E9's shape, and one did.
+
+The register's own header says its constants **"must be RE-SOLVED whenever the
+model changes"**. Nothing enforced it. The only check on
+`CRISIS_IMPULSE_AMPLIFICATION` sat in `THE DECONVOLUTION CONSTANTS ARE
+MEASUREMENTS`, which **fails by design** because of its other half —
+`CRISIS_SCAR_AMPLIFICATION`, deliberately left unsolved (C2). So the constant
+that IS supposed to be re-solved and IS supposed to reconcile could drift
+arbitrarily far, and the result read `not ok … # TODO` before and after,
+character for character.
+
+**It is not hypothetical.** 5.7 fixed the capital law of motion, which moved
+the trend the trough is measured against and took the realised amplification to
+**2.1155 against a declared 2.1855**. It was re-solved to 2.0461 only because
+the register was read and remembered — which is precisely the failure mode a
+register exists to remove, and the same shape as the fingerprint that could be
+defeated by `--stamp`.
+
+Split: the impulse assertion is now its own **hard** test, so drift reports;
+only the scar half stays `todo`. Verified — setting the constant to 2.4461
+fails it.
+
+```
+node --test test/crisis.test.js 2>&1 | grep "SOLVED_FROM_MODEL"
+```
+
+**The test cannot fail on magnitude** — the constant is defined as whatever
+makes the trough equal `CRISIS_OUTPUT_TROUGH` — and that is the point. It is a
+CONSISTENCY check, and a consistency check that cannot report inconsistency is
+furniture.
+
+**THE CLASS IS THE FINDING, and it is now three deep.** A guard read as
+answering one question while structurally answering another:
+`docs/11`'s fingerprint (E9), this register (E10), and `s.dial_truncated`'s
+"both paths have to work" (E7). Every register and tripwire in this project
+deserves the question *what would have to be true for this to pass while the
+thing it guards is broken?*
+
 ### E9. `docs/11`'s fingerprint could be defeated by running `--stamp` — `FIXED in 5.17`
 The tripwire hashed **the model's measurements**, not **the document's
 contents**, so it answered *"has the model moved since someone last stamped?"*

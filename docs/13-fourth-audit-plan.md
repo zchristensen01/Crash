@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-six corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-seven corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1444,6 +1444,48 @@ erosion in `money.js` are the two that most need a source.
 > `docs/11`'s 1464-number fingerprint not moving (`86c1b104fab5561d`). A
 > refactor of this size that changed one number would be very hard to find
 > later, which is why the check was run as a diff and not as a suite pass.
+
+> #### As built — 5.18, and the class is now three deep.
+>
+> ### CORRECTION 27 — the `SOLVED_FROM_MODEL` register's only guard could not report drift.
+>
+> 4.2 built the register and made the point structurally rather than in prose:
+> *"nothing can be solved from the model without declaring it; nothing can
+> claim to be without being listed"*. Both directions are enforced. **What is
+> not enforced is the register's central promise** — its header says the
+> constants *"must be RE-SOLVED whenever the model changes"*.
+>
+> The only check on `CRISIS_IMPULSE_AMPLIFICATION` lived inside `THE
+> DECONVOLUTION CONSTANTS ARE MEASUREMENTS`, a `todo` that **fails by design**
+> because of its other half — `CRISIS_SCAR_AMPLIFICATION`, deliberately left
+> unsolved (C2). So the constant that IS meant to reconcile could drift as far
+> as it liked and the result read `not ok … # TODO` before and after,
+> character for character.
+>
+> **It nearly bit, in this pass.** 5.7's capital-units fix moved the trend the
+> trough is measured against and took the realised amplification to **2.1155
+> against a declared 2.1855**. It was re-solved to 2.0461 only because the
+> register was read and remembered — which is exactly the failure mode a
+> register exists to remove.
+>
+> Split: the impulse assertion is now a HARD test and only the scar half stays
+> `todo`. **It cannot fail on magnitude** — the constant is defined as whatever
+> makes the trough equal `CRISIS_OUTPUT_TROUGH` — and that is the point. A
+> consistency check that cannot report inconsistency is furniture.
+>
+> ### THE CLASS, AND IT IS NOW THREE DEEP
+>
+> A guard read as answering one question while structurally answering another:
+>
+> | guard | read as | actually answers |
+> |---|---|---|
+> | `docs/11` fingerprint (E9) | "the document's numbers are current" | "the model has not moved since somebody stamped" |
+> | `SOLVED_FROM_MODEL` (E10) | "these are re-solved when the model changes" | "these are declared, in both directions" |
+> | `s.dial_truncated` (E7) | "the UI reads it on the spot" | nothing reads it; it is null when the tick ends |
+>
+> Every register and tripwire in this project now deserves the question **what
+> would have to be true for this to pass while the thing it guards is
+> broken?** — asked deliberately rather than discovered.
 
 **5.4 — Derive the credit trend speed (D2).**
 `trendSpeed = 0.20` is an unnamed literal with a half-life of 41.6 months. The

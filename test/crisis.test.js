@@ -341,22 +341,56 @@ test('THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them', 
     'the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity ' +
     'paradox. Re-solve when the demand block has been addressed.',
 }, () => {
-  // The guard that stops CRISIS_IMPULSE_AMPLIFICATION and
-  // CRISIS_SCAR_AMPLIFICATION becoming tuning dials. They are properties of
-  // this model's demand block; if the demand block changes they must be
-  // RE-DERIVED, and this fails until they are.
+  // ONLY THE SCAR CONSTANT IS LEFT HERE. The impulse assertion moved out to a
+  // HARD test below, and why is 5.18: both used to live in this `todo`, which
+  // fails by design because of the scar half — so the impulse half, the one
+  // that IS supposed to be re-solved and IS supposed to pass, could drift as
+  // far as it liked and the result read `not ok # TODO` either way.
   const r = crashArc();
-  const impulse = Math.abs(P.CRISIS_OUTPUT_TROUGH.value) / P.CRISIS_IMPULSE_AMPLIFICATION.value;
-  const realised = -r.trough / impulse;
-  assert.ok(Math.abs(realised - P.CRISIS_IMPULSE_AMPLIFICATION.value) < 0.25,
-    `the model now amplifies the crisis impulse ${realised.toFixed(3)}x, but ` +
-    `CRISIS_IMPULSE_AMPLIFICATION says ${P.CRISIS_IMPULSE_AMPLIFICATION.value}. ` +
-    `RE-MEASURE it — do not nudge it to move the trough.`);
   const scarShare = -r.vsTrend[60] / (r.hit.scar_target / r.hit.potential_output * 100);
   assert.ok(Math.abs(scarShare - P.CRISIS_SCAR_AMPLIFICATION.value) < 0.6,
     `the model now turns a ${r.hit.scar_target.toFixed(2)}pp exogenous capacity cut ` +
     `into a ${(-r.vsTrend[60]).toFixed(2)}% loss against trend (${scarShare.toFixed(2)}x), ` +
     `but CRISIS_SCAR_AMPLIFICATION says ${P.CRISIS_SCAR_AMPLIFICATION.value}`);
+});
+
+/**
+ * THE REGISTER'S OWN PROMISE, ENFORCED [4th audit 5.18, open_items E10].
+ *
+ * `SOLVED_FROM_MODEL`'s header says its constants "must be RE-SOLVED whenever
+ * the model changes". Nothing enforced that. The only check on
+ * CRISIS_IMPULSE_AMPLIFICATION lived inside the `todo` above, which fails BY
+ * DESIGN because of its other half — so the constant could drift arbitrarily
+ * far and the test result was `not ok # TODO` before and after, identical.
+ *
+ * It is not hypothetical. 5.7 fixed the capital law of motion, which moved the
+ * trend the trough is measured against and took the realised amplification to
+ * 2.1155 against a declared 2.1855. It was re-solved only because the register
+ * was read and remembered — exactly the failure mode a register exists to
+ * remove, and the same shape as the fingerprint that could be defeated by
+ * `--stamp` (5.17).
+ *
+ * A HARD TEST, so drift reports. THIS CANNOT FAIL ON MAGNITUDE — the constant
+ * is defined as whatever makes the trough equal CRISIS_OUTPUT_TROUGH — and
+ * that is the point: it is a CONSISTENCY check, and a consistency check that
+ * cannot report inconsistency is furniture.
+ */
+test('SOLVED_FROM_MODEL: the impulse constant still reproduces the trough it is defined by', () => {
+  const r = crashArc();
+  const impulse = Math.abs(P.CRISIS_OUTPUT_TROUGH.value) / P.CRISIS_IMPULSE_AMPLIFICATION.value;
+  const realised = -r.trough / impulse;
+  assert.ok(Math.abs(realised - P.CRISIS_IMPULSE_AMPLIFICATION.value) < 0.25,
+    `the model now amplifies the crisis impulse ${realised.toFixed(4)}x against a ` +
+    `declared CRISIS_IMPULSE_AMPLIFICATION of ${P.CRISIS_IMPULSE_AMPLIFICATION.value}, ` +
+    `so the realised trough is ${r.trough.toFixed(4)}% rather than ` +
+    `${P.CRISIS_OUTPUT_TROUGH.value}%. RE-SOLVE it by bisection on this harness — ` +
+    `do NOT nudge it to move the trough, and do not widen this tolerance. ` +
+    `parameters.py's SOLVED_FROM_MODEL register says these must be re-solved ` +
+    `whenever the model changes; this is the only thing that says when.`);
+  assert.ok(Math.abs(r.trough - P.CRISIS_OUTPUT_TROUGH.value) < 0.5,
+    `the realised peak-to-trough is ${r.trough.toFixed(4)}% against ` +
+    `CRISIS_OUTPUT_TROUGH = ${P.CRISIS_OUTPUT_TROUGH.value}. The constant exists ` +
+    `to make these equal.`);
 });
 
 test('the scar PHASES IN rather than landing on month one', () => {
