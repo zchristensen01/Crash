@@ -802,6 +802,59 @@ DEBT_AVERAGE_MATURITY_YEARS = P(
     "and almost nobody expects that' was an artefact of this defect rather "
     "than a result; nobody expects it because it is not true.")
 
+YIELD_POLICY_RATE_WEIGHT = P(
+    0.39, 0.21, 0.54,
+    "weight on TODAY's policy rate in the 10-year expected average short rate; the rest is the neutral nominal anchor",
+    "moderate", "Expectations hypothesis of the term structure, plus the "
+    "estimated persistence of the policy rate: market-implied paths and FOMC "
+    "dot plots converge to a longer-run neutral over roughly three years, and "
+    "term-structure estimates of policy-rate mean reversion put the half-life "
+    "at about 1.5-5 years.",
+    "[4TH AUDIT 5.8, open_items A4] THE 10-YEAR YIELD USED TO BE PRICED "
+    "ENTIRELY ON TODAY'S OVERNIGHT RATE. updateBondYield read "
+    "`expectedShort = s.policy_rate` for a term labelled 'expected path of the "
+    "policy rate', so a ten-year bond was a one-day bond with a term premium "
+    "bolted on. There was NO Fisher term anywhere, which is fine while the "
+    "central bank follows the Taylor principle — the policy rate then contains "
+    "inflation — and absurd the moment the rate is pegged, which is what "
+    "several scenarios do. Measured before the fix: `stagflation` at month 48 "
+    "ran 152.54% inflation against a 3.12% yield, a real coupon of -147%; "
+    "`overheating` at month 96 ran 380.50% against a yield of 0.00%.\n"
+    "\n"
+    "WHY THIS SHAPE AND NOT A BOLTED-ON FISHER TERM. A4 records the trap: "
+    "START's 3.25 = 2.5 + 0.75 already assumes the policy rate carries "
+    "expected inflation, so ADDING expected inflation double-counts under a "
+    "responding central bank and forces a steady-state re-solve. Pricing the "
+    "expected AVERAGE short rate instead has no such problem. The market prices "
+    "a weighted average of where the rate IS and where it expects the rate to "
+    "SETTLE, and where it settles is the neutral NOMINAL rate, r* + expected "
+    "inflation:\n"
+    "\n"
+    "    expectedShort = w * policy_rate + (1 - w) * (r* + expected_inflation)\n"
+    "\n"
+    "AT THE STEADY STATE THE TWO LEGS ARE THE SAME NUMBER — policy_rate = "
+    "r* + target = 2.5 and the anchor = 0.5 + 2.0 = 2.5 — so the yield is "
+    "3.25 for ANY w and the steady state is unmoved BY CONSTRUCTION. Under a "
+    "rule-following central bank the policy rate tracks the anchor and the two "
+    "legs agree, so there is no double count. Under a peg they diverge, and "
+    "the yield follows inflation. That is the whole fix.\n"
+    "\n"
+    "THE DERIVATION. If the market expects the rate to revert to the anchor "
+    "with half-life H, the average expected short rate over T years is "
+    "anchor + (policy - anchor) * (1 - exp(-lambda*T)) / (lambda*T) with "
+    "lambda = ln2/H. So w = (1 - exp(-lambda*T))/(lambda*T) at T = 10:\n"
+    "    H = 1.5yr -> w = 0.214      H = 3yr -> w = 0.390\n"
+    "    H = 2yr   -> w = 0.280      H = 5yr -> w = 0.541\n"
+    "The central value is H = 3 years and THE RANGE IS THE HALF-LIFE'S RANGE "
+    "rather than an estimation interval on w itself.\n"
+    "\n"
+    "WHAT THIS DELIBERATELY DOES NOT DO: it does not reach private borrowers. "
+    "`sovereign_premium_felt` passes on max(0, risk_premium), and risk_premium "
+    "is the debt, foreign and panic terms only — the expected-short leg is not "
+    "in it. A government paying more because inflation is high is not a "
+    "sovereign risk penalty on its companies, and folding it in would be a "
+    "second, undeclared channel.")
+
 BOND_YIELD_NONLINEAR_THRESHOLD = P(
     100.0, 80.0, 120.0, "% debt/GDP above which sensitivity rises for own-currency debt",
     "moderate", "Ardagna, Caselli & Lane 2007; Baldacci & Kumar IMF 2010",

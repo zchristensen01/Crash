@@ -151,7 +151,7 @@ reproduce the published 9-month investment peak rather than assuming it.
 | `credit_spread` | RATE | 1.5pp | Over the policy rate. Widens in fear, collapses in booms |
 | `neutral_real_rate` | RATE | 0.5% | r\*. Neutral NOMINAL is r\* + target = 2.5% |
 | `term_premium` | RATE | 0.75pp | |
-| `yield_10y` | RATE | 3.25% | Policy + term premium − QE + risk premium |
+| `yield_10y` | RATE | 3.25% | The EXPECTED AVERAGE SHORT RATE over ten years + term premium − QE + risk premium. The first term is `w·policy_rate + (1−w)·(r* + expected_inflation)` — a weighted average of the rate today and where the market expects it to settle, `YIELD_POLICY_RATE_WEIGHT`. **It used to be `policy_rate` alone (4th audit 5.8), so a ten-year bond was a one-day bond with a term premium bolted on and there was no Fisher effect anywhere.** At rest both legs equal 2.5, so the yield is 3.25 for any weight and the steady state is unmoved by construction |
 | `average_coupon` | RATE | 3.25% | The rate actually PAID on the outstanding debt stock. Walks toward `yield_10y` as 1/`DEBT_AVERAGE_MATURITY_YEARS` of it refinances each year. The whole stock used to reprice instantly (docs/12 M2) |
 | `sovereign_premium_felt` | RATE | 0.0 | The share of the government's risk premium that private borrowers pay, via `SOVEREIGN_TO_CORPORATE_PASSTHROUGH`. The sovereign yield used to reach nothing outside the government's own books |
 | `risk_premium` | RATE | 0.0 | The debt-driven part of the yield. Display |

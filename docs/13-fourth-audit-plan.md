@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Nineteen corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-one corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1121,6 +1121,71 @@ has the `foreign_share` switch on the **yield** side and still not on the
 Fix: `disposable_income += (1 - foreign_share) * interest_cost`, as its own trace
 term. No new parameter. Re-derive `apc_ss` and the START tax rate explicitly, and
 check the steady state to 9 decimal places afterwards.
+
+> #### As built — 5.8, the yield. Not in the plan at all: it was found by 5.1 and recorded as open_items A4.
+>
+> ### CORRECTION 20 — the plan has no task for the yield, and 5.1 cannot ship without one.
+>
+> `updateBondYield` read `expectedShort = s.policy_rate` under a term labelled
+> *"expected path of the policy rate"*. A ten-year bond priced entirely on
+> today's overnight rate, with **no Fisher effect anywhere**. Measured in
+> `overheating` with the rate pegged at 1.0%, the yield went 1.45 → 0.73 →
+> **0.00** while inflation ran 6.7 → 29.5 → **380.5**.
+>
+> **The repair is not the one the defect's name suggests, and that is why it
+> was possible at all.** A4 records the trap precisely: `START`'s
+> 3.25 = 2.5 + 0.75 already assumes the policy rate carries expected inflation,
+> so bolting on a Fisher term double-counts under a responding central bank and
+> forces a steady-state re-solve. Pricing the expected **average** short rate
+> over the bond's life avoids it entirely:
+>
+> ```
+> expectedShort = w · policy_rate + (1 − w) · (r* + expected_inflation)
+> ```
+>
+> **At rest the two legs are the same number** — policy = r* + target = 2.5,
+> anchor = 0.5 + 2.0 = 2.5 — so the yield is 3.25 **for any w**. The steady
+> state is unmoved by construction and there is nothing to re-solve. Under a
+> rule-following central bank the policy rate tracks the anchor and they agree,
+> so nothing double-counts. Under a peg they diverge and the yield follows
+> inflation at exactly **1 − w**, measured at 0.6100 against a structural
+> 0.6100 to 1e-6.
+>
+> `YIELD_POLICY_RATE_WEIGHT` = 0.39, [0.21, 0.54], derived from a policy-rate
+> reversion half-life of 3 years [1.5, 5] over a 10-year horizon, and the range
+> is the half-life's rather than an interval on w.
+>
+> ### CORRECTION 21 — two tests were asserting the defect, and one of them conflated speed with size.
+>
+> `a hike does not bite the interest bill on impact` required the 10-year to
+> move **> 2.5pp on a 3pp hike**, under a comment reading *"markets reprice
+> fast"*. That is a claim about SPEED and the assertion was about SIZE, and
+> nearly one-for-one pass-through is not what any bond market shows. Split in
+> two: the response is immediate (m1 equals m6 to 0.02pp) and its size is the
+> derived weight (**1.17pp = 0.39 × 3**).
+>
+> `JAPAN: own-currency debt held at home does not reprice` required the yield
+> stay under 2.0%, which it did only because the yield was priced off a
+> floored overnight rate. It now asserts the **risk premium** against the pure
+> debt-level term, because the yield legitimately carries an inflation
+> expectation this episode should not have: the model reaches 2.35% expected
+> inflation by month 48 of a Japanese deflation, which is the known defect the
+> very next test in that file records as a failing `todo`. **The ownership
+> channel was never in question and is measured: 2.448pp of risk premium
+> between 7% and 75% held abroad.**
+>
+> **Contained on purpose.** It does not reach private borrowers:
+> `sovereign_premium_felt` passes on `max(0, risk_premium)`, and `risk_premium`
+> is the debt, foreign and panic terms only. A government paying more because
+> inflation is high is not a sovereign risk penalty on its companies, and
+> folding it in would be a second, undeclared channel.
+>
+> **5.1 AND 5.5's SHELVED WIRING ARE UNBLOCKED.** The interest bill now rises
+> with inflation — the average coupon runs 2.37 → 4.12 → 52.32 in that same
+> pegged `overheating` run, against 1.72 → 1.65 → 1.42 before — so recycling it
+> hands households more income when inflation is highest, which is the
+> direction the mechanism needs and the opposite of what made it invert the
+> lesson.
 
 **5.2 — Private debt maturity (`TEST-RESULTS.md` #11).**
 The whole private debt stock reprices the month the dial moves. A1 hands you the

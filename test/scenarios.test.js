@@ -322,6 +322,90 @@ test('debt_trap: and the inflation price of escaping is visibly large', {
     `against ${passive.s.inflation.toFixed(2)}% passive`);
 });
 
+/**
+ * THE FISHER TERM, AND WHY IT IS NOT A FISHER TERM [4th audit 5.8].
+ *
+ * `open_items` A4: `updateBondYield` had NO expected-inflation term anywhere.
+ * It read `expectedShort = s.policy_rate` for a quantity labelled "expected
+ * path of the policy rate", so a ten-year bond was a one-day bond with a term
+ * premium bolted on. Fine while the central bank follows the Taylor principle
+ * — the policy rate then contains inflation — and absurd the moment the rate
+ * is pegged, which is what several scenarios do.
+ *
+ * Measured before the fix, `overheating` with the rate pegged at 1.0%:
+ *
+ *     month   inflation   yield   coupon   REAL coupon
+ *        24      6.73      1.45     1.72      -2.06
+ *        48     29.46      0.73     1.65      -1.78
+ *        96    380.50      0.00     1.42      -1.71
+ *
+ * The yield FELL as inflation ran to 380%, and bondholders accepted it
+ * indefinitely. A4 blocked task 5.1 on exactly this: recycling the
+ * government's interest bill to households is correct, but with the bill
+ * FALLING in an inflation it hands households less income precisely when
+ * inflation is highest, and measured, it stopped `overheating` hyperinflating
+ * — inverting the one lesson that scenario exists for.
+ *
+ * A4 also records the trap in the obvious repair: START's 3.25 = 2.5 + 0.75
+ * already assumes the policy rate carries expected inflation, so ADDING a
+ * Fisher term double-counts under a responding central bank. Pricing the
+ * expected AVERAGE short rate instead has no such problem, and these three
+ * assertions are why.
+ */
+test('THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting', () => {
+  const w = P.YIELD_POLICY_RATE_WEIGHT.value;
+
+  // 1. STEADY-STATE NEUTRALITY, and it holds for ANY weight. At rest the
+  //    policy rate and the neutral nominal anchor are the same number —
+  //    r* + target = 0.5 + 2.0 = 2.5 — so the two legs coincide and the yield
+  //    is START's 3.25 by construction. This is what makes the fix free of a
+  //    steady-state re-solve, and it is the whole reason for this shape.
+  const rest = newState();
+  run(rest, 200, { events: false, assertEveryTick: false });
+  assert.equal(rest.yield_10y.toFixed(9), (2.5 + 0.75).toFixed(9),
+    `the yield settled at ${rest.yield_10y.toFixed(9)} rather than r* + target + ` +
+    `term premium. If this moves, the anchor and the policy rate have stopped ` +
+    `agreeing at rest and the yield now double-counts inflation.`);
+
+  // 2. THE SLOPE IS EXACTLY 1 - w. Perturb expected inflation and read the
+  //    yield in the same tick. Divided by the perturbation that actually
+  //    SURVIVED updateExpectations, which runs first and absorbs part of it.
+  const arm = (shock) => {
+    const s = newState();
+    run(s, 24, { events: false, assertEveryTick: false });
+    s.expected_inflation += shock;
+    run(s, 1, { events: false, assertEveryTick: false });
+    return s;
+  };
+  const a = arm(0), b = arm(1);
+  const slope = (b.yield_10y - a.yield_10y) / (b.expected_inflation - a.expected_inflation);
+  assert.ok(Math.abs(slope - (1 - w)) < 1e-6,
+    `the yield moved ${slope.toFixed(4)}pp per pp of expected inflation against a ` +
+    `structural ${(1 - w).toFixed(4)}. That coefficient is the share of the next ` +
+    `ten years the market expects to spend at the NEUTRAL rate rather than at ` +
+    `today's, and it is where the Fisher effect lives.`);
+
+  // 3. THE ISOLATING CASE: a PEGGED rate and running inflation. This is what
+  //    A4 measured and what blocks 5.1 until it holds.
+  const peg = newState(SCENARIOS.overheating.overrides);
+  const pipeline = new LagPipeline();
+  applyDialChange(peg, pipeline, 'policy_rate', 1.0);
+  const path = [];
+  for (let m = 1; m <= 48; m++) {
+    run(peg, 1, { pipeline, events: false, endings: false, assertEveryTick: false });
+    path.push({ pi: peg.inflation, y: peg.yield_10y });
+  }
+  assert.ok(path[47].y > path[23].y,
+    `with the rate pegged and inflation running from ${path[23].pi.toFixed(1)}% to ` +
+    `${path[47].pi.toFixed(1)}%, the 10-year yield went ${path[23].y.toFixed(2)}% -> ` +
+    `${path[47].y.toFixed(2)}%. It must RISE. It used to fall, and that is what ` +
+    `made recycling the interest bill invert the lesson (open_items A4).`);
+  assert.ok(path[47].y > path[47].pi * 0.4,
+    `inflation is ${path[47].pi.toFixed(1)}% and the 10-year yield is only ` +
+    `${path[47].y.toFixed(2)}%. No bond market lends for a decade at a deeply ` +
+    `negative expected real return.`);
+});
+
 test('a hike does not bite the interest bill on impact', () => {
   // DEBT_AVERAGE_MATURITY_YEARS. The whole stock used to reprice every month,
   // so docs/11's "debt is the second fastest thing to respond to a rate cut"
@@ -339,8 +423,29 @@ test('a hike does not bite the interest bill on impact', () => {
     dYield.push(hit.yield_10y - base.yield_10y);
     dCoupon.push(hit.average_coupon - base.average_coupon);
   }
-  assert.ok(dYield[0] > 2.5,
-    `the market yield moved only ${dYield[0].toFixed(3)}pp on a 3pp hike — markets reprice fast`);
+  // MARKETS REPRICE FAST, WHICH IS A CLAIM ABOUT SPEED AND NOT ABOUT SIZE —
+  // and this assertion used to conflate the two [4th audit 5.8]. It required
+  // dYield[0] > 2.5 on a 3pp hike, i.e. very nearly one-for-one, which was
+  // true only because updateBondYield priced a ten-year bond entirely off
+  // today's overnight rate. No bond market shows that: the estimated
+  // pass-through from a policy move to the 10-year yield is a fraction, and
+  // YIELD_POLICY_RATE_WEIGHT is that fraction, derived from how fast the
+  // market expects the policy rate to revert to neutral.
+  //
+  // So the two claims are now asserted separately. FIRST: it is IMMEDIATE.
+  // The whole response is in month one; nothing about it is lagged, which is
+  // the actual contrast with the coupon below.
+  assert.ok(Math.abs(dYield[0] - dYield[5]) < 0.02,
+    `the yield moved ${dYield[0].toFixed(4)}pp in month 1 and ${dYield[5].toFixed(4)}pp ` +
+    `by month 6 — the market's repricing must land at once, not accumulate`);
+  // SECOND: its SIZE is the derived weight, not one-for-one. A 3pp hike moves
+  // the 10-year by about 1.17pp.
+  assert.ok(Math.abs(dYield[0] / 3 - P.YIELD_POLICY_RATE_WEIGHT.value) < 0.02,
+    `a 3pp hike moved the 10-year yield ${dYield[0].toFixed(3)}pp, a pass-through ` +
+    `of ${(dYield[0] / 3).toFixed(3)} against YIELD_POLICY_RATE_WEIGHT = ` +
+    `${P.YIELD_POLICY_RATE_WEIGHT.value}. The long yield is the expected AVERAGE ` +
+    `short rate over ten years, so most of it is the neutral anchor and only ` +
+    `this share is today's rate. One-for-one means the anchor has gone missing.`);
   assert.ok(dCoupon[0] < dYield[0] * 0.05,
     `the rate actually PAID moved ${dCoupon[0].toFixed(4)}pp in the first month against ` +
     `${dYield[0].toFixed(3)}pp on the market — only 1/${P.DEBT_AVERAGE_MATURITY_YEARS.value} ` +

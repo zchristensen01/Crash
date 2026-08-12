@@ -172,36 +172,70 @@ where START solved it — because every quantity it checked was a ratio, a rate,
 or a percent of potential, and all of them are invariant when output and
 potential drift together.
 
-### A4. The bond yield has no expected-inflation term — `OPEN`, and it BLOCKS 5.1
-`updateBondYield` computes the 10-year yield as policy rate + term premium
-+ risk premium. **There is no Fisher term.** That is fine while the central bank
-follows the Taylor principle — the policy rate then contains inflation — and
-wrong the moment the rate is pegged, which is exactly what several scenarios do.
+### A4. The bond yield had no expected-inflation term — `FIXED in 5.8`, and it UNBLOCKS 5.1
+`updateBondYield` read `expectedShort = s.policy_rate` for a term labelled
+*"expected path of the policy rate"*, so a ten-year bond was a one-day bond
+with a term premium bolted on. Fine while the central bank follows the Taylor
+principle — the policy rate then contains inflation — and absurd the moment the
+rate is pegged, which is what several scenarios do.
 
 Measured in `overheating`, policy rate pegged at 1.0%, no player input:
 
-| month | inflation | yield_10y | avg coupon | REAL coupon |
-|---|---|---|---|---|
-| 24 | 3.78 | 1.53 | 1.72 | **−2.06** |
-| 48 | 3.43 | 1.34 | 1.65 | −1.78 |
-| 96 | 3.13 | 0.98 | 1.42 | **−1.71** |
+| month | inflation | yield BEFORE | yield NOW | coupon BEFORE | coupon NOW |
+|---|---|---|---|---|---|
+| 24 | 6.73 | 1.45 | **4.68** | 1.72 | **2.37** |
+| 48 | 29.46 | 0.73 | **17.71** | 1.65 | **4.12** |
+| 96 | 380.50 | **0.00** | **227.15** | 1.42 | **52.32** |
 
-The yield **falls** as inflation runs, and bondholders accept a −2% real return
-indefinitely. No bond market does that.
+**THE FIX IS NOT A FISHER TERM, and that is what made it possible.** This entry
+recorded the trap: `START`'s 3.25 = 2.5 + 0.75 already assumes the policy rate
+carries expected inflation, so ADDING expected inflation double-counts under a
+responding central bank and forces a steady-state re-solve. Pricing the
+expected **average** short rate over the bond's life has no such problem:
 
-**This blocks D1 / task 5.1, and that is how it was found.** Recycling the
-government's interest bill to domestic households is correct — debt service is a
-transfer, not a destruction, and it is why 250% debt is survivable in Japan. But
-with no Fisher term the interest bill *falls* in an inflation, so recycling it
-hands households **less** income exactly when inflation is highest. Implemented
-and measured: `overheating` stopped hyperinflating and settled at 3.13%
-inflation — **the Taylor principle stopped operating in the one scenario built
-to demonstrate it.** Reverted rather than shipped.
+```
+expectedShort = w · policy_rate + (1 − w) · (r* + expected_inflation)
+```
 
-Fixing the yield is not a keystroke: `START`'s 3.25 = 2.5 + 0.75 assumes the
-policy rate already carries expected inflation, so adding a Fisher term
-double-counts under a responding central bank and needs its own derivation,
-source and steady-state re-solve.
+At the steady state both legs are 2.5, so the yield is 3.25 **for any w** and
+the steady state is unmoved by construction — verified exact to nine decimals.
+Under a rule-following central bank the policy rate tracks the anchor and they
+agree, so nothing is double-counted. Under a peg they diverge and the yield
+follows inflation, at exactly **1 − w = 0.6100** per point (measured to 1e-6).
+
+`YIELD_POLICY_RATE_WEIGHT` = 0.39, [0.21, 0.54], derived from a policy-rate
+reversion half-life of 3 years [1.5, 5] over a 10-year horizon:
+`w = (1 − e^(−λT))/(λT)`, `λ = ln2/H`.
+
+```
+node --test test/scenarios.test.js 2>&1 | grep "LONG YIELD IS AN AVERAGE"
+```
+
+**Two tests were asserting the old defect and were rewritten to test their own
+mechanisms rather than a contaminated level:**
+- `a hike does not bite the interest bill on impact` required the 10-year to
+  move **> 2.5pp on a 3pp hike** — very nearly one-for-one, which no bond
+  market shows. It now asserts the two claims separately: the response is
+  IMMEDIATE (m1 equals m6 to 0.02pp) and its SIZE is the derived weight
+  (1.17pp = 0.39 × 3). The old bar conflated speed with magnitude.
+- `JAPAN: own-currency debt held at home does not reprice` required the yield
+  stay under 2.0%. It now asserts the **risk premium** against the pure
+  debt-level term, because the yield legitimately carries an inflation
+  expectation this episode should not have — the model reaches 2.35% expected
+  inflation by month 48 of a Japanese deflation, which is the known defect the
+  very next test records as a failing `todo`. The ownership channel is intact
+  and measured: 2.448pp of risk premium between 7% and 75% held abroad.
+
+**WHAT IT DELIBERATELY DOES NOT DO:** it does not reach private borrowers.
+`sovereign_premium_felt` passes on `max(0, risk_premium)`, and `risk_premium`
+is the debt, foreign and panic terms only. A government paying more because
+inflation is high is not a sovereign risk penalty on its companies.
+
+**5.1 AND 5.5's SHELVED WIRING ARE NOW UNBLOCKED.** The interest bill rises
+with inflation (coupon 1.72 → 2.37 → 4.12 → 52.32 in the table above, against
+1.72 → 1.65 → 1.42 before), so recycling it hands households MORE income when
+inflation is highest, which is the direction the mechanism needs. Task 5.1 can
+be rebuilt from the recipe in its own entry and B5's.
 
 ---
 

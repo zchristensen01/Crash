@@ -101,7 +101,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Nineteen** corrections to the
+Recorded here and against the individual tasks. **Twenty-one** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -121,6 +121,8 @@ produced them.
 | 17 | **`supply.js` adds a percent-of-potential flow to a capital STOCK** — capacity grows at 0.93%/yr against a stated 1.5 | closed by 5.7 |
 | 18 | Correction 17's blast radius was wrong: **four quantities moved, not "every measurement"** — the model is almost entirely ratio-invariant, which is the same fact as nothing having caught it | closed |
 | 19 | `investment_share` did NOT need re-deriving. **`DEPRECIATION_RATE` and `SS_DEPRECIATION` needed equalising** — both notes already said so and the values violated it | closed |
+| 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
+| 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 
 **Both claims docs/13 flagged as READ, NOT MEASURED are now checked.**
 `credit.js:218`'s EMA comment was measured in 3.2 and the brief was right.
@@ -540,17 +542,42 @@ tasks, not notes — the pass found them and did not fix them.
       that potential grows at `potential_growth` and that K/Y stays where START
       solved it.
 
-- [ ] 5.8 Give `updateBondYield` an expected-inflation term — `open_items` A4
-      **UNBLOCKS 5.1 AND 5.5's `HAND_TO_MOUTH_SHARE` WIRING.** The 10-year yield
-      is policy rate + term premium + risk premium with no Fisher term, which is
-      fine under a responding central bank and wrong the moment the rate is
-      pegged. Measured in `overheating` with the rate pegged at 1.0%: the yield
-      **falls** 1.53 → 0.98 while inflation runs at 3.1–3.8%, and bondholders
-      accept a −2% real return indefinitely.
-      **Not a keystroke:** `START`'s 3.25 = 2.5 + 0.75 already assumes the
-      policy rate carries expected inflation, so a Fisher term double-counts
-      under a responding central bank. Needs its own derivation, source and
-      steady-state re-solve.
+- [x] 5.8 The long yield is an AVERAGE — `open_items` A4, **and 5.1 is unblocked**
+      `updateBondYield` read `expectedShort = s.policy_rate` for a term labelled
+      *"expected path of the policy rate"*, so a ten-year bond was a one-day
+      bond with a term premium bolted on and there was **no Fisher effect
+      anywhere**. Measured in `overheating` pegged at 1.0%: the yield went
+      1.45 → 0.73 → **0.00** as inflation ran 6.7 → 29.5 → **380.5**.
+      **THE FIX IS NOT A FISHER TERM, WHICH IS WHY IT WAS POSSIBLE.** A4
+      recorded the trap: `START`'s 3.25 = 2.5 + 0.75 already assumes the policy
+      rate carries expected inflation, so ADDING it double-counts under a
+      responding central bank and forces a steady-state re-solve. Pricing the
+      expected AVERAGE short rate over the bond's life does not:
+      `w·policy_rate + (1−w)·(r* + expected_inflation)`. **At rest both legs
+      are 2.5, so the yield is 3.25 for ANY w** — steady state unmoved by
+      construction, verified exact to 9dp. Under a peg they diverge and the
+      yield follows inflation at exactly **1 − w = 0.6100** per point, measured
+      to 1e-6. Now 4.68 → 17.71 → 227.15 in the same run.
+      New `YIELD_POLICY_RATE_WEIGHT` = 0.39 [0.21, 0.54], **derived** from a
+      3-year policy-rate reversion half-life [1.5, 5] over a 10-year horizon:
+      `w = (1 − e^(−λT))/(λT)`, `λ = ln2/H`. The range is the half-life's.
+      **TWO TESTS WERE ASSERTING THE OLD DEFECT** and were rewritten to test
+      their own mechanisms rather than a contaminated level. The hike test
+      required the 10-year to move **> 2.5pp on a 3pp hike** — nearly
+      one-for-one, which no bond market shows; it now asserts SPEED (m1 equals
+      m6 to 0.02pp) and SIZE (1.17pp = 0.39 × 3) separately, because the old
+      bar conflated them. The Japan test required the yield stay under 2.0%; it
+      now asserts the RISK PREMIUM against the pure debt-level term, because
+      the yield legitimately carries an inflation expectation that episode
+      should not have — the known deflation `todo` two tests down. Ownership is
+      intact: **2.448pp** of risk premium between 7% and 75% held abroad.
+      **Contained on purpose:** it does not reach private borrowers.
+      `sovereign_premium_felt` passes on `max(0, risk_premium)`, and that is
+      the debt, foreign and panic terms only.
+      **`stagflation` under the Taylor rule now ends OVERHEATING at 3.2%**
+      rather than GOLDILOCKS at 2.9% — the rule still wins by a mile (against
+      673%) and the higher long yield makes the win slower. `docs/11` §5
+      updated and re-stamped `8f20248ce93b453a`.
 
 - [ ] 5.9 Re-derive the rate ceiling of 50 — `open_items` D1
       2.4 derived `max: 50` as a fixed point over 360 runs with events on,

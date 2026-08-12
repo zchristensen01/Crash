@@ -1,4 +1,4 @@
-<!-- cause-effect-fingerprint: 5133ba7bc882334a (1464 numbers) -->
+<!-- cause-effect-fingerprint: 8f20248ce93b453a (1464 numbers) -->
 # 11 — Cause and Effect
 
 > **LIVING DOCUMENT, and the only one whose numbers are generated.** Every
@@ -108,11 +108,11 @@ index (100 = start); approval in points.
 mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
 --------------------------------------------------------------------------------------------
  1 |  +0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.00 |  +0.05 |  +0.00 |  +0.00 | +0.000
- 3 |  +0.03 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.21 |  +0.01 |  +0.01 | +0.000
- 6 |  +0.13 |  +0.03 |  -0.03 |  +0.09 |  +0.03 |  -0.04 |  +0.52 |  +0.06 |  +0.06 | +0.000
-12 |  +0.31 |  +0.10 |  -0.10 |  +0.20 |  +0.08 |  -0.17 |  +1.23 |  +0.29 |  +0.31 | +0.000
-24 |  +0.57 |  +0.22 |  -0.20 |  +0.30 |  +0.19 |  -0.75 |  +2.72 |  +1.00 |  +0.58 | +0.000
-48 |  +1.03 |  +0.42 |  -0.32 |  +0.40 |  +0.40 |  -2.82 |  +5.42 |  +2.78 |  +0.58 | +0.000
+ 3 |  +0.03 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.00 |  +0.21 |  +0.01 |  +0.01 | +0.000
+ 6 |  +0.13 |  +0.03 |  -0.03 |  +0.09 |  +0.03 |  -0.02 |  +0.52 |  +0.06 |  +0.06 | +0.000
+12 |  +0.31 |  +0.10 |  -0.10 |  +0.20 |  +0.08 |  -0.13 |  +1.23 |  +0.29 |  +0.31 | +0.000
+24 |  +0.57 |  +0.22 |  -0.20 |  +0.30 |  +0.19 |  -0.58 |  +2.72 |  +1.00 |  +0.58 | +0.000
+48 |  +1.03 |  +0.42 |  -0.32 |  +0.40 |  +0.40 |  -2.20 |  +5.42 |  +2.78 |  +0.58 | +0.000
 ```
 
 **The chain, in the order it fires:**
@@ -159,11 +159,11 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
 mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | apprv  | credib
 --------------------------------------------------------------------------------------------
  1 |  -0.00 |  -0.00 |  +0.00 |  -0.00 |  +0.00 |  +0.00 |  -0.05 |  -0.00 |  -0.00 | +0.000
- 3 |  -0.05 |  -0.00 |  +0.01 |  -0.04 |  -0.01 |  +0.01 |  -0.20 |  -0.01 |  -0.01 | +0.000
- 6 |  -0.18 |  -0.02 |  +0.06 |  -0.14 |  -0.03 |  +0.04 |  -0.46 |  -0.06 |  -0.10 | +0.000
-12 |  -0.42 |  -0.04 |  +0.15 |  -0.30 |  -0.08 |  +0.18 |  -0.93 |  -0.30 |  -0.47 | +0.000
-24 |  -0.72 |  -0.08 |  +0.25 |  -0.43 |  -0.18 |  +0.72 |  -1.73 |  -1.00 |  -0.92 | +0.000
-48 |  -1.16 |  -0.13 |  +0.34 |  -0.54 |  -0.33 |  +2.50 |  -2.88 |  -2.62 |  -1.01 | +0.000
+ 3 |  -0.05 |  -0.00 |  +0.01 |  -0.04 |  -0.01 |  +0.00 |  -0.20 |  -0.01 |  -0.01 | +0.000
+ 6 |  -0.18 |  -0.02 |  +0.06 |  -0.14 |  -0.03 |  +0.03 |  -0.46 |  -0.06 |  -0.10 | +0.000
+12 |  -0.42 |  -0.04 |  +0.15 |  -0.30 |  -0.08 |  +0.13 |  -0.93 |  -0.30 |  -0.47 | +0.000
+24 |  -0.72 |  -0.08 |  +0.25 |  -0.43 |  -0.18 |  +0.55 |  -1.73 |  -1.00 |  -0.92 | +0.000
+48 |  -1.15 |  -0.13 |  +0.34 |  -0.54 |  -0.33 |  +1.88 |  -2.88 |  -2.61 |  -1.00 | +0.000
 ```
 
 **Not a mirror image, and the asymmetries are the lesson:**
@@ -192,7 +192,7 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  6 |  +0.14 |  +0.04 |  -0.04 |  -0.01 |  +0.15 |  +0.20 |  +0.00 |  +0.00 |  +0.88 | +0.000
 12 |  +0.28 |  +0.10 |  -0.10 |  -0.07 |  +0.33 |  +0.57 |  +0.01 |  +0.01 |  +2.69 | +0.000
 24 |  +0.39 |  +0.18 |  -0.15 |  -0.19 |  +0.56 |  +1.24 |  +0.07 |  +0.06 |  +2.09 | +0.000
-48 |  +0.56 |  +0.31 |  -0.23 |  -0.23 |  +0.80 |  +2.25 |  +0.32 |  +0.23 |  +0.49 | +0.000
+48 |  +0.56 |  +0.31 |  -0.23 |  -0.23 |  +0.80 |  +2.27 |  +0.32 |  +0.23 |  +0.49 | +0.000
 ```
 
 1. **[peaks 3 months]** `tax_rate_effective` lands — withholding and settlement
@@ -217,8 +217,8 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  3 |  +1.23 |  +0.30 |  -0.32 |  +0.03 |  +0.14 |  +0.11 |  +0.01 |  +0.02 |  +0.74 | +0.000
  6 |  +1.29 |  +0.41 |  -0.42 |  +0.05 |  +0.17 |  +0.12 |  +0.03 |  +0.05 |  +1.45 | +0.000
 12 |  +1.36 |  +0.54 |  -0.47 |  +0.03 |  +0.24 |  +0.05 |  +0.15 |  +0.15 |  +2.18 | +0.000
-24 |  +1.45 |  +0.67 |  -0.49 |  -0.01 |  +0.35 |  -0.27 |  +0.55 |  +0.42 |  +0.74 | +0.000
-48 |  +1.67 |  +0.81 |  -0.53 |  +0.00 |  +0.50 |  -1.28 |  +1.54 |  +1.12 |  +0.32 | +0.000
+24 |  +1.45 |  +0.67 |  -0.49 |  -0.01 |  +0.35 |  -0.25 |  +0.55 |  +0.42 |  +0.74 | +0.000
+48 |  +1.67 |  +0.81 |  -0.53 |  +0.00 |  +0.50 |  -1.15 |  +1.54 |  +1.12 |  +0.32 | +0.000
 ```
 
 **The fastest lever you have.** +1.05 of output in the first month, because
@@ -241,8 +241,8 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  3 |  +2.50 |  +0.53 |  -0.53 |  +0.09 |  +0.28 |  -0.26 |  +0.01 |  +0.03 |  +1.49 | -0.009
  6 |  +2.73 |  +0.74 |  -0.69 |  +0.21 |  +0.37 |  -0.69 |  +0.06 |  +0.09 |  +3.04 | -0.018
 12 |  +3.19 |  +1.02 |  -0.77 |  +0.40 |  +0.58 |  -1.78 |  +0.28 |  +0.25 |  +5.01 | -0.035
-24 |  +3.97 |  +1.42 |  -0.81 |  +0.63 |  +0.97 |  -4.50 |  +1.12 |  +0.76 |  +2.77 | -0.067
-48 |  +4.75 |  +2.01 |  -0.87 |  +0.91 |  +1.49 | -11.29 |  +3.68 |  +2.21 |  +0.32 | -0.127
+24 |  +3.97 |  +1.42 |  -0.81 |  +0.63 |  +0.97 |  -4.46 |  +1.12 |  +0.76 |  +2.77 | -0.067
+48 |  +4.75 |  +2.01 |  -0.87 |  +0.91 |  +1.49 | -11.03 |  +3.68 |  +2.21 |  +0.32 | -0.127
 ```
 
 **Printing is spending.** It buys things in `aggregate.js` and cancels on the
@@ -271,7 +271,7 @@ mo | output | inflat | unemp  | invest | consum | debt   | assets | crgap  | app
  6 |  +0.04 |  +0.01 |  -0.01 |  +0.03 |  +0.01 |  -0.01 |  +0.11 |  +0.02 |  +0.02 | +0.000
 12 |  +0.10 |  +0.03 |  -0.03 |  +0.07 |  +0.02 |  -0.05 |  +0.35 |  +0.09 |  +0.09 | +0.000
 24 |  +0.19 |  +0.08 |  -0.07 |  +0.10 |  +0.06 |  -0.23 |  +0.87 |  +0.33 |  +0.19 | +0.000
-48 |  +0.35 |  +0.15 |  -0.12 |  +0.14 |  +0.13 |  -0.95 |  +1.81 |  +0.94 |  +0.20 | +0.000
+48 |  +0.35 |  +0.15 |  -0.12 |  +0.14 |  +0.13 |  -0.94 |  +1.81 |  +0.94 |  +0.20 | +0.000
 ```
 
 Deliberately weak per pound — 3.5 basis points off the yield per 1% of GDP
@@ -297,7 +297,7 @@ output rather than prices.
 | −8.10% | +0.76 | +0.08 | −0.13 | 0.91 |
 | −6.06% | +0.76 | +0.07 | −0.13 | 0.91 |
 | −3.98% | +0.69 | +0.07 | −0.11 | 0.91 |
-| −1.90% | +0.63 | +0.06 | −0.11 | 0.91 |
+| −1.90% | +0.62 | +0.06 | −0.11 | 0.91 |
 | +0.00% | +0.57 | +0.22 | −0.20 | 0.72 |
 | +1.98% | +0.61 | +0.12 | −0.06 | 0.83 |
 | +4.08% | +0.04 | +0.11 | −0.06 | 0.29 |
@@ -310,7 +310,7 @@ output rather than prices.
 | −8.10% | +1.97 | +0.23 | −0.36 | 0.90 |
 | −6.06% | +1.97 | +0.23 | −0.36 | 0.90 |
 | −3.98% | +2.05 | +0.22 | −0.15 | 0.90 |
-| −1.90% | +1.60 | +0.20 | −0.40 | 0.89 |
+| −1.90% | +1.59 | +0.20 | −0.40 | 0.89 |
 | +0.00% | +1.45 | +0.67 | −0.49 | 0.68 |
 | +1.98% | +1.56 | +0.33 | −0.11 | 0.82 |
 | +4.08% | −0.01 | +0.36 | −0.15 | −0.02 |
@@ -322,7 +322,7 @@ output rather than prices.
 |---|---|---|---|
 | −8.10% | +3.97 | +0.34 | 0.92 |
 | −6.06% | +4.01 | +0.38 | 0.91 |
-| −3.98% | +4.05 | +0.42 | 0.91 |
+| −3.98% | +4.04 | +0.42 | 0.91 |
 | −1.90% | +3.85 | +0.93 | 0.81 |
 | +0.00% | +3.97 | +1.42 | 0.74 |
 | +1.98% | +1.90 | +0.99 | 0.66 |
@@ -371,8 +371,8 @@ mo | Δoutput | Δmkt income | Δtax rev | Δtransfers | Δdisposable | Δdefici
  1 |   -5.24 |       -5.00 |    -0.54 |      +0.36 |       -4.10 |    -4.10 |       -5.00 |     0.18
  3 |   -6.36 |       -6.06 |    -1.30 |      +0.66 |       -4.10 |    -3.06 |       -5.00 |     0.32
  6 |   -7.03 |       -6.66 |    -1.86 |      +0.78 |       -4.02 |    -2.40 |       -5.00 |     0.40
-12 |   -8.17 |       -7.64 |    -2.34 |      +0.90 |       -4.39 |    -1.82 |       -5.00 |     0.42
-24 |   -9.92 |       -9.02 |    -2.84 |      +1.07 |       -5.11 |    -1.17 |       -5.00 |     0.43
+12 |   -8.17 |       -7.64 |    -2.34 |      +0.90 |       -4.39 |    -1.83 |       -5.00 |     0.42
+24 |   -9.92 |       -9.02 |    -2.84 |      +1.07 |       -5.11 |    -1.22 |       -5.00 |     0.43
 ```
 
 Four things are happening without anyone deciding anything:
@@ -386,7 +386,7 @@ Four things are happening without anyone deciding anything:
    OECD aggregate is ~60% with micro estimates of 32–47%; 43% is inside the
    range and `test/validation.test.js` checks it.
 4. **The headline deficit and the fiscal stance say opposite things.** The
-   deficit *improves* from −4.10 to −1.17 as the economy shrinks around it,
+   deficit *improves* from −4.10 to −1.22 as the economy shrinks around it,
    while the structural deficit sits at exactly −5.00 the whole time. Reading
    the headline number as your fiscal stance is a real-world mistake that this
    model will let you make and then punish you for.
@@ -494,10 +494,12 @@ held too long.
 **The rule wins, and the bill is enormous.** Inflation still peaks at 20.3% in
 month 16 before
 it turns, unemployment sits at 7.6% four years in, approval falls to 31, and
-the debt reaches 128% of GDP paying for it — because the rate the state is
-borrowing at is the rate the rule just set. The credit gap at −31 is a private
-sector that has stopped borrowing altogether. **It takes eight years and it
-costs a term.**
+the debt reaches 120% of GDP paying for it — because the rate the state is
+borrowing at is the rate the rule just set, and since 5.8 the market prices
+expected inflation into the long yield on top of it. The credit gap at −31 is a
+private sector that has stopped borrowing altogether, and at month 96 the
+regime box still reads OVERHEATING at 3.2%. **It takes more than eight years
+and it costs a term.**
 
 You get about a quarter in the STAGFLATION box before the answer becomes
 obvious and expensive. Beating it needs a Volcker move — a large, immediate

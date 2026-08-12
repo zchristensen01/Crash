@@ -61,12 +61,39 @@ export function updateBondYield(s, trace) {
   // a full programme — and it does not care where the policy rate is.
   s.qe_rate_relief = P.QE_TO_YIELD.value / 100 * s.qe_stock;
 
+  // THE EXPECTED AVERAGE SHORT RATE OVER TEN YEARS, NOT TODAY'S OVERNIGHT
+  // RATE [4th audit 5.8, open_items A4].
+  //
+  // This was `const expectedShort = s.policy_rate`, under a term labelled
+  // "expected path of the policy rate" — so a ten-year bond was a one-day bond
+  // with a term premium bolted on, and there was NO FISHER TERM ANYWHERE. That
+  // is fine while the central bank follows the Taylor principle, because the
+  // policy rate then contains inflation, and absurd the moment the rate is
+  // pegged — which is what several scenarios do. Measured before this change:
+  // `stagflation` at month 48 ran 152.54% inflation against a 3.12% yield, a
+  // real coupon of -147%; `overheating` at month 96 ran 380.50% inflation
+  // against a yield of exactly 0.00%. No bond market does that.
+  //
+  // The market prices a weighted average of where the rate IS and where it
+  // expects the rate to SETTLE. Where it settles is the neutral NOMINAL rate.
+  // AT THE STEADY STATE THOSE ARE THE SAME NUMBER — policy_rate = r* + target
+  // = 2.5, anchor = 0.5 + 2.0 = 2.5 — so the yield is 3.25 for any weight and
+  // the steady state is unmoved BY CONSTRUCTION. That is what avoids A4's
+  // trap: adding expected inflation as a separate term would double-count
+  // under a responding central bank, because START's 3.25 already assumes the
+  // policy rate carries it.
+  //
+  const anchor = s.neutral_real_rate + s.expected_inflation;
+  const w = P.YIELD_POLICY_RATE_WEIGHT.value;
   // lint-allow-dial: bond markets price the ANNOUNCED path of the policy rate, and
   // they price it the day it is announced. This is the one place in the model where
   // reading the slider directly is the correct economics rather than a leak.
-  const expectedShort = s.policy_rate;
+  const rateToday = w * s.policy_rate;
+  const rateSettled = (1 - w) * anchor;
+  const expectedShort = rateToday + rateSettled;
   const terms = {
-    'expected path of the policy rate': expectedShort,
+    'the rate today, and how long it is expected to last': rateToday,
+    'where the market expects rates to settle (r* + expected inflation)': rateSettled,
     'term premium (lending for 10 years)': s.term_premium,
     'bonds bought by the central bank (QE)': -s.qe_rate_relief,
     'government debt level': debtTerm,
@@ -81,6 +108,9 @@ export function updateBondYield(s, trace) {
     'floor at zero': s.yield_10y - rawYield,
   }, s.yield_10y, {
     risk_premium: s.risk_premium,
+    expected_average_short_rate: expectedShort,
+    neutral_nominal_anchor: anchor,
+    real_yield: s.yield_10y - s.expected_inflation,
     note: s.foreign_share < 0.4
       ? 'own currency, domestically held — the market is patient'
       : 'foreign-financed — this is where a country reprices suddenly',

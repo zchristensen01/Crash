@@ -332,10 +332,28 @@ function japan() {
 test('JAPAN: own-currency debt held at home does not reprice, and foreign-held does', () => {
   // BOND_YIELD_FOREIGN_MULTIPLIER's only test anywhere. It is the reason the
   // model can teach that high debt is neither always fine nor always fatal.
+  // ASSERTED ON THE RISK PREMIUM, NOT ON THE YIELD LEVEL [4th audit 5.8], and
+  // the reason is worth keeping. This used to require the yield stay under
+  // 2.0%, which it did only because the yield was priced entirely off today's
+  // overnight rate and Japan's is on the floor. 5.8 made the 10-year the
+  // expected AVERAGE short rate over ten years, which includes r* + expected
+  // inflation — so the yield now also carries an inflation expectation that
+  // THIS EPISODE SHOULD NOT HAVE. The model reaches 2.35% expected inflation
+  // by month 48 of a Japanese deflation, which is the known defect the very
+  // next test in this file records as a failing `todo`.
+  //
+  // That is a different channel from the one this test exists for. What it is
+  // about is OWNERSHIP: domestically-held debt carries no repricing penalty.
+  // So assert the risk premium, which is the only term ownership touches, and
+  // measure it against the pure debt-LEVEL term it should barely exceed.
   const domestic = japan();
-  assert.ok(domestic.peak('yield_10y').yield_10y < 2.0,
-    `the 10-year yield reached ${domestic.peak('yield_10y').yield_10y.toFixed(2)}% with ` +
-    `only 7% of the debt held abroad`);
+  const peakRisk = domestic.h.reduce((a, b) => (b.risk_premium > a ? b.risk_premium : a), 0);
+  const debtLevelTerm = P.BOND_YIELD_DEBT_SLOPE.value * (140 - P.SS_DEBT_GDP.value);
+  assert.ok(peakRisk < debtLevelTerm * 1.25,
+    `the risk premium reached ${peakRisk.toFixed(3)}pp with only 7% of the debt ` +
+    `held abroad, against a pure debt-level term of ${debtLevelTerm.toFixed(3)}pp. ` +
+    `Ownership is supposed to add almost nothing here — that is the whole of why ` +
+    `Japan can carry 250% and a periphery cannot carry 130%.`);
 
   // The same debt, held abroad, at the level where the nonlinearity bites.
   const at = (share) => {
