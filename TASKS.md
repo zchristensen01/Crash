@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-seven** corrections to the
+Recorded here and against the individual tasks. **Twenty-eight** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -125,6 +125,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 28 | Check (f)'s blind spot held a **fourth copy** of `CREDIT_GAP_WARNING`, promoted in 5.3 — the promotion left a copy behind and nothing could say so | closed by 5.11 |
 | 27 | **The `SOLVED_FROM_MODEL` guard could not report drift** — its only check lived in a `todo` that fails by design. Third instance of a guard answering a different question from the one it is read as answering | closed by 5.18 |
 | 26 | **`docs/11`'s fingerprint could be defeated by `--stamp`** — it hashes the MODEL, not the DOCUMENT, which is the mechanism behind Correction 13b | closed by 5.17 |
 | 25 | D2 undercounted: the demand bound was stated **three** times, not twice — the `govt_spending` dial's ceiling is check 8's third band | closed by 5.10 |
@@ -761,16 +762,34 @@ tasks, not notes — the pass found them and did not fix them.
       Table in `open_items` E10. **What remains uncovered is not a broken guard
       but an absent one — the numbers quoted in PROSE (E4 / 5.12).**
 
-- [ ] 5.11 Extend lint check (f)- [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
-      `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks
-      `src/rules/` only. **254 undeclared literals sit outside that scope:**
+- [x] 5.11 Extend lint check (f) — **the two files that decide the player's
+      fate are in** — `open_items` E6
+      **THE SCOPE DECISION IS MEASURED, NOT ASSUMED.** 253 literals sit outside
+      `src/rules/`, and the total was the wrong number to act on. Breakdown:
       `ui/chart.js` 53, `game/scenarios.js` **49**, `game/indicators.js` 42,
-      `invariants.js` **21**, `game/events.js` 16, `game/dials.js` 13.
-      Most of `ui/` is presentation and should stay out. The two that matter
-      are `scenarios.js` — DATA the model is calibrated against — and
-      `invariants.js`, which holds the bounds 5.10 is about. `game/events.js`
-      and `game/endings.js` decide what happens to the player.
-      **`test/` is a third scope**, and 5.7's hardcoded `0.06` is why it matters.
+      `invariants.js` 21, `game/events.js` **16**, `game/dials.js` 12,
+      `game/endings.js` **7**, and 34 across the rest.
+      **ADDED: `game/endings.js` and `game/events.js`** — where a bare number
+      decides what happens to the player, which is 5.3's own stated priority.
+      22 literals triaged, all named and labelled `judgement`, **none
+      promoted**, and the reasoning stated in place: an ending threshold is a
+      game-design decision about when the run stops being instructive, not an
+      estimate of anything. Putting `inflation > 25` in `parameters.py` with a
+      range and a citation would dress a design choice as a measurement.
+      **IT FOUND A FOURTH COPY OF A NUMBER 5.3 PROMOTED.** The bank wobble
+      scaled its severity from a bare `3.0` — the BIS warning line, i.e.
+      `CREDIT_GAP_WARNING`, which 5.3 promoted out of `credit.js` after finding
+      three copies. This file was out of scope and kept the fourth. Wired.
+      **STILL OUT, each with a reason recorded in `tools/lint.mjs`**: `ui/*` is
+      presentation; **`scenarios.js` is DATA** (six starting vectors — flagging
+      every field is noise, and its real guard is the consistency and regime
+      tests); `indicators.js` is display; `invariants.js` is float tolerances;
+      `dials.js` is layout. `test/` is a third scope and is **not obviously
+      safe** — 5.7 found a hardcoded `0.06` there asserting START against a
+      depreciation rate the model did not use.
+      **Behaviour-neutral, measured against the pre-change tree**: the same
+      hash over 48 event-driven runs (6 scenarios x 8 seeds, events and endings
+      on) — `6023a38db911ed38` before and after.
 
 - [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
       **Every generated artefact in this project has a `--check` and every

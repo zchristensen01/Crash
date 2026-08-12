@@ -20,6 +20,40 @@
  */
 import { P } from '../params.js';
 
+/**
+ * EVERY MAGNITUDE IN THIS FILE IS JUDGEMENT, AND THEY ARE NAMED SO THAT IS
+ * VISIBLE [4th audit 5.11]. Check (f)'s scope reaches this file because a bare
+ * number here decides how often the player is hit and how hard — which is the
+ * same class as an ending threshold, and 5.3's brief said to prioritise it.
+ *
+ * NOT in `parameters.py`, for the reason endings.js gives: an event's size and
+ * frequency are design decisions about the shape of a playthrough, not
+ * estimates of anything. Where a real quantity DOES inform one it is wired to
+ * the parameter instead — see the oil shock's conflict note and the bank
+ * wobble's use of CREDIT_GAP_WARNING below.
+ *
+ * `chance` is a PERCENT PER YEAR of the event firing.
+ */
+const OIL_SUPPLY_SHOCK_PP = 2.4;     // judgement — and CONFLICTS'd, see below
+const OIL_APPROVAL = 4;              // judgement
+const TECH_BOOM_CHANCE = 10;         // judgement
+const TECH_BOOM_TFP = 1.015;         // judgement: a 1.5% level gain in TFP
+const TECH_BOOM_APPROVAL = 3;        // judgement
+const WOBBLE_CHANCE = 15;            // judgement
+const WOBBLE_GAP_GATE = 5;           // judgement, see the gate's own note
+const WOBBLE_CAPITAL_GATE = 11;      // judgement, see the gate's own note
+const WOBBLE_SPREAD_PP = 0.8;        // judgement: per unit of severity
+const WOBBLE_APPROVAL = 6;           // judgement
+// judgement: the crash's on-impact hits. -30% on the asset index is inside the
+// 35-55% peak-to-trough of credit-financed housing busts that
+// FIRESALE_TOTAL_CAPACITY is sourced against, and deliberately below it —
+// this is the shock, and the fire-sale term supplies the rest over months.
+const CRASH_ASSET_MULT = 0.7;
+const CRASH_SPREAD_PP = 3.0;         // judgement
+const CRASH_APPROVAL = 15;           // judgement
+const SLUMP_NET_EXPORTS_PP = 1.2;    // judgement
+const SLUMP_APPROVAL = 4;            // judgement
+
 export const EVENTS = [
   {
     key: 'oil_shock',
@@ -38,8 +72,8 @@ export const EVENTS = [
       // disagreement is a finding to surface rather than a number to bend to
       // fit the model. Registered in parameters.py CONFLICTS['ENERGY_TO_CPI']
       // and asserted still-open by test/validation.test.js.
-      s.supply_shock += 2.4;
-      s.approval -= 4;
+      s.supply_shock += OIL_SUPPLY_SHOCK_PP;
+      s.approval -= OIL_APPROVAL;
     },
     text: 'Oil prices jump. Everything that moves costs more. Inflation is ' +
       'up and cooling it with rates would cost jobs — there is no clean ' +
@@ -48,11 +82,11 @@ export const EVENTS = [
   {
     key: 'tech_boom',
     name: 'Productivity boom',
-    chance: 10,
+    chance: TECH_BOOM_CHANCE,
     when: () => true,
     apply: (s) => {
-      s.tfp *= 1.015;
-      s.approval += 3;
+      s.tfp *= TECH_BOOM_TFP;
+      s.approval += TECH_BOOM_APPROVAL;
     },
     text: 'A wave of new technology lands. The country can genuinely make ' +
       'more now — which means more demand WITHOUT more inflation. This is ' +
@@ -61,8 +95,17 @@ export const EVENTS = [
   {
     key: 'bank_wobble',
     name: 'Bank wobble',
-    chance: 15,
-    when: (s) => s.credit_to_gdp_gap > 5 || s.bank_capital_ratio < 11,
+    chance: WOBBLE_CHANCE,
+    // judgement, both. The gate is "the system is already stretched", and it
+    // is deliberately LOOSER than the two sourced lines either side of it: 5pp
+    // of credit gap sits between CREDIT_GAP_WARNING (3) and the BIS danger
+    // line (9), and 11% of capital sits just ABOVE BANK_CAPITAL_MINIMUM (10.5)
+    // rather than at it — a bank does not wobble only once it has breached its
+    // floor. Wiring either to the sourced parameter would make the event fire
+    // exactly when the meter says danger, which is the wrong shape: the wobble
+    // is the warning, not the crisis.
+    when: (s) => s.credit_to_gdp_gap > WOBBLE_GAP_GATE ||
+                 s.bank_capital_ratio < WOBBLE_CAPITAL_GATE,
     // SCALED BY HOW STRETCHED THE SYSTEM ALREADY IS (docs/12 M3).
     //
     // A flat -1.0pp of capital was one of three shocks the player could not
@@ -77,12 +120,21 @@ export const EVENTS = [
     // the model's existing fragility gauge and the one crisis_prob already
     // uses. At trend credit this is exactly the event it always was.
     apply: (s) => {
+      // THE ZERO POINT IS CREDIT_GAP_WARNING, AND IT WAS A FOURTH COPY OF IT
+      // [4th audit 5.11]. This read a bare 3.0. That is the BIS warning line —
+      // the same number `updateCrisisRisk` subtracts before converting a gap
+      // into a probability, and the same one the credit-gap trace reports as
+      // `warning_at`. 5.3 promoted it out of credit.js to CREDIT_GAP_WARNING
+      // and found three copies there; this file was outside the check's scope
+      // until 5.11 and kept the fourth. Fragility now runs from the warning
+      // line to the danger line, in one number each.
       const fragility = Math.max(0, Math.min(1,
-        (s.credit_to_gdp_gap - 3.0) / P.CREDIT_GAP_CRISIS_THRESHOLD.value));
+        (s.credit_to_gdp_gap - P.CREDIT_GAP_WARNING.value) /
+        P.CREDIT_GAP_CRISIS_THRESHOLD.value));
       const severity = 1 + P.BANK_WOBBLE_FRAGILITY_GAIN.value * fragility;
-      s.credit_spread += 0.8 * severity;
+      s.credit_spread += WOBBLE_SPREAD_PP * severity;
       s.bank_capital_ratio -= 1.0 * severity;
-      s.approval -= 6;
+      s.approval -= WOBBLE_APPROVAL;
     },
     text: 'A mid-sized bank nearly fails. Nothing has broken yet, but ' +
       'lending just got more expensive and everyone is looking for the next ' +
@@ -108,9 +160,9 @@ export const EVENTS = [
       // baseline and score zero for it.
       s.crisis_spending_baseline = s.govt_spending + s.money_printed;
       s.potential_at_crisis = s.potential_output;
-      s.asset_prices *= 0.7;
-      s.credit_spread += 3.0;
-      s.approval -= 15;
+      s.asset_prices *= CRASH_ASSET_MULT;
+      s.credit_spread += CRASH_SPREAD_PP;
+      s.approval -= CRASH_APPROVAL;
     },
     text: 'THE CRASH. Asset prices collapse, borrowers go underwater, banks ' +
       'stop lending. Growth, jobs and inflation all looked fine right up ' +
@@ -129,7 +181,7 @@ export const EVENTS = [
       // the one demand component no rule recomputes, so the shock survives
       // the tick and the C+I+G identity still closes. It fades on
       // FOREIGN_DEMAND_SHOCK_HALFLIFE in aggregate.js.
-      s.net_exports -= 1.2;
+      s.net_exports -= SLUMP_NET_EXPORTS_PP;
       // The confidence leg, absorbed from the deleted `confidence_slump`
       // event (docs/12 M3). A trading partner falling into recession is
       // exactly the sort of news that dents household sentiment, and
@@ -141,7 +193,7 @@ export const EVENTS = [
       // inflating a contested coefficient to make an event detectable is the
       // one thing this project does not do.
       s.consumer_confidence -= 12;
-      s.approval -= 4;
+      s.approval -= SLUMP_APPROVAL;
     },
     text: 'Your biggest trading partner hits a recession and stops buying. ' +
       'Orders are down and people have started reading the news nervously.',

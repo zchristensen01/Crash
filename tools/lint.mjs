@@ -64,6 +64,53 @@ function strippedLines(src) {
 
 const SRC = walk(join(ROOT, 'src')).filter((f) => !f.endsWith('params.js'));
 const RULES = SRC.filter((f) => f.includes(`${'rules'}`));
+
+/**
+ * WHERE CHECK (f) LOOKS, AND WHY IT IS NOT EVERYWHERE [4th audit 5.11].
+ *
+ * 5.3 took `src/rules/` from 71 undeclared literals to zero and left everything
+ * else unpoliced, which is how `leverage_max`'s bare 1.35 survived to be found
+ * by 5.5 instead. Measured, **253 literals sit outside `src/rules/`** — but the
+ * total is the wrong number to act on, and the breakdown is:
+ *
+ *     53  ui/chart.js          42  game/indicators.js     10  ui/app.js
+ *     49  game/scenarios.js    21  invariants.js           9  game/session.js
+ *     16  game/events.js       12  game/dials.js           7  game/endings.js
+ *     ...and 34 more across rng, engine, units, state, clock, trace, widgets
+ *
+ * ADDED: `game/endings.js` and `game/events.js`. These are the two files where
+ * a bare number decides WHAT HAPPENS TO THE PLAYER — `inflation > 25` ends the
+ * game, `chance: 10` decides how often a shock arrives — and 5.3's own brief
+ * said to prioritise anything that decides an ENDING or a GATE.
+ *
+ * NOT ADDED, each for a different reason and each stated so nobody has to
+ * re-derive it:
+ *
+ *   ui/*  (72)                presentation. A chart's axis padding is not a
+ *                             coefficient and never will be.
+ *   game/scenarios.js (49)    DATA, not coefficients. Its numbers are six
+ *                             starting VECTORS; flagging every field would be
+ *                             pure noise, and their real guard is the
+ *                             internal-consistency and regime tests that
+ *                             already exist (docs/07 M6, rule 6).
+ *   game/indicators.js (42)   display thresholds and formatting.
+ *   invariants.js (21)        almost entirely float tolerances (1e-6, 1e-9),
+ *                             which are structural. Its one real band is now
+ *                             DEMAND_BOUNDS, named in 5.10.
+ *   game/dials.js (12)        dial ranges and steps, which ARE the player-
+ *                             facing layout rather than model coefficients —
+ *                             and `max: 50` is derived and documented at
+ *                             length in place (2.4, re-derived 5.9).
+ *   engine/rng/units/…        algorithmic constants: seeds, buffer lengths,
+ *                             months per year.
+ *
+ * `test/` is a third scope and is deliberately still out — but 5.7 found a
+ * hardcoded `0.06` in `test/params.test.js` asserting the START vector against
+ * a depreciation rate the model did not use, so it is not obviously safe. See
+ * open_items E6.
+ */
+const LITERAL_SCOPE = SRC.filter((f) =>
+  f.includes(`${'rules'}`) || f.endsWith('endings.js') || f.endsWith('events.js'));
 const read = (f) => readFileSync(f, 'utf8');
 
 // ---------------------------------------------------------------------
@@ -269,7 +316,7 @@ for (const f of SRC) {
   // rather than in one line — `.*$` without /m only matches at end of string,
   // which silently found nothing whenever the marker was not the last line.
   const MARKER = /\/\/\s*lint-allow-literal:\s*(.*)$/m;
-  for (const f of RULES) {
+  for (const f of LITERAL_SCOPE) {
     const raw = read(f).split('\n');
     const src = strippedLines(read(f));
     let inTrace = 0;
@@ -345,4 +392,5 @@ if (problems.length) {
   for (const p of problems) console.error(`  ${p}\n`);
   process.exit(1);
 }
-console.log(`lint: clean (${SRC.length} files, 6 checks)`);
+console.log(`lint: clean (${SRC.length} files, 6 checks; ` +
+            `${LITERAL_SCOPE.length} in the literal scope)`);

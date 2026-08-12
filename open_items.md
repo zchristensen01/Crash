@@ -810,34 +810,42 @@ correct approach is to wrap the autopilot and record `taylorRate(s)` at source.
 Anyone measuring a truncation needs to know this before they start, which is
 why it is here and not only in a commit message.
 
-### E6. Lint check (f) walks `src/rules/` only, and 254 literals sit outside it — `OPEN`
-5.3 took `src/rules/` from 71 undeclared numeric literals to zero. Everywhere
-else in `src/` is unpoliced, and that is how `leverage_max`'s bare `1.35`
-survived to be found by 5.5 instead:
+### E6. Lint check (f) walked `src/rules/` only — `PARTIAL: the two files that decide the player's fate are in`
+5.3 took `src/rules/` to zero undeclared literals and left everything else
+unpoliced, which is how `leverage_max`'s bare 1.35 survived to be found by 5.5.
+**253 sit outside it**, and the breakdown is what the scope decision needed:
 
-```
-node tools/lint.mjs      # clean — and it never looks at src/game/ or src/ui/
-```
+| | | | |
+|---|---|---|---|
+| `ui/chart.js` 53 | `game/scenarios.js` **49** | `game/indicators.js` 42 | `invariants.js` 21 |
+| `game/events.js` **16** | `game/dials.js` 12 | `ui/app.js` 10 | `game/session.js` 9 |
+| `game/endings.js` **7** | and 34 more across rng, engine, units, state, clock, trace, widgets | | |
 
-| file | literals |
-|---|---|
-| `src/ui/chart.js` | 53 |
-| `src/game/scenarios.js` | **49** |
-| `src/game/indicators.js` | 42 |
-| `src/invariants.js` | **21** |
-| `src/game/events.js` | 16 |
-| `src/game/dials.js` | 13 |
-| everything else | 60 |
+**5.11 added `game/endings.js` and `game/events.js`** — the two files where a
+bare number decides WHAT HAPPENS TO THE PLAYER, which is 5.3's own stated
+priority. 22 literals triaged; all named and labelled `judgement`, none
+promoted, and the reasoning is in place: **an ending threshold is a game-design
+decision about when the run stops being instructive, not an estimate of
+anything in the world.** Putting `inflation > 25` in `parameters.py` with a
+range and a citation would dress a design choice as a measurement.
 
-Most of `ui/` is presentation and does not want a source. **The two that
-matter are `scenarios.js` and `invariants.js`**: the first is DATA the model is
-calibrated against and whose vectors 4.3 had to re-derive, and the second holds
-the bounds that `updateConsumption` and `updateInvestment` deliberately
-duplicate (D2). `game/events.js` and `game/endings.js` decide what happens to
-the player. Extending the check needs a scope decision — probably `src/game/`
-in and `src/ui/` out — and a triage the size of 5.3's.
+**It found a fourth copy of a number 5.3 had promoted.** `events.js`'s bank
+wobble scaled its severity from a bare `3.0` — the BIS warning line, i.e.
+`CREDIT_GAP_WARNING`, which 5.3 promoted out of `credit.js` after finding three
+copies. This file was outside the check's scope and kept the fourth. Now wired.
 
-### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
+**STILL OUT, each for a stated reason** (in `tools/lint.mjs`, so nobody
+re-derives it): `ui/*` is presentation; **`game/scenarios.js` is DATA** — six
+starting vectors, where flagging every field would be noise and the real guard
+is the internal-consistency and regime tests; `game/indicators.js` is display
+thresholds; `invariants.js` is almost entirely float tolerances; `game/dials.js`
+is player-facing layout; `engine`/`rng`/`units` are algorithmic.
+
+**`test/` is a third scope and is NOT obviously safe to leave out** — 5.7 found
+a hardcoded `0.06` in `test/params.test.js` asserting the START vector against
+a depreciation rate the model did not use.
+
+### E5. `updateCreditSpread` is two-thirds judgement### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
 Surfaced by 5.3's literal sweep rather than fixed by it. Four of the six terms
 in the credit spread are judgement with no source — the weights on leverage
 (0.8), on collateral (0.5), on realised defaults (0.3) and the 30%/month

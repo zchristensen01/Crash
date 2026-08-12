@@ -42,7 +42,7 @@ that only showed the passing parts would be marketing.
 | Linter | **clean** |
 
 ```
-lint: clean (40 files, 6 checks)
+lint: clean (40 files, 6 checks; 15 in the literal scope)
 ```
 
 ---

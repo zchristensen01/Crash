@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-seven corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-eight corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1486,6 +1486,54 @@ erosion in `money.js` are the two that most need a source.
 > Every register and tripwire in this project now deserves the question **what
 > would have to be true for this to pass while the thing it guards is
 > broken?** — asked deliberately rather than discovered.
+
+> #### As built — 5.11, and the scope decision is the deliverable.
+>
+> ### CORRECTION 28 — the check's blind spot held a FOURTH copy of a number 5.3 had just promoted.
+>
+> 5.3 took `src/rules/` to zero undeclared literals and found, among other
+> things, three copies of the BIS warning line — promoted to
+> `CREDIT_GAP_WARNING`. `game/events.js` was outside the check's scope and kept
+> the fourth: the bank wobble scaled its severity from a bare `3.0`. So the
+> promotion in 5.3 left a copy behind, and nothing could have said so.
+>
+> **The scope decision is measured rather than assumed.** 253 literals sit
+> outside `src/rules/`, and the total is the wrong number to act on:
+>
+> | | | | |
+> |---|---|---|---|
+> | `ui/chart.js` 53 | `game/scenarios.js` **49** | `game/indicators.js` 42 | `invariants.js` 21 |
+> | `game/events.js` **16** | `game/dials.js` 12 | `ui/app.js` 10 | `game/endings.js` **7** |
+>
+> **In: `endings.js` and `events.js`** — the two files where a bare number
+> decides what happens to the player. That is 5.3's own stated priority
+> ("prioritise anything that decides an ENDING or a GATE") applied to the files
+> 5.3 could not see.
+>
+> **NONE OF THE 22 WAS PROMOTED TO `parameters.py`, AND THAT IS THE POINT.** An
+> ending threshold is a GAME DESIGN decision about when a run stops being
+> instructive, not an estimate of anything in the world. `inflation > 25` with
+> a range and a citation would dress a design choice as a measurement — the
+> same error one level down that `SOLVED_FROM_MODEL` exists to prevent. They
+> are named and labelled `judgement` where the decision lives, with the real
+> numbers that inform them stated: Cagan's 50%/month, US 1933's 25%
+> unemployment, and the debt-crisis CONJUNCTION, where 200% alone is Japan and
+> a 12% yield alone is a periphery repricing, and only both together is the
+> trap.
+>
+> **Out, each with the reason recorded in `tools/lint.mjs` so nobody
+> re-derives it**: `ui/*` is presentation; `scenarios.js` is DATA — six
+> starting VECTORS, where flagging every field would be noise and the real
+> guard is the internal-consistency and regime tests that already exist;
+> `indicators.js` is display thresholds; `invariants.js` is almost entirely
+> float tolerances; `dials.js` is player-facing layout.
+>
+> **`test/` is a third scope and is NOT obviously safe to leave out**, which is
+> worth saying plainly: 5.7 found a hardcoded `0.06` in `test/params.test.js`
+> asserting the START vector against a depreciation rate the model did not use.
+>
+> Behaviour-neutral, measured against the pre-change tree rather than asserted:
+> the same hash over 48 event-driven runs, `6023a38db911ed38` before and after.
 
 **5.4 — Derive the credit trend speed (D2).**
 `trendSpeed = 0.20` is an unnamed literal with a half-life of 41.6 months. The
