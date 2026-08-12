@@ -11,11 +11,23 @@ number from any document.
 `[ ]` todo `[~]` in progress `[x]` done `[-]` deliberately not doing
 
 **COVERAGE INVARIANT: every `OPEN` or `PARTIAL` entry in `open_items.md` has a
-numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
-A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
-D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5, E7→5.15, E8→5.16, E9→5.17, E10→5.18, E11→5.19. The entries with no task are the ones that want none: `FIXED` (A4,
-A5, B1, D1, D2, E1, E2, E8, E9, E10, E11), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+numbered task here.** Re-checked at the Phase 5 handoff.
+
+| still open | task | | still open | task |
+|---|---|---|---|---|
+| A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
+| **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
+| A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
+| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose has no check | 5.12 |
+| **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
+| B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
+| B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
+| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
+
+The entries with no task are the ones that want none: **`FIXED`** (A4, A5, B1,
+D1, D2, E1, E2, E8, E9, E10, E11), **`WATCH`** (D3, D5, E3) and
+**`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
+
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -833,6 +845,22 @@ tasks, not notes — the pass found them and did not fix them.
       the tool for the current value.
 
 
+**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 168 tests, 152
+pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
+scope), `index.html` current, `docs/11` current with its **tables verified cell
+by cell** and its fingerprint stamped, `TEST-RESULTS.md` byte-stable, steady
+state exact to 9dp (`0.000000000 / 2.000000000 / 55.500000000`), K/Y 2.999923,
+divergence guard 2/2, 145 parameters.
+
+**Done:** 5.2–5.19 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
+on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
+rides on it. **Not started:** 5.12–5.15.
+
+**Phase 6 was unblocked by the Phase 4 gate and 6.6 by 5.4. But read A7 first**
+— `overheating`'s central lesson sits 0.6pp of demand from a bifurcation at
+`MAX_CAPACITY_OVERHEAT`, and 6.1's macroprudential dial is calibrated against
+scenario paths that move if 11.5 changes that threshold's shape.
+
 ## Phase 6 — What to add
 
 - [ ] 6.1 Macroprudential dial: the countercyclical capital buffer
@@ -1083,12 +1111,14 @@ moves too little for the price change that caused it.*
       and 6 add still needs it — `docs.test.js` fails until they do.
 - [ ] 10.6 Add `docs/00`'s fourth revisions section
 - [ ] 10.7 Update `docs/09`
-- [ ] 10.8 Fix `README.md`'s counts
-      **DONE ONCE ALREADY** (121→128 parameters, "95 tests, three todo"→"145
-      tests, fourteen todo"). Both have drifted again since — currently **144
-      parameters and 162 tests, 16 todo**. Redo at the end rather than chasing
-      it, and note the README mentions neither `tools/build.mjs --check` nor
-      `tools/cause-effect.mjs --check`, which are two of the three tripwires.
+- [x] 10.8 Fix `README.md`'s counts
+      **DONE, at the Phase 5 handoff.** 130→**145 parameters**, 158→**168
+      tests**, "seventeen todo"→**sixteen**, and the tools row now names all
+      FOUR tripwires (`lint.mjs`, `build --check`, `cause-effect --check`,
+      `sys.dont_write_bytecode`) where it previously named none of them. It has
+      drifted three times; the counts are cheap to re-check with
+      `node tools/report.mjs` and a grep, so redo it at the next handoff rather
+      than per task.
 - [ ] 10.9 Update `parameters.py`
       **PARTLY DONE:** `RATE_PASSTHROUGH_TO_BORROWERS` and
       `INVESTMENT_ADJUSTMENT_SPEED` added with range/confidence/source;

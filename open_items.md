@@ -427,8 +427,8 @@ apc_bondholder = (apc_ss − HAND_TO_MOUTH_SHARE) / (1 − HAND_TO_MOUTH_SHARE)
 
 with no new parameter and the steady state closing exactly (`apc_ss` re-derived
 to 0.692945 by solving `C = apc_ss·(YD − interest) + apc_bondholder·interest`).
-It went back on the shelf only because it rides on 5.1, which A4 blocks. **When
-A4 lands, 5.5 gets this for free.** Do not invent a different wiring.
+**It rides on task 5.1**, which A4 was thought to block and **A6** actually
+blocks. Do not invent a different wiring.
 
 **5.5 HAS NOW RUN, and it made the deferral honest rather than accidental.**
 The parameter was read in exactly one place — `consumption.js:104`, inside
