@@ -22,12 +22,12 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 | B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
-| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | **E14 two A2 cells have no producer** | **5.22** |
+| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13), **`WATCH`** (D3, D4, D5,
+A5, B1, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
 E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
-**Sixteen `OPEN`/`PARTIAL` entries, sixteen tasks.** D4 was missing from this
+**Fifteen `OPEN`/`PARTIAL` entries, fifteen tasks.** D4 was missing from this
 accounting until 5.12's handoff check enumerated the statuses rather than
 reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
 legs.
@@ -118,7 +118,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-two** corrections to the
+Recorded here and against the individual tasks. **Thirty-three** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -141,6 +141,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 33 | **Two of A2's five cells had no producer** — propagation and the rebound share were quoted in four places each and computed by nothing. Measured: 3.8202% and 38.68%, so nothing had drifted; the point is that nothing could have said so | closed by 5.22 |
 | 32 | **The plan's two candidate prose sweeps were measured and both are dead ends** — 97 sites/55 false positives, or 1 site. The class that rots is MEASURED QUANTITIES, which sit nowhere near a parameter name, so the citation must be declared. It then found TASKS' own Phase 11 table four cells stale | closed by 5.12 |
 | 31 | **`docs/11`'s own flag understated its staleness**: it said the `debt_trap` policy table's "do-nothing row alone has moved" — four of five had, and `rate to the floor` had changed OUTCOME while the prose drew a lesson from it | closed by 5.21 |
 | 30 | **5.17's scope decision was wrong the same way, one task further on**: "7 tables verified" meant seven ***fenced*** tables and docs/11 has **twelve** measured blocks. The other five were unchecked and **58 cells were stale** while the fingerprint was correct | closed by 5.20 |
@@ -998,7 +999,7 @@ tasks, not notes — the pass found them and did not fix them.
       168 → **170 tests**, 154 pass, 0 fail, 16 todo. `TEST-RESULTS.md`
       regenerated and verified byte-identical across two runs.
 
-- [ ] 5.22 Two of A2's five cells are quoted four times and produced by nothing
+- [x] 5.22 Two of A2's five cells are quoted four times and produced by nothing
       — `open_items` E14
       Found by 5.12 while building the register. **Endogenous crisis
       propagation (3.82) and the post-crisis rebound share (39%) are computed
@@ -1015,9 +1016,26 @@ tasks, not notes — the pass found them and did not fix them.
       then register the citations as 5.12 did.
       **Do not copy 3.82 or 39% into a test to make it pass.** Measure; if the
       measurement disagrees with them, that is the finding.
+      **AS BUILT — MEASURED, AND THEY REPRODUCE.** `endogenousPropagation()` and
+      `reboundShare()` in `crisis.test.js`, each with a `withParams` save/restore
+      and the experiment stated in its own header. Propagation with
+      `CRISIS_HYSTERESIS_SCAR = 0`: **3.8202%** of the published 10, against a
+      quoted 3.82. Rebound with `ASSET_PRICE_CREDIT_CHANNEL` and `WEALTH_EFFECT`
+      both 0: trough **−6.4266** at m21, **2.4861pp** comes back by m120,
+      **38.68%** of the trough — against a quoted −6.43 / 2.49 / 39%.
+      **NOTHING HAD DRIFTED, AND THAT IS NOT THE POINT.** Until now nothing
+      could have said so, which is the whole of 5.21's lesson: `debt_trap`'s
+      table also looked fine and was wrong in four rows and one outcome.
+      **Eight citation sites registered** — propagation in five places (two
+      `todo` messages in `crisis.test.js`, `params.test.js`'s
+      `SOLVED_FROM_MODEL` header comment, `open_items` A2, TASKS Phase 11), the
+      rebound in three. Both failure modes verified on the new sites.
+      **HARD TESTS, NOT ADDITIONS TO THE `todo`s that quote them** — those fail
+      by design, so a check inside them reports nothing (E10 again).
+      170 → **172 tests**, 156 pass, 0 fail, 16 todo.
 
 
-**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 170 tests, 154
+**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 172 tests, 156
 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
 scope), `index.html` current, `docs/11` current with **all twelve of its
 measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
@@ -1033,7 +1051,7 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.13, 5.14, 5.15 and **5.22**.
+rides on it. **Not started:** 5.13, 5.14, 5.15.
 **5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
 5 handoff, and between them `docs/11` now has **no numeric block that a tool
 does not generate and check**: 8 fenced tables, 453 cells across 21 pipe

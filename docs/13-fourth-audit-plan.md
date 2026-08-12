@@ -1914,6 +1914,42 @@ not count.**
 > 168 → **170 tests**, 154 pass, 0 fail, 16 todo. `TEST-RESULTS.md` regenerated
 > and byte-identical across two runs. No rule and no parameter moved.
 
+> #### As built — 5.22, and the numbers were right.
+>
+> ### CORRECTION 33 — two of A2's five cells had no producer, and A2 is the largest finding in the audit.
+>
+> `open_items` A2 is stated as a table of five sightings. Three are measured by
+> tests. **Two were measured by nothing**: the endogenous crisis propagation
+> (3.82) and the post-crisis rebound share (39%) were taken out-of-band, typed
+> into two `todo` messages, and copied from there into `params.test.js`,
+> `open_items` A2 and `TASKS.md`'s Phase 11 table — four sites each, no code,
+> no recorded experiment.
+>
+> **Measured, and they reproduce:**
+>
+> | | measured | quoted |
+> |---|---|---|
+> | propagation, `CRISIS_HYSTERESIS_SCAR = 0` | **3.8202%** | 3.82 |
+> | rebound trough, both amplifiers off | **−6.4266** at m21 | −6.43 |
+> | …recovered by m120 | **2.4861pp** | 2.49 |
+> | …share of the trough | **38.68%** | 39% |
+>
+> **NOTHING HAD DRIFTED, AND THE TASK IS NOT THEREFORE POINTLESS.** That
+> conclusion is available only after the measurement, which is the entire
+> argument: `debt_trap`'s policy table also looked fine, had also been flagged
+> as "not re-measured", and turned out to be wrong in four rows and one
+> outcome. A number with no reproduction is not *probably fine*, it is
+> *unknown*, and these two are load-bearing for the finding that blocks 5.1 and
+> motivates the whole of Phase 11. **11.1 is about to move the demand block;
+> these cells are how anyone will know by how much.**
+>
+> Both are HARD tests, not additions to the `todo`s that quote them — those
+> fail by design, so a check inside them reports `not ok … # TODO` either way.
+> That is E10 for the third time in this phase, and obeying it cost nothing
+> because 5.18 had already written down what to do.
+>
+> 170 → **172 tests**, 156 pass, 0 fail, 16 todo. No rule or parameter moved.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

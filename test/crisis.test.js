@@ -20,6 +20,7 @@ import { P } from '../src/params.js';
 import { EVENTS } from '../src/game/events.js';
 import { SCENARIOS } from '../src/game/scenarios.js';
 import { world, advance, dial } from './harness.mjs';
+import { citedIn } from './citations.mjs';
 
 const CRASH = EVENTS.find((e) => e.key === 'financial_crisis');
 
@@ -474,4 +475,89 @@ test('WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was', () =>
   assert.ok(bubble.troughM > calm.troughM,
     `the credit-intensive bust bottoms at month ${bubble.troughM} and the calm one at ` +
     `${calm.troughM} — JST find them longer as well as deeper`);
+});
+
+/**
+ * THE TWO CELLS OF A2 THAT NOTHING PRODUCED [4th audit 5.22, open_items E14].
+ *
+ * `open_items` A2 is the largest finding in this audit — every real quantity
+ * moves too little for the price change that caused it — and it is stated as a
+ * table of five sightings. Three of them are measured by tests. TWO WERE NOT
+ * MEASURED BY ANYTHING: the endogenous crisis propagation (3.82) and the
+ * post-crisis rebound share (39%) were taken out-of-band, typed into the two
+ * `todo` messages above, and copied from there into `params.test.js`,
+ * `open_items` A2 and `TASKS.md`'s Phase 11 table — four places each, no
+ * producer, and no recorded experiment.
+ *
+ * That is the same defect as `debt_trap`'s policy table (5.21): a number with
+ * no reproduction cannot be re-run by anyone who was not there, so nobody can
+ * tell whether it has drifted. It had gone unnoticed in that table for two
+ * audits and four of five rows were wrong by the time it was checked.
+ *
+ * MEASURED HERE, AND THEY REPRODUCE — 3.8202 and 38.68%, against 3.82 and 39%.
+ * Nothing had drifted; the point is that until now nothing could have said so.
+ *
+ * HARD TESTS ON PURPOSE. The obvious place for these is inside the `todo`s
+ * that quote them, and that is exactly where they must not go: those `todo`s
+ * fail by design, so a check living there reports `not ok … # TODO` whether
+ * the numbers agree or not. That is open_items E10, found in 5.18 and not to
+ * be rediscovered.
+ */
+function withParams(overrides, fn) {
+  const saved = {};
+  for (const k of Object.keys(overrides)) { saved[k] = P[k].value; P[k].value = overrides[k]; }
+  try { return fn(); } finally { for (const k of Object.keys(saved)) P[k].value = saved[k]; }
+}
+
+/**
+ * The share of Cerra & Saxena's 10% five-year loss the model generates BY
+ * ITSELF, with the exogenous scar switched off entirely. This is the residual
+ * that 4.2 identified as the only real evidence in the crash arc: the trough
+ * cannot fail on magnitude, because CRISIS_IMPULSE_AMPLIFICATION is defined as
+ * whatever makes it hold, but nothing pins this.
+ */
+function endogenousPropagation() {
+  return withParams({ CRISIS_HYSTERESIS_SCAR: 0 }, () => -crashArc({ months: 60 }).vsTrend[60]);
+}
+
+/**
+ * How much of the trough comes back with BOTH amplifiers off — the collateral
+ * channel and the wealth effect. 4.4's isolating experiment, and the reason
+ * open_items #1 is a demand-block finding rather than a Section B one: the
+ * rebound survives removing the whole of Section B.
+ */
+function reboundShare() {
+  return withParams({ ASSET_PRICE_CREDIT_CHANNEL: 0, WEALTH_EFFECT: 0 }, () => {
+    const r = crashArc({ months: 120 });
+    const trough = Math.min(...Object.values(r.vsTrend));
+    return (trough - r.vsTrend[120]) / trough * 100;
+  });
+}
+
+test('MEASURED: the endogenous share of the crisis loss, and everywhere that quotes it', () => {
+  const v = endogenousPropagation();
+  console.log(`  with CRISIS_HYSTERESIS_SCAR = 0 the model produces ${v.toFixed(4)}% of the ` +
+    `${P.CRISIS_HYSTERESIS_SCAR.value}% five-year loss by itself (8.4% before Phase 2)`);
+  citedIn('the endogenous share of the crisis loss', v.toFixed(2), [
+    { file: 'test/crisis.test.js', near: /produces [\d.]+%\. THE MODEL NO LONGER PROPAGATES/,
+      what: "the five-year-loss todo" },
+    { file: 'test/crisis.test.js', near: /and now produces [\d.]+% \(this message said/,
+      what: "the deconvolution todo" },
+    { file: 'test/params.test.js', near: /it fell from 8\.4% to [\d.]+%/,
+      what: "SOLVED_FROM_MODEL's header comment" },
+    { file: 'open_items.md', near: /^\| endogenous crisis propagation \|/, what: "A2's table" },
+    { file: 'TASKS.md', near: /^\| endogenous crisis propagation \|/, what: "Phase 11's table" },
+  ]);
+});
+
+test('MEASURED: the rebound share with both amplifiers off, and everywhere that quotes it', () => {
+  const v = reboundShare();
+  console.log(`  collateral channel and wealth effect both off: ${v.toFixed(2)}% of the trough ` +
+    `comes back by month 120`);
+  citedIn('the post-crisis rebound share with both amplifiers off', `${Math.round(v)}%`, [
+    { file: 'test/crisis.test.js', near: /[\d]+% of the trough recovered with both amplifiers/,
+      what: "the rebound todo" },
+    { file: 'open_items.md', near: /^\| post-crisis rebound \|/, what: "A2's table" },
+    { file: 'TASKS.md', near: /^\| post-crisis rebound \|/, what: "Phase 11's table" },
+  ]);
 });

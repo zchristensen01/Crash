@@ -1174,7 +1174,7 @@ is the anchor silently ceasing to match. Both modes verified.
 crisis propagation and the post-crisis rebound — are produced by nothing at
 all, so there was no measurement to register them against.
 
-### E14. Two of A2's five cells are quoted four times each and produced by nothing — `OPEN`, task 5.22
+### E14. Two of A2's five cells were quoted four times each and produced by nothing — `FIXED in 5.22`
 Found by 5.12 while building the citation register: they could not be
 registered, because there was nothing to register them against.
 
@@ -1202,6 +1202,27 @@ exogenous scar at all; the rebound with the collateral channel and the wealth
 effect both switched off. **Do not copy 3.82 or 39% into a test to make it
 pass** — measure, and if the measurement disagrees with them, that is the
 finding and A2's table moves.
+
+**FIXED in 5.22, AND THEY REPRODUCE.** `endogenousPropagation()` and
+`reboundShare()` in `crisis.test.js`, each stating its experiment in its own
+header, each a HARD test rather than an addition to the `todo` that quotes it
+(E10 again — those `todo`s fail by design):
+
+| | measured | was quoted as |
+|---|---|---|
+| propagation, `CRISIS_HYSTERESIS_SCAR = 0` | **3.8202%** | 3.82 |
+| rebound trough, both amplifiers off | **−6.4266** at m21 | −6.43 |
+| …comes back by m120 | **2.4861pp** | 2.49 |
+| …share of the trough | **38.68%** | 39% |
+
+**Nothing had drifted, and that is not the point.** `debt_trap`'s policy table
+looked fine too, and was wrong in four rows and one outcome. Eight citation
+sites are registered, so the next time the demand block moves — which is what
+11.1 exists to do — these two cells cannot go quiet.
+
+```
+node --test test/crisis.test.js 2>&1 | grep MEASURED
+```
 
 ### E3. Generated artefacts are gitignored, so staleness is local-only — `WATCH`
 `index.html` and `src/params.js` are both generated and both gitignored. That is
