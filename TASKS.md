@@ -14,8 +14,8 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5, E7→5.15, E8→5.16, E9→5.17, E10→5.18. The entries with no task are the ones that want none: `FIXED` (A4,
-A5, B1, D1, D2, E1, E2, E8, E9, E10), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+B8→5.14, A7→11.5, E7→5.15, E8→5.16, E9→5.17, E10→5.18, E11→5.19. The entries with no task are the ones that want none: `FIXED` (A4,
+A5, B1, D1, D2, E1, E2, E8, E9, E10, E11), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-eight** corrections to the
+Recorded here and against the individual tasks. **Twenty-nine** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -125,6 +125,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 29 | **5.11's own scope decision was wrong one task later**: `indicators.js` held copies **five and six**, and named a danger line in prose it did not use | closed by 5.19 |
 | 28 | Check (f)'s blind spot held a **fourth copy** of `CREDIT_GAP_WARNING`, promoted in 5.3 — the promotion left a copy behind and nothing could say so | closed by 5.11 |
 | 27 | **The `SOLVED_FROM_MODEL` guard could not report drift** — its only check lived in a `todo` that fails by design. Third instance of a guard answering a different question from the one it is read as answering | closed by 5.18 |
 | 26 | **`docs/11`'s fingerprint could be defeated by `--stamp`** — it hashes the MODEL, not the DOCUMENT, which is the mechanism behind Correction 13b | closed by 5.17 |
@@ -790,6 +791,30 @@ tasks, not notes — the pass found them and did not fix them.
       **Behaviour-neutral, measured against the pre-change tree**: the same
       hash over 48 event-driven runs (6 scenarios x 8 seeds, events and endings
       on) — `6023a38db911ed38` before and after.
+
+- [x] 5.19 A gauge held copies five and six, and named a line it did not use — `open_items` E11
+      **5.11's scope decision was wrong for `indicators.js`, one task after
+      making it.** 5.11 called the file "display thresholds and formatting";
+      its own header opens *"The band thresholds are economics"*, and it was
+      right. The credit-gap gauge held a bare `3` in **both** its `verdict` and
+      its `band` — `CREDIT_GAP_WARNING`, which 5.3 promoted after finding three
+      copies and 5.11 found a fourth. **Copies five and six, in the file the
+      player looks at.**
+      **Worse than a copy:** the danger line was hardcoded in player-facing
+      prose as *"PAST THE 9pp DANGER LINE"* while the band beside it read the
+      parameter. Move `CREDIT_GAP_CRISIS_THRESHOLD` and the gauge would colour
+      itself against the new value and tell the player the old one. Same for
+      "2% is the goal" against `SS_INFLATION_TARGET`. All interpolate now.
+      **THE GUARD IS A TEST, NOT A LINT RULE.** The file's other 24 literals
+      are verdict cuts, ranges and trend epsilons — a data table of display
+      bands, like `scenarios.js`. Naming them would wreck the one file whose
+      job is legibility, and check (f) would have caught the 24 that are fine
+      while missing the point. What matters is not a bare number; it is **a
+      number the model also holds, written out twice.** So the test walks the
+      band function across its boundaries and compares where it changes against
+      the parameters — the 5.10 `DEMAND_BOUNDS` pattern.
+      Both modes verified: a seventh copy is caught, and a parameter moving
+      while the prose does not is caught.
 
 - [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
       **Every generated artefact in this project has a `--check` and every

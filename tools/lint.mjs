@@ -109,6 +109,20 @@ const RULES = SRC.filter((f) => f.includes(`${'rules'}`));
  * a depreciation rate the model did not use, so it is not obviously safe. See
  * open_items E6.
  */
+// `game/indicators.js` IS STILL OUT, AND 5.11's REASON FOR IT WAS WRONG.
+// 5.11 called it "display thresholds and formatting". Its own header opens
+// "The band thresholds are economics", which is correct — and measured, it held
+// COPIES FIVE AND SIX of CREDIT_GAP_WARNING plus a player-facing "9pp"
+// hardcoded next to a band that read the parameter.
+//
+// But putting it in this check is the wrong instrument. Its 24 remaining
+// literals are verdict cuts, chart ranges and trend epsilons — a DATA TABLE of
+// display bands, like `scenarios.js`, and naming 24 constants would make the
+// one file whose job is legibility unreadable. What the file actually needs is
+// the guard 5.10 used for DEMAND_BOUNDS: assert that where a gauge shows a
+// threshold the model also holds, THE TWO ARE THE SAME NUMBER. That test is in
+// test/docs.test.js and it catches copy seven; this check would only have
+// caught the twenty-four that are fine.
 const LITERAL_SCOPE = SRC.filter((f) =>
   f.includes(`${'rules'}`) || f.endsWith('endings.js') || f.endsWith('events.js'));
 const read = (f) => readFileSync(f, 'utf8');

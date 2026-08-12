@@ -810,6 +810,39 @@ correct approach is to wrap the autopilot and record `taylorRate(s)` at source.
 Anyone measuring a truncation needs to know this before they start, which is
 why it is here and not only in a commit message.
 
+### E11. A player-facing gauge held copies FIVE and SIX of a promoted parameter, and named a threshold it did not use — `FIXED in 5.19`
+**5.11's scope decision was wrong for this file, one task after making it.**
+5.11 classified `game/indicators.js` as "display thresholds and formatting" and
+left it out of check (f). Its own header opens *"The band thresholds are
+economics"*, which is correct.
+
+Measured, the credit-gap gauge held a bare `3` in **both** its `verdict` and
+its `band` — the BIS warning line, i.e. `CREDIT_GAP_WARNING`, which 5.3
+promoted after finding three copies in `src/rules/` and 5.11 found a fourth in
+`events.js`. **Copies five and six, in the file the player actually looks at.**
+
+**And worse than a copy.** The danger line was hardcoded in player-facing PROSE
+as *"PAST THE 9pp DANGER LINE"* and *"9pp is the BIS line"*, while the `band`
+beside it read `CREDIT_GAP_CRISIS_THRESHOLD`. Move that parameter and the gauge
+would colour itself against the new value and tell the player the old one — a
+display disagreeing with its own threshold, which is the `price_level`
+invariant's argument aimed at the screen. Same for the inflation gauge's "2% is
+the goal" against `SS_INFLATION_TARGET`.
+
+**THE GUARD IS A TEST, NOT A LINT RULE, AND THAT IS THE DECISION WORTH
+RECORDING.** The file's other 24 literals are verdict cuts, chart ranges and
+trend epsilons — a data table of display bands, like `scenarios.js`. Naming
+them all would wreck the one file whose job is legibility, and check (f) would
+have caught the 24 that are fine while missing the point. What matters is not
+that a number is bare; it is that **a number the model also holds is written
+out twice**. So the guard asserts the equality — the 5.10 `DEMAND_BOUNDS`
+pattern — by walking the band function across its boundaries and comparing
+where it changes against the parameters.
+
+Both failure modes verified: a seventh hardcoded copy is caught
+(`turns from ok to warn at 3.500000pp, but CREDIT_GAP_WARNING is 3`), and a
+parameter moving while the prose does not is caught (`does not contain 8`).
+
 ### E6. Lint check (f) walked `src/rules/` only — `PARTIAL: the two files that decide the player's fate are in`
 5.3 took `src/rules/` to zero undeclared literals and left everything else
 unpoliced, which is how `leverage_max`'s bare 1.35 survived to be found by 5.5.
