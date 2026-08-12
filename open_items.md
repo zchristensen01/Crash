@@ -427,8 +427,13 @@ remove the knife-edge. **An unstable fixed point has a separatrix. That is not
 a defect — it is what a Taylor-principle violation IS**, and teaching it is the
 scenario's entire purpose.
 
-**WHAT IS ACTUALLY WRONG IS THE SCENARIO'S STARTING POINT**, and that is A6's
-job, not a modelling question: `overheating` opens 0.6pp from a separatrix, so
+**WHAT IS ACTUALLY WRONG IS THE SCENARIO'S STARTING POINT** — now task
+**11.8**, and 11.5 is what makes it derivable rather than guessable: the
+separatrix is measured at `d* = −0.51150`, so a vector can be chosen with a
+STATED MARGIN and the result reported, which is deriving rather than tuning.
+The durable deliverable is a test pinning that margin, so the next change to
+spend it fails loudly instead of silently inverting the lesson — it would have
+caught both 5.1 attempts on their first run. It is not a modelling question: `overheating` opens 0.6pp from a separatrix, so
 any change anywhere in the demand block can flip its lesson — which is exactly
 what killed 5.1. Re-deriving the vector is legitimate (rule 6) and is the fix.
 
@@ -497,6 +502,11 @@ in `recession` and fixed by giving it a driven balance-sheet story.
 `overheating` survived because the old income error was doing the driving.
 
 **The order is therefore A2 → re-derive `overheating`'s vector → 5.1**, and
+**both preconditions are now discharged or scoped: 11.1 diagnosed A2 and 11.8
+is the vector.** 11.1 and 11.5 together change what this entry is waiting for:
+5.1 is **not** blocked on the demand block being fixed — 11.1 established it
+cannot be fixed by any single change — it is blocked on `overheating` being
+moved off a measured knife-edge, which is bounded work. 
 5.5's `HAND_TO_MOUTH_SHARE` wiring rides on 5.1 as before. Do not attempt 5.1
 again before A2, and do not close it by re-tuning `overheating` to hyperinflate
 — that is rule 3 applied to a scenario instead of a coefficient.

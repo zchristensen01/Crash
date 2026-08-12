@@ -18,8 +18,8 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | A1 `bubble` deflates on its own | 6.1 | | B4 one mean-reversion speed | 6.3 |
 | **A2 the demand block** | **11.6** (11.1 done) | | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 |
 | A3 hotter buys less inflation | 7.3 | | B6 `debt_trap` is fragile | 11.4 |
-| **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
-| **A7 the separatrix** | **A6** (11.5 done) | | E5 the spread is judgement | 7.4 |
+| **A6 5.1's real blocker** | **5.1**, after **11.8** | | E4 prose | 5.12 (partial) |
+| **A7 the separatrix** | **11.8** (11.5 done) | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | **11.7** (11.2 done) | | E6 check (f)'s scope | 5.11 (partial) |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
@@ -1559,6 +1559,34 @@ caused it* — and this section used to call them **one finding seen five ways**
       shipped at its existing value and the behaviour hash is unmoved, so there
       is nothing to re-solve against. **Re-solving now would pin the constant
       to a demand block that 11.6 is about to move.**
+- [ ] 11.8 Re-derive `overheating`'s starting vector — `open_items` A7, A6
+      *(new, from 11.5, and it is the step 5.1's own ORDER line names)*
+      **11.5 MADE THIS DERIVABLE RATHER THAN GUESSABLE**, which is the whole
+      reason it is now a task. The separatrix is measured: on a standing demand
+      shift through `net_exports`, `d* = −0.51150` bisected on the long-run
+      outcome. `overheating` opens at an output gap of **+0.152**, about
+      **0.6pp** inside the divergent region, and any change anywhere in the
+      demand block can spend that margin.
+      **IT HAS ALREADY BEEN SPENT TWICE.** 5.1 costs 0.57pp of consumption and
+      moves the opening gap **+0.2 → −0.44** — straight across the separatrix —
+      which is why the scenario stopped hyperinflating (3.83% against 380.50%)
+      and why 5.1 was reverted, twice, both times diagnosed as something else.
+      **THIS IS RULE 6, NOT RULE 3, AND THE DISTINCTION IS THE TASK.**
+      *Tuning* would be nudging the vector until inflation reaches 380%.
+      *Deriving* is choosing an opening position with a **stated margin to a
+      measured separatrix**, then reporting wherever inflation lands. A scenario
+      whose regime flips on 0.03pp of demand does not have a driven regime; it
+      has a coin toss, and rule 6 is exactly the rule that forbids that.
+      **THE DURABLE DELIVERABLE IS THE GUARD, NOT THE VECTOR.** A test that
+      pins `overheating`'s distance from the separatrix, so the next change that
+      eats the margin fails saying *"you have spent the scenario's margin"*
+      rather than silently teaching the opposite lesson. That test would have
+      caught both 5.1 attempts on the first run and named the cause.
+      **UNBLOCKS 5.1** — and note what 11.1 and 11.5 jointly establish: 5.1 is
+      NOT waiting on the demand block being fixed, because 11.1 showed it cannot
+      be fixed by any single change. It is waiting on the scenario being moved
+      off the knife-edge, which is tractable and bounded.
+
 - [ ] 11.4 Re-derive `debt_trap`'s starting vector — `open_items` B6
       Two of its own tests sit on very thin margins — *"the real economy
       responds to the yield at all"* passed on an output gap of 0.63 and failed
