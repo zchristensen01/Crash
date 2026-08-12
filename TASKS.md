@@ -23,12 +23,22 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, B7, B8, D1, D2, E1, E2, E7, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
-E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
-**Twelve `OPEN`/`PARTIAL` entries, twelve tasks.** D4 was missing from this
-accounting until 5.12's handoff check enumerated the statuses rather than
-reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
-legs.
+A5, B1, B7, B8, D1, D2, E1, E2, E7, E8, E9, E10, E11, E12, E13, E14),
+**`WATCH`** (D3, D4, D5, E3) and **`DELIBERATE`** (B2, C1, C2, C3 — C2
+re-solves under 11.3 when A2 lands).
+
+**Twelve `OPEN`/`PARTIAL` entries, twelve tasks; 37 entries accounted for.**
+D4 was missing from this accounting until 5.12's handoff check enumerated the
+statuses rather than reading them; it is `WATCH` and 6.3 picks it up if that
+task splits the asset legs. **C3 was added at the Phase 5 handoff** —
+`participation`, `current_account` and `fx_change` are deferred by 5.6 and
+appeared nowhere in `open_items`, and two of the three have no task and no
+phase, so this table could not have seen them.
+
+**What Phase 5 leaves behind is `open_items` section F**, rewritten at the
+handoff: 5.1 with its recipe and the order it must be attempted in, every other
+Phase 5 deferral with the entry that owns it, and the phases not started. That
+section had been **four claims stale** — it still said 5.1 was blocked on A4.
 
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in

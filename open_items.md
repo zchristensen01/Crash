@@ -601,6 +601,29 @@ Two of the four historical episodes now point at this same missing mechanism
 realised misses, and Japan's inability to de-anchor *downward*. That agreement
 is new. It is now the largest single thing missing from the monetary block.
 
+### C3. Three starting-vector fields are carried, documented and read by nothing — `DELIBERATE`
+5.6 was asked to wire or defer two dead `START` fields and **measured four**.
+`gdp_growth_annual` was wired; the other three are deferred, each for a reason
+that is about the model not existing rather than about effort:
+
+| field | deferred to | why |
+|---|---|---|
+| `participation` | **6.4** (demographics) | it is a share of a working-age population and the model has no population, so there is nothing for 63% to be 63% of |
+| `current_account` | the open economy | no task, no phase — decision A5 in `docs/00` |
+| `fx_change` | the open economy | same |
+
+**They cannot go quietly dead**, which is the part that matters: 5.6 added a
+`START_DEFERRED` register enforced in BOTH directions by `test/params.test.js`,
+exactly as `DEFERRED` and `SOLVED_FROM_MODEL` are. Nothing may sit unread in
+`START` without being listed, and nothing may be listed while something reads
+it. Before that register, `DEFERRED` covered `P` entries and **nothing covered
+`START`**, so a field could be carried, documented and read by nothing with no
+test noticing — which is how these three survived.
+
+Recorded here because they appear nowhere else in this file: two of the three
+have no task and no phase, so the coverage invariant in `TASKS.md` cannot see
+them.
+
 ### C2. `CRISIS_SCAR_AMPLIFICATION` not re-solved — `DELIBERATE`
 It re-solves to 1.06–1.26, outside its published [2.0, 4.5]. Forcing it there
 would make the exogenous capacity cut supply 9.5 of Cerra-Saxena's 10 while the
@@ -652,7 +675,7 @@ months at a ceiling of 20 against 0/96 at 50, and `stagflation` still ends at
 node --test test/autopilot.test.js 2>&1 | grep "by ceiling"
 ```
 
-### D2. Two bounds are stated twice### D2. Two bounds were stated twice — `FIXED in 5.10, and it was THREE copies`
+### D2. Two bounds were stated twice — `FIXED in 5.10, and it was THREE copies`
 `updateConsumption` clamped to `[10, 95]` and `invariants.js` check 8 asserted
 the same band; `updateInvestment` clamped to `[2, 45]` and check 8 asserted that
 too. **This entry missed a third: the `govt_spending` dial's own `min: 0,
@@ -1331,22 +1354,88 @@ third generated artefact appears, it needs one too.
 
 ---
 
-## F. Not started
+## F. What is carried out of Phase 5
 
-- **4.3 is now complete.** All six vectors re-measured; five are fine or
-  improved (`overheating` and `stagflation` give the player longer — m34→m51 and
-  m17→m23 — and `recession`'s spurious end-of-term boom shrank from OVERHEATING
-  at a +8.30 credit gap to GOLDILOCKS at +3.15). Only `bubble` regressed, and
-  its cause is now diagnosed as D2 rather than the vector. Guarded by a new
-  full-term characterisation test in `test/scenarios.test.js`.
-- **4.4** — OPEN #1 and #9. #9 is already measured and **the plan's expectation
-  for it is wrong**: A1 did not move the 24-month figure (0.1227 against 0.122),
-  but the response is slow rather than absent — 0.0586 at 12m, 0.1227 at 24m,
-  0.1756 at 36m, **0.2192 at 48m, inside the published 0.2–0.4.** Its `todo`
-  message still carries the old text.
-- **Phase 5** — 5.1 is blocked (A4). 5.2–5.6 untouched.
-- **Phases 6–10** — untouched.
-- **Two claims flagged READ-NOT-MEASURED in `docs/13` Phase 0:** the
-  `credit.js:218` EMA comment was checked in 3.2 and **the brief was right**.
-  **D3's numeric-literal counts have still never been checked** — Phase 5.3
-  must count against the tree, not quote the brief.
+> **THIS SECTION WAS FOUR CLAIMS STALE WHEN IT WAS REWRITTEN**, in the document
+> whose header promises *"where a number is quoted it was measured, not read"*.
+> It said `5.1 is blocked (A4)` — **Correction 22 overturned that**, A4 was
+> never the blocker; `5.2–5.6 untouched` — 5.2 through 5.22 have all shipped;
+> `D3's numeric-literal counts have still never been checked` — **5.3 checked
+> them and the brief was wrong** (credit 21 not 23, prices 10 not 16, crisis 2
+> not 16); and that 4.4's `todo` message *"still carries the old text"*, which
+> V6 rewrote. A section describing what is undone is the one place staleness is
+> hardest to see, because nothing it claims is testable. It is now the phase
+> handoff and should be rewritten at each one.
+
+### 5.1 — the only Phase 5 task that did not ship. `OPEN`, and it cannot close in this phase.
+
+**Built twice, measured twice, reverted twice**, in the third audit's follow-up
+and again here on top of 5.8. The mechanism is right, the plan asks for it
+(D1), the arithmetic closes the steady state exactly to 9dp, and it is still
+not shippable — see **A6** for the diagnosis and the isolating experiment that
+refuted the obvious hypothesis, and **B5** for the wiring it carries with it.
+
+**THE IMPLEMENTATION IS IN NO COMMIT.** Both `5.1 …reverted` commits
+(`4103920`, `c372597`) touch documentation only — the build was done in the
+working tree, measured, and reverted before committing. Do not go looking for
+it in the history; there is nothing there. **What survives is the recipe**, and
+it survives in four places on purpose:
+
+| | where |
+|---|---|
+| the arithmetic and why `apc_ss` must fall | **A6** above |
+| the bondholder wiring | **B5** above |
+| the same recipe travelling with the parameter | `HAND_TO_MOUTH_SHARE`'s `DEFERRED` entry in `parameters.py` |
+| the measured before/after | `TASKS.md` 5.1 |
+
+`apc_ss` **0.709265 → 0.692945**; `apc_bondholder = (apc_ss −
+HAND_TO_MOUTH_SHARE) / (1 − HAND_TO_MOUTH_SHARE)` = **0.561350**; no new
+parameter. A third attempt should rebuild from that rather than re-derive it.
+
+**THE ORDER IS FIXED AND THE REASON IS NOT PREFERENCE.**
+
+```
+11.1 (A2)  →  re-derive `overheating`'s starting vector  →  5.1  →  5.5's wiring
+```
+
+`apc_ss` is canonical and the interest transfer is not: `overheating` opens
+with a coupon of 1.75 against the canonical 3.25, so it takes the lower
+propensity with 1.22 of interest instead of 2.275, loses 0.57pp of consumption,
+and its opening gap moves +0.2 → −0.44. With the accounting right the demand
+block cannot produce the divergence the scenario exists to teach — which is A2,
+and which is why 5.1 waits on 11.1 rather than the other way round.
+
+**Do not close it by re-tuning `overheating` to hyperinflate.** That is rule 3
+applied to a scenario instead of a coefficient, and it would bury the finding
+that motivates the whole of Phase 11. Rule 6 says the same thing from the other
+side: that scenario's regime would be **asserted, not driven**.
+
+**When 11.1 lands, `apc_ss` must be re-solved before 5.1 is re-attempted** —
+the demand block moving changes the propensity the recipe above was solved
+against.
+
+### Everything else Phase 5 deferred, and where it lives
+
+| deferred | entry | task |
+|---|---|---|
+| `HAND_TO_MOUTH_SHARE`'s wiring | **B5** | rides on 5.1 |
+| numbers quoted in PROSE, beyond the three registered in 5.12 | **E4** | 5.12 (partial) |
+| lint check (f) outside `src/rules/`, `game/endings.js` and `game/events.js` | **E6** | 5.11 (partial) |
+| `updateCreditSpread`'s four unsourced weights, and the wider judgement set | **E5** | 7.4 |
+| `participation`, `current_account`, `fx_change` | **C3** | 6.4 / the open economy |
+| `CRISIS_SCAR_AMPLIFICATION` | **C2** | 11.3, after 11.1 |
+
+### Phases not started
+
+**6, 7, 8, 9 and 11 are untouched**, and 10 is partial. Phase 6 was unblocked
+by the Phase 4 gate and 6.6 by 5.4 — but **read A7 before 6.1**:
+`overheating`'s central lesson sits 0.6pp of demand from a bifurcation at
+`MAX_CAPACITY_OVERHEAT`, and 6.1's macroprudential dial is calibrated against
+scenario paths that move if 11.5 changes that threshold's shape. Doing 6.1
+before 11.1 means calibrating a dial twice.
+
+**The two claims `docs/13` Phase 0 flagged as READ, NOT MEASURED are both
+settled.** `credit.js:218`'s EMA comment was measured in 3.2 and the brief was
+right. D3's numeric-literal counts were measured in 5.3 and **the brief was
+wrong** — credit 21 not 23, prices 10 not 16, and crisis **2 not 16**, an
+eightfold overstatement.
