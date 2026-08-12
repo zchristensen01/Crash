@@ -2186,6 +2186,69 @@ not count.**
 >
 > 175 tests, 159 pass, 0 fail, 16 todo; steady state exact to 9dp.
 
+> #### As built — 11.2, and a fifth guard was hiding it.
+>
+> ### CORRECTION 38 — B3 is not "A2 seen from the labour side". It is the Okun hoarding ramp, saturated at its flattest value from the first month of a crash, and asserted by the size of the gap when its own source requires a policy the model does not have.
+>
+> B3 guessed at a cause and nobody had tested it. The model already contained
+> the switch that isolates it — `labour_hoarding_policy` — and turning the ramp
+> off answers the question in one measurement:
+>
+> | | peak unemployment | trough | `beta` at the trough |
+> |---|---|---|---|
+> | as built | **+1.910pp** | −9.000% | **0.2000** |
+> | hoarding ramp off | **+3.862pp** | −8.660% | 0.4500 |
+>
+> Published is 2–5. **With the ramp off the model is inside it.** The whole of
+> B3 is this one term, and none of it is the demand block.
+>
+> **THERE IS NO RAMP DURING A CRASH.** `stretch = |gap| / OKUN_HOARDING_GAP`
+> clamped to 1, and `OKUN_HOARDING_GAP` is 4 while the crash gap is −5.24 at
+> month one and −8.48 by month eighteen. `beta` is a constant 0.200 — the
+> flattest value it can take — for the entire episode. The parameter is a ramp
+> in name and a floor in effect, and **the deeper the hole the less the labour
+> market responds, without bound.**
+>
+> **RULE 6, AND THE PARAMETER SAYS SO ITSELF.** `OKUN_LABOUR_HOARDING`'s note
+> gives the switch condition as *"a sharp output fall combined with
+> short-time-work or job-retention policy support"*. The code implements the
+> output fall and silently drops the policy — which the model has no way to
+> express — so a banking crisis with no furlough scheme gets full hoarding
+> because the hole is deep. A regime asserted by a magnitude rather than driven
+> by a mechanism. `OKUN_HOARDING_GAP` is `judgement`, sourced *"Shape
+> assumption, not an estimate"*, and its own note ends **"TUNING DIAL."**
+>
+> **NOT FIXED, AND THAT IS RULE 3.** Reshaping the ramp until unemployment
+> lands in 2–5 would be tuning to a target, and the target is one of the five
+> sightings 11.1 just showed are in tension. The fix is task 11.7 and it has a
+> blast radius: the trough moves, so `CRISIS_IMPULSE_AMPLIFICATION` must be
+> re-solved, and 11.6's other two sightings sit on the same axis.
+>
+> ### CORRECTION 38b — lint check (a) counted `s.field === x` as a declaration of `field`, and the one field that hole hid is the one this task needed.
+>
+> `labour_hoarding_policy` is read by `updateEmployment`, **written by
+> nothing**, and documented in `docs/01` as a settable override — a control
+> with no source, E7's shape exactly. Check (a) exists to catch a rule reading
+> a field `newState` never declares, and it did not, because it built its
+> declared-set from `s\.<field>\s*=` and **`===` starts with `=`**. The check
+> was disarmed by the very syntax it should have been suspicious of.
+>
+> Measured across the whole tree, the hole had **exactly one victim** — and it
+> was this one. Fixed with `=(?!=)`; both directions verified. The field is
+> declared `true` rather than deleted, because switching hoarding off is the
+> only way to isolate the ramp and this diagnosis needed precisely that.
+> Behaviour-neutral: the read is `=== false`, and `undefined` and `true` both
+> fail it.
+>
+> **Fifth guard in this audit found answering a different question from the one
+> it is read as answering** — E7, E9, E10, E12, E15 — and the second found by
+> *using* the guard's subject rather than inspecting the guard. The estate was
+> interrogated in 5.18 and every check "fired"; this one fires, and its
+> declared-set was wrong, which no firing test could reveal.
+>
+> 175 tests, 159 pass, 0 fail, 16 todo. Behaviour hash `7e517207065edb1c`
+> unmoved; `index.html` rebuilt.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

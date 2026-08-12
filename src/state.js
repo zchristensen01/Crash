@@ -241,6 +241,16 @@ export function newState(overrides = {}) {
   s.user_cost_ss = s.policy_rate_ss + s.credit_spread_ss - s.inflation_target +
                    P.DEPRECIATION_RATE.value * 100;
   s.okun_beta_effective = P.OKUN_BETA.value;
+  // THE OKUN HOARDING OVERRIDE, DECLARED AT LAST [4th audit 11.2].
+  // `updateEmployment` reads this and nothing ever wrote it, so it was
+  // permanently `undefined` while `docs/01` documented it as an override you
+  // could set — a control with no source, the same shape as E7. It survived
+  // lint check (a) because that check counted `s.field === x` as a
+  // declaration (open_items E15). Declared `true` rather than deleted,
+  // because switching hoarding off is the only way to isolate the Okun ramp
+  // and 11.2's diagnosis needed exactly that. Behaviour-neutral: the read is
+  // `=== false`, and `undefined` and `true` both fail it.
+  s.labour_hoarding_policy = true;
   s.risk_premium = 0;
   s.interest_cost = s.govt_debt * s.average_coupon / 100;
   s.qe_rate_relief = 0;

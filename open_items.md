@@ -529,13 +529,56 @@ out, 117 months after the debt-crisis ending would have ended a real game at
 month 74. Skipped explicitly in the conservation sweep with the reason attached.
 Only worth attention if endings are ever disabled in a shipped configuration.
 
-### B3. Unemployment does not follow output down in a crash — `OPEN`
+### B3. Unemployment does not follow output down in a crash — `OPEN`, **diagnosed in 11.2, and it is NOT A2**
 The crash trough is now **exactly** on target (−9.0000% against
-`CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.86pp against a
+`CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.91pp against a
 published 2–5**. So the output hole is the right depth and the labour market
-does not follow it into it. That is Okun, and it is probably the same finding as
-A2 seen from the labour side. `TEST-RESULTS.md` OPEN on the output→employment
-lag is related.
+does not follow it into it.
+
+> **THIS ENTRY GUESSED "probably the same finding as A2 seen from the labour
+> side". IT IS NOT.** It is the Okun hoarding ramp, and one switch isolates it.
+
+**THE ISOLATING EXPERIMENT, and the model already contained the switch.**
+`updateEmployment` lerps `beta` from `OKUN_BETA` (0.45) toward
+`OKUN_LABOUR_HOARDING` (0.20) along `stretch = |output_gap| / OKUN_HOARDING_GAP`,
+clamped to 1. Turning the ramp off:
+
+| | peak unemployment | trough | `beta` at the trough |
+|---|---|---|---|
+| as built | **+1.910pp** | −9.000% | **0.2000** |
+| hoarding ramp off | **+3.862pp** | −8.660% | 0.4500 |
+
+**With the ramp off the model lands inside the published 2–5.** The whole
+disagreement is this one term.
+
+**AND THE RAMP IS SATURATED FROM THE FIRST MONTH OF THE CRASH.**
+`OKUN_HOARDING_GAP` is 4; the crash gap is −5.24 at m1 and −8.48 by m18, so
+`stretch` is pinned at 1 and `beta` is a CONSTANT 0.200 for the entire episode.
+There is no ramp during a crash — there is a floor, and the model sits on it.
+
+```
+m 1  gap -5.24  beta 0.200      m12  gap -8.41  beta 0.200
+m 6  gap -7.15  beta 0.200      m24  gap -8.34  beta 0.200
+```
+
+**THE DEEPER PROBLEM IS THAT THE REGIME IS ASSERTED BY THE GAP, AND ITS OWN
+SOURCE SAYS IT NEEDS A POLICY.** `OKUN_LABOUR_HOARDING`'s note states the
+switch condition: *"a sharp output fall **combined with short-time-work or
+job-retention policy support**"*. The code implements the first half and
+ignores the second — there is no job-retention policy in the model and no way
+to express one — so **a banking crisis with no furlough scheme gets full
+hoarding because the hole is deep**. Bigger shock, less labour-market response,
+without bound. That is rule 6: a regime driven by nothing, asserted by a
+magnitude. And `OKUN_HOARDING_GAP` is `judgement`, sourced *"Shape assumption,
+not an estimate"*, and its own note ends **"TUNING DIAL."**
+
+**NOT FIXED HERE, AND DELIBERATELY.** Reshaping the ramp so unemployment lands
+in 2–5 is rule 3. The fix is a decision with a blast radius: the trough itself
+moves (−9.000 → −8.660), so **`CRISIS_IMPULSE_AMPLIFICATION` would have to be
+re-solved** (`SOLVED_FROM_MODEL`), and every scenario's labour path moves.
+Tracked as task **11.7**.
+
+`TEST-RESULTS.md`'s OPEN on the output→employment lag is related.
 
 ### B4. One mean-reversion speed cannot satisfy both asset legs — `OPEN`
 `ASSET_PRICE_MEANREVERSION` is one number serving two sourced horizons: equity
@@ -1416,6 +1459,36 @@ is the anchor silently ceasing to match. Both modes verified.
 **WHAT IS STILL OPEN, and it is E14:** two of A2's five cells — endogenous
 crisis propagation and the post-crisis rebound — are produced by nothing at
 all, so there was no measurement to register them against.
+
+### E15. Lint check (a) counted `s.field === x` as a DECLARATION of `field` — `FIXED in 11.2`
+The check exists because docs/07 M11 found ten state fields that rules read and
+`newState` never declared, each one a silent NaN. It builds a set of declared
+fields by matching `s.<field>\s*=` — **and `===` starts with `=`**, so a field
+the model only ever COMPARED was declared by the act of reading it. The check
+was disarmed by exactly the syntax it should have been suspicious of.
+
+```
+/\bs\.([a-z_][a-z0-9_]*)\s*=/  matches  s.labour_hoarding_policy === false
+```
+
+**It had exactly one victim across the whole tree, and it was a real one.**
+Measured: `labour_hoarding_policy` is the only field in `src/` matched solely
+by a comparison. It is read by `updateEmployment` to disable the Okun hoarding
+ramp, **written by nothing**, and documented in `docs/01` as *"Optional
+override: `false` disables the Okun hoarding ramp"* — a control with no source,
+which is E7's shape, hidden behind a guard hole, which is E9/E10/E12's.
+
+Fixed with `=(?!=)`. Both directions verified: a genuinely undeclared field
+still fires, and the comparison-only field fires now and did not before.
+`labour_hoarding_policy` is declared `true` in `state.js` rather than deleted,
+because switching hoarding off is the only way to isolate the Okun ramp and
+11.2's diagnosis needed exactly that. Behaviour-neutral — the read is
+`=== false` and `undefined` and `true` both fail it; hash `7e517207065edb1c`
+unmoved.
+
+**This is the fifth guard in this audit found answering a different question
+from the one it is read as answering** (E7, E9, E10, E12, E15), and the second
+found by using the guard's subject rather than by inspecting the guard.
 
 ### E14. Two of A2's five cells were quoted four times each and produced by nothing — `FIXED in 5.22`
 Found by 5.12 while building the citation register: they could not be

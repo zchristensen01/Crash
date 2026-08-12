@@ -139,7 +139,14 @@ const read = (f) => readFileSync(f, 'utf8');
 // ---------------------------------------------------------------------
 {
   const stateSrc = read(join(ROOT, 'src/state.js'));
-  const declared = new Set([...stateSrc.matchAll(/\bs\.([a-z_][a-z0-9_]*)\s*=/gi)]
+  // `=(?!=)` — AN ASSIGNMENT, NOT A COMPARISON [4th audit 11.2, open_items E15].
+  // This read `\s*=` and so counted `s.field === x` as a declaration of
+  // `field`, because `===` starts with `=`. Any field the model only ever
+  // COMPARED was therefore declared by the act of reading it, which is the
+  // exact opposite of what this check exists to do. Measured across the whole
+  // tree it had one victim, and it was a real one: `labour_hoarding_policy`,
+  // read by `updateEmployment` and written by nothing.
+  const declared = new Set([...stateSrc.matchAll(/\bs\.([a-z_][a-z0-9_]*)\s*=(?!=)/gi)]
     .map((m) => m[1]));
   // START's keys are spread into `s` and count as declared.
   const paramsSrc = read(join(ROOT, 'src/params.js'));
@@ -150,7 +157,7 @@ const read = (f) => readFileSync(f, 'utf8');
   // Fields a rule assigns are declared by that assignment as far as the NEXT
   // rule is concerned; the check is about fields nothing ever writes.
   for (const f of SRC) {
-    for (const m of stripped(read(f)).matchAll(/\bs\.([a-z_][a-z0-9_]*)\s*=/gi)) {
+    for (const m of stripped(read(f)).matchAll(/\bs\.([a-z_][a-z0-9_]*)\s*=(?!=)/gi)) {
       declared.add(m[1]);
     }
   }

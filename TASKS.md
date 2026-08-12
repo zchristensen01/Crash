@@ -20,10 +20,10 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | A3 hotter buys less inflation | 7.3 | | B6 `debt_trap` is fragile | 11.4 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
-| B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
+| B3 Okun in a crash | **11.7** (11.2 done) | | E6 check (f)'s scope | 5.11 (partial) |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, B7, B8, D1, D2, E1, E2, E7, E8, E9, E10, E11, E12, E13, E14),
+A5, B1, B7, B8, D1, D2, E1, E2, E7, E8, E9, E10, E11, E12, E13, E14, E15),
 **`WATCH`** (D3, D4, D5, E3) and **`DELIBERATE`** (B2, C1, C2, C3 — C2
 re-solves under 11.3 when A2 lands).
 
@@ -126,7 +126,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-seven** corrections to the
+Recorded here and against the individual tasks. **Thirty-eight** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -149,6 +149,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 38 | **B3 is not A2 from the labour side** — it is the Okun hoarding ramp, saturated at its flattest value from month one of a crash, and asserted by the gap when its own source requires a job-retention policy the model does not have | closed by 11.2, fix is 11.7 |
 | 37 | **A2 is not one finding.** Its sightings respond to the demand block's own principal speed in OPPOSITE directions — the tax multiplier improves as it speeds up, the sacrifice ratio and rebound improve as it slows, and propagation peaks at the shipped value. Two axes, not one cause | closed by 11.1 |
 | 36 | **A comment described a design that was never built** — `s.dial_truncated`'s "both paths have to work" promised a UI read that does not exist. Corrected, and a test now pins the field to its three legitimate sites so 8.5 cannot add the read without fixing the comment | closed by 5.15 |
 | 35 | **B8 named the wrong mechanism for its own finding** — the arms differ because of the WAGE KINK, not `monetaryEasingScale`. Remove the kink and the cut arm falls 0.2230 → 0.0616 and the asymmetry flips. The arm that PASSES was one kink crossing | closed by 5.14 |
@@ -1424,12 +1425,68 @@ caused it* — and this section used to call them **one finding seen five ways**
       answer constrains the others. **Do not re-tune `CRISIS_SCAR_AMPLIFICATION`
       to absorb this** — that is C2's whole argument and rule 4.
       **11.3 waits on this, not on 11.1.**
-- [ ] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
+- [x] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
       The crash trough is **exactly** on target (−9.0000% against
-      `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.86pp against a
+      `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.91pp against a
       published 2–5**. The output hole is the right depth and the labour market
-      does not follow it in. Probably 11.1 seen from the labour side.
-      `TEST-RESULTS.md`'s OPEN on the output→employment lag is related.
+      does not follow it in. `TEST-RESULTS.md`'s OPEN on the output→employment
+      lag is related.
+      **DIAGNOSED, AND THIS ENTRY'S GUESS — "probably 11.1 seen from the labour
+      side" — IS WRONG.** It is the Okun hoarding ramp, and the model already
+      contained the switch that isolates it. Ramp off: unemployment peaks
+      **+3.862pp, inside the published 2–5**, against +1.910 as built. The whole
+      disagreement is one term.
+      **THE RAMP IS SATURATED FROM MONTH ONE.** `beta` lerps from `OKUN_BETA`
+      0.45 toward `OKUN_LABOUR_HOARDING` 0.20 along
+      `|output_gap| / OKUN_HOARDING_GAP`, and `OKUN_HOARDING_GAP` is **4** while
+      the crash gap is **−5.24 at m1 and −8.48 by m18**. So `stretch` is pinned
+      at 1 and beta is a CONSTANT **0.200** for the entire episode — there is no
+      ramp during a crash, there is a floor, and the model sits on it. **The
+      deeper the hole, the less the labour market responds, without bound.**
+      **AND THE REGIME IS ASSERTED, NOT DRIVEN — rule 6.**
+      `OKUN_LABOUR_HOARDING`'s own note gives the switch condition as *"a sharp
+      output fall **combined with short-time-work or job-retention policy
+      support**"*. The code implements the output fall and ignores the policy;
+      the model has no job-retention policy and no way to express one. A banking
+      crisis with no furlough scheme gets full hoarding because the hole is
+      deep. `OKUN_HOARDING_GAP` is `judgement`, sourced *"Shape assumption, not
+      an estimate"*, and its note ends **"TUNING DIAL."**
+      **NOT FIXED HERE, DELIBERATELY** — reshaping the ramp until unemployment
+      lands in 2–5 is rule 3. The fix is **11.7** and carries a blast radius:
+      the trough moves (−9.000 → −8.660), so `CRISIS_IMPULSE_AMPLIFICATION` must
+      be re-solved (`SOLVED_FROM_MODEL`), and every scenario's labour path moves.
+      **FOUND ON THE WAY — a fifth guard answering the wrong question, and it
+      was hiding this one.** `labour_hoarding_policy` is read by
+      `updateEmployment`, **written by nothing**, and documented in `docs/01` as
+      a settable override. Lint check (a) exists to catch exactly that and did
+      not, because it counted `s.field === x` as a DECLARATION — `===` starts
+      with `=`. Measured across the tree, that hole had **exactly one victim**
+      and this was it. Fixed with `=(?!=)`, both directions verified; the field
+      is now declared `true` rather than deleted, because switching hoarding off
+      is the only way to isolate the ramp. Behaviour-neutral, hash
+      `7e517207065edb1c` unmoved. See `open_items` **E15**.
+
+- [ ] 11.7 Decide what the Okun hoarding regime is driven BY — `open_items` B3
+      *(new, from 11.2)*
+      11.2 established that the hoarding ramp accounts for the whole of B3 and
+      that it is asserted by the size of the gap rather than driven by anything.
+      Its own parameter says hoarding needs *"short-time-work or job-retention
+      policy support"*, which the model does not have. **Three options and none
+      is free:**
+      (a) hoarding requires a policy the model does not model — so it is off by
+      default, unemployment becomes far more responsive in every scenario, and
+      the crash lands in the published band by construction rather than by
+      choice;
+      (b) the ramp becomes non-monotone — hoarding at moderate gaps, breaking
+      down at extreme ones, which matches furlough schemes surviving a quarter
+      and not a decade — but needs a source for where it breaks;
+      (c) leave it and record that the model's crashes are structurally
+      Japanese.
+      **Whichever wins, `CRISIS_IMPULSE_AMPLIFICATION` must be re-solved** (the
+      trough moves −9.000 → −8.660 with the ramp off) and 11.6's other two
+      sightings must be re-measured, because this is the persistence axis and
+      they sit on it. **Do not pick the option that lands 2–5** — pick the one
+      with a mechanism, then report where it lands.
 - [ ] 11.3 Re-solve `CRISIS_SCAR_AMPLIFICATION` — `open_items` C2
       **Only after 11.1**, and 4.2's `SOLVED_FROM_MODEL` register is what makes
       that safe: the constant is DEFINED by a solve, so it must be re-solved
