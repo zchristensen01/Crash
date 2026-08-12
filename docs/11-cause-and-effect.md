@@ -7,14 +7,26 @@
 > in. A document that claims to say what a model does, written by reading the
 > model, is how `docs/07` ended up finding fourteen defects.
 >
-> **REGENERATED AFTER THE FOURTH AUDIT, AND NOW CHECKED.** This document went
-> TWO FULL PASSES STALE — every number in it predated the transmission split,
-> the derived rate ceiling, the closed bifurcation and the asset-price units
-> fix — and nothing detected that, because nothing could. It carries a
-> FINGERPRINT of every number the tool measures, `npm test` verifies it, and
-> the failure names the tool to re-run. The fingerprint does not claim the
-> prose is right; it claims the document was written against a model that
-> produced exactly these numbers.
+> **REGENERATED AFTER THE FOURTH AUDIT, AND NOW CHECKED — IN TWO WAYS.** This
+> document went TWO FULL PASSES STALE and nothing detected it, because nothing
+> could.
+>
+> 1. **The TABLES are verified cell by cell** against a live run, every
+>    `npm test`. `node tools/cause-effect.mjs --write` rewrites the six §2
+>    tables and re-stamps; §4's is checked but hand-maintained, because its
+>    header is widened for readability.
+> 2. **A FINGERPRINT of every number the tool measures** covers everything the
+>    tables do not — §3's and §5's reformatted tables, and §6's.
+>
+> **The fingerprint alone was not enough, and this is worth knowing before you
+> trust it.** It hashes what the MODEL measures, not what the DOCUMENT says, so
+> until 5.17 you could falsify a cell, run `--stamp`, and `--check` would pass.
+> That is exactly how §1 and §3–§7 survived the Phase 4 hard gate while §1's
+> kernel table still described the pre-2.1 model.
+>
+> **NEITHER CHECK COVERS THE PROSE.** The numbers quoted inline in the chains
+> below are hand-written and hand-maintained. If you are about to rely on one,
+> re-measure it.
 >
 > **The largest movers in the fourth audit.** Asset prices respond about a
 > third as much to a rate cut (+1.23 index points at a year against +4.12),

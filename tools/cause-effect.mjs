@@ -283,8 +283,147 @@ function fingerprint() {
   return { hash: (h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0')), count: numbers.length };
 }
 
+/**
+ * THE TABLES ARE CHECKED, AND THE PROSE IS NOT [4th audit 5.17, open_items E9].
+ *
+ * THE HOLE THE FINGERPRINT LEFT. It hashes the MODEL's measurements, not the
+ * DOCUMENT's contents, so it answers "has the model moved since someone last
+ * stamped?" and not "does this document contain the model's numbers?" Falsify
+ * a table cell, run --stamp, and --check is perfectly happy. That is exactly
+ * how §1 and §3-§7 stayed stale through the Phase 4 hard gate: 4.3 regenerated
+ * §2, stamped, and the check was green for the rest of the audit while §1's
+ * kernel table still described the pre-2.1 model.
+ *
+ * The comment above weighs two options — fingerprint versus generating the
+ * whole file — and picks the fingerprint because most of docs/11's value is
+ * the prose. That reasoning is right and is kept. THERE IS A THIRD OPTION IT
+ * DOES NOT CONSIDER: check the TABLES and leave the PROSE. The tables are
+ * verbatim tool output; only the prose is hand-written, and nothing about
+ * keeping the prose requires the tables to go unverified.
+ *
+ * So: --write splices the tables in, --check verifies them byte-for-byte, and
+ * the fingerprint stays for everything the tables do not cover (§5's preset
+ * paths and §6's shocks, which are hand-reformatted rather than pasted).
+ * Before this the splicing was done by a throwaway script in a scratchpad,
+ * which is the same class of hazard as a process that depends on someone
+ * remembering.
+ */
+const BLOCKS = [
+  // heading in docs/11            -> the tool's label,                writable?
+  ['### `policy_rate` −1.00pp — a cut',  'policy_rate −1.00pp (a cut)',  true],
+  ['### `policy_rate` +1.00pp — a hike', 'policy_rate +1.00pp (a hike)', true],
+  ['### `tax_rate` −1.00pp — a cut',     'tax_rate −1.00pp (a cut)',     true],
+  ['### `govt_spending` +1.00pp',        'govt_spending +1.00pp',        true],
+  ['### `money_printed` 2.00pp',         'money_printed 2.00pp',         true],
+  ['### `qe` 10.0pp',                    'qe 10.0pp',                    true],
+  // §4 has no sub-heading of its own, so the section heading is the anchor —
+  // and its header row is hand-widened for readability (`Δmkt income` against
+  // the tool's `Δmktinc`), so it is CHECKED but never overwritten. Checking
+  // compares the NUMBERS, which is what goes stale; the formatting is the
+  // document's own business.
+  ['## 4. What happens with no decision from you',
+                                        'a −5pp spending cut, and what the stabilisers do about it', false],
+];
+
+/** The numeric content of a table, which is the only part that can go stale. */
+const numbersOf = (block) => (block.match(/-?\d+(?:\.\d+)?/g) || []).join(' ');
+
+/** Every "-- <label>" table the tool prints, dedented, keyed by label. */
+function measuredTables() {
+  const captured = [];
+  const real = console.log;
+  console.log = (...a) => captured.push(a.join(' '));
+  try { for (const fn of Object.values(SECTIONS)) fn(); } finally { console.log = real; }
+  // RE-SPLIT. Several sections print a whole block in ONE console.log call, so
+  // an element of `captured` can hold many lines and a per-element `^--` match
+  // finds nothing. fingerprint() below joins before matching and so never had
+  // to care; this did, and silently reported every table as unmeasured.
+  const lines = captured.join('\n').split('\n');
+  const out = {};
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(/^-- (.+?)\s*$/);
+    if (!m) continue;
+    const rows = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const l = lines[j];
+      if (/^\s*\(starting output gap/.test(l)) continue;
+      if (l.includes('|') || /^\s*-{10,}\s*$/.test(l)) { rows.push(l.replace(/^ {3}/, '')); continue; }
+      if (rows.length) break;
+      if (l.trim() === '') continue;
+      break;
+    }
+    if (rows.length) out[m[1].replace(/\s+/g, ' ')] = rows.join('\n');
+  }
+  return out;
+}
+
+/**
+ * Find the fenced block that follows a heading, and return its span.
+ * Returns null if the heading is absent — which is itself a failure, because
+ * it means the document no longer has a table this tool measures.
+ */
+function fencedAfter(docLines, heading) {
+  const i = docLines.findIndex((l) => l.trim() === heading || l.trim().startsWith(heading));
+  if (i < 0) return null;
+  let a = i;
+  while (a < docLines.length && docLines[a] !== '```') a++;
+  if (a >= docLines.length) return null;
+  let b = a + 1;
+  while (b < docLines.length && docLines[b] !== '```') b++;
+  if (b >= docLines.length) return null;
+  return { start: a + 1, end: b, body: docLines.slice(a + 1, b).join('\n') };
+}
+
 const MARKER = /<!-- cause-effect-fingerprint: ([0-9a-f]+) \((\d+) numbers\) -->/;
 const DOC = new URL('../docs/11-cause-and-effect.md', import.meta.url);
+
+/**
+ * Compare, or rewrite, every table docs/11 pastes verbatim.
+ * @returns {string[]} human-readable descriptions of what disagreed
+ */
+function tables(mode) {
+  const { readFileSync, writeFileSync } = fsSync;
+  const measured = measuredTables();
+  const docLines = readFileSync(DOC, 'utf8').split('\n');
+  const problems = [];
+  let rewritten = 0;
+  // Bottom-up, so splicing one block cannot move the line numbers of the next.
+  for (const [heading, label, writable] of [...BLOCKS].reverse()) {
+    const want = measured[label];
+    if (want === undefined) { problems.push(`the tool no longer measures '${label}'`); continue; }
+    const found = fencedAfter(docLines, heading);
+    if (!found) { problems.push(`docs/11 has no fenced table under '${heading}'`); continue; }
+    if (numbersOf(found.body) === numbersOf(want)) continue;
+    if (mode === 'write' && writable) {
+      docLines.splice(found.start, found.end - found.start, ...want.split('\n'));
+      rewritten += 1;
+    } else {
+      const w = want.split('\n').filter((l) => /\d/.test(l));
+      const g = found.body.split('\n').filter((l) => /\d/.test(l));
+      const i = w.findIndex((l, k) => numbersOf(g[k] ?? '') !== numbersOf(l));
+      problems.push(
+        `'${heading}' disagrees with the model` +
+        (writable ? '' : ' (hand-maintained: fix it by hand)') +
+        ` — first differing row:\n` +
+        `      document: ${(g[i] ?? '(missing)').trim()}\n` +
+        `      model:    ${(w[i] ?? '(missing)').trim()}`);
+    }
+  }
+  if (mode === 'write') {
+    writeFileSync(DOC, docLines.join('\n'));
+    console.log(`cause-effect: rewrote ${rewritten} of ` +
+                `${BLOCKS.filter((b3) => b3[2]).length} writable tables in docs/11`);
+  }
+  return problems;
+}
+
+const fsSync = await import('node:fs');
+
+if (process.argv.includes('--write')) {
+  tables('write');
+  // Re-stamp, since rewriting the tables is exactly when the fingerprint moves.
+  process.argv.push('--stamp');
+}
 
 if (process.argv.includes('--check') || process.argv.includes('--stamp')) {
   const { hash, count } = fingerprint();
@@ -311,7 +450,25 @@ if (process.argv.includes('--check') || process.argv.includes('--stamp')) {
         `  in the prose, then \`node tools/cause-effect.mjs --stamp\`.\n`);
       process.exit(1);
     }
-    console.log(`cause-effect: docs/11 is current (${hash}, ${count} numbers)`);
+    // THE FINGERPRINT ALONE WAS NOT ENOUGH. It says the model has not moved
+    // since somebody stamped; it says nothing about whether the document
+    // contains the model's numbers, so --stamp could bless a falsified table.
+    // The tables are checked directly.
+    const bad = tables('check');
+    if (bad.length) {
+      console.error(
+        `\ncause-effect: docs/11's TABLES disagree with the model.\n\n` +
+        bad.map((b2) => `    ${b2}`).join('\n') +
+        `\n\n  The fingerprint matched, which is the point: it hashes what the\n` +
+        `  MODEL measures, not what the DOCUMENT says, so --stamp can bless a\n` +
+        `  stale table. That is how §1 and §3-§7 survived the Phase 4 gate.\n` +
+        `  Run \`node tools/cause-effect.mjs --write\` to rewrite the tables and\n` +
+        `  re-stamp, then check the numbers quoted in the PROSE by hand — those\n` +
+        `  are still not covered by anything.\n`);
+      process.exit(1);
+    }
+    console.log(`cause-effect: docs/11 is current (${hash}, ${count} numbers, ` +
+                `${BLOCKS.length} tables verified)`);
   }
 } else {
   const only = process.argv[2];

@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-five corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-six corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1552,6 +1552,54 @@ not count.**
 > `updateConsumption` and `updateInvestment` duplicate on purpose (D2).
 > Recorded as open_items E6 rather than swept here: it needs a scope decision
 > and a triage the size of 5.3's.
+
+> #### As built — 5.17, and the tripwire had a door in it.
+>
+> ### CORRECTION 26 — `docs/11`'s fingerprint could be defeated by running `--stamp`, which is how §1 and §3–§7 survived the hard gate.
+>
+> 4.3 built the fingerprint and called the staleness "now DETECTABLE, which is
+> the part that mattered". It is detectable in one direction only. The hash
+> covers **the model's measurements**, not **the document's contents**, so it
+> answers *"has the model moved since somebody stamped?"* — and a stale table
+> in a stamped document is invisible to it:
+>
+> ```
+> sed -i 's/48 |  +1.03 |/48 |  +9.99 |/' docs/11-cause-and-effect.md
+> node tools/cause-effect.mjs --check    # PASSED
+> ```
+>
+> **This is the mechanism behind Correction 13b.** 4.3 regenerated §2, stamped,
+> and `--check` stayed green for the whole audit while §1's kernel table
+> described the pre-2.1 model, §5 said the Taylor rule loses `stagflation`, and
+> §7 called the closed bifurcation the biggest hole. The guard was working
+> exactly as designed. It had simply been designed to answer a different
+> question from the one everyone read it as answering.
+>
+> **The tool's own comment considers two repairs and picks the weaker one for a
+> good reason.** It weighs the fingerprint against fully generating the file
+> and rejects generation because *"most of docs/11's value is the prose
+> explaining each chain in the order it fires"*. Correct. **There is a third
+> option: check the TABLES and leave the PROSE.** The tables are verbatim tool
+> output; nothing about keeping the prose hand-written requires the tables to
+> go unverified.
+>
+> `--check` now verifies all seven pasted tables cell by cell. `--write`
+> rewrites the six that are verbatim and re-stamps — replacing a throwaway
+> script that had been living in a scratchpad, which is the same class of
+> hazard as a process that depends on someone remembering. §4's table is
+> checked but never written, because its header is hand-widened for
+> readability; the comparison is on NUMBERS, which go stale, not on formatting,
+> which is the document's own business.
+>
+> **A bug in the first version is worth keeping.** `measuredTables()` captured
+> `console.log` calls, but several sections print an entire block in ONE call,
+> so a per-element `^--` match found nothing and every table was silently
+> reported as "no longer measured". `fingerprint()` joins before matching and
+> so never had to care — the same code shape, one of them load-bearing on a
+> detail the other could ignore.
+>
+> **What is still uncovered is the prose**, and that is where every
+> stale-number defect in this audit actually was. See E4 / task 5.12.
 
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.

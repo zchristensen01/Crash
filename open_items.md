@@ -654,7 +654,43 @@ were taken on a tree with this hazard live.
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
 
-### E8. `TEST-RESULTS.md` was never byte-stable, and carried a hand-typed count — `FIXED in 5.16`
+### E9. `docs/11`'s fingerprint could be defeated by running `--stamp` — `FIXED in 5.17`
+The tripwire hashed **the model's measurements**, not **the document's
+contents**, so it answered *"has the model moved since someone last stamped?"*
+and not *"does this document contain the model's numbers?"* Falsifying a table
+cell and running `--stamp` left `--check` perfectly happy.
+
+**That is exactly how the document stayed stale through a HARD GATE.** 4.3
+regenerated §2, stamped, and `--check` was green for the rest of the audit
+while §1's kernel table still described the pre-2.1 model and §5 still said the
+Taylor rule loses `stagflation` (Correction 13b). The guard worked as built and
+could not have caught any of it.
+
+The tool's comment weighed two options — fingerprint versus generating the
+whole file — and picked the fingerprint because *"most of docs/11's value is
+the prose"*. That reasoning was right and is kept. **The third option it did
+not consider is what shipped: CHECK the tables, leave the prose.**
+
+`--check` now verifies all seven pasted tables cell by cell, and `--write`
+rewrites the six that are verbatim tool output and re-stamps — replacing the
+throwaway scratchpad script the splicing had been done with. §4's is checked
+but not written, because its header is hand-widened for readability; the
+comparison is on NUMBERS, which is what goes stale, not on formatting, which is
+the document's own business.
+
+Both defeats verified to fire after the fix:
+
+```
+sed -i 's/48 |  +1.03 |/48 |  +9.99 |/' docs/11-cause-and-effect.md
+node tools/cause-effect.mjs --stamp && node tools/cause-effect.mjs --check   # now FAILS
+node tools/cause-effect.mjs --write                                          # repairs it
+```
+
+**WHAT IS STILL UNCOVERED, and it is the same gap E4 names:** the numbers
+quoted inline in §2's chains and throughout §5 and §7 are prose. Nothing checks
+them. Every stale-number defect this audit found was in prose.
+
+### E8. `TEST-RESULTS.md` was never byte-stable### E8. `TEST-RESULTS.md` was never byte-stable, and carried a hand-typed count — `FIXED in 5.16`
 Found when checking whether the committed artefact matched a fresh run, for the
 purpose it exists for: handing the audit record to someone else.
 

@@ -14,8 +14,8 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5, E7→5.15, E8→5.16. The entries with no task are the ones that want none: `FIXED` (A4,
-A5, B1, D1, D2, E1, E2, E8), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+B8→5.14, A7→11.5, E7→5.15, E8→5.16, E9→5.17. The entries with no task are the ones that want none: `FIXED` (A4,
+A5, B1, D1, D2, E1, E2, E8, E9), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-five** corrections to the
+Recorded here and against the individual tasks. **Twenty-six** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -125,6 +125,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 26 | **`docs/11`'s fingerprint could be defeated by `--stamp`** — it hashes the MODEL, not the DOCUMENT, which is the mechanism behind Correction 13b | closed by 5.17 |
 | 25 | D2 undercounted: the demand bound was stated **three** times, not twice — the `govt_spending` dial's ceiling is check 8's third band | closed by 5.10 |
 | 24 | D1's own estimate of the rate threshold was wrong — "18–20"; it is **20.00–20.25**. The ceiling of 50 survived a full re-derivation | closed by 5.9 |
 | 23 | **5.1 is blocked on A2.** The obvious diagnosis (a shrinking transfer acting as an inflation tax) was REFUTED by freezing the transfer: 3.17 vs 3.27. It is the one-off propensity cut, and underneath it a −3.9% real rate held 200 months moves investment 0.8pp | **OPEN — open_items A6** |
@@ -707,7 +708,35 @@ tasks, not notes — the pass found them and did not fix them.
       of running the model, not a description of it". Now counted from `P` and
       `RULES` at generation time.
 
-- [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
+- [x] 5.17 `cause-effect.mjs` WRITES and CHECKS docs/11's tables — `open_items` E9
+      **The fingerprint could be defeated by running `--stamp`**, because it
+      hashes the model's measurements rather than the document's contents.
+      Falsify a cell, stamp, and `--check` passed. **That is exactly how §1 and
+      §3–§7 survived the Phase 4 HARD GATE** — 4.3 regenerated §2, stamped, and
+      the check was green for the rest of the audit while §1's kernel table
+      still described the pre-2.1 model.
+      The tool's comment weighed fingerprint against full generation and chose
+      the fingerprint, because most of docs/11's value is its prose. That is
+      right and is kept. **The third option it did not consider is what
+      shipped: check the tables, leave the prose.**
+      `--check` now verifies **all seven** pasted tables cell by cell;
+      `--write` rewrites the six that are verbatim and re-stamps, replacing the
+      throwaway scratchpad script the splicing had been done with. §4 is
+      checked but not written — its header is hand-widened for readability, so
+      the comparison is on **numbers**, which go stale, not formatting, which
+      is the document's business.
+      **Both defeats verified to fire**: a falsified cell in a writable table
+      is caught after `--stamp` and repaired by `--write`; a falsified cell in
+      the hand-maintained table is caught and reported as hand-maintained.
+      **A bug in the first version, worth recording**: `measuredTables()`
+      captured `console.log` calls, but several sections print a whole block in
+      ONE call, so a per-element `^--` match found nothing and every table was
+      silently reported as unmeasured. `fingerprint()` joins before matching
+      and so never had to care.
+      **STILL UNCOVERED:** the numbers quoted inline in the prose. Every
+      stale-number defect this audit found was in prose — that is 5.12 / E4.
+
+- [ ] 5.11 Extend lint check (f)- [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
       `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks
       `src/rules/` only. **254 undeclared literals sit outside that scope:**
       `ui/chart.js` 53, `game/scenarios.js` **49**, `game/indicators.js` 42,
