@@ -14,7 +14,7 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14, A7→11.5. The entries with no task are the ones that want none: `FIXED` (A4,
+B8→5.14, A7→11.5, E7→5.15. The entries with no task are the ones that want none: `FIXED` (A4,
 A5, B1, D1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
@@ -651,6 +651,20 @@ tasks, not notes — the pass found them and did not fix them.
       one that was never checked** — which is the whole argument for D1 having
       been raised. Tables in `dials.js`, `autopilot.js` and the autopilot test
       all replaced; the stale 1020.91% / 29.55% / 5.49% figures are gone.
+
+- [ ] 5.15 `s.dial_truncated` is unreadable outside the tick, and a comment
+      claims otherwise — `open_items` E7
+      `engine.js` says *"the state field is what the UI reads on the spot; this
+      is what the why panel reads afterwards, and both paths have to work."*
+      Measured: the field is `null` the moment `tick()` returns, and **nothing
+      in `src/ui/` or `src/game/` reads it at all**. There is one path, not
+      two; the surviving record is `dial_truncated_count`. Either give the UI
+      the read the comment promises (that is 8.5's job) or correct the comment
+      — but not neither.
+      **It is also a measurement trap that has already worked**: 5.9's first
+      ceiling sweep read the applied rate as a fallback and silently reported
+      the ceiling as the request, producing a max of exactly 20.0/25.0/30.0 at
+      each candidate. Plausible and meaningless.
 
 - [ ] 5.10 The two bounds that are stated twice — `open_items` D2
       `updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8

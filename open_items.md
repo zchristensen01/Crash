@@ -634,6 +634,39 @@ were taken on a tree with this hazard live.
 `test` gained `build --check` and `cause-effect --check`; `check` did not, so
 the command whose name promises the most was checking the least. Now aligned.
 
+### E7. `s.dial_truncated` is null everywhere anything could read it, and a comment says otherwise — `OPEN`
+Found by 5.9's re-derivation, which it caught out first. Two halves.
+
+**The claim is false.** `engine.js` says of the truncation record: *"The state
+field is what the UI reads on the spot; this is what the why panel reads
+afterwards, and both paths have to work."* Measured:
+
+```
+node -e "…"   # applyDialChange -> {requested:55, applied:50}; after tick() -> null
+```
+
+The field is cleared at the END of the tick — correctly, for the reason V2
+established — so it is `null` by the time `tick()` returns and anything outside
+the engine could look at it. **Nothing in `src/ui/` or `src/game/` reads it at
+all** (grep: the only readers are the engine's own trace note, inside the same
+tick, and the tests). So there is one path, not two, and the surviving record
+is `dial_truncated_count`, which is cumulative and is not cleared.
+
+This is 8.5's territory — *"make every recorded trace reachable"* already notes
+the truncation note is player-facing and currently invisible — but the comment
+asserting a UI path that does not exist is the part that will mislead someone.
+
+**And it is a measurement trap that already worked.** Sweeping the rate ceiling
+in 5.9 means recording what the rule ASKS for. Reading `s.dial_truncated` after
+`advance()` returns gives null, and the natural fallback — read the applied
+`s.policy_rate` instead — **silently reports the ceiling as the request**. The
+first run of that sweep produced a max request exactly equal to every candidate
+ceiling (20.0, 25.0, 30.0 …), which looks plausible and is meaningless. The
+correct approach is to wrap the autopilot and record `taylorRate(s)` at source.
+
+Anyone measuring a truncation needs to know this before they start, which is
+why it is here and not only in a commit message.
+
 ### E6. Lint check (f) walks `src/rules/` only, and 254 literals sit outside it — `OPEN`
 5.3 took `src/rules/` from 71 undeclared numeric literals to zero. Everywhere
 else in `src/` is unpoliced, and that is how `leverage_max`'s bare `1.35`
