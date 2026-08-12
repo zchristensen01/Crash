@@ -13,9 +13,9 @@ number from any document.
 **COVERAGE INVARIANT: every `OPEN` or `PARTIAL` entry in `open_items.md` has a
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
-D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, B7→5.13, B8→5.14. The entries with
-no task are the ones that want none: `FIXED` (A4, A5, B1, E1, E2), `WATCH` (D3,
-D5, E3) and `DELIBERATE` (B2).
+D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
+B8→5.14. The entries with no task are the ones that want none: `FIXED` (A4, A5,
+B1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-one** corrections to the
+Recorded here and against the individual tasks. **Twenty-three** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -124,6 +124,8 @@ produced them.
 | 19 | `investment_share` did NOT need re-deriving. **`DEPRECIATION_RATE` and `SS_DEPRECIATION` needed equalising** — both notes already said so and the values violated it | closed |
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
+| 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 23 | **5.1 is blocked on A2.** The obvious diagnosis (a shrinking transfer acting as an inflation tax) was REFUTED by freezing the transfer: 3.17 vs 3.27. It is the one-off propensity cut, and underneath it a −3.9% real rate held 200 months moves investment 0.8pp | **OPEN — open_items A6** |
 
 **Both claims docs/13 flagged as READ, NOT MEASURED are now checked.**
 `credit.js:218`'s EMA comment was measured in 3.2 and the brief was right.
@@ -330,28 +332,41 @@ guard green. Phase 6 is unblocked.
       divergence guard reads as a regression.
 
 - [~] 5.1 Recycle government interest income to households
-      **BUILT, MEASURED, AND REVERTED. It is blocked on a defect nobody knew
-      about — see `open_items.md` A4.**
-      The mechanism is right and the arithmetic works: `disposable_income +=
-      (1 - foreign_share) * interest_cost`, `apc_ss` re-derived from 0.709265 to
-      0.692945, steady state exact to 9dp. It also needs a SECOND half the plan
-      does not mention — interest accrues to bondholders, who are by definition
-      not hand-to-mouth, so it must be consumed at a lower propensity
-      (`apc_bondholder`, solved from `HAND_TO_MOUTH_SHARE`, no new parameter).
-      Without it the debt-service spiral **stops diverging entirely** —
-      amplification over a term 1.7458x -> 1.0006x, crossing at exactly 70%
-      recycled, which is 1 minus `foreign_share`.
-      **WHY IT CANNOT SHIP YET.** `updateBondYield` has no expected-inflation
-      term, so under a pegged rate the interest bill FALLS as inflation rises
-      (`overheating`: yield 1.53 -> 0.98 while inflation runs at 3.8%, real
-      coupon −2.06). Recycling it then hands households less income exactly when
-      inflation is highest, and measured, **`overheating` stopped hyperinflating
-      and settled at 3.13%** — the Taylor principle stopped operating in the one
-      scenario built to demonstrate it. Isolated: the interest channel alone
-      does little (510 -> 494), the lower `apc_ss` alone does most of it
-      (510 -> 66), and together they give 3.13.
-      **Do A4 first, then this.** The work is measured and the numbers above are
-      the recipe.
+      **BUILT TWICE, MEASURED TWICE, REVERTED TWICE — and the second attempt
+      found the real blocker, which is not the one recorded.** See
+      `open_items` **A6**.
+      The mechanism is right and the plan is right to ask for it (D1).
+      `interest_cost` is subtracted in `updateBudget` and appears in **no
+      income term**, so **2.27pp of household income vanishes every month** in
+      `calm`. A government bond is somebody's asset; paying interest to your
+      own citizens moves money, it does not destroy it, and that is why 250%
+      debt is survivable in Japan. The arithmetic works and reproduces B5's
+      recipe exactly: `apc_ss` **0.709265 → 0.692945**, `apc_bondholder =
+      (apc_ss − HAND_TO_MOUTH_SHARE)/(1 − HAND_TO_MOUTH_SHARE)` = **0.561350**,
+      steady state exact to 9dp with no new parameter.
+      **5.8 WAS SUPPOSED TO UNBLOCK IT AND DID NOT.** With the Fisher term in,
+      `overheating` still stops hyperinflating: **3.83% against 380.50%**. The
+      previous pass measured 3.13% with the old yield. Both fail, so **A4 was
+      never the cause.**
+      **THE ISOLATING EXPERIMENT REFUTED THE OBVIOUS HYPOTHESIS.** The
+      plausible story — inflation erodes the debt, the transfer shrinks, income
+      falls — is worth a tenth of a point: freezing the transfer for 200 months
+      gives 3.17% against 3.27% free. It is the **one-off level cut**.
+      Recycling raises canonical household income 78.25 → 80.525, so `apc_ss`
+      MUST fall; but `apc_ss` is canonical and the transfer is not.
+      `overheating` opens with a coupon of 1.75 against 3.25, so it takes the
+      lower propensity with **1.22** of interest instead of 2.275, loses
+      **0.57pp of consumption**, and its opening gap moves **+0.2 → −0.44**.
+      **WHAT IS UNDERNEATH IT IS A2.** A **−3.9% real rate held for two hundred
+      months** moves investment 22.65 → 23.48 and the gap peaks at +2.2 before
+      falling back. `overheating`'s divergence was being carried by the income
+      error; with the accounting right, the demand block cannot produce it.
+      Rule 6 says the same thing: that scenario's regime is **asserted, not
+      driven** — the defect docs/07 M6 found in `recession`.
+      **ORDER: 11.1 (A2) → re-derive `overheating`'s vector → 5.1 → 5.5's
+      wiring.** Do not attempt it again before A2, and do not close it by
+      re-tuning `overheating` to hyperinflate: that is rule 3 applied to a
+      scenario instead of a coefficient.
 
 - [x] 5.2 Private debt maturity — **and it was TWO defects, not one**
       New `PRIVATE_DEBT_REPRICING_YEARS` = 3.0 [1.0, 8.0], `weak`, the private
@@ -575,6 +590,11 @@ tasks, not notes — the pass found them and did not fix them.
       **Contained on purpose:** it does not reach private borrowers.
       `sovereign_premium_felt` passes on `max(0, risk_premium)`, and that is
       the debt, foreign and panic terms only.
+      **IT DID NOT UNBLOCK 5.1, AND THIS ENTRY CLAIMED IT WOULD.** 5.1 was
+      rebuilt on top of it and `overheating` still stops hyperinflating —
+      **3.83% against 380.50%**, where the previous pass measured 3.13% with
+      the OLD yield. Both fail, so the missing Fisher term was never the cause.
+      The fix stands on its own merits. See `open_items` A6.
       **`stagflation` under the Taylor rule now ends OVERHEATING at 3.2%**
       rather than GOLDILOCKS at 2.9% — the rule still wins by a mile (against
       673%) and the higher long yield makes the win slower. `docs/11` §5
@@ -795,7 +815,14 @@ moves too little for the price change that caused it.*
 | endogenous crisis propagation | **3.65** | was 8.4 of Cerra-Saxena's 10 |
 | post-crisis rebound | 46% of the trough with BOTH amplifiers off | Cerra-Saxena: none |
 
-- [ ] 11.1 Diagnose it — `open_items` A2
+- [ ] 11.1 Diagnose it — `open_items` A2 — **AND IT NOW BLOCKS 5.1**
+      Promoted from "the strongest candidate for the next pass" to a blocker
+      for a Phase 5 task. The sixth sighting is the one that breaks something:
+      `overheating` pegs the rate at 1.0% against 5-6% expected inflation, and
+      a **−3.9% real rate held for two hundred months** moves investment 22.65
+      → 23.48 with the output gap peaking at +2.2 before falling back. The
+      scenario converges to 1.8% instead of diverging. It only ever diverged
+      because the model destroys 2.27pp of household income a month (A6).
       **It is not a calibration problem**, and 4.1 proved that from the other
       side: `CRISIS_SCAR_AMPLIFICATION` re-solves to 1.06–1.26 against a
       published [2.0, 4.5], and forcing it there would make the exogenous

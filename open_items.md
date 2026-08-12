@@ -99,11 +99,30 @@ The most important thing in this audit and it is not in the original brief.
 > **The finding is unharmed** — every cell still misses its literature by the
 > same order — which is exactly why nobody re-ran them.
 
+**A SIXTH SIGHTING, FOUND BY 5.1's SECOND ATTEMPT, AND IT IS THE ONE THAT
+BREAKS SOMETHING.** `overheating` pegs the policy rate at 1.0% against 5-6%
+expected inflation — a real rate of **−3.9%** — and its whole design is that a
+Taylor-principle violation MUST diverge. Held for two hundred months:
+
+| month | real rate | output gap | investment |
+|---|---|---|---|
+| 1 | −3.90 | −0.44 | 22.65 |
+| 48 | −2.25 | +1.38 | 23.36 |
+| 96 | −2.22 | +2.08 | 23.48 |
+| 200 | −1.76 | +1.77 | 23.32 |
+
+**A deeply negative real rate held for seventeen years moves investment by
+0.8pp of GDP and the output gap peaks at +2.2 before falling back.** The
+scenario converges to 1.8% inflation instead of diverging. It only ever
+diverged because the model was destroying 2.27pp of household income a month —
+see A6. Every other sighting is a number outside a published range; this one is
+a scenario that cannot teach its own lesson.
+
 **Every real quantity moves too little for the price change that caused it.**
-These are not four findings; they are one, in the demand block, and it is not a
+These are not five findings; they are one, in the demand block, and it is not a
 calibration problem. It is why `CRISIS_SCAR_AMPLIFICATION` could not be
-re-solved (see C2), and it is the strongest candidate for the next pass's
-central task.
+re-solved (see C2), **and since A6 it is a blocker for a Phase 5 task rather
+than a candidate for the next pass.**
 
 ### A3. A rate cut buys LESS inflation the hotter the economy — `OPEN`, undiagnosed
 Below the capacity ceiling, the inflation response to a 1pp cut **falls** as the
@@ -172,6 +191,64 @@ where START solved it — because every quantity it checked was a ratio, a rate,
 or a percent of potential, and all of them are invariant when output and
 potential drift together.
 
+### A6. 5.1 IS BLOCKED ON THE DEMAND BLOCK, NOT ON THE YIELD — `OPEN`
+Recycling the government's interest bill to households is right, the plan asks
+for it (D1), the arithmetic works and the steady state closes exactly. It was
+reverted in the third audit's follow-up and **reverted again here**, and the
+second attempt found the real reason.
+
+**Why apc_ss must fall, and why that is the whole problem.** Adding
+`(1 − foreign_share) · interest_cost` to disposable income raises household
+income at the canonical baseline from 78.25 to **80.525**. Consumption must
+still be 55.5, so the average propensity has to fall — from **0.709265 to
+0.692945** — solved so `apc_ss·(YD − interest) + apc_bondholder·interest =
+55.5`, with `apc_bondholder = (apc_ss − HAND_TO_MOUTH_SHARE)/(1 −
+HAND_TO_MOUTH_SHARE) = 0.561350`. Both figures reproduce the recipe in B5
+exactly. There is no way to avoid the cut: more income at the same consumption
+IS a lower propensity.
+
+**And apc_ss is canonical while the interest transfer is not.** `overheating`
+opens with a coupon of 1.75 against the canonical 3.25, so it receives **1.22**
+of recycled interest against the 2.275 that apc_ss was solved for. It takes the
+lower propensity without the compensating income and loses **0.57pp of
+consumption**, which moves its opening output gap from **+0.2 to −0.44**. That
+is correct economics — an economy whose government pays its savers less has
+less household income — and it is fatal to the scenario.
+
+```
+node -e "import('./test/harness.mjs').then(async h=>{const {SCENARIOS}=await import('./src/game/scenarios.js');
+  const w=h.world({assert:false,overrides:SCENARIOS.overheating.overrides});h.advance(w,200);
+  console.log(w.s.inflation)})"      # 380.50 as shipped; 3.83 with 5.1 applied
+```
+
+**THE ISOLATING EXPERIMENT REFUTED THE OBVIOUS HYPOTHESIS.** The plausible
+story was dynamic: inflation erodes the debt, so the transfer shrinks, so
+income falls — an inflation tax acting as a stabiliser. Measured by holding the
+transfer frozen at its opening level for 200 months, `overheating` reaches
+**3.17%** against **3.27%** free. The shrinking transfer is worth a tenth of a
+point. **It is the one-off level cut, exactly as the previous pass measured**
+(interest channel alone 510 → 494; the lower apc_ss alone 510 → 66).
+
+**WHAT IS ACTUALLY UNDERNEATH IT: A2.** `overheating` pegs the rate at 1.0%
+against 5–6% expected inflation and its design promise is that a
+Taylor-principle violation must diverge. With the income error removed, a
+**−3.9% real rate held for two hundred months** moves investment 22.65 → 23.48
+and the output gap peaks at **+2.2** before falling back to 1.8% inflation. The
+scenario's divergence was being carried by 2.27pp of household income the
+accounting says belongs to bondholders. **Once the accounting is right, the
+demand block is too weak to produce the divergence.**
+
+**Rule 6 states the same thing from the other side: `overheating`'s regime is
+ASSERTED, not DRIVEN.** It sets `unemployment: 3.5` and a low rate and relies
+on the demand identity for a positive gap — the exact defect docs/07 M6 found
+in `recession` and fixed by giving it a driven balance-sheet story.
+`overheating` survived because the old income error was doing the driving.
+
+**The order is therefore A2 → re-derive `overheating`'s vector → 5.1**, and
+5.5's `HAND_TO_MOUTH_SHARE` wiring rides on 5.1 as before. Do not attempt 5.1
+again before A2, and do not close it by re-tuning `overheating` to hyperinflate
+— that is rule 3 applied to a scenario instead of a coefficient.
+
 ### A4. The bond yield had no expected-inflation term — `FIXED in 5.8`, and it UNBLOCKS 5.1
 `updateBondYield` read `expectedShort = s.policy_rate` for a term labelled
 *"expected path of the policy rate"*, so a ten-year bond was a one-day bond
@@ -231,11 +308,13 @@ mechanisms rather than a contaminated level:**
 is the debt, foreign and panic terms only. A government paying more because
 inflation is high is not a sovereign risk penalty on its companies.
 
-**5.1 AND 5.5's SHELVED WIRING ARE NOW UNBLOCKED.** The interest bill rises
-with inflation (coupon 1.72 → 2.37 → 4.12 → 52.32 in the table above, against
-1.72 → 1.65 → 1.42 before), so recycling it hands households MORE income when
-inflation is highest, which is the direction the mechanism needs. Task 5.1 can
-be rebuilt from the recipe in its own entry and B5's.
+**IT DID NOT UNBLOCK 5.1, AND THIS ENTRY WAS WRONG TO SAY IT WOULD.** The
+fix is right on its own merits and the interest bill now rises with inflation
+(coupon 2.37 → 4.12 → 52.32 against 1.72 → 1.65 → 1.42 before). But 5.1 was
+rebuilt on top of it and **`overheating` still stops hyperinflating** — 3.83%
+against 380.50%. Measured on both sides: the previous pass recorded 3.13% with
+the old yield, this pass measures 3.83% with the new one. **Both fail, so the
+missing Fisher term was never the cause.** See **A6** for what is.
 
 ---
 

@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-one corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-three corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1180,12 +1180,59 @@ check the steady state to 9 decimal places afterwards.
 > inflation is high is not a sovereign risk penalty on its companies, and
 > folding it in would be a second, undeclared channel.
 >
-> **5.1 AND 5.5's SHELVED WIRING ARE UNBLOCKED.** The interest bill now rises
-> with inflation — the average coupon runs 2.37 → 4.12 → 52.32 in that same
-> pegged `overheating` run, against 1.72 → 1.65 → 1.42 before — so recycling it
-> hands households more income when inflation is highest, which is the
-> direction the mechanism needs and the opposite of what made it invert the
-> lesson.
+> ### CORRECTION 22 — 5.8 did NOT unblock 5.1, and A4 was never the blocker.
+>
+> This block claimed it did. 5.1 was then rebuilt on top of it and
+> **`overheating` still stops hyperinflating: 3.83% against 380.50%.** The
+> previous pass measured **3.13%** with the OLD yield. Both fail, so the
+> missing Fisher term was never the cause — the fix stands on its own merits
+> and on nothing else. The interest bill does now rise with inflation (average
+> coupon 2.37 → 4.12 → 52.32 against 1.72 → 1.65 → 1.42), which was the right
+> thing to want and the wrong thing to expect a scenario to hinge on.
+>
+> ### CORRECTION 23 — 5.1 is blocked on the DEMAND BLOCK, and the obvious diagnosis was refuted by measuring it.
+>
+> The arithmetic reproduces B5's recipe exactly — `apc_ss` **0.709265 →
+> 0.692945**, `apc_bondholder` **0.561350**, steady state exact to 9dp, no new
+> parameter — and the mechanism is right. What kills it:
+>
+> **Why the propensity must fall.** Recycling raises canonical household income
+> 78.25 → **80.525** while consumption must stay 55.5, so the average propensity
+> HAS to drop. There is no formulation that avoids it: more income at the same
+> consumption *is* a lower propensity.
+>
+> **Why that breaks a scenario.** `apc_ss` is solved from the CANONICAL
+> baseline — correctly, since solving it per scenario makes the fiscal
+> multiplier structurally zero — but the interest transfer is not canonical.
+> `overheating` opens with a coupon of 1.75 against 3.25, so it receives
+> **1.22** where `apc_ss` was solved for 2.275. It takes the lower propensity
+> without the compensating income, loses **0.57pp of consumption**, and its
+> opening output gap moves **+0.2 → −0.44**.
+>
+> **The isolating experiment refuted the obvious hypothesis, which is why it
+> was run.** The plausible story was dynamic — inflation erodes the debt, the
+> transfer shrinks, household income falls, an inflation tax acting as a
+> stabiliser. Measured by freezing the transfer at its opening level for 200
+> months: **3.17% against 3.27% free.** Worth a tenth of a point. It is the
+> one-off level cut, exactly as the previous pass measured and contrary to the
+> story that fits best.
+>
+> **What is underneath it is A2.** `overheating` pegs the rate at 1.0% against
+> 5–6% expected inflation and its entire design is that a Taylor-principle
+> violation must diverge. A **−3.9% real rate held for two hundred months**
+> moves investment 22.65 → 23.48 and the gap peaks at **+2.2** before falling
+> back to 1.8% inflation. **The divergence was being carried by 2.27pp of
+> household income the accounting says belongs to bondholders**, and once the
+> accounting is right the demand block cannot produce it.
+>
+> Rule 6 says the same thing from the other side: `overheating`'s regime is
+> **asserted, not driven**. It sets `unemployment: 3.5` and a low rate and
+> relies on the demand identity — the exact defect docs/07 M6 found in
+> `recession` and fixed there by giving it a driven balance-sheet story.
+>
+> **This reorders the audit.** A2 was "the strongest candidate for the next
+> pass's central task"; it is now a blocker for a Phase 5 task. Order:
+> **11.1 (A2) → re-derive `overheating`'s vector → 5.1 → 5.5's wiring.**
 
 **5.2 — Private debt maturity (`TEST-RESULTS.md` #11).**
 The whole private debt stock reprices the month the dial moves. A1 hands you the
