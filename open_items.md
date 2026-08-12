@@ -397,7 +397,9 @@ now does.** See docs/13 Correction 13b.
 
 Re-stamped at `86c1b104fab5561d`. The remaining known-unverified block is
 **`debt_trap`'s five-row policy table in §5**, which was measured for `docs/12`
-and is flagged in place as not re-run. **E13 re-ran it.**
+and was flagged in place as not re-run. **E13 re-ran it and 5.21 gave it a
+producer, so `docs/11` now has no numeric block that a tool does not generate
+and check.**
 
 ### B2. `debt_trap` overflows `govt_debt` to Infinity at month 191 — `DELIBERATE`
 After reaching 7.27e+189. Verified identical before and after Phase 3, so it is
@@ -736,7 +738,7 @@ in prose, and nothing checks prose.
 > its coverage — 7 fenced tables and 453 cells across 21 pipe tables — instead
 > of a bare count of what it happens to have been given.
 
-### E13. `docs/11`'s `debt_trap` policy table is the last unchecked numeric block, and a row's OUTCOME has flipped — `OPEN`, task 5.21
+### E13. `docs/11`'s `debt_trap` policy table had no producer, and a row's OUTCOME had flipped — `FIXED in 5.21`
 The one numeric block E12 did not close, because it is the one block no tool
 produces. Five rows measured for `docs/12`, pasted into §5, and flagged in
 place as *"NOT re-measured against the fourth audit's model"* — with the caveat
@@ -788,9 +790,26 @@ therefore cannot be re-run by anybody who was not there. **A number with no
 reproduction is the thing this document exists to not contain.** Task 5.21
 gives it a section in the tool so it is generated and checked like the rest.
 
+**FIXED in 5.21.** `tools/cause-effect.mjs` gained a `policy` section that
+states the experiment and measures all five rows; the table in §5 is now a
+fenced block, rewritten by `--write` and checked by `--check` like §2's and
+§4's. The document's own flag — *"has NOT been re-measured"* — is gone, because
+it is now re-measured on every `npm test`.
+
 ```
-node tools/cause-effect.mjs policy      # after 5.21
+node tools/cause-effect.mjs policy
 ```
+
+The prose was rewritten with it: *"cutting the cost of the debt alone works"*
+became **"you cannot consolidate your way out, and you cannot cheapen your way
+out either"**, which is what the rows now say. Austerity alone buys 13 months,
+rate-to-the-floor 22, and only the combinations survive — the surviving economy
+is still at a −5.9 gap with debt at 184% after eight years. Falsification
+verified to fire before and after `--stamp`, and repaired by `--write`.
+
+**The fingerprint moved `8f20248ce93b453a → f1a8588676b42adf`** and the number
+count 1464 → **1484**, because the section is new measurement rather than a
+correction to old measurement.
 
 ### E9. `docs/11`'s fingerprint could be defeated by running `--stamp` — `FIXED in 5.17`
 The tripwire hashed **the model's measurements**, not **the document's

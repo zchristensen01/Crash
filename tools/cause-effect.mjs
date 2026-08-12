@@ -240,7 +240,62 @@ function lags() {
   console.log(markets.join(''));
 }
 
-const SECTIONS = { dials, stateDependence, noInput, automatic, shocks, lags };
+/**
+ * `debt_trap`'s five policies — THE ONE TABLE IN docs/11 THAT HAD NO PRODUCER
+ * [4th audit 5.21, open_items E13].
+ *
+ * It was measured by hand for `docs/12`, pasted into §5, and flagged in place
+ * as not re-run. By the time 5.20 had made every other numeric block in the
+ * document checkable it was the only one left, and re-running it found that
+ * four of its five rows had moved and one had changed OUTCOME: `rate to the
+ * floor` says *survives* and ends in a debt crisis at month 95.
+ *
+ * The deeper defect was that nobody could tell whether it had moved, because
+ * THE EXPERIMENT WAS NEVER WRITTEN DOWN — "rate to the floor" could mean the
+ * dial's −0.75 or a plain zero, applied on day one or after the player has
+ * watched for a while. It is stated here, and it is the same convention the
+ * rest of §5 uses so the rows are comparable with the preset paths above:
+ * events OFF, endings ON, the policy applied before the first tick, 96 months.
+ * (Every other reading was checked too and they agree on the outcome: floor 0
+ * gives a crisis at m87, applying at m6 gives m90 and m85. With events ON it
+ * is seed-dependent, which is exactly why §5 is measured without them.)
+ */
+function policy() {
+  console.log('\n' + '='.repeat(78));
+  console.log('DEBT_TRAP — WHAT EACH POLICY BUYS (events off, endings on, applied at m0)');
+  console.log('='.repeat(78));
+  const floor = DIALS.find((d) => d.key === 'policy_rate').min;
+  const tax = (w) => applyDialChange(w.s, w.pipeline, 'tax_rate', w.s.tax_rate + 4);
+  const rate = (w) => applyDialChange(w.s, w.pipeline, 'policy_rate', floor);
+  const qe30 = (w) => applyDialChange(w.s, w.pipeline, 'qe', 30);
+  const moves = [
+    ['nothing', () => {}],
+    ['austerity, tax +4pp', tax],
+    ['rate to the floor', rate],
+    ['both', (w) => { tax(w); rate(w); }],
+    ['both, plus 30% QE', (w) => { tax(w); rate(w); qe30(w); }],
+  ];
+  console.log('\n-- debt_trap: what each policy buys');
+  console.log('   policy               | debt m48 | outcome');
+  console.log('   ' + '-'.repeat(74));
+  for (const [name, move] of moves) {
+    const w = world({ overrides: SCENARIOS.debt_trap.overrides, endings: true });
+    move(w);
+    let d48 = NaN, end = null, endM = 0;
+    for (let m = 1; m <= 96; m++) {
+      advance(w, 1);
+      if (m === 48) d48 = w.s.govt_debt;
+      if (w.s.ending && !end) { end = w.s.ending.key; endM = m; }
+    }
+    const outcome = end
+      ? `${end.replace('_', ' ').toUpperCase()}, month ${endM}`
+      : `survives — inflation ${f(w.s.inflation, 1)}, gap ${sign(w.s.output_gap, 1)}, ` +
+        `debt ${f(w.s.govt_debt, 0)} at m96`;
+    console.log('   ' + name.padEnd(20) + ' | ' + f(d48, 0).padStart(8) + ' | ' + outcome);
+  }
+}
+
+const SECTIONS = { dials, stateDependence, noInput, automatic, shocks, lags, policy };
 
 /**
  * --check: has the model moved since docs/11 was last regenerated?
@@ -323,6 +378,10 @@ const BLOCKS = [
   // document's own business.
   ['## 4. What happens with no decision from you',
                                         'a −5pp spending cut, and what the stabilisers do about it', false],
+  // §5's `debt_trap` policy table. Fenced and writable rather than left as a
+  // markdown table, because unlike the rest of §5 it selects nothing and
+  // reformats nothing — it is the whole of what the tool prints [5.21, E13].
+  ['#### The decision it contains',      'debt_trap: what each policy buys',   true],
 ];
 
 /** The numeric content of a table, which is the only part that can go stale. */

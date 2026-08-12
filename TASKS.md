@@ -19,14 +19,13 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
 | A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose has no check | 5.12 |
-| | | | **E13 `debt_trap`'s policy table** | **5.21** |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 | B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
 | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`** (A4, A5, B1,
-D1, D2, E1, E2, E8, E9, E10, E11, E12), **`WATCH`** (D3, D5, E3) and
+D1, D2, E1, E2, E8, E9, E10, E11, E12, E13), **`WATCH`** (D3, D5, E3) and
 **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
 
 **There are no audit reports.** A finding goes in `open_items.md` with its
@@ -115,7 +114,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty** corrections to the
+Recorded here and against the individual tasks. **Thirty-one** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -138,6 +137,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 31 | **`docs/11`'s own flag understated its staleness**: it said the `debt_trap` policy table's "do-nothing row alone has moved" — four of five had, and `rate to the floor` had changed OUTCOME while the prose drew a lesson from it | closed by 5.21 |
 | 30 | **5.17's scope decision was wrong the same way, one task further on**: "7 tables verified" meant seven ***fenced*** tables and docs/11 has **twelve** measured blocks. The other five were unchecked and **58 cells were stale** while the fingerprint was correct | closed by 5.20 |
 | 29 | **5.11's own scope decision was wrong one task later**: `indicators.js` held copies **five and six**, and named a danger line in prose it did not use | closed by 5.19 |
 | 28 | Check (f)'s blind spot held a **fourth copy** of `CREDIT_GAP_WARNING`, promoted in 5.3 — the promotion left a copy behind and nothing could say so | closed by 5.11 |
@@ -886,7 +886,7 @@ tasks, not notes — the pass found them and did not fix them.
       reading — which is 5.12.
       Model untouched: no rule, no parameter, fingerprint unmoved, 168/152/0/16.
 
-- [ ] 5.21 Give `debt_trap`'s policy table a producer — `open_items` E13
+- [x] 5.21 Give `debt_trap`'s policy table a producer — `open_items` E13
       **THE LAST NUMERIC BLOCK IN `docs/11` THAT NO TOOL PRODUCES**, and 5.20's
       sweep is what left it standing alone. Five rows measured by hand for
       `docs/12`, pasted into §5, flagged in place as not re-run, with the
@@ -903,6 +903,31 @@ tasks, not notes — the pass found them and did not fix them.
       *"you cannot consolidate your way out — the answer is both"* holds harder.
       **Do not re-tune `debt_trap` to restore the old row** (rule 3); 11.4 owns
       that vector and B6 is the reason.
+      **AS BUILT.** New `policy` section in `tools/cause-effect.mjs` stating the
+      experiment in its header — events off, endings on, policy applied before
+      the first tick, 96 months, the same convention §5's preset paths use so
+      the rows are comparable with them. The table is now a **fenced block**,
+      writable by `--write` and checked by `--check`: **8 fenced tables** and
+      453 cells across 21 pipe tables. `--write` is idempotent.
+      Measured: nothing **174 / DEBT CRISIS m73**; austerity **163 / m86**;
+      rate to the floor **165 / m95**; both **156 / survives, inflation 1.2,
+      gap −5.9, debt 184**; both + 30% QE **154 / survives, inflation 1.5, gap
+      −3.8, debt 172**.
+      **THE PROSE WAS REWRITTEN, NOT JUST THE TABLE** — *"cutting the cost of
+      the debt alone works"* was drawn from the row that flipped. It now reads
+      *"you cannot consolidate your way out, and you cannot cheapen your way
+      out either"*: austerity alone buys 13 months, the rate alone 22, and the
+      economy that survives is still at a −5.9 gap with debt at 184% after
+      eight years — you do not get out of a debt trap, you get to stay in it.
+      Falsification verified to fire before and after `--stamp`, and repaired
+      by `--write`. **Fingerprint `8f20248ce93b453a` → `f1a8588676b42adf`,
+      1464 → 1484 numbers** — new measurement, not corrected measurement.
+      **`README.md` carried the over-claim this task disproves** — *"Its
+      numbers are generated by `node tools/cause-effect.mjs`, so they cannot
+      drift from the model."* Until 5.20 that was false of five blocks and 58
+      cells, and until 5.21 the policy table was hand-measured. Corrected to
+      claim what is true: every TABLE is generated and checked, the PROSE still
+      is not, and that is E4.
 
 - [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
       **THE TWO OBVIOUS SWEEPS ARE MEASURED AND BOTH ARE DEAD ENDS** — see E4's
@@ -950,9 +975,11 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.12–5.15 and **5.21**, which 5.20's sweep
-uncovered — `debt_trap`'s policy table is the one numeric block in `docs/11`
-with no producer, and a row of it has changed outcome (`open_items` E13).
+rides on it. **Not started:** 5.12–5.15.
+**5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
+5 handoff, and between them `docs/11` now has **no numeric block that a tool
+does not generate and check**: 8 fenced tables, 453 cells across 21 pipe
+tables, fingerprint `f1a8588676b42adf` over 1484 numbers.
 
 **Phase 6 was unblocked by the Phase 4 gate and 6.6 by 5.4. But read A7 first**
 — `overheating`'s central lesson sits 0.6pp of demand from a bifurcation at
