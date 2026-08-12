@@ -19,7 +19,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | **A2 the demand block** | **11.6** (11.1 done) | | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 |
 | A3 hotter buys less inflation | 7.3 | | B6 `debt_trap` is fragile | 11.4 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
-| **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
+| **A7 the separatrix** | **A6** (11.5 done) | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | **11.7** (11.2 done) | | E6 check (f)'s scope | 5.11 (partial) |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
@@ -126,7 +126,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-nine** corrections to the
+Recorded here and against the individual tasks. **Forty** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -149,6 +149,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 40 | **A7's bifurcation is not the capacity ceiling** — delete the ceiling entirely and the edge is unmoved to six significant figures. It is the Taylor-principle violation, which is the scenario's own lesson; the fragility is the STARTING POINT, not the model | closed by 11.5 |
 | 39 | **The UK sacrifice ratio is the Okun ramp too, not the demand block** — off, it moves 0.36 → 0.61 (+69%) where the demand-block sweep moved it the wrong way. Two of A2's five sightings are one labour-block mechanism, and propagation is the only sighting left with no mechanism | 11.2, fix is 11.7 |
 | 38 | **B3 is not A2 from the labour side** — it is the Okun hoarding ramp, saturated at its flattest value from month one of a crash, and asserted by the gap when its own source requires a job-retention policy the model does not have | closed by 11.2, fix is 11.7 |
 | 37 | **A2 is not one finding.** Its sightings respond to the demand block's own principal speed in OPPOSITE directions — the tax multiplier improves as it speeds up, the sacrifice ratio and rebound improve as it slows, and propagation peaks at the shipped value. Two axes, not one cause | closed by 11.1 |
@@ -1386,7 +1387,7 @@ caused it* — and this section used to call them **one finding seen five ways**
       establishes that the blocker cannot be removed by speeding the demand
       block up, because doing so costs three other sightings. A6's ordering
       stands and 11.3's re-solve still waits.
-- [ ] 11.5 The capacity ceiling is a hard switch, and a scenario's lesson sits
+- [x] 11.5 The capacity ceiling is a hard switch, and a scenario's lesson sits
       0.6pp from it — `open_items` A7
       Sweeping a standing demand shift through `overheating`, month-96
       inflation goes **4.05% at d = −0.51 and 39.20% at d = −0.48**. A 0.03pp
@@ -1407,6 +1408,45 @@ caused it* — and this section used to call them **one finding seen five ways**
       re-open, not an oversight. **Do not close it by moving `overheating`
       away from the edge** — that is A6's job and it does not remove the
       bifurcation.
+      **DIAGNOSED, AND THE PREMISE IS WRONG: IT IS NOT THE CAPACITY CEILING.**
+      The sweep reproduces exactly through 5.7, 5.8 and 5.13 — 4.05 → **39.20**
+      at the edge, peaks 2.177 vs 10.348 — so the phenomenon is robust. The
+      attribution is not.
+      **(a) A TRUE bifurcation, not a horizon artefact.** Run to m900: d ≤ −0.52
+      returns to **2.02 / 1.99**, d ≥ −0.4916 runs away to **8159**, and it runs
+      away LINEARLY at ~10pp of inflation per month. The m96 reading is a
+      lagging indicator — bisecting on m96 gives −0.4915, on the long run
+      **−0.51150**.
+      **(b) THE CEILING DOES NOT MOVE IT.** Edge `d*` at ceilings 2 / 3 / 4 / 6
+      / 10 / **none**: −0.4912 / −0.4915 / −0.4915 / −0.4915 / −0.4915 /
+      **−0.4915**; and on the long-run bisection, as built **−0.51150** against
+      no ceiling at all **−0.51150** — identical to six significant figures.
+      A7 said the scenario "diverges if and only if the gap climbs past
+      `MAX_CAPACITY_OVERHEAT`". That was a **correlation**: divergent runs pass
+      through 4 on the way up. Delete the ceiling and they still diverge from
+      the same point.
+      **(c) IT IS THE TAYLOR-PRINCIPLE VIOLATION — the scenario's own lesson.**
+      A pegged nominal rate against rising inflation is a falling real rate and
+      that loop is unstable. Let the rate respond and the edge moves from
+      **−0.51 to between +1 and +3** (Taylor arm at m900: 1.91 at d=−0.51, 2.02
+      at 0, 6.90 at +1, 8769 at +3).
+      **(d) Un-anchoring widens the unstable region, it does not create it.**
+      Pin `PHILLIPS_KAPPA_UNANCHORED` to the anchored value and `d*` moves
+      −0.51150 → **−0.37135**, about 23% of the margin; the bifurcation remains.
+      **SO THE TASK'S QUESTION IS AIMED AT THE WRONG OBJECT.** Whether the
+      ceiling is a switch or a steep ramp cannot matter here — softening it
+      would not remove the knife-edge. **An unstable fixed point has a
+      separatrix; that is what a Taylor-principle violation IS**, not a defect,
+      and teaching it is the scenario's purpose. `MAX_CAPACITY_OVERHEAT` keeps
+      its shape and **6.1 is unblocked** — the scenario paths it calibrates
+      against do not move.
+      **WHAT IS ACTUALLY WRONG IS THE STARTING POINT, which is A6's job.**
+      `overheating` opens 0.6pp from a separatrix, so any change anywhere in the
+      demand block can flip its lesson — which is precisely what killed 5.1.
+      **The ceiling is still real**: A3's jump in the marginal inflation
+      response at +4 is a genuine ceiling effect and 11.5 says nothing about it.
+      Only the bifurcation attribution is refuted.
+      No code changed — measurement only.
 - [ ] 11.6 The PERSISTENCE axis — three sightings that want the demand block
       SLOWER *(new, from 11.1)*
       **A2's live half after 11.1**, and where that entry now points. The

@@ -321,7 +321,7 @@ where START solved it — because every quantity it checked was a ratio, a rate,
 or a percent of potential, and all of them are invariant when output and
 potential drift together.
 
-### A7. `overheating`'s central lesson sits 0.6pp of demand from a bifurcation, and the bifurcation is the capacity ceiling — `OPEN`
+### A7. `overheating`'s central lesson sits 0.6pp from a bifurcation — `OPEN`, and **11.5 refuted this entry's mechanism: it is NOT the capacity ceiling**
 Found while diagnosing A6 and it explains it. `overheating`'s design promise is
 that a Taylor-principle violation MUST diverge. Measured, that promise rests on
 a knife-edge. Sweeping a standing demand shift `d` through `net_exports` — which
@@ -367,9 +367,81 @@ takes the whole term to move the gap 2pp, so reaching +4 was always marginal.
 **Do not close this by widening the margin.** Re-deriving `overheating`'s
 vector so it opens further from the edge is legitimate and is what rule 6
 requires (A6), but it does not remove the bifurcation — it moves the scenario
-away from it. The bifurcation itself is a modelling question: whether a hard
-ceiling is the right shape, or whether it should be a steep ramp the way
-`monetaryEasingScale` and the Okun coefficient already are after docs/07 L6.
+away from it.
+
+---
+
+#### 11.5 — THE DIAGNOSIS, AND THE MECHANISM ABOVE IS WRONG
+
+The sweep reproduces exactly — 3.57 / 3.76 / **4.05** / **39.20** / 76.73 /
+137.91 / 380.50, peaks 2.177 vs 10.348 — through 5.7, 5.8 and 5.13. It is
+robust. **The attribution is not.**
+
+**1. IT IS A TRUE BIFURCATION, not a finite-horizon artefact.** Read at m96 you
+cannot tell an explosion from a slow one. Run to m900:
+
+| `d` | m96 | m200 | m400 | m900 |
+|---|---|---|---|---|
+| −0.60 | 3.42 | 3.16 | 2.30 | **1.99** |
+| −0.52 | 3.92 | 3.58 | 2.37 | **2.02** |
+| −0.4916 | 16.50 | 863.72 | 2947.98 | **8159.18** |
+| −0.48 | 39.20 | 976.22 | 3061.00 | **8272.94** |
+
+One side returns to target, the other runs away — **linearly, at about 10pp of
+inflation per month**, not explosively. And the m96 reading is a LAGGING
+indicator of the edge: bisecting on m96 puts it at −0.4915 and bisecting on the
+long run puts it at **−0.51150**.
+
+**2. IT IS NOT `MAX_CAPACITY_OVERHEAT`. Sweeping the ceiling does not move the
+edge at all:**
+
+| ceiling | 2 | 3 | 4 | 6 | 10 | **none** |
+|---|---|---|---|---|---|---|
+| edge `d*` | −0.4912 | −0.4915 | −0.4915 | −0.4915 | −0.4915 | **−0.4915** |
+
+and on the long-run bisection, **as built −0.51150 and with no ceiling at all
+−0.51150 — identical to six significant figures.** This entry says the scenario
+"diverges if and only if the gap climbs past `MAX_CAPACITY_OVERHEAT`". That was
+a CORRELATION: divergent runs pass through 4 on the way up. Remove the ceiling
+and they still diverge, from the same starting point.
+
+**3. IT IS THE TAYLOR-PRINCIPLE VIOLATION — which is the scenario's own
+lesson.** A pegged nominal rate against rising inflation is a falling real
+rate, and that loop is unstable. Let the rate respond and the edge moves from
+−0.51 to somewhere between **+1 and +3**:
+
+| `d` | −0.60 | −0.51 | 0 | +1 | +3 |
+|---|---|---|---|---|---|
+| peg, m900 | 1.99 | **7528** | 8782 | 9044 | 9372 |
+| Taylor rule, m900 | 1.86 | **1.91** | 2.02 | 6.90 | **8769** |
+
+**4. Un-anchoring widens the unstable region but does not create it.** Pin
+`PHILLIPS_KAPPA_UNANCHORED` to the anchored value and the edge moves −0.51150 →
+**−0.37135** — about 23% of the 0.6pp margin — and the bifurcation is still
+there.
+
+**SO THE QUESTION THIS ENTRY POSES IS AIMED AT THE WRONG OBJECT.** "Whether a
+hard ceiling is the right shape, or a steep ramp" cannot matter here: the
+ceiling's shape is irrelevant to this bifurcation, and softening it would not
+remove the knife-edge. **An unstable fixed point has a separatrix. That is not
+a defect — it is what a Taylor-principle violation IS**, and teaching it is the
+scenario's entire purpose.
+
+**WHAT IS ACTUALLY WRONG IS THE SCENARIO'S STARTING POINT**, and that is A6's
+job, not a modelling question: `overheating` opens 0.6pp from a separatrix, so
+any change anywhere in the demand block can flip its lesson — which is exactly
+what killed 5.1. Re-deriving the vector is legitimate (rule 6) and is the fix.
+
+**THE CEILING IS STILL REAL AND STILL DOES THINGS.** A3 — *a rate cut buys less
+inflation the hotter the economy, then jumps at the ceiling* — is a genuine
+ceiling effect on the marginal response, and 11.5 says nothing about it. What
+is refuted is only this entry's claim that the ceiling causes `overheating`'s
+bifurcation.
+
+```
+node -e "..."   # sweep externalDemand through overheating to m900, and
+                 # sweep MAX_CAPACITY_OVERHEAT: the edge does not move
+```
 
 ### A6. 5.1 IS BLOCKED ON THE DEMAND BLOCK, NOT ON THE YIELD — `OPEN`
 Recycling the government's interest bill to households is right, the plan asks
