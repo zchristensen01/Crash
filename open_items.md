@@ -311,6 +311,63 @@ tightening caught what it was aimed at and nothing else. The recipe above is
 copied verbatim into its `DEFERRED` entry, so it travels with the parameter
 rather than only with this file.
 
+### B7. `business_confidence` compares a user cost against a real interest rate — `OPEN`, and 8.10 would ship it
+Found while labelling the sentiment weights in 5.3 and measured in 5.8's
+follow-up. The gauge is declared `60` in `state.js` and in `docs/01`, and it
+settles at **exactly 48.000** on tick one of a perfect steady state and stays
+there for two hundred months:
+
+```
+node -e "import('./test/harness.mjs').then(h=>{const w=h.world({});h.advance(w,200);
+  console.log(w.s.business_confidence, w.s.user_cost - w.s.market_real_rate_ss)})"
+```
+
+The whole 12-point gap is one term:
+`BIZ_W_USER_COST × (user_cost − market_real_rate_ss)` = `2.0 × 6.000`, and
+**6.000 is exactly `DEPRECIATION_RATE × 100`**. `user_cost` is
+`market_rate − expected_inflation + δ·100` — a user cost OF CAPITAL — and
+`market_real_rate_ss` is `neutral_real_rate + credit_spread_ss`, a real
+interest rate with no depreciation in it. They are not the same kind of
+quantity, so the gauge reads a permanent wedge that is pure units.
+
+`consumer_confidence` settles at exactly its neutral 60, which is what makes
+the 48 visible as an error rather than a choice.
+
+**Not urgent and not harmless.** Nothing reads `business_confidence` — it is a
+pure gauge — but `docs/09` gap 5 lists it as computed-and-never-displayed and
+**task 8.10 exists to display it**. Showing a business-confidence reading of 48
+at a flawless steady state would be a gauge that lies at rest, which is the
+`price_level` invariant's whole argument one file over. Fix before 8.10, not
+after: either compare `user_cost` against a steady-state USER COST, or drop
+depreciation from the term.
+
+### B8. Two monetary validation targets are measured on ONE arm of a deliberately asymmetric channel — `OPEN`
+`MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes, on
+purpose and with a source. Both monetary validation tests shock the model with
+a **hike** and negate. Measured on both arms:
+
+| target | published | hike arm (the test) | cut arm |
+|---|---|---|---|
+| `RATE_TO_OUTPUT` @12m | 0.2–0.6 | 0.4154 | 0.3074 |
+| `RATE_TO_INFLATION` @24m | 0.2–0.4 | **0.0795** | **0.2230** |
+
+```
+node --test test/validation.test.js 2>&1 | grep "literature 0.2-0.4"
+```
+
+**For `RATE_TO_INFLATION` the choice of arm decides the verdict**: the hike arm
+is a fifth of the published floor and the cut arm is inside the band.
+`RATE_TO_OUTPUT` passes either way, so nobody had reason to look.
+
+**This is not licence to switch arms** — that would be tuning to pass, and the
+hike arm's shortfall is real. But the published estimates are generally
+identified across both directions, so comparing a one-sided model measurement
+against a two-sided estimate is not like-for-like, and the `todo` should say so
+rather than reporting a single number. Recorded in the message; the right fix
+is to measure the average of the two arms and state the asymmetry separately.
+Related to A2: the hike arm is the weak-response direction, so this is the
+demand-block finding showing up in the measurement protocol.
+
 ### B6. `debt_trap` was already fragile before 5.1 touched it — `OPEN`
 While measuring the D1 revert, two of `debt_trap`'s own tests were seen to sit
 on very thin margins — *"the real economy responds to the yield at all"* passed
@@ -358,6 +415,19 @@ same band; `updateInvestment` clamps to `[2, 45]` and check 8 asserts that too.
 Deliberate belt-and-braces, and the numbers were deliberately taken from the
 invariant so there is one source. But they are still two copies: **move one and
 the other must move.** A candidate for Phase 5.3's literal sweep.
+
+### D5. `stagflation` under the Taylor rule now ends OVERHEATING, not GOLDILOCKS — `WATCH`
+5.8 gave the long yield an expected-inflation leg, so the state borrows at a
+higher rate through a disinflation. At month 96 the rule-following arm now
+reads **OVERHEATING at 3.2%** where it read GOLDILOCKS at 2.9%, with debt
+120% against 128%.
+
+**The lesson is intact and this is a slower win, not a loss** — the unattended
+arm hyperinflates at 673%. But the regime LABEL is what the player reads, and
+"the benchmark central bank ends the term still overheating" is a different
+sentence from "the benchmark wins". Worth deciding deliberately rather than
+discovering: it lands in **5.9**, which re-derives the rate ceiling, and in
+`docs/11` §5, which is already updated.
 
 ### D4. `PRIVATE_DEBT_REPRICING_YEARS` is one number for a ten-fold spread — `WATCH`
 5.2's parameter is 3.0 years with a range of [1, 8] that is deliberately the

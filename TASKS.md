@@ -13,8 +13,9 @@ number from any document.
 **COVERAGE INVARIANT: every `OPEN` or `PARTIAL` entry in `open_items.md` has a
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
-D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11. The entries with no task are the
-ones that want none: `FIXED` (E1, E2), `WATCH` (D3, E3) and `DELIBERATE` (B2).
+D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, B7→5.13, B8→5.14. The entries with
+no task are the ones that want none: `FIXED` (A4, A5, B1, E1, E2), `WATCH` (D3,
+D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -578,6 +579,26 @@ tasks, not notes — the pass found them and did not fix them.
       rather than GOLDILOCKS at 2.9% — the rule still wins by a mile (against
       673%) and the higher long yield makes the win slower. `docs/11` §5
       updated and re-stamped `8f20248ce93b453a`.
+
+- [ ] 5.13 `business_confidence` compares a user cost against a real rate — `open_items` B7
+      **BLOCKS 8.10.** The gauge is declared 60 and settles at exactly
+      **48.000** at a flawless steady state, forever. The whole 12-point gap is
+      `BIZ_W_USER_COST × (user_cost − market_real_rate_ss)` = 2.0 × 6.000, and
+      6.000 is exactly `DEPRECIATION_RATE × 100`: a user cost OF CAPITAL
+      compared against a real INTEREST RATE. `consumer_confidence` settles at
+      exactly its neutral 60, which is what makes the 48 legible as an error.
+      Nothing reads it today, and **8.10 exists to display it** — a gauge that
+      lies at rest is the `price_level` invariant's own argument one file over.
+- [ ] 5.14 Measure the monetary validation targets on BOTH arms — `open_items` B8
+      `MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes,
+      on purpose. Both monetary validation tests shock with a HIKE and negate.
+      `RATE_TO_INFLATION` @24m is **0.0795 on the hike arm and 0.2230 on the
+      cut arm** against a published 0.2–0.4 — **the arm decides the verdict**.
+      `RATE_TO_OUTPUT` is 0.4154 / 0.3074 and passes either way, which is why
+      nobody looked. **Not licence to switch arms** (that is tuning to pass);
+      the fix is to report the average and state the asymmetry separately,
+      because a one-sided model measurement against a two-sided published
+      estimate is not like-for-like.
 
 - [ ] 5.9 Re-derive the rate ceiling of 50 — `open_items` D1
       2.4 derived `max: 50` as a fixed point over 360 runs with events on,
