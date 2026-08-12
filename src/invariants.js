@@ -18,6 +18,34 @@ import { annualRateToMonthlyLinear, annualToMonthlyFlow } from './units.js';
 
 export const INVARIANT_TOLERANCE = 1e-6;
 
+/**
+ * THE PLAUSIBILITY BAND FOR EACH DEMAND COMPONENT, AND THERE IS NOW ONE COPY
+ * OF IT [4th audit 5.10, open_items D2].
+ *
+ * Check 8 below asserts these, `updateConsumption` and `updateInvestment` clamp
+ * to them, and the `govt_spending` dial's own maximum is the third of them.
+ * All three used to be written out separately — the same numbers in two or
+ * three files, with a comment in each saying "taken from the invariant so
+ * there is one source", which is a description of intent rather than a
+ * mechanism. Move one and the others had to be moved by hand.
+ *
+ * They are JUDGEMENT and absurdity bounds rather than calibration, which is
+ * why they are here and not in `parameters.py`: 95% of potential leaves 5% for
+ * investment, government and trade combined, no economy has ever invested 45%
+ * of output for long, and nothing real should come near any of them. They
+ * exist so a rule that saturates fails loudly instead of reading as stable on
+ * every summary statistic.
+ *
+ * NOT SHARED WITH `tax_rate`, whose dial also happens to run 0-70. That is a
+ * different quantity that coincides on a number, and wiring them together
+ * because they look alike is the class of error B2 and 5.5 both were.
+ */
+export const DEMAND_BOUNDS = {
+  consumption: [10, 95],
+  investment: [2, 45],
+  govt_purchases: [0, 70],
+};
+
 function fail(name, lhs, rhs, tick) {
   throw new Error(
     `invariant '${name}' violated at tick ${tick}: ` +
@@ -120,11 +148,8 @@ export function checkInvariants(s, prev, tick) {
   // 8. Demand components stay individually plausible. A component pinned
   //    against its clamp is a rule saturating rather than failing, and
   //    saturation reads as stability on every summary statistic.
-  const components = [
-    ['consumption', s.consumption, 10, 95],
-    ['investment', s.investment, 2, 45],
-    ['govt_purchases', s.govt_purchases, 0, 70],
-  ];
+  const components = Object.entries(DEMAND_BOUNDS)
+    .map(([name, [lo, hi]]) => [name, s[name], lo, hi]);
   for (const [name, v, lo, hi] of components) {
     if (!(v >= lo && v <= hi)) {
       throw new Error(

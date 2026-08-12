@@ -35,8 +35,8 @@ that only showed the passing parts would be marketing.
 
 | | |
 |---|---|
-| Tests | **165** |
-| Passing | **149** |
+| Tests | **166** |
+| Passing | **150** |
 | Failing (regressions) | **0** |
 | Open disagreements (`OPEN`) | **16** |
 | Linter | **clean** |
@@ -297,139 +297,140 @@ with its number in the section above. `FAIL` = a regression.
 | 14 | no demand component can leave the physically possible range, ever | PASS |
 | 15 | the consumption bound is recorded as a trace term the player can see | PASS |
 | 16 | the asset-price bound is on the LEVEL, so a spiral cannot outrun it | PASS |
-| 17 | the bubble loop has gain below one AT EVERY OPERATING POINT, not just at rest | PASS |
-| 18 | the loop's balancing counterpart is the debt-service burden, and it binds | PASS |
-| 19 | credit/GDP integrates the impulse — the EMA is a filter, not a guard | PASS |
-| 20 | a crash causes a recession, not just a haircut | PASS |
-| 21 | the demand collapse fades but the scar does not | PASS |
-| 22 | spending in the first year after a crash shrinks the permanent scar | PASS |
-| 23 | waiting past the window costs you the discount | PASS |
-| 24 | forced selling fires in the bubble, and then stops | PASS |
-| 25 | THE DOOM LOOP: banks below the floor cut lending and widen spreads | PASS |
-| 26 | a crash takes a real bite out of bank capital | PASS |
-| 27 | defaulted debt leaves the credit stock | PASS |
-| 28 | a crash is survivable and the economy is still playable afterwards | PASS |
-| 29 | RECAPITALISATION IS A QUANTITY, NOT A GESTURE | PASS |
-| 30 | THE CRASH ARC: every published magnitude at once | PASS |
-| 34 | the scar PHASES IN rather than landing on month one | PASS |
-| 36 | WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was | PASS |
-| 37 | no Math.random anywhere in src/ | PASS |
-| 38 | no bare time conversion outside units.js | PASS |
-| 39 | same seed produces an identical 96-tick history | PASS |
-| 40 | E1: no permanent dial move diverges through an undeclared loop | PASS |
-| 41 | E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F | PASS |
-| 42 | every state field is documented in 01-variables.md | PASS |
-| 43 | 01-variables.md does not document fields the model no longer has | PASS |
-| 44 | every dial, gauge, scenario, shock and ending is named in the docs | PASS |
-| 45 | every transmitted driver has a player-facing name | PASS |
-| 46 | the docs index lists every file in docs/ | PASS |
-| 47 | US 2008-12: the rate dial does reach its floor and stay there | PASS |
-| 49 | US 2021-23: fiscal transfers plus a supply shock do produce an inflation | PASS |
-| 51 | UK 1979-83: low credibility really does make inflation more expensive | PASS |
-| 53 | JAPAN: own-currency debt held at home does not reprice, and foreign-held does | PASS |
-| 55 | the Taylor principle IS satisfiable — but only by jumping, never by walking | PASS |
-| 56 | THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone | PASS |
-| 57 | every event leaves the accounting identities intact | PASS |
-| 58 | every event actually changes something that survives the tick | PASS |
-| 59 | no event writes a pipeline target | PASS |
-| 60 | full terms with shocks on and invariants armed, across every scenario | PASS |
-| 61 | A WOBBLE IN A STRETCHED SYSTEM IS A DIFFERENT EVENT (docs/12 M3) | PASS |
-| 62 | no event is invisible to the player | PASS |
-| 63 | a temporary rate hike produces a HUMP, not a ramp | PASS |
-| 64 | the ordering of the peaks is output, then unemployment, then inflation | PASS |
-| 65 | the response scales with the size of the impulse and not with its sign | PASS |
-| 66 | a cut is a weaker impulse than a hike, for as long as the impulse is live | PASS |
-| 68 | the spending impulse is fast and the rate impulse is slow | PASS |
-| 69 | QE and the rate dial have the same SHAPE and different sizes | PASS |
-| 70 | a dial move reaches the transmitted driver and converges to the dial | PASS |
-| 71 | markets reprice before borrowers, and both before capital spending | PASS |
-| 72 | the output response to a rate move is LAGGED, not instant | PASS |
-| 73 | the pipeline refuses to schedule into a field a rule owns | PASS |
-| 74 | no rule assigns to a pipeline target | PASS |
-| 75 | every declared pipeline target exists on a fresh state | PASS |
-| 76 | the Taylor autopilot faces the same lags the player does | PASS |
-| 77 | every dial either schedules a lag or is documented as immediate | PASS |
-| 78 | recession multiplier lands in the published range | PASS |
-| 79 | expansion multiplier lands in the published range | PASS |
-| 80 | the multiplier is larger in a slump than in a boom | PASS |
-| 81 | the same spending buys more OUTPUT with slack and more PRICES without | PASS |
-| 82 | holding the rate fixed makes the multiplier much larger | PASS |
-| 83 | THE QE LESSON: printing into slack with a credible CB barely bites | PASS |
-| 84 | printing with no slack and no credibility goes straight to prices | PASS |
-| 85 | printing buys real things when there is slack to buy them with | PASS |
-| 86 | AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack | PASS |
-| 88 | every START field is read by something, or is declared idle | PASS |
-| 89 | the two depreciation rates are equal, as both their notes require | PASS |
-| 90 | every parameter has a value inside its range | PASS |
-| 91 | every parameter has a unit, a source and a known confidence level | PASS |
-| 92 | the deleted double-count has not crept back | PASS |
-| 93 | kernels are normalised and peak on the documented month | PASS |
-| 94 | every fitted kernel shape has a lag entry | PASS |
-| 95 | START satisfies the accounting identities | PASS |
-| 96 | every constant solved from the model is declared, in both directions | PASS |
-| 97 | ROUND TRIP: the stance returns exactly, to nine decimal places | PASS |
-| 98 | ROUND TRIP: the ECONOMY does not return, and the residue is real capital | PASS |
-| 99 | HIKE-HOLD-CUT: no permanent ratchet, and the jobs cost outlasts the gain | PASS |
-| 100 | STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows | PASS |
-| 101 | a path and a held move are not the same thing, and the difference is measurable | PASS |
-| 102 | every scenario starts internally consistent | PASS |
-| 103 | the bubble scenario looks healthy on every gauge except the credit gap | PASS |
-| 104 | the bubble hides for four years — the design promise | PASS |
-| 106 | every scenario starts in, and stays a quarter in, its advertised regime | PASS |
-| 107 | the recession scenario has the rate dial genuinely dead | PASS |
-| 108 | no scenario produces absurd numbers inside a term | PASS |
-| 109 | NEUTRAL ANCHORS ARE BUILT FROM NEUTRAL, in every scenario | PASS |
-| 110 | debt_trap: the real economy responds to the yield at all | PASS |
-| 111 | debt_trap: the benchmark central bank is no longer identical to doing nothing | PASS |
-| 112 | debt_trap: THE DECISION — you cannot consolidate your way out alone | PASS |
-| 114 | THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting | PASS |
-| 115 | a hike does not bite the interest bill on impact | PASS |
-| 116 | CHARACTERISATION: what each preset does over a full term, unattended | PASS |
-| 117 | the core macro block is stable around the steady state | PASS |
-| 118 | the debt loop diverges, but slowly enough to be playable | PASS |
-| 119 | a one-off demand shock decays rather than compounding | PASS |
-| 120 | 200 ticks of no input and nothing drifts | PASS |
-| 121 | THE LEVEL: potential grows at potential_growth, and K/Y stays put | PASS |
-| 122 | credibility rises when the target is hit, and slowly | PASS |
-| 123 | the credit gap does not open on its own | PASS |
-| 124 | a rate cut does more for OUTPUT with slack than at capacity | PASS |
-| 125 | a cut is weaker than the equivalent hike | PASS |
-| 126 | a cut-then-hike round trip leaves the stance where it started | PASS |
-| 127 | THE LOWER BOUND: easing stops working as the rate approaches it | PASS |
-| 128 | QE still works when the rate dial has run out of room | PASS |
-| 129 | unemployment rises faster than it falls | PASS |
-| 130 | SWEEP: more spending never raises unemployment, at any starting gap | PASS |
-| 131 | SWEEP: no step changes in the response to a rate cut | PASS |
-| 132 | the ONE cliff in the model is the capacity ceiling, and it is where it says | PASS |
-| 133 | L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT | PASS |
-| 134 | L3: the fiscal multiplier has no step in it as the rate falls to the bound | PASS |
-| 135 | investment.js reads the rate DIAL only to display it | PASS |
-| 136 | A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it | PASS |
-| 138 | A-TABLE: the A1 split made the response curve measurably smoother | PASS |
-| 139 | the TRANSMITTED Taylor response clears unity, not just the dial one | PASS |
-| 140 | the whole UI boots without throwing | PASS |
-| 141 | every shell container the app needs exists | PASS |
-| 142 | a gauge mounts for every indicator | PASS |
-| 143 | a dial mounts for every dial | PASS |
-| 144 | every gauge can open a why panel with real terms | PASS |
-| 145 | every gauge has a history series to draw | PASS |
-| 146 | moving a dial schedules an effect instead of applying it | PASS |
-| 147 | a session runs a full term without throwing | PASS |
-| 148 | restarting on the same seed keeps the previous run as a ghost | PASS |
-| 149 | the game starts paused, at 1x, with play as the visible action | PASS |
-| 150 | pausing does not throw away the chosen speed | PASS |
-| 151 | every gauge and every dial has a plain-English definition | PASS |
-| 152 | every gauge can say whether it is getting worse | PASS |
-| 153 | a passive calm run reaches the end of the term and is scored | PASS |
-| 154 | a losing run reaches a named ending with a lesson | PASS |
-| 155 | the DEFERRED register matches the code, in both directions | PASS |
-| 156 | every recorded parameter conflict is still genuinely unresolved | PASS |
-| 157 | RATE_TO_OUTPUT: 1pp of policy rate, held a year | PASS |
-| 158 | AUTO_STABILISER_ABSORPTION: share of an income shock that never lands | PASS |
-| 159 | a tax cut RAISES output, and does it through consumption | PASS |
-| 162 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
-| 164 | private debt reprices over YEARS, and the burden lands late | PASS |
-| 165 | the debt-service burden reads the transmitted rate, not the dial | PASS |
+| 17 | the demand clamps and check 8 are the same numbers, and a pinned run proves it | PASS |
+| 18 | the bubble loop has gain below one AT EVERY OPERATING POINT, not just at rest | PASS |
+| 19 | the loop's balancing counterpart is the debt-service burden, and it binds | PASS |
+| 20 | credit/GDP integrates the impulse — the EMA is a filter, not a guard | PASS |
+| 21 | a crash causes a recession, not just a haircut | PASS |
+| 22 | the demand collapse fades but the scar does not | PASS |
+| 23 | spending in the first year after a crash shrinks the permanent scar | PASS |
+| 24 | waiting past the window costs you the discount | PASS |
+| 25 | forced selling fires in the bubble, and then stops | PASS |
+| 26 | THE DOOM LOOP: banks below the floor cut lending and widen spreads | PASS |
+| 27 | a crash takes a real bite out of bank capital | PASS |
+| 28 | defaulted debt leaves the credit stock | PASS |
+| 29 | a crash is survivable and the economy is still playable afterwards | PASS |
+| 30 | RECAPITALISATION IS A QUANTITY, NOT A GESTURE | PASS |
+| 31 | THE CRASH ARC: every published magnitude at once | PASS |
+| 35 | the scar PHASES IN rather than landing on month one | PASS |
+| 37 | WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was | PASS |
+| 38 | no Math.random anywhere in src/ | PASS |
+| 39 | no bare time conversion outside units.js | PASS |
+| 40 | same seed produces an identical 96-tick history | PASS |
+| 41 | E1: no permanent dial move diverges through an undeclared loop | PASS |
+| 42 | E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F | PASS |
+| 43 | every state field is documented in 01-variables.md | PASS |
+| 44 | 01-variables.md does not document fields the model no longer has | PASS |
+| 45 | every dial, gauge, scenario, shock and ending is named in the docs | PASS |
+| 46 | every transmitted driver has a player-facing name | PASS |
+| 47 | the docs index lists every file in docs/ | PASS |
+| 48 | US 2008-12: the rate dial does reach its floor and stay there | PASS |
+| 50 | US 2021-23: fiscal transfers plus a supply shock do produce an inflation | PASS |
+| 52 | UK 1979-83: low credibility really does make inflation more expensive | PASS |
+| 54 | JAPAN: own-currency debt held at home does not reprice, and foreign-held does | PASS |
+| 56 | the Taylor principle IS satisfiable — but only by jumping, never by walking | PASS |
+| 57 | THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone | PASS |
+| 58 | every event leaves the accounting identities intact | PASS |
+| 59 | every event actually changes something that survives the tick | PASS |
+| 60 | no event writes a pipeline target | PASS |
+| 61 | full terms with shocks on and invariants armed, across every scenario | PASS |
+| 62 | A WOBBLE IN A STRETCHED SYSTEM IS A DIFFERENT EVENT (docs/12 M3) | PASS |
+| 63 | no event is invisible to the player | PASS |
+| 64 | a temporary rate hike produces a HUMP, not a ramp | PASS |
+| 65 | the ordering of the peaks is output, then unemployment, then inflation | PASS |
+| 66 | the response scales with the size of the impulse and not with its sign | PASS |
+| 67 | a cut is a weaker impulse than a hike, for as long as the impulse is live | PASS |
+| 69 | the spending impulse is fast and the rate impulse is slow | PASS |
+| 70 | QE and the rate dial have the same SHAPE and different sizes | PASS |
+| 71 | a dial move reaches the transmitted driver and converges to the dial | PASS |
+| 72 | markets reprice before borrowers, and both before capital spending | PASS |
+| 73 | the output response to a rate move is LAGGED, not instant | PASS |
+| 74 | the pipeline refuses to schedule into a field a rule owns | PASS |
+| 75 | no rule assigns to a pipeline target | PASS |
+| 76 | every declared pipeline target exists on a fresh state | PASS |
+| 77 | the Taylor autopilot faces the same lags the player does | PASS |
+| 78 | every dial either schedules a lag or is documented as immediate | PASS |
+| 79 | recession multiplier lands in the published range | PASS |
+| 80 | expansion multiplier lands in the published range | PASS |
+| 81 | the multiplier is larger in a slump than in a boom | PASS |
+| 82 | the same spending buys more OUTPUT with slack and more PRICES without | PASS |
+| 83 | holding the rate fixed makes the multiplier much larger | PASS |
+| 84 | THE QE LESSON: printing into slack with a credible CB barely bites | PASS |
+| 85 | printing with no slack and no credibility goes straight to prices | PASS |
+| 86 | printing buys real things when there is slack to buy them with | PASS |
+| 87 | AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack | PASS |
+| 89 | every START field is read by something, or is declared idle | PASS |
+| 90 | the two depreciation rates are equal, as both their notes require | PASS |
+| 91 | every parameter has a value inside its range | PASS |
+| 92 | every parameter has a unit, a source and a known confidence level | PASS |
+| 93 | the deleted double-count has not crept back | PASS |
+| 94 | kernels are normalised and peak on the documented month | PASS |
+| 95 | every fitted kernel shape has a lag entry | PASS |
+| 96 | START satisfies the accounting identities | PASS |
+| 97 | every constant solved from the model is declared, in both directions | PASS |
+| 98 | ROUND TRIP: the stance returns exactly, to nine decimal places | PASS |
+| 99 | ROUND TRIP: the ECONOMY does not return, and the residue is real capital | PASS |
+| 100 | HIKE-HOLD-CUT: no permanent ratchet, and the jobs cost outlasts the gain | PASS |
+| 101 | STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows | PASS |
+| 102 | a path and a held move are not the same thing, and the difference is measurable | PASS |
+| 103 | every scenario starts internally consistent | PASS |
+| 104 | the bubble scenario looks healthy on every gauge except the credit gap | PASS |
+| 105 | the bubble hides for four years — the design promise | PASS |
+| 107 | every scenario starts in, and stays a quarter in, its advertised regime | PASS |
+| 108 | the recession scenario has the rate dial genuinely dead | PASS |
+| 109 | no scenario produces absurd numbers inside a term | PASS |
+| 110 | NEUTRAL ANCHORS ARE BUILT FROM NEUTRAL, in every scenario | PASS |
+| 111 | debt_trap: the real economy responds to the yield at all | PASS |
+| 112 | debt_trap: the benchmark central bank is no longer identical to doing nothing | PASS |
+| 113 | debt_trap: THE DECISION — you cannot consolidate your way out alone | PASS |
+| 115 | THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting | PASS |
+| 116 | a hike does not bite the interest bill on impact | PASS |
+| 117 | CHARACTERISATION: what each preset does over a full term, unattended | PASS |
+| 118 | the core macro block is stable around the steady state | PASS |
+| 119 | the debt loop diverges, but slowly enough to be playable | PASS |
+| 120 | a one-off demand shock decays rather than compounding | PASS |
+| 121 | 200 ticks of no input and nothing drifts | PASS |
+| 122 | THE LEVEL: potential grows at potential_growth, and K/Y stays put | PASS |
+| 123 | credibility rises when the target is hit, and slowly | PASS |
+| 124 | the credit gap does not open on its own | PASS |
+| 125 | a rate cut does more for OUTPUT with slack than at capacity | PASS |
+| 126 | a cut is weaker than the equivalent hike | PASS |
+| 127 | a cut-then-hike round trip leaves the stance where it started | PASS |
+| 128 | THE LOWER BOUND: easing stops working as the rate approaches it | PASS |
+| 129 | QE still works when the rate dial has run out of room | PASS |
+| 130 | unemployment rises faster than it falls | PASS |
+| 131 | SWEEP: more spending never raises unemployment, at any starting gap | PASS |
+| 132 | SWEEP: no step changes in the response to a rate cut | PASS |
+| 133 | the ONE cliff in the model is the capacity ceiling, and it is where it says | PASS |
+| 134 | L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT | PASS |
+| 135 | L3: the fiscal multiplier has no step in it as the rate falls to the bound | PASS |
+| 136 | investment.js reads the rate DIAL only to display it | PASS |
+| 137 | A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it | PASS |
+| 139 | A-TABLE: the A1 split made the response curve measurably smoother | PASS |
+| 140 | the TRANSMITTED Taylor response clears unity, not just the dial one | PASS |
+| 141 | the whole UI boots without throwing | PASS |
+| 142 | every shell container the app needs exists | PASS |
+| 143 | a gauge mounts for every indicator | PASS |
+| 144 | a dial mounts for every dial | PASS |
+| 145 | every gauge can open a why panel with real terms | PASS |
+| 146 | every gauge has a history series to draw | PASS |
+| 147 | moving a dial schedules an effect instead of applying it | PASS |
+| 148 | a session runs a full term without throwing | PASS |
+| 149 | restarting on the same seed keeps the previous run as a ghost | PASS |
+| 150 | the game starts paused, at 1x, with play as the visible action | PASS |
+| 151 | pausing does not throw away the chosen speed | PASS |
+| 152 | every gauge and every dial has a plain-English definition | PASS |
+| 153 | every gauge can say whether it is getting worse | PASS |
+| 154 | a passive calm run reaches the end of the term and is scored | PASS |
+| 155 | a losing run reaches a named ending with a lesson | PASS |
+| 156 | the DEFERRED register matches the code, in both directions | PASS |
+| 157 | every recorded parameter conflict is still genuinely unresolved | PASS |
+| 158 | RATE_TO_OUTPUT: 1pp of policy rate, held a year | PASS |
+| 159 | AUTO_STABILISER_ABSORPTION: share of an income shock that never lands | PASS |
+| 160 | a tax cut RAISES output, and does it through consumption | PASS |
+| 163 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
+| 165 | private debt reprices over YEARS, and the burden lands late | PASS |
+| 166 | the debt-service burden reads the transmitted rate, not the dial | PASS |
 
 ### `test/crisis.test.js`
 
@@ -437,10 +438,10 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 31 | THE CRASH ARC: the unemployment cost of a banking crisis | **OPEN** |
-| 32 | THE CRASH ARC: the five-year loss against trend | **OPEN** |
-| 33 | THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them | **OPEN** |
-| 35 | MEASURED: the model rebounds after year five and Cerra-Saxena say it should not | **OPEN** |
+| 32 | THE CRASH ARC: the unemployment cost of a banking crisis | **OPEN** |
+| 33 | THE CRASH ARC: the five-year loss against trend | **OPEN** |
+| 34 | THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them | **OPEN** |
+| 36 | MEASURED: the model rebounds after year five and Cerra-Saxena say it should not | **OPEN** |
 
 ### `test/episodes.test.js`
 
@@ -448,10 +449,10 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 48 | US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT | **OPEN** |
-| 50 | US 2021-23: THE DISINFLATION NEVER HAPPENS | **OPEN** |
-| 52 | UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES | **OPEN** |
-| 54 | JAPAN: THE MODEL CANNOT HOLD A DEFLATION | **OPEN** |
+| 49 | US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT | **OPEN** |
+| 51 | US 2021-23: THE DISINFLATION NEVER HAPPENS | **OPEN** |
+| 53 | UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES | **OPEN** |
+| 55 | JAPAN: THE MODEL CANNOT HOLD A DEFLATION | **OPEN** |
 
 ### `test/irf.test.js`
 
@@ -459,7 +460,7 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 67 | MEASURED: the labour market has no lag behind output, and here it is | **OPEN** |
+| 68 | MEASURED: the labour market has no lag behind output, and here it is | **OPEN** |
 
 ### `test/multipliers.test.js`
 
@@ -467,7 +468,7 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 87 | THE SIGN FLIP THE DOCS PROMISED: how far away is it | **OPEN** |
+| 88 | THE SIGN FLIP THE DOCS PROMISED: how far away is it | **OPEN** |
 
 ### `test/scenarios.test.js`
 
@@ -475,8 +476,8 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 105 | the bubble does not deflate on its own before the term ends | **OPEN** |
-| 113 | debt_trap: and the inflation price of escaping is visibly large | **OPEN** |
+| 106 | the bubble does not deflate on its own before the term ends | **OPEN** |
+| 114 | debt_trap: and the inflation price of escaping is visibly large | **OPEN** |
 
 ### `test/transmission.test.js`
 
@@ -484,7 +485,7 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 137 | A-TABLE: the knife-edge is the wealth channel, and it is still there | **OPEN** |
+| 138 | A-TABLE: the knife-edge is the wealth channel, and it is still there | **OPEN** |
 
 ### `test/validation.test.js`
 
@@ -492,9 +493,9 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 160 | QE_TO_GDP: bond buying reaches output through the yield, and how much | **OPEN** |
-| 161 | RATE_TO_INFLATION: the model is about half the published estimate | **OPEN** |
-| 163 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
+| 161 | QE_TO_GDP: bond buying reaches output through the yield, and how much | **OPEN** |
+| 162 | RATE_TO_INFLATION: the model is about half the published estimate | **OPEN** |
+| 164 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
 
 ---
 
@@ -827,84 +828,89 @@ TAP version 13
 # Subtest: the rate the autopilot achieves stays in the dial's range and reaches both ends
 ok 1 - the rate the autopilot achieves stays in the dial's range and reaches both ends
   ---
-  duration_ms: 7.342219
+  duration_ms: 3.835287
   ...
 # Subtest: the autopilot enforces no bounds of its own — the dial is the only one
 ok 2 - the autopilot enforces no bounds of its own — the dial is the only one
   ---
-  duration_ms: 0.609883
+  duration_ms: 0.327118
   ...
 # Subtest: a dial request the bounds refuse is reported, not swallowed
 ok 3 - a dial request the bounds refuse is reported, not swallowed
   ---
-  duration_ms: 0.189988
+  duration_ms: 0.118154
   ...
 # Subtest: the truncation count makes a saturated benchmark visible in one number
 ok 4 - the truncation count makes a saturated benchmark visible in one number
   ---
-  duration_ms: 60.297683
+  duration_ms: 72.3959
   ...
 # Subtest: the Taylor rule wins stagflation at the derived ceiling and loses at 20
 ok 5 - the Taylor rule wins stagflation at the derived ceiling and loses at 20
   ---
-  duration_ms: 33.624189
+  duration_ms: 27.545858
   ...
 # Subtest: a truncation reaches the trace whether the player or the autopilot caused it
 ok 6 - a truncation reaches the trace whether the player or the autopilot caused it
   ---
-  duration_ms: 1.280353
+  duration_ms: 1.518733
   ...
 # Subtest: index.html has been built
 ok 7 - index.html has been built
   ---
-  duration_ms: 0.400681
+  duration_ms: 0.359437
   ...
 # Subtest: the bundled page executes without throwing
 ok 8 - the bundled page executes without throwing
   ---
-  duration_ms: 11.786461
+  duration_ms: 9.29732
   ...
 # Subtest: no import or export keyword survived into the bundle
 ok 9 - no import or export keyword survived into the bundle
   ---
-  duration_ms: 2.698976
+  duration_ms: 1.645954
   ...
 # Subtest: the page is self-contained — no external requests
 ok 10 - the page is self-contained — no external requests
   ---
-  duration_ms: 2.798955
+  duration_ms: 2.198657
   ...
 #   worst case over 240 months, all six scenarios: consumption 95.0 (overheating), investment 45.0 (overheating), govt_purchases 22.0 (calm)
 #   worst asset/fundamental over 240 months, all six scenarios: 10.00 (overheating)
 # Subtest: invariants hold across 200 quiet ticks
 ok 11 - invariants hold across 200 quiet ticks
   ---
-  duration_ms: 26.638183
+  duration_ms: 28.541814
   ...
 # Subtest: invariants hold under a violent policy path
 ok 12 - invariants hold under a violent policy path
   ---
-  duration_ms: 5.864807
+  duration_ms: 6.361749
   ...
 # Subtest: checkInvariants actually catches a broken book
 ok 13 - checkInvariants actually catches a broken book
   ---
-  duration_ms: 0.40223
+  duration_ms: 0.390382
   ...
 # Subtest: no demand component can leave the physically possible range, ever
 ok 14 - no demand component can leave the physically possible range, ever
   ---
-  duration_ms: 85.018972
+  duration_ms: 102.942707
   ...
 # Subtest: the consumption bound is recorded as a trace term the player can see
 ok 15 - the consumption bound is recorded as a trace term the player can see
   ---
-  duration_ms: 13.925996
+  duration_ms: 12.519798
   ...
 # Subtest: the asset-price bound is on the LEVEL, so a spiral cannot outrun it
 ok 16 - the asset-price bound is on the LEVEL, so a spiral cannot outrun it
   ---
-  duration_ms: 79.754951
+  duration_ms: 66.190569
+  ...
+# Subtest: the demand clamps and check 8 are the same numbers, and a pinned run proves it
+ok 17 - the demand clamps and check 8 are the same numbers, and a pinned run proves it
+  ---
+  duration_ms: 9.96891
   ...
 #   loop gain (96-month amplification of a credit_impulse shock):
 #     steady state   excess credit growth   0.000  ->  gain 7.756e-3
@@ -914,79 +920,79 @@ ok 16 - the asset-price bound is on the LEVEL, so a spiral cannot outrun it
 #   2pp cut held 60 years: credit/GDP 281.6%, spread 2.17pp, default rate 1.05%, debt service 1.25x its baseline
 #   permanent 1pp cut: credit/GDP 150.0 -> 159.7 (m96) -> 185.5 (m240) -> 223.0 (m480), impulse still 0.640
 # Subtest: the bubble loop has gain below one AT EVERY OPERATING POINT, not just at rest
-ok 17 - the bubble loop has gain below one AT EVERY OPERATING POINT, not just at rest
+ok 18 - the bubble loop has gain below one AT EVERY OPERATING POINT, not just at rest
   ---
-  duration_ms: 55.793516
+  duration_ms: 66.512681
   ...
 # Subtest: the loop's balancing counterpart is the debt-service burden, and it binds
-ok 18 - the loop's balancing counterpart is the debt-service burden, and it binds
+ok 19 - the loop's balancing counterpart is the debt-service burden, and it binds
   ---
-  duration_ms: 27.58608
+  duration_ms: 22.606281
   ...
 # Subtest: credit/GDP integrates the impulse — the EMA is a filter, not a guard
-ok 19 - credit/GDP integrates the impulse — the EMA is a filter, not a guard
+ok 20 - credit/GDP integrates the impulse — the EMA is a filter, not a guard
   ---
-  duration_ms: 20.066899
+  duration_ms: 13.737213
   ...
 # Subtest: a crash causes a recession, not just a haircut
-ok 20 - a crash causes a recession, not just a haircut
+ok 21 - a crash causes a recession, not just a haircut
   ---
-  duration_ms: 18.613221
+  duration_ms: 17.590978
   ...
 # Subtest: the demand collapse fades but the scar does not
-ok 21 - the demand collapse fades but the scar does not
+ok 22 - the demand collapse fades but the scar does not
   ---
-  duration_ms: 26.07809
+  duration_ms: 34.438973
   ...
 # Subtest: spending in the first year after a crash shrinks the permanent scar
-ok 22 - spending in the first year after a crash shrinks the permanent scar
+ok 23 - spending in the first year after a crash shrinks the permanent scar
   ---
-  duration_ms: 25.050823
+  duration_ms: 28.523266
   ...
 # Subtest: waiting past the window costs you the discount
-ok 23 - waiting past the window costs you the discount
+ok 24 - waiting past the window costs you the discount
   ---
-  duration_ms: 22.744046
+  duration_ms: 21.091302
   ...
 # Subtest: forced selling fires in the bubble, and then stops
-ok 24 - forced selling fires in the bubble, and then stops
+ok 25 - forced selling fires in the bubble, and then stops
   ---
-  duration_ms: 5.354536
+  duration_ms: 7.820403
   ...
 # Subtest: THE DOOM LOOP: banks below the floor cut lending and widen spreads
-ok 25 - THE DOOM LOOP: banks below the floor cut lending and widen spreads
+ok 26 - THE DOOM LOOP: banks below the floor cut lending and widen spreads
   ---
-  duration_ms: 4.98726
+  duration_ms: 3.04602
   ...
 # Subtest: a crash takes a real bite out of bank capital
-ok 26 - a crash takes a real bite out of bank capital
+ok 27 - a crash takes a real bite out of bank capital
   ---
-  duration_ms: 11.918804
+  duration_ms: 14.213076
   ...
 # Subtest: defaulted debt leaves the credit stock
-ok 27 - defaulted debt leaves the credit stock
+ok 28 - defaulted debt leaves the credit stock
   ---
-  duration_ms: 6.493213
+  duration_ms: 5.222775
   ...
 # Subtest: a crash is survivable and the economy is still playable afterwards
-ok 28 - a crash is survivable and the economy is still playable afterwards
+ok 29 - a crash is survivable and the economy is still playable afterwards
   ---
-  duration_ms: 10.249816
+  duration_ms: 11.037427
   ...
 # Subtest: RECAPITALISATION IS A QUANTITY, NOT A GESTURE
-ok 29 - RECAPITALISATION IS A QUANTITY, NOT A GESTURE
+ok 30 - RECAPITALISATION IS A QUANTITY, NOT A GESTURE
   ---
-  duration_ms: 36.073962
+  duration_ms: 34.537067
   ...
 # Subtest: THE CRASH ARC: every published magnitude at once
-ok 30 - THE CRASH ARC: every published magnitude at once
+ok 31 - THE CRASH ARC: every published magnitude at once
   ---
-  duration_ms: 18.801073
+  duration_ms: 13.424254
   ...
 # Subtest: THE CRASH ARC: the unemployment cost of a banking crisis
-not ok 31 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. That is Okun, and it is the same demand-block finding recorded on the five-year loss below. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
+not ok 32 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. That is Okun, and it is the same demand-block finding recorded on the five-year loss below. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
   ---
-  duration_ms: 16.178969
+  duration_ms: 12.163551
   location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:264:1'
   failureType: 'testCodeFailure'
   error: 'unemployment peaked +1.91pp; a banking crisis costs 2-5'
@@ -1005,9 +1011,9 @@ not ok 31 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STIL
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: THE CRASH ARC: the five-year loss against trend
-not ok 32 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.60% below trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.0461 (2.59 in the third audit, 2.1855 in 4.1, and again in 5.7 when the capital-units fix moved the trend this is measured against). It CANNOT be closed by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside its published [2.0, 4.5], and would make the exogenous capacity cut supply 7.9-9.5 of the 10 while the model supplies almost nothing — destroying the deconvolution the constant exists to be. Measured with no exogenous scar at all, the model used to produce 8.4% of the loss endogenously and now produces 3.82%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND RECOVERS. That is a demand-block finding, it is the same one as the UK sacrifice ratio and TAX_SHOCK_TO_GDP, and it is not a calibration problem. Do not nudge either constant to move it — 4.2 records what they are. THE SECOND ASSERTION HERE IS OPEN \#1, AND IT MOVED THE OPPOSITE WAY TO THE PLAN'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be downstream of Section B, so fixing B should have slowed it. Measured, it sped up: output is back to -5.16% of trend by month 96 against a required -5. That is not a new defect — it is the same shallower crisis, since a crash that digs a 5.97% hole instead of a 10% one has less to climb out of. Both numbers should move together when the constant is re-solved, and if they do not, OPEN \#1 is a real finding about the demand block rather than a calibration artefact.
+not ok 33 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.60% below trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.0461 (2.59 in the third audit, 2.1855 in 4.1, and again in 5.7 when the capital-units fix moved the trend this is measured against). It CANNOT be closed by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside its published [2.0, 4.5], and would make the exogenous capacity cut supply 7.9-9.5 of the 10 while the model supplies almost nothing — destroying the deconvolution the constant exists to be. Measured with no exogenous scar at all, the model used to produce 8.4% of the loss endogenously and now produces 3.82%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND RECOVERS. That is a demand-block finding, it is the same one as the UK sacrifice ratio and TAX_SHOCK_TO_GDP, and it is not a calibration problem. Do not nudge either constant to move it — 4.2 records what they are. THE SECOND ASSERTION HERE IS OPEN \#1, AND IT MOVED THE OPPOSITE WAY TO THE PLAN'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be downstream of Section B, so fixing B should have slowed it. Measured, it sped up: output is back to -5.16% of trend by month 96 against a required -5. That is not a new defect — it is the same shallower crisis, since a crash that digs a 5.97% hole instead of a 10% one has less to climb out of. Both numbers should move together when the constant is re-solved, and if they do not, OPEN \#1 is a real finding about the demand block rather than a calibration artefact.
   ---
-  duration_ms: 13.926284
+  duration_ms: 12.799344
   location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:287:1'
   failureType: 'testCodeFailure'
   error: 'output is -6.60% below trend at five years, against CRISIS_HYSTERESIS_SCAR = 10'
@@ -1026,9 +1032,9 @@ not ok 32 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them
-not ok 33 - THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them # TODO HALF RE-SOLVED IN 4.1, AND THE HALF THAT WOULD NOT SOLVE IS THE FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.1855 in 4.1 and 2.1855 -> 2.0461 in 5.7, and it reconciles: the realised trough is -9.000% against CRISIS_OUTPUT_TROUGH exactly, at month 12. CRISIS_SCAR_AMPLIFICATION was left at 3.14 on purpose. Re-solved against Cerra & Saxena it lands at 1.06-1.26, outside its published [2.0, 4.5], which would make the exogenous capacity cut 7.9 to 9.5 of the 10 and leave the model supplying almost nothing. THE POINT OF THIS CONSTANT IS A DECONVOLUTION — the model generates most of the observed loss endogenously and the exogenous cut is only the remainder — and forcing it there would load the missing propagation onto an exogenous constant, which is rule 4 and is the defect the deconvolution was built to remove. MEASURED, with CRISIS_HYSTERESIS_SCAR set to 0 so there is no exogenous scar at all: the model used to produce 8.4% of the 10 by itself and now produces 3.82% (this message said 3.22% until Phase 5 verification re-ran it, when both were 3.65 and had disagreed for four commits; 5.7 moved them together to 3.82). That is a demand-block finding and the fourth independent sighting of it, alongside the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity paradox. Re-solve when the demand block has been addressed.
+not ok 34 - THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them # TODO HALF RE-SOLVED IN 4.1, AND THE HALF THAT WOULD NOT SOLVE IS THE FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.1855 in 4.1 and 2.1855 -> 2.0461 in 5.7, and it reconciles: the realised trough is -9.000% against CRISIS_OUTPUT_TROUGH exactly, at month 12. CRISIS_SCAR_AMPLIFICATION was left at 3.14 on purpose. Re-solved against Cerra & Saxena it lands at 1.06-1.26, outside its published [2.0, 4.5], which would make the exogenous capacity cut 7.9 to 9.5 of the 10 and leave the model supplying almost nothing. THE POINT OF THIS CONSTANT IS A DECONVOLUTION — the model generates most of the observed loss endogenously and the exogenous cut is only the remainder — and forcing it there would load the missing propagation onto an exogenous constant, which is rule 4 and is the defect the deconvolution was built to remove. MEASURED, with CRISIS_HYSTERESIS_SCAR set to 0 so there is no exogenous scar at all: the model used to produce 8.4% of the 10 by itself and now produces 3.82% (this message said 3.22% until Phase 5 verification re-ran it, when both were 3.65 and had disagreed for four commits; 5.7 moved them together to 3.82). That is a demand-block finding and the fourth independent sighting of it, alongside the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity paradox. Re-solve when the demand block has been addressed.
   ---
-  duration_ms: 13.024159
+  duration_ms: 11.928992
   location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:322:1'
   failureType: 'testCodeFailure'
   error: 'the model now turns a 3.27pp exogenous capacity cut into a 6.60% loss against trend (2.30x), but CRISIS_SCAR_AMPLIFICATION says 3.14'
@@ -1047,14 +1053,14 @@ not ok 33 - THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures t
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: the scar PHASES IN rather than landing on month one
-ok 34 - the scar PHASES IN rather than landing on month one
+ok 35 - the scar PHASES IN rather than landing on month one
   ---
-  duration_ms: 4.568059
+  duration_ms: 4.467085
   ...
 # Subtest: MEASURED: the model rebounds after year five and Cerra-Saxena say it should not
-not ok 35 - MEASURED: the model rebounds after year five and Cerra-Saxena say it should not # TODO RE-MEASURED IN PHASE 4.4, AND THE PLAN'S HYPOTHESIS FOR IT IS WRONG. docs/13 expected this to be downstream of Section B — "the 10-year recovery coincides with the credit/asset loop re-inflating" — so fixing B should have slowed it. THE CREDIT GAP IS NEGATIVE THROUGHOUT THE RECOVERY once the boom has unwound: +5.71 at m24, -0.79 at m60, -3.83 at m96, -4.61 at m120. It is a depressed credit stock closing on its trend from BELOW, not a new boom. Output against the pre-crisis trend now reads -10.00 (m12), -10.39 (m24), -6.60 (m60), -5.16 (m96), -4.51 (m120), troughing at -10.40 in month 22 and recovering 5.89pp. THE ISOLATING EXPERIMENT: switch OFF both the collateral channel and the wealth effect and the crisis is shallower (trough -6.43) but 2.49pp of it still comes back — 39% of the trough recovered with both amplifiers gone. So the rebound is not Section B at all. It is the demand block closing an output gap faster than the data says it should, which is the same finding as the UK 1979-83 sacrifice ratio, TAX_SHOCK_TO_GDP, the missing austerity paradox and the crisis propagation that would not re-solve in 4.1. One finding, five sightings. See open_items.md A2.
+not ok 36 - MEASURED: the model rebounds after year five and Cerra-Saxena say it should not # TODO RE-MEASURED IN PHASE 4.4, AND THE PLAN'S HYPOTHESIS FOR IT IS WRONG. docs/13 expected this to be downstream of Section B — "the 10-year recovery coincides with the credit/asset loop re-inflating" — so fixing B should have slowed it. THE CREDIT GAP IS NEGATIVE THROUGHOUT THE RECOVERY once the boom has unwound: +5.71 at m24, -0.79 at m60, -3.83 at m96, -4.61 at m120. It is a depressed credit stock closing on its trend from BELOW, not a new boom. Output against the pre-crisis trend now reads -10.00 (m12), -10.39 (m24), -6.60 (m60), -5.16 (m96), -4.51 (m120), troughing at -10.40 in month 22 and recovering 5.89pp. THE ISOLATING EXPERIMENT: switch OFF both the collateral channel and the wealth effect and the crisis is shallower (trough -6.43) but 2.49pp of it still comes back — 39% of the trough recovered with both amplifiers gone. So the rebound is not Section B at all. It is the demand block closing an output gap faster than the data says it should, which is the same finding as the UK 1979-83 sacrifice ratio, TAX_SHOCK_TO_GDP, the missing austerity paradox and the crisis propagation that would not re-solve in 4.1. One finding, five sightings. See open_items.md A2.
   ---
-  duration_ms: 9.163399
+  duration_ms: 10.038387
   location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:382:1'
   failureType: 'testCodeFailure'
   error: 'output recovered to -4.51% of trend at ten years, from -6.60% at five. That is a rebound.'
@@ -1073,24 +1079,24 @@ not ok 35 - MEASURED: the model rebounds after year five and Cerra-Saxena say it
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was
-ok 36 - WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was
+ok 37 - WHEN CREDIT BITES BACK: the bust is deeper the bigger the boom was
   ---
-  duration_ms: 27.442811
+  duration_ms: 29.311196
   ...
 # Subtest: no Math.random anywhere in src/
-ok 37 - no Math.random anywhere in src/
+ok 38 - no Math.random anywhere in src/
   ---
-  duration_ms: 4.804745
+  duration_ms: 2.492748
   ...
 # Subtest: no bare time conversion outside units.js
-ok 38 - no bare time conversion outside units.js
+ok 39 - no bare time conversion outside units.js
   ---
-  duration_ms: 3.41719
+  duration_ms: 1.736269
   ...
 # Subtest: same seed produces an identical 96-tick history
-ok 39 - same seed produces an identical 96-tick history
+ok 40 - same seed produces an identical 96-tick history
   ---
-  duration_ms: 21.094834
+  duration_ms: 33.811239
   ...
 #   policy_rate    settles in [-0.75, 3.5] of a declared [-0.75, 50]  (10/19 settings diverge)
 #   tax_rate       settles in [22.75, 70] of a declared [0, 70]  (4/20 settings diverge)
@@ -1099,49 +1105,49 @@ ok 39 - same seed produces an identical 96-tick history
 #   qe             settles in [0, 30] of a declared [0, 30]  (0/14 settings diverge)
 #   1pp cut @m480: A/F = 1.124e+0, credit gap = 12.99, inflation = 2.710e+0
 # Subtest: E1: no permanent dial move diverges through an undeclared loop
-ok 40 - E1: no permanent dial move diverges through an undeclared loop
+ok 41 - E1: no permanent dial move diverges through an undeclared loop
   ---
-  duration_ms: 600.748491
+  duration_ms: 550.894633
   ...
 # Subtest: E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F
-ok 41 - E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F
+ok 42 - E1 acceptance: a permanent 1pp cut reaches a finite credit gap and A/F
   ---
-  duration_ms: 3.649496
+  duration_ms: 3.23022
   ...
 # Subtest: every state field is documented in 01-variables.md
-ok 42 - every state field is documented in 01-variables.md
+ok 43 - every state field is documented in 01-variables.md
   ---
-  duration_ms: 2.875712
+  duration_ms: 2.464739
   ...
 # Subtest: 01-variables.md does not document fields the model no longer has
-ok 43 - 01-variables.md does not document fields the model no longer has
+ok 44 - 01-variables.md does not document fields the model no longer has
   ---
-  duration_ms: 0.357295
+  duration_ms: 0.476016
   ...
 # Subtest: every dial, gauge, scenario, shock and ending is named in the docs
-ok 44 - every dial, gauge, scenario, shock and ending is named in the docs
+ok 45 - every dial, gauge, scenario, shock and ending is named in the docs
   ---
-  duration_ms: 1.459283
+  duration_ms: 1.387395
   ...
 # Subtest: every transmitted driver has a player-facing name
-ok 45 - every transmitted driver has a player-facing name
+ok 46 - every transmitted driver has a player-facing name
   ---
-  duration_ms: 0.231716
+  duration_ms: 0.149039
   ...
 # Subtest: the docs index lists every file in docs/
-ok 46 - the docs index lists every file in docs/
+ok 47 - the docs index lists every file in docs/
   ---
-  duration_ms: 0.42923
+  duration_ms: 0.576695
   ...
 # Subtest: US 2008-12: the rate dial does reach its floor and stay there
-ok 47 - US 2008-12: the rate dial does reach its floor and stay there
+ok 48 - US 2008-12: the rate dial does reach its floor and stay there
   ---
-  duration_ms: 11.054619
+  duration_ms: 15.208977
   ...
 # Subtest: US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT
-not ok 48 - US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT # TODO STILL FAILS, AND PHASE 2 BARELY TOUCHED IT — which is itself the finding. Re-measured after the A1 transmission split and the derived rate ceiling: output troughs at -1.85% of trend (was -1.86; US: -5 to -7), unemployment rises +0.14pp peaking in month 9 (was +0.32pp; US: +5.0pp to 10.0% at month 22), inflation never goes below 2.25% (was 2.26; US: -2.1%), and government debt FALLS from 64% to 61% (was 60; US: 64 -> 100). Output is +3.55% of trend at month 6, BEFORE Lehman lands. THE UNEMPLOYMENT RESPONSE GOT SMALLER, not larger. WHY PHASE 2 DID NOT HELP HERE, and it is worth understanding: this episode is not a disinflation, it is a CRASH plus an easing, and the two Section A defects were both about tightening arriving too slowly. Making the rate arrive faster makes the EASING arrive faster too, so the 1.75pp of cuts delivered between months 2 and 11 now offset the crisis sooner rather than less. The asymmetry the brief identified is unchanged: the cut reaches asset prices on a 1-month kernel and now reaches borrowers on a 3-month one, while the crisis works through the credit and capital blocks over years. What is left is a demand block that heals too fast, which is the same statement as OPEN \#1 and TAX_SHOCK_TO_GDP, and it sits downstream of Section B rather than Section A. Re-measure after Phase 3.
+not ok 49 - US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLLOWED IT # TODO STILL FAILS, AND PHASE 2 BARELY TOUCHED IT — which is itself the finding. Re-measured after the A1 transmission split and the derived rate ceiling: output troughs at -1.85% of trend (was -1.86; US: -5 to -7), unemployment rises +0.14pp peaking in month 9 (was +0.32pp; US: +5.0pp to 10.0% at month 22), inflation never goes below 2.25% (was 2.26; US: -2.1%), and government debt FALLS from 64% to 61% (was 60; US: 64 -> 100). Output is +3.55% of trend at month 6, BEFORE Lehman lands. THE UNEMPLOYMENT RESPONSE GOT SMALLER, not larger. WHY PHASE 2 DID NOT HELP HERE, and it is worth understanding: this episode is not a disinflation, it is a CRASH plus an easing, and the two Section A defects were both about tightening arriving too slowly. Making the rate arrive faster makes the EASING arrive faster too, so the 1.75pp of cuts delivered between months 2 and 11 now offset the crisis sooner rather than less. The asymmetry the brief identified is unchanged: the cut reaches asset prices on a 1-month kernel and now reaches borrowers on a 3-month one, while the crisis works through the credit and capital blocks over years. What is left is a demand block that heals too fast, which is the same statement as OPEN \#1 and TAX_SHOCK_TO_GDP, and it sits downstream of Section B rather than Section A. Re-measure after Phase 3.
   ---
-  duration_ms: 9.413009
+  duration_ms: 10.332082
   location: '/home/ztchr/personal_projects/Crash/test/episodes.test.js:136:1'
   failureType: 'testCodeFailure'
   error: 'unemployment rose 0.79pp, peaking in month 41; the US went 5.0 to 10.0. Output trough -3.52% of trend, inflation low 1.81%, debt 64 -> 69.'
@@ -1160,14 +1166,14 @@ not ok 48 - US 2008-12: THE CRISIS IS ENTIRELY OFFSET BY THE RATE CUTS THAT FOLL
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
   ...
 # Subtest: US 2021-23: fiscal transfers plus a supply shock do produce an inflation
-ok 49 - US 2021-23: fiscal transfers plus a supply shock do produce an inflation
+ok 50 - US 2021-23: fiscal transfers plus a supply shock do produce an inflation
   ---
-  duration_ms: 6.759415
+  duration_ms: 8.546391
   ...
 # Subtest: US 2021-23: THE DISINFLATION NEVER HAPPENS
-not ok 50 - US 2021-23: THE DISINFLATION NEVER HAPPENS # TODO MATERIALLY BETTER AFTER PHASE 2 AND STILL WRONG. Inflation now PEAKS inside the window — 20.54% at month 40, where before it had not peaked at all and was still climbing through 36.81% — and it is 10.41% at month 32 against 14.06% before (US: peaked 9.1% at month 17, 3.1% by month 32). The single biggest change is that the hike now reaches the economy: mechanism (1) in the old diagnosis was that the transmitted rate was 2.28% at month 30 while the DIAL had been at 5.25 since month 27, and that is gone — policy_rate_demand now tracks the dial within a quarter. WHAT IS LEFT IS MECHANISM (2), AND IT IS NOW THE WHOLE OF IT: credibility falls 0.85 -> 0.000 by month 31 purely from realised misses, which quadruples kappa and makes the process self-reinforcing exactly when the central bank most needs to be believed. A 5.25% funds rate against 20% expected inflation is deeply negative in real terms whatever the transmission speed. This is the forward-guidance / expectations channel the project has deferred three times, and after Phase 2 it is the largest single thing still missing from the monetary block — the reasoning in docs/12 that deferred it named the wrong defect, but Phase 2 has now removed that defect and the case for building it is what remains. Do not raise the transmission speed or lower kappa to close this.
+not ok 51 - US 2021-23: THE DISINFLATION NEVER HAPPENS # TODO MATERIALLY BETTER AFTER PHASE 2 AND STILL WRONG. Inflation now PEAKS inside the window — 20.54% at month 40, where before it had not peaked at all and was still climbing through 36.81% — and it is 10.41% at month 32 against 14.06% before (US: peaked 9.1% at month 17, 3.1% by month 32). The single biggest change is that the hike now reaches the economy: mechanism (1) in the old diagnosis was that the transmitted rate was 2.28% at month 30 while the DIAL had been at 5.25 since month 27, and that is gone — policy_rate_demand now tracks the dial within a quarter. WHAT IS LEFT IS MECHANISM (2), AND IT IS NOW THE WHOLE OF IT: credibility falls 0.85 -> 0.000 by month 31 purely from realised misses, which quadruples kappa and makes the process self-reinforcing exactly when the central bank most needs to be believed. A 5.25% funds rate against 20% expected inflation is deeply negative in real terms whatever the transmission speed. This is the forward-guidance / expectations channel the project has deferred three times, and after Phase 2 it is the largest single thing still missing from the monetary block — the reasoning in docs/12 that deferred it named the wrong defect, but Phase 2 has now removed that defect and the case for building it is what remains. Do not raise the transmission speed or lower kappa to close this.
   ---
-  duration_ms: 4.703134
+  duration_ms: 8.458294
   location: '/home/ztchr/personal_projects/Crash/test/episodes.test.js:200:1'
   failureType: 'testCodeFailure'
   error: 'inflation peaked at 13.63% in month 40 and was 8.67% at month 32; the US peaked at 9.1% in month 18 and was at 3.1% by month 32. Credibility bottomed at 0.000 in month 32.'
@@ -1186,14 +1192,14 @@ not ok 50 - US 2021-23: THE DISINFLATION NEVER HAPPENS # TODO MATERIALLY BETTER 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: UK 1979-83: low credibility really does make inflation more expensive
-ok 51 - UK 1979-83: low credibility really does make inflation more expensive
+ok 52 - UK 1979-83: low credibility really does make inflation more expensive
   ---
-  duration_ms: 5.566152
+  duration_ms: 5.754344
   ...
 # Subtest: UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES
-not ok 52 - UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES # TODO THE BIGGEST IMPROVEMENT OF PHASE 2, AND IT STILL FAILS ON THE PRICE. The TIMING is now right: inflation peaks in month 11 where the UK peaked in month 13, against month 60 before the A1 split — the disinflation now happens, and on roughly the historical timetable. It falls to 7.82% at four years, against 13.71% before (UK: 4.6%). The felt rate at month 12 went from 13.12% to 16.86% against a 17% MLR, which is the whole of why: Howe's budget is now actually contractionary in the model rather than nominally so. WHAT STILL FAILS IS THE PRICE, AND IT FAILS IN BOTH DIRECTIONS. The peak is 16.18% against a UK 21.9% — the model no longer overshoots into a late spiral, but it never reaches the historical peak either. And the recession is still absent: unemployment rises 0.65pp where the UK went 5.4 -> 11.9, so the sacrifice ratio is 0.36 point-years per pp against Ball 1994's 2-4 for this exact episode. A disinflation this cheap is not a disinflation anyone would recognise. That is a statement about the DEMAND BLOCK — the same finding as TAX_SHOCK_TO_GDP and the missing austerity paradox, where every real quantity moves too little for the price change that caused it. It is no longer a statement about transmission.
+not ok 53 - UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES # TODO THE BIGGEST IMPROVEMENT OF PHASE 2, AND IT STILL FAILS ON THE PRICE. The TIMING is now right: inflation peaks in month 11 where the UK peaked in month 13, against month 60 before the A1 split — the disinflation now happens, and on roughly the historical timetable. It falls to 7.82% at four years, against 13.71% before (UK: 4.6%). The felt rate at month 12 went from 13.12% to 16.86% against a 17% MLR, which is the whole of why: Howe's budget is now actually contractionary in the model rather than nominally so. WHAT STILL FAILS IS THE PRICE, AND IT FAILS IN BOTH DIRECTIONS. The peak is 16.18% against a UK 21.9% — the model no longer overshoots into a late spiral, but it never reaches the historical peak either. And the recession is still absent: unemployment rises 0.65pp where the UK went 5.4 -> 11.9, so the sacrifice ratio is 0.36 point-years per pp against Ball 1994's 2-4 for this exact episode. A disinflation this cheap is not a disinflation anyone would recognise. That is a statement about the DEMAND BLOCK — the same finding as TAX_SHOCK_TO_GDP and the missing austerity paradox, where every real quantity moves too little for the price change that caused it. It is no longer a statement about transmission.
   ---
-  duration_ms: 6.072026
+  duration_ms: 5.992865
   location: '/home/ztchr/personal_projects/Crash/test/episodes.test.js:272:1'
   failureType: 'testCodeFailure'
   error: "inflation peaked in month 11 at 16.18% (UK: 21.9%) and was 7.82% at four years; unemployment rose 0.65pp; sacrifice ratio 0.36 against Ball's 2-4."
@@ -1212,14 +1218,14 @@ not ok 52 - UK 1979-83: THE RECESSION THAT PAID FOR IT NEVER ARRIVES # TODO THE 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: JAPAN: own-currency debt held at home does not reprice, and foreign-held does
-ok 53 - JAPAN: own-currency debt held at home does not reprice, and foreign-held does
+ok 54 - JAPAN: own-currency debt held at home does not reprice, and foreign-held does
   ---
-  duration_ms: 47.132861
+  duration_ms: 43.49777
   ...
 # Subtest: JAPAN: THE MODEL CANNOT HOLD A DEFLATION
-not ok 54 - JAPAN: THE MODEL CANNOT HOLD A DEFLATION # TODO UNCHANGED BY PHASE 2, AS EXPECTED, AND THE REASON MATTERS. Inflation is under 0.5% in 2 of 120 months; it leaves the deflation inside a year (1.28% at month 12, was 1.44%), passes target by month 36 (2.78%) and reaches 3.76% by month 60 (was 3.95%) with the policy rate on the floor throughout. Debt peaks at 91% where Japan passed 150%, because the inflation the model invents erodes it. PHASE 2 COULD NOT HAVE HELPED. Both Section A defects were about a TIGHTENING arriving too slowly, and Japan is a decade in which no tightening was attempted and the rate dial was against its LOWER bound the whole time — the one bound Phase 2.4 did not move, because the ELB is physics rather than layout. THE MISSING MECHANISM IS DOWNWARD DE-ANCHORING: updateExpectations pulls expectations back toward inflation_target from BELOW at the same rate as from above, so a central bank with credibility 0.7 that cannot reach 2% is not representable. Japan's problem was precisely that nobody believed the BoJ could get there. That is the same expectations channel US 2021-23 now points at, seen from the deflationary side, and after Phase 2 the two episodes agree on the diagnosis for the first time.
+not ok 55 - JAPAN: THE MODEL CANNOT HOLD A DEFLATION # TODO UNCHANGED BY PHASE 2, AS EXPECTED, AND THE REASON MATTERS. Inflation is under 0.5% in 2 of 120 months; it leaves the deflation inside a year (1.28% at month 12, was 1.44%), passes target by month 36 (2.78%) and reaches 3.76% by month 60 (was 3.95%) with the policy rate on the floor throughout. Debt peaks at 91% where Japan passed 150%, because the inflation the model invents erodes it. PHASE 2 COULD NOT HAVE HELPED. Both Section A defects were about a TIGHTENING arriving too slowly, and Japan is a decade in which no tightening was attempted and the rate dial was against its LOWER bound the whole time — the one bound Phase 2.4 did not move, because the ELB is physics rather than layout. THE MISSING MECHANISM IS DOWNWARD DE-ANCHORING: updateExpectations pulls expectations back toward inflation_target from BELOW at the same rate as from above, so a central bank with credibility 0.7 that cannot reach 2% is not representable. Japan's problem was precisely that nobody believed the BoJ could get there. That is the same expectations channel US 2021-23 now points at, seen from the deflationary side, and after Phase 2 the two episodes agree on the diagnosis for the first time.
   ---
-  duration_ms: 19.087828
+  duration_ms: 20.795288
   location: '/home/ztchr/personal_projects/Crash/test/episodes.test.js:375:1'
   failureType: 'testCodeFailure'
   error: 'inflation was under 0.5% in 2 of 120 months and debt peaked at 91%. Japan: most of the decade, and past 150%. Model inflation at m12/m36/m60: 1.24 / 2.44 / 3.01.'
@@ -1238,69 +1244,69 @@ not ok 54 - JAPAN: THE MODEL CANNOT HOLD A DEFLATION # TODO UNCHANGED BY PHASE 2
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: the Taylor principle IS satisfiable — but only by jumping, never by walking
-ok 55 - the Taylor principle IS satisfiable — but only by jumping, never by walking
+ok 56 - the Taylor principle IS satisfiable — but only by jumping, never by walking
   ---
-  duration_ms: 7.264548
+  duration_ms: 6.338277
   ...
 # Subtest: THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone
-ok 56 - THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone
+ok 57 - THE ONE FINDING UNDERNEATH ALL FOUR: the bifurcation is gone
   ---
-  duration_ms: 26.641897
+  duration_ms: 21.035653
   ...
 # Subtest: every event leaves the accounting identities intact
-ok 57 - every event leaves the accounting identities intact
+ok 58 - every event leaves the accounting identities intact
   ---
-  duration_ms: 12.510212
+  duration_ms: 15.764184
   ...
 # Subtest: every event actually changes something that survives the tick
-ok 58 - every event actually changes something that survives the tick
+ok 59 - every event actually changes something that survives the tick
   ---
-  duration_ms: 6.803467
+  duration_ms: 8.019322
   ...
 # Subtest: no event writes a pipeline target
-ok 59 - no event writes a pipeline target
+ok 60 - no event writes a pipeline target
   ---
-  duration_ms: 2.972741
+  duration_ms: 2.98815
   ...
 # Subtest: full terms with shocks on and invariants armed, across every scenario
-ok 60 - full terms with shocks on and invariants armed, across every scenario
+ok 61 - full terms with shocks on and invariants armed, across every scenario
   ---
-  duration_ms: 497.518475
+  duration_ms: 469.170362
   ...
 # Subtest: A WOBBLE IN A STRETCHED SYSTEM IS A DIFFERENT EVENT (docs/12 M3)
-ok 61 - A WOBBLE IN A STRETCHED SYSTEM IS A DIFFERENT EVENT (docs/12 M3)
+ok 62 - A WOBBLE IN A STRETCHED SYSTEM IS A DIFFERENT EVENT (docs/12 M3)
   ---
-  duration_ms: 5.047919
+  duration_ms: 7.93604
   ...
 # Subtest: no event is invisible to the player
-ok 62 - no event is invisible to the player
+ok 63 - no event is invisible to the player
   ---
-  duration_ms: 8.255644
+  duration_ms: 8.235258
   ...
 # Subtest: a temporary rate hike produces a HUMP, not a ramp
-ok 63 - a temporary rate hike produces a HUMP, not a ramp
+ok 64 - a temporary rate hike produces a HUMP, not a ramp
   ---
-  duration_ms: 19.717835
+  duration_ms: 30.137234
   ...
 # Subtest: the ordering of the peaks is output, then unemployment, then inflation
-ok 64 - the ordering of the peaks is output, then unemployment, then inflation
+ok 65 - the ordering of the peaks is output, then unemployment, then inflation
   ---
-  duration_ms: 15.879226
+  duration_ms: 24.963243
   ...
 # Subtest: the response scales with the size of the impulse and not with its sign
-ok 65 - the response scales with the size of the impulse and not with its sign
+ok 66 - the response scales with the size of the impulse and not with its sign
   ---
-  duration_ms: 53.085189
+  duration_ms: 42.400986
   ...
 # Subtest: a cut is a weaker impulse than a hike, for as long as the impulse is live
-ok 66 - a cut is a weaker impulse than a hike, for as long as the impulse is live
+ok 67 - a cut is a weaker impulse than a hike, for as long as the impulse is live
   ---
-  duration_ms: 15.946042
+  duration_ms: 16.528319
   ...
 # Subtest: MEASURED: the labour market has no lag behind output, and here it is
-not ok 67 - MEASURED: the labour market has no lag behind output, and here it is # TODO OPEN AND DELIBERATELY NOT CLOSED. Unemployment peaks in the SAME month as output, and a -3pp external demand shock puts 38% of the eventual 36-month unemployment response into month ONE (du 0.4725 of 1.2456; 48% of the 12-month response). labour.js sets its Okun target from the CURRENT gap and closes it at FIRING_SPEED 0.60/month. Whether that is wrong depends on which claim you read: docs/02 Asymmetry 2 says "firms fire in WEEKS and hire over quarters", which the model delivers exactly — and the jobless-recovery half of it is real (du/dgap doubles from 0.198 to 0.391 over four years as output recovers and employment does not). What is missing is the DECISION lag: firms cut hours and wait a quarter before shedding heads. Adding it means a new smoothing parameter on the Okun target in the busiest rule in the model, and the only thing that pins its magnitude is the reduced-form peak month it would be tuned to reproduce. Left open, with the number printed, rather than tuned.
+not ok 68 - MEASURED: the labour market has no lag behind output, and here it is # TODO OPEN AND DELIBERATELY NOT CLOSED. Unemployment peaks in the SAME month as output, and a -3pp external demand shock puts 38% of the eventual 36-month unemployment response into month ONE (du 0.4725 of 1.2456; 48% of the 12-month response). labour.js sets its Okun target from the CURRENT gap and closes it at FIRING_SPEED 0.60/month. Whether that is wrong depends on which claim you read: docs/02 Asymmetry 2 says "firms fire in WEEKS and hire over quarters", which the model delivers exactly — and the jobless-recovery half of it is real (du/dgap doubles from 0.198 to 0.391 over four years as output recovers and employment does not). What is missing is the DECISION lag: firms cut hours and wait a quarter before shedding heads. Adding it means a new smoothing parameter on the Okun target in the busiest rule in the model, and the only thing that pins its magnitude is the reduced-form peak month it would be tuned to reproduce. Left open, with the number printed, rather than tuned.
   ---
-  duration_ms: 6.418535
+  duration_ms: 6.01072
   location: '/home/ztchr/personal_projects/Crash/test/irf.test.js:139:1'
   failureType: 'testCodeFailure'
   error: '39% of the eventual unemployment response to a demand shock lands in the FIRST MONTH (0.4725 of 1.2012). Firms do not shed a third of the eventual job losses in month one.'
@@ -1319,104 +1325,104 @@ not ok 67 - MEASURED: the labour market has no lag behind output, and here it is
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: the spending impulse is fast and the rate impulse is slow
-ok 68 - the spending impulse is fast and the rate impulse is slow
+ok 69 - the spending impulse is fast and the rate impulse is slow
   ---
-  duration_ms: 16.210831
+  duration_ms: 16.618489
   ...
 # Subtest: QE and the rate dial have the same SHAPE and different sizes
-ok 69 - QE and the rate dial have the same SHAPE and different sizes
+ok 70 - QE and the rate dial have the same SHAPE and different sizes
   ---
-  duration_ms: 26.009631
+  duration_ms: 25.850735
   ...
 # Subtest: a dial move reaches the transmitted driver and converges to the dial
-ok 70 - a dial move reaches the transmitted driver and converges to the dial
+ok 71 - a dial move reaches the transmitted driver and converges to the dial
   ---
-  duration_ms: 14.864214
+  duration_ms: 17.505652
   ...
 # Subtest: markets reprice before borrowers, and both before capital spending
-ok 71 - markets reprice before borrowers, and both before capital spending
+ok 72 - markets reprice before borrowers, and both before capital spending
   ---
-  duration_ms: 2.287924
+  duration_ms: 3.094166
   ...
 # Subtest: the output response to a rate move is LAGGED, not instant
-ok 72 - the output response to a rate move is LAGGED, not instant
+ok 73 - the output response to a rate move is LAGGED, not instant
   ---
-  duration_ms: 10.018936
+  duration_ms: 19.238194
   ...
 # Subtest: the pipeline refuses to schedule into a field a rule owns
-ok 73 - the pipeline refuses to schedule into a field a rule owns
+ok 74 - the pipeline refuses to schedule into a field a rule owns
   ---
-  duration_ms: 0.513718
+  duration_ms: 0.644973
   ...
 # Subtest: no rule assigns to a pipeline target
-ok 74 - no rule assigns to a pipeline target
+ok 75 - no rule assigns to a pipeline target
   ---
-  duration_ms: 1.434342
+  duration_ms: 1.670409
   ...
 # Subtest: every declared pipeline target exists on a fresh state
-ok 75 - every declared pipeline target exists on a fresh state
+ok 76 - every declared pipeline target exists on a fresh state
   ---
-  duration_ms: 0.233523
+  duration_ms: 0.625488
   ...
 # Subtest: the Taylor autopilot faces the same lags the player does
-ok 76 - the Taylor autopilot faces the same lags the player does
+ok 77 - the Taylor autopilot faces the same lags the player does
   ---
-  duration_ms: 25.235384
+  duration_ms: 20.090375
   ...
 # Subtest: every dial either schedules a lag or is documented as immediate
-ok 77 - every dial either schedules a lag or is documented as immediate
+ok 78 - every dial either schedules a lag or is documented as immediate
   ---
-  duration_ms: 3.412497
+  duration_ms: 3.990047
   ...
 # Subtest: recession multiplier lands in the published range
-ok 78 - recession multiplier lands in the published range
+ok 79 - recession multiplier lands in the published range
   ---
-  duration_ms: 25.470138
+  duration_ms: 24.130726
   ...
 # Subtest: expansion multiplier lands in the published range
-ok 79 - expansion multiplier lands in the published range
+ok 80 - expansion multiplier lands in the published range
   ---
-  duration_ms: 13.079814
+  duration_ms: 14.19598
   ...
 # Subtest: the multiplier is larger in a slump than in a boom
-ok 80 - the multiplier is larger in a slump than in a boom
+ok 81 - the multiplier is larger in a slump than in a boom
   ---
-  duration_ms: 24.81731
+  duration_ms: 25.696698
   ...
 # Subtest: the same spending buys more OUTPUT with slack and more PRICES without
-ok 81 - the same spending buys more OUTPUT with slack and more PRICES without
+ok 82 - the same spending buys more OUTPUT with slack and more PRICES without
   ---
-  duration_ms: 19.148067
+  duration_ms: 21.810549
   ...
 # Subtest: holding the rate fixed makes the multiplier much larger
-ok 82 - holding the rate fixed makes the multiplier much larger
+ok 83 - holding the rate fixed makes the multiplier much larger
   ---
-  duration_ms: 18.428769
+  duration_ms: 16.902439
   ...
 # Subtest: THE QE LESSON: printing into slack with a credible CB barely bites
-ok 83 - THE QE LESSON: printing into slack with a credible CB barely bites
+ok 84 - THE QE LESSON: printing into slack with a credible CB barely bites
   ---
-  duration_ms: 5.804818
+  duration_ms: 8.802846
   ...
 # Subtest: printing with no slack and no credibility goes straight to prices
-ok 84 - printing with no slack and no credibility goes straight to prices
+ok 85 - printing with no slack and no credibility goes straight to prices
   ---
-  duration_ms: 1.857451
+  duration_ms: 1.399553
   ...
 # Subtest: printing buys real things when there is slack to buy them with
-ok 85 - printing buys real things when there is slack to buy them with
+ok 86 - printing buys real things when there is slack to buy them with
   ---
-  duration_ms: 11.497405
+  duration_ms: 10.019628
   ...
 # Subtest: AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack
-ok 86 - AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack
+ok 87 - AUSTERITY LEAKS: a tax rise collects less than you legislated, and worse with slack
   ---
-  duration_ms: 123.228356
+  duration_ms: 118.444041
   ...
 # Subtest: THE SIGN FLIP THE DOCS PROMISED: how far away is it
-not ok 87 - THE SIGN FLIP THE DOCS PROMISED: how far away is it # TODO OPEN, AND THE SAME FINDING AS TAX_SHOCK_TO_GDP. Revenue rises at every playable gap and no plausible parameter draw changes that. Closed form: with revenue = tau + e*(tau/100)*gap, revenue falls only if +1pp of tax costs more than 3.11% of output at a zero gap or 2.87% at -6%. The model delivers 0.99%. The requirement drops to 1.76% only at the elasticity's high end (1.8) AND a -12% gap, which is the one corner where it lands inside Romer-Romer (2.0-3.0) at all. So the austerity paradox is absent BECAUSE the tax multiplier is small — one finding, not two, and the fix is a statement about the demand block rather than a coefficient to bend. docs/07 L4 proposed exactly this test and it was never written.
+not ok 88 - THE SIGN FLIP THE DOCS PROMISED: how far away is it # TODO OPEN, AND THE SAME FINDING AS TAX_SHOCK_TO_GDP. Revenue rises at every playable gap and no plausible parameter draw changes that. Closed form: with revenue = tau + e*(tau/100)*gap, revenue falls only if +1pp of tax costs more than 3.11% of output at a zero gap or 2.87% at -6%. The model delivers 0.99%. The requirement drops to 1.76% only at the elasticity's high end (1.8) AND a -12% gap, which is the one corner where it lands inside Romer-Romer (2.0-3.0) at all. So the austerity paradox is absent BECAUSE the tax multiplier is small — one finding, not two, and the fix is a statement about the demand block rather than a coefficient to bend. docs/07 L4 proposed exactly this test and it was never written.
   ---
-  duration_ms: 14.04664
+  duration_ms: 15.581205
   location: '/home/ztchr/personal_projects/Crash/test/multipliers.test.js:248:1'
   failureType: 'testCodeFailure'
   error: 'the sign flip needs +1pp of tax to cost 2.87% of output at a -6% gap; the model delivers 0.90%. Romer-Romer is 2.0-3.0.'
@@ -1435,74 +1441,74 @@ not ok 87 - THE SIGN FLIP THE DOCS PROMISED: how far away is it # TODO OPEN, AND
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: every START field is read by something, or is declared idle
-ok 88 - every START field is read by something, or is declared idle
+ok 89 - every START field is read by something, or is declared idle
   ---
-  duration_ms: 15.995292
+  duration_ms: 18.593847
   ...
 # Subtest: the two depreciation rates are equal, as both their notes require
-ok 89 - the two depreciation rates are equal, as both their notes require
+ok 90 - the two depreciation rates are equal, as both their notes require
   ---
-  duration_ms: 0.266799
+  duration_ms: 0.197568
   ...
 # Subtest: every parameter has a value inside its range
-ok 90 - every parameter has a value inside its range
+ok 91 - every parameter has a value inside its range
   ---
-  duration_ms: 0.538474
+  duration_ms: 0.404737
   ...
 # Subtest: every parameter has a unit, a source and a known confidence level
-ok 91 - every parameter has a unit, a source and a known confidence level
+ok 92 - every parameter has a unit, a source and a known confidence level
   ---
-  duration_ms: 0.352002
+  duration_ms: 0.269316
   ...
 # Subtest: the deleted double-count has not crept back
-ok 92 - the deleted double-count has not crept back
+ok 93 - the deleted double-count has not crept back
   ---
-  duration_ms: 0.12555
+  duration_ms: 0.101117
   ...
 # Subtest: kernels are normalised and peak on the documented month
-ok 93 - kernels are normalised and peak on the documented month
+ok 94 - kernels are normalised and peak on the documented month
   ---
-  duration_ms: 0.347672
+  duration_ms: 0.294558
   ...
 # Subtest: every fitted kernel shape has a lag entry
-ok 94 - every fitted kernel shape has a lag entry
+ok 95 - every fitted kernel shape has a lag entry
   ---
-  duration_ms: 0.124924
+  duration_ms: 0.11294
   ...
 # Subtest: START satisfies the accounting identities
-ok 95 - START satisfies the accounting identities
+ok 96 - START satisfies the accounting identities
   ---
-  duration_ms: 0.14264
+  duration_ms: 0.13885
   ...
 # Subtest: every constant solved from the model is declared, in both directions
-ok 96 - every constant solved from the model is declared, in both directions
+ok 97 - every constant solved from the model is declared, in both directions
   ---
-  duration_ms: 0.417105
+  duration_ms: 0.482756
   ...
 # Subtest: ROUND TRIP: the stance returns exactly, to nine decimal places
-ok 97 - ROUND TRIP: the stance returns exactly, to nine decimal places
+ok 98 - ROUND TRIP: the stance returns exactly, to nine decimal places
   ---
-  duration_ms: 41.23271
+  duration_ms: 45.828667
   ...
 # Subtest: ROUND TRIP: the ECONOMY does not return, and the residue is real capital
-ok 98 - ROUND TRIP: the ECONOMY does not return, and the residue is real capital
+ok 99 - ROUND TRIP: the ECONOMY does not return, and the residue is real capital
   ---
-  duration_ms: 46.90503
+  duration_ms: 40.407623
   ...
 # Subtest: HIKE-HOLD-CUT: no permanent ratchet, and the jobs cost outlasts the gain
-ok 99 - HIKE-HOLD-CUT: no permanent ratchet, and the jobs cost outlasts the gain
+ok 100 - HIKE-HOLD-CUT: no permanent ratchet, and the jobs cost outlasts the gain
   ---
-  duration_ms: 25.406429
+  duration_ms: 22.920971
   ...
 # Subtest: STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows
-ok 100 - STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows
+ok 101 - STOP-GO: a symmetric-looking cycle is a persistent EASING, and it shows
   ---
-  duration_ms: 32.492375
+  duration_ms: 39.614109
   ...
 # Subtest: a path and a held move are not the same thing, and the difference is measurable
-ok 101 - a path and a held move are not the same thing, and the difference is measurable
+ok 102 - a path and a held move are not the same thing, and the difference is measurable
   ---
-  duration_ms: 18.94497
+  duration_ms: 19.423889
   ...
 #   calm         GOLDILOCKS gap 0.00 cgap 0.00 u 5.00 debt 100
 #   overheating  ENDED hyperinflation @m51
@@ -1511,24 +1517,24 @@ ok 101 - a path and a held move are not the same thing, and the difference is me
 #   debt_trap    ENDED debt_crisis @m73
 #   bubble       GOLDILOCKS gap -3.93 cgap 7.08 u 5.80 debt 74
 # Subtest: every scenario starts internally consistent
-ok 102 - every scenario starts internally consistent
+ok 103 - every scenario starts internally consistent
   ---
-  duration_ms: 1.857158
+  duration_ms: 1.90564
   ...
 # Subtest: the bubble scenario looks healthy on every gauge except the credit gap
-ok 103 - the bubble scenario looks healthy on every gauge except the credit gap
+ok 104 - the bubble scenario looks healthy on every gauge except the credit gap
   ---
-  duration_ms: 0.170892
+  duration_ms: 0.186403
   ...
 # Subtest: the bubble hides for four years — the design promise
-ok 104 - the bubble hides for four years — the design promise
+ok 105 - the bubble hides for four years — the design promise
   ---
-  duration_ms: 18.128777
+  duration_ms: 19.007303
   ...
 # Subtest: the bubble does not deflate on its own before the term ends
-not ok 105 - the bubble does not deflate on its own before the term ends # TODO A LESSON-LEVEL CONSEQUENCE OF 3.1, AND NOT A DEFECT IN 3.1. docs/00 describes this scenario as eight years of every gauge saying you are brilliant while the one nobody watches climbs to ~14.5pp. It used to do exactly that — the credit gap rose monotonically 8.77 (m24), 11.63 (m48), 13.34 (m72), 14.10 (m96), with crisis probability reaching 10.36% and approval never leaving 70. It now PEAKS at 9.82 around month 48 and unwinds to 3.37 by month 96, with crisis probability falling from 6.35 to 0.22. The bet the player was knowingly taking now settles itself. THE CAUSE IS THAT THE SCENARIO WAS CALIBRATED AGAINST A DEFECT. Its 14.5pp gap was being produced by updateAssetPrices overshooting its own sourced semi-elasticity by 4.6x, which 3.1 fixed. The four-year promise above still holds (9.80pp at m48, over the BIS line, with every visible gauge healthy), so what is lost is the second half of the term. DO NOT CLOSE THIS BY RE-INFLATING THE WEALTH CHANNEL — that is rule 3, and the channel now matches its own literature. AND DO NOT RETUNE THE STARTING VECTOR EITHER, which is what this message used to recommend. Phase 4.3 measured the cause and it is D2, an already-known sourced defect: updateCreditTrend chases the stock at 0.20/year, a 41.6-month half-life, while its stated source is a one-sided HP filter at lambda=400,000 whose trend constant is 10-15 YEARS. The gauge mean-reverts 3-4x faster than the indicator it approximates, so it systematically under-reads persistent booms — the exact situation it exists for. At the sourced speed the gap climbs and STAYS: measured, m24/m48/m72/m96 = 10.29/13.99/14.20/10.34 at 0.06 per year and 10.44/14.37/14.82/11.14 at 0.05, against 8.39/9.80/7.99/3.37 as built. The design promise is ~14.5pp. PHASE 5.4 HAS NOW RUN, AND IT ONLY GOT PART OF THE WAY. The derivation from the stated lambda gives 0.127/year, not the 0.05-0.06 that would restore 14.5pp — which took the peak from 9.82 to 12.00 and the m96 gap from 3.37 to 6.20. Pushing further would be tuning to a target (rule 3), so it was not done. 5.2 THEN MOVED IT AGAIN, UPWARD, FOR AN UNRELATED REASON: giving private debt a maturity means a rate change reaches the debt-service burden over years, so the balancing leg of the credit loop (burden -> defaults -> spread -> real rate) arrives slower and the boom runs longer. Current path 9.16/11.65/11.05/7.08, peaking at 11.98 in month 58. The SHAPE is unchanged: it still peaks and unwinds inside the term. WHAT IS LEFT IS PROBABLY STRUCTURAL: the BIS trend is a LOCAL LINEAR trend carrying a slope state and this one is level-only, so it lags a growing credit stock permanently and no speed fixes that. See CREDIT_TREND_CATCHUP's note. 6.1 (the countercyclical buffer) is the other half of the answer, because a bubble the player cannot act on is a spectacle rather than a decision.
+not ok 106 - the bubble does not deflate on its own before the term ends # TODO A LESSON-LEVEL CONSEQUENCE OF 3.1, AND NOT A DEFECT IN 3.1. docs/00 describes this scenario as eight years of every gauge saying you are brilliant while the one nobody watches climbs to ~14.5pp. It used to do exactly that — the credit gap rose monotonically 8.77 (m24), 11.63 (m48), 13.34 (m72), 14.10 (m96), with crisis probability reaching 10.36% and approval never leaving 70. It now PEAKS at 9.82 around month 48 and unwinds to 3.37 by month 96, with crisis probability falling from 6.35 to 0.22. The bet the player was knowingly taking now settles itself. THE CAUSE IS THAT THE SCENARIO WAS CALIBRATED AGAINST A DEFECT. Its 14.5pp gap was being produced by updateAssetPrices overshooting its own sourced semi-elasticity by 4.6x, which 3.1 fixed. The four-year promise above still holds (9.80pp at m48, over the BIS line, with every visible gauge healthy), so what is lost is the second half of the term. DO NOT CLOSE THIS BY RE-INFLATING THE WEALTH CHANNEL — that is rule 3, and the channel now matches its own literature. AND DO NOT RETUNE THE STARTING VECTOR EITHER, which is what this message used to recommend. Phase 4.3 measured the cause and it is D2, an already-known sourced defect: updateCreditTrend chases the stock at 0.20/year, a 41.6-month half-life, while its stated source is a one-sided HP filter at lambda=400,000 whose trend constant is 10-15 YEARS. The gauge mean-reverts 3-4x faster than the indicator it approximates, so it systematically under-reads persistent booms — the exact situation it exists for. At the sourced speed the gap climbs and STAYS: measured, m24/m48/m72/m96 = 10.29/13.99/14.20/10.34 at 0.06 per year and 10.44/14.37/14.82/11.14 at 0.05, against 8.39/9.80/7.99/3.37 as built. The design promise is ~14.5pp. PHASE 5.4 HAS NOW RUN, AND IT ONLY GOT PART OF THE WAY. The derivation from the stated lambda gives 0.127/year, not the 0.05-0.06 that would restore 14.5pp — which took the peak from 9.82 to 12.00 and the m96 gap from 3.37 to 6.20. Pushing further would be tuning to a target (rule 3), so it was not done. 5.2 THEN MOVED IT AGAIN, UPWARD, FOR AN UNRELATED REASON: giving private debt a maturity means a rate change reaches the debt-service burden over years, so the balancing leg of the credit loop (burden -> defaults -> spread -> real rate) arrives slower and the boom runs longer. Current path 9.16/11.65/11.05/7.08, peaking at 11.98 in month 58. The SHAPE is unchanged: it still peaks and unwinds inside the term. WHAT IS LEFT IS PROBABLY STRUCTURAL: the BIS trend is a LOCAL LINEAR trend carrying a slope state and this one is level-only, so it lags a growing credit stock permanently and no speed fixes that. See CREDIT_TREND_CATCHUP's note. 6.1 (the countercyclical buffer) is the other half of the answer, because a bubble the player cannot act on is a spectacle rather than a decision.
   ---
-  duration_ms: 12.068759
+  duration_ms: 11.200223
   location: '/home/ztchr/personal_projects/Crash/test/scenarios.test.js:62:1'
   failureType: 'testCodeFailure'
   error: 'the credit gap peaked at 11.98pp in month 58 and had fallen to 7.08pp by the end of the term. The scenario exists to hold a hidden danger in front of the player for eight years; one that quietly resolves itself teaches that ignoring it works.'
@@ -1547,44 +1553,44 @@ not ok 105 - the bubble does not deflate on its own before the term ends # TODO 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: every scenario starts in, and stays a quarter in, its advertised regime
-ok 106 - every scenario starts in, and stays a quarter in, its advertised regime
+ok 107 - every scenario starts in, and stays a quarter in, its advertised regime
   ---
-  duration_ms: 9.391327
+  duration_ms: 8.258681
   ...
 # Subtest: the recession scenario has the rate dial genuinely dead
-ok 107 - the recession scenario has the rate dial genuinely dead
+ok 108 - the recession scenario has the rate dial genuinely dead
   ---
-  duration_ms: 2.681711
+  duration_ms: 4.017323
   ...
 # Subtest: no scenario produces absurd numbers inside a term
-ok 108 - no scenario produces absurd numbers inside a term
+ok 109 - no scenario produces absurd numbers inside a term
   ---
-  duration_ms: 77.122618
+  duration_ms: 72.315272
   ...
 # Subtest: NEUTRAL ANCHORS ARE BUILT FROM NEUTRAL, in every scenario
-ok 109 - NEUTRAL ANCHORS ARE BUILT FROM NEUTRAL, in every scenario
+ok 110 - NEUTRAL ANCHORS ARE BUILT FROM NEUTRAL, in every scenario
   ---
-  duration_ms: 1.179847
+  duration_ms: 1.065751
   ...
 # Subtest: debt_trap: the real economy responds to the yield at all
-ok 110 - debt_trap: the real economy responds to the yield at all
+ok 111 - debt_trap: the real economy responds to the yield at all
   ---
-  duration_ms: 6.63824
+  duration_ms: 5.292578
   ...
 # Subtest: debt_trap: the benchmark central bank is no longer identical to doing nothing
-ok 111 - debt_trap: the benchmark central bank is no longer identical to doing nothing
+ok 112 - debt_trap: the benchmark central bank is no longer identical to doing nothing
   ---
-  duration_ms: 9.000229
+  duration_ms: 8.776523
   ...
 # Subtest: debt_trap: THE DECISION — you cannot consolidate your way out alone
-ok 112 - debt_trap: THE DECISION — you cannot consolidate your way out alone
+ok 113 - debt_trap: THE DECISION — you cannot consolidate your way out alone
   ---
-  duration_ms: 27.157495
+  duration_ms: 31.267455
   ...
 # Subtest: debt_trap: and the inflation price of escaping is visibly large
-not ok 113 - debt_trap: and the inflation price of escaping is visibly large # TODO MAGNITUDE MOVED BY 3.1, DIRECTION INTACT. Cutting the rate to the floor in debt_trap buys 2.49% inflation against 1.40% doing nothing — a +1.09pp price, where the bar was +1.5pp before the asset-price units were fixed. The wealth channel was applying a LEVEL semi-elasticity as a persistent growth rate and overshooting its own sourced value by 4.6x, so every inflationary consequence of an easing was correspondingly overstated. The lesson — that inflating your way out has a visible price — is asserted hard in the test above; this records HOW visible. Re-measure at Phase 4 and decide then whether +1.09pp reads as a decision to a player, rather than adjusting the threshold to whatever the model does.
+not ok 114 - debt_trap: and the inflation price of escaping is visibly large # TODO MAGNITUDE MOVED BY 3.1, DIRECTION INTACT. Cutting the rate to the floor in debt_trap buys 2.49% inflation against 1.40% doing nothing — a +1.09pp price, where the bar was +1.5pp before the asset-price units were fixed. The wealth channel was applying a LEVEL semi-elasticity as a persistent growth rate and overshooting its own sourced value by 4.6x, so every inflationary consequence of an easing was correspondingly overstated. The lesson — that inflating your way out has a visible price — is asserted hard in the test above; this records HOW visible. Re-measure at Phase 4 and decide then whether +1.09pp reads as a decision to a player, rather than adjusting the threshold to whatever the model does.
   ---
-  duration_ms: 9.141274
+  duration_ms: 10.359662
   location: '/home/ztchr/personal_projects/Crash/test/scenarios.test.js:306:1'
   failureType: 'testCodeFailure'
   error: 'cutting rates to the floor left inflation at 1.89% against 1.38% passive'
@@ -1603,128 +1609,128 @@ not ok 113 - debt_trap: and the inflation price of escaping is visibly large # T
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting
-ok 114 - THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting
+ok 115 - THE LONG YIELD IS AN AVERAGE, so it carries inflation without double-counting
   ---
-  duration_ms: 16.313561
+  duration_ms: 18.592241
   ...
 # Subtest: a hike does not bite the interest bill on impact
-ok 115 - a hike does not bite the interest bill on impact
+ok 116 - a hike does not bite the interest bill on impact
   ---
-  duration_ms: 4.148427
+  duration_ms: 5.275965
   ...
 # Subtest: CHARACTERISATION: what each preset does over a full term, unattended
-ok 116 - CHARACTERISATION: what each preset does over a full term, unattended
+ok 117 - CHARACTERISATION: what each preset does over a full term, unattended
   ---
-  duration_ms: 23.188401
+  duration_ms: 30.669527
   ...
 # Subtest: the core macro block is stable around the steady state
-ok 117 - the core macro block is stable around the steady state
+ok 118 - the core macro block is stable around the steady state
   ---
-  duration_ms: 32.12236
+  duration_ms: 29.531994
   ...
 # Subtest: the debt loop diverges, but slowly enough to be playable
-ok 118 - the debt loop diverges, but slowly enough to be playable
+ok 119 - the debt loop diverges, but slowly enough to be playable
   ---
-  duration_ms: 18.391897
+  duration_ms: 18.34483
   ...
 # Subtest: a one-off demand shock decays rather than compounding
-ok 119 - a one-off demand shock decays rather than compounding
+ok 120 - a one-off demand shock decays rather than compounding
   ---
-  duration_ms: 7.335825
+  duration_ms: 8.880381
   ...
 # Subtest: 200 ticks of no input and nothing drifts
-ok 120 - 200 ticks of no input and nothing drifts
+ok 121 - 200 ticks of no input and nothing drifts
   ---
-  duration_ms: 37.490589
+  duration_ms: 42.46385
   ...
 # Subtest: THE LEVEL: potential grows at potential_growth, and K/Y stays put
-ok 121 - THE LEVEL: potential grows at potential_growth, and K/Y stays put
+ok 122 - THE LEVEL: potential grows at potential_growth, and K/Y stays put
   ---
-  duration_ms: 24.8044
+  duration_ms: 23.558822
   ...
 # Subtest: credibility rises when the target is hit, and slowly
-ok 122 - credibility rises when the target is hit, and slowly
+ok 123 - credibility rises when the target is hit, and slowly
   ---
-  duration_ms: 21.947209
+  duration_ms: 20.910521
   ...
 # Subtest: the credit gap does not open on its own
-ok 123 - the credit gap does not open on its own
+ok 124 - the credit gap does not open on its own
   ---
-  duration_ms: 35.505711
+  duration_ms: 31.581822
   ...
 #   disinflation curve @m60: 5%:73.9 6%:36.5 7%:6.4 8%:3.6 9%:1.9 10%:0.6 12%:-1.9
 #   steepest -40.4pp of inflation per pp of policy, at 5%
 #   steepest slope: as built -40.4 at 5%; wealth channel off -20.9 at 5.75%
 #   stagflation m3->m12: inflation +6.10pp; response on the DIAL 1.99, TRANSMITTED 1.94 (0.37 before the A1 split); real rate felt at m12 -1.81% (-14.50 before)
 # Subtest: a rate cut does more for OUTPUT with slack than at capacity
-ok 124 - a rate cut does more for OUTPUT with slack than at capacity
+ok 125 - a rate cut does more for OUTPUT with slack than at capacity
   ---
-  duration_ms: 36.568901
+  duration_ms: 40.507235
   ...
 # Subtest: a cut is weaker than the equivalent hike
-ok 125 - a cut is weaker than the equivalent hike
+ok 126 - a cut is weaker than the equivalent hike
   ---
-  duration_ms: 18.643092
+  duration_ms: 18.477075
   ...
 # Subtest: a cut-then-hike round trip leaves the stance where it started
-ok 126 - a cut-then-hike round trip leaves the stance where it started
+ok 127 - a cut-then-hike round trip leaves the stance where it started
   ---
-  duration_ms: 7.071681
+  duration_ms: 8.193532
   ...
 # Subtest: THE LOWER BOUND: easing stops working as the rate approaches it
-ok 127 - THE LOWER BOUND: easing stops working as the rate approaches it
+ok 128 - THE LOWER BOUND: easing stops working as the rate approaches it
   ---
-  duration_ms: 32.454793
+  duration_ms: 23.835635
   ...
 # Subtest: QE still works when the rate dial has run out of room
-ok 128 - QE still works when the rate dial has run out of room
+ok 129 - QE still works when the rate dial has run out of room
   ---
-  duration_ms: 26.063701
+  duration_ms: 27.558987
   ...
 # Subtest: unemployment rises faster than it falls
-ok 129 - unemployment rises faster than it falls
+ok 130 - unemployment rises faster than it falls
   ---
-  duration_ms: 11.647373
+  duration_ms: 14.980799
   ...
 # Subtest: SWEEP: more spending never raises unemployment, at any starting gap
-ok 130 - SWEEP: more spending never raises unemployment, at any starting gap
+ok 131 - SWEEP: more spending never raises unemployment, at any starting gap
   ---
-  duration_ms: 65.083735
+  duration_ms: 76.993508
   ...
 # Subtest: SWEEP: no step changes in the response to a rate cut
-ok 131 - SWEEP: no step changes in the response to a rate cut
+ok 132 - SWEEP: no step changes in the response to a rate cut
   ---
-  duration_ms: 21.821227
+  duration_ms: 22.042276
   ...
 # Subtest: the ONE cliff in the model is the capacity ceiling, and it is where it says
-ok 132 - the ONE cliff in the model is the capacity ceiling, and it is where it says
+ok 133 - the ONE cliff in the model is the capacity ceiling, and it is where it says
   ---
-  duration_ms: 4.048235
+  duration_ms: 3.26565
   ...
 # Subtest: L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
-ok 133 - L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
+ok 134 - L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
   ---
-  duration_ms: 12.390224
+  duration_ms: 11.522636
   ...
 # Subtest: L3: the fiscal multiplier has no step in it as the rate falls to the bound
-ok 134 - L3: the fiscal multiplier has no step in it as the rate falls to the bound
+ok 135 - L3: the fiscal multiplier has no step in it as the rate falls to the bound
   ---
-  duration_ms: 389.263781
+  duration_ms: 355.210893
   ...
 # Subtest: investment.js reads the rate DIAL only to display it
-ok 135 - investment.js reads the rate DIAL only to display it
+ok 136 - investment.js reads the rate DIAL only to display it
   ---
-  duration_ms: 0.943414
+  duration_ms: 0.813322
   ...
 # Subtest: A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
-ok 136 - A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
+ok 137 - A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
   ---
-  duration_ms: 24.581678
+  duration_ms: 22.652129
   ...
 # Subtest: A-TABLE: the knife-edge is the wealth channel, and it is still there
-not ok 137 - A-TABLE: the knife-edge is the wealth channel, and it is still there # TODO PHASE 3 CLOSES THIS. Measured as the steepest local sensitivity on a 0.25pp grid, |d inflation@m60 / d policy rate|: pre-A1 as built -366.7 at 7.75% (slope ratio 138x); post-A1 as built -149.2 at 6.25% (slope ratio 80x); post-A1 with no wealth channel -22.5 at 5.50% (slope ratio 19x). Splitting the transmission lag halved the knife-edge and moved it toward the Fisher point, but did not remove it. Switching WEALTH_EFFECT off removes 85% of what is left, which is the isolating experiment: the residual bifurcation is the asset-wealth channel, and that is Section B. The target below is not a picked number — it is what the model itself does with the offending channel switched off, re-measured on every run.
+not ok 138 - A-TABLE: the knife-edge is the wealth channel, and it is still there # TODO PHASE 3 CLOSES THIS. Measured as the steepest local sensitivity on a 0.25pp grid, |d inflation@m60 / d policy rate|: pre-A1 as built -366.7 at 7.75% (slope ratio 138x); post-A1 as built -149.2 at 6.25% (slope ratio 80x); post-A1 with no wealth channel -22.5 at 5.50% (slope ratio 19x). Splitting the transmission lag halved the knife-edge and moved it toward the Fisher point, but did not remove it. Switching WEALTH_EFFECT off removes 85% of what is left, which is the isolating experiment: the residual bifurcation is the asset-wealth channel, and that is Section B. The target below is not a picked number — it is what the model itself does with the offending channel switched off, re-measured on every run.
   ---
-  duration_ms: 68.36689
+  duration_ms: 66.814208
   location: '/home/ztchr/personal_projects/Crash/test/transmission.test.js:370:1'
   failureType: 'testCodeFailure'
   error: "the live model's steepest response is 40.4pp of inflation per pp of policy, against 20.9 with WEALTH_EFFECT switched off. The wealth channel is contributing 1.9x the curvature of the rest of the model put together."
@@ -1743,119 +1749,119 @@ not ok 137 - A-TABLE: the knife-edge is the wealth channel, and it is still ther
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: A-TABLE: the A1 split made the response curve measurably smoother
-ok 138 - A-TABLE: the A1 split made the response curve measurably smoother
+ok 139 - A-TABLE: the A1 split made the response curve measurably smoother
   ---
-  duration_ms: 25.03358
+  duration_ms: 23.643614
   ...
 # Subtest: the TRANSMITTED Taylor response clears unity, not just the dial one
-ok 139 - the TRANSMITTED Taylor response clears unity, not just the dial one
+ok 140 - the TRANSMITTED Taylor response clears unity, not just the dial one
   ---
-  duration_ms: 2.028012
+  duration_ms: 2.050472
   ...
 # Subtest: the whole UI boots without throwing
-ok 140 - the whole UI boots without throwing
+ok 141 - the whole UI boots without throwing
   ---
-  duration_ms: 1.245815
+  duration_ms: 1.17554
   ...
 # Subtest: every shell container the app needs exists
-ok 141 - every shell container the app needs exists
+ok 142 - every shell container the app needs exists
   ---
-  duration_ms: 0.469538
+  duration_ms: 0.541224
   ...
 # Subtest: a gauge mounts for every indicator
-ok 142 - a gauge mounts for every indicator
+ok 143 - a gauge mounts for every indicator
   ---
-  duration_ms: 0.156224
+  duration_ms: 0.251452
   ...
 # Subtest: a dial mounts for every dial
-ok 143 - a dial mounts for every dial
+ok 144 - a dial mounts for every dial
   ---
-  duration_ms: 0.143454
+  duration_ms: 0.214895
   ...
 # Subtest: every gauge can open a why panel with real terms
-ok 144 - every gauge can open a why panel with real terms
+ok 145 - every gauge can open a why panel with real terms
   ---
-  duration_ms: 6.157515
+  duration_ms: 4.943729
   ...
 # Subtest: every gauge has a history series to draw
-ok 145 - every gauge has a history series to draw
+ok 146 - every gauge has a history series to draw
   ---
-  duration_ms: 5.240554
+  duration_ms: 6.398435
   ...
 # Subtest: moving a dial schedules an effect instead of applying it
-ok 146 - moving a dial schedules an effect instead of applying it
+ok 147 - moving a dial schedules an effect instead of applying it
   ---
-  duration_ms: 0.596487
+  duration_ms: 0.485776
   ...
 # Subtest: a session runs a full term without throwing
-ok 147 - a session runs a full term without throwing
+ok 148 - a session runs a full term without throwing
   ---
-  duration_ms: 20.959466
+  duration_ms: 15.7769
   ...
 # Subtest: restarting on the same seed keeps the previous run as a ghost
-ok 148 - restarting on the same seed keeps the previous run as a ghost
+ok 149 - restarting on the same seed keeps the previous run as a ghost
   ---
-  duration_ms: 3.691441
+  duration_ms: 7.57397
   ...
 # Subtest: the game starts paused, at 1x, with play as the visible action
-ok 149 - the game starts paused, at 1x, with play as the visible action
+ok 150 - the game starts paused, at 1x, with play as the visible action
   ---
-  duration_ms: 0.537024
+  duration_ms: 0.470962
   ...
 # Subtest: pausing does not throw away the chosen speed
-ok 150 - pausing does not throw away the chosen speed
+ok 151 - pausing does not throw away the chosen speed
   ---
-  duration_ms: 0.63034
+  duration_ms: 0.26509
   ...
 # Subtest: every gauge and every dial has a plain-English definition
-ok 151 - every gauge and every dial has a plain-English definition
+ok 152 - every gauge and every dial has a plain-English definition
   ---
-  duration_ms: 0.168985
+  duration_ms: 0.170572
   ...
 # Subtest: every gauge can say whether it is getting worse
-ok 152 - every gauge can say whether it is getting worse
+ok 153 - every gauge can say whether it is getting worse
   ---
-  duration_ms: 0.115213
+  duration_ms: 0.144583
   ...
 # Subtest: a passive calm run reaches the end of the term and is scored
-ok 153 - a passive calm run reaches the end of the term and is scored
+ok 154 - a passive calm run reaches the end of the term and is scored
   ---
-  duration_ms: 13.423892
+  duration_ms: 9.767341
   ...
 # Subtest: a losing run reaches a named ending with a lesson
-ok 154 - a losing run reaches a named ending with a lesson
+ok 155 - a losing run reaches a named ending with a lesson
   ---
-  duration_ms: 5.695669
+  duration_ms: 4.579592
   ...
 # Subtest: the DEFERRED register matches the code, in both directions
-ok 155 - the DEFERRED register matches the code, in both directions
+ok 156 - the DEFERRED register matches the code, in both directions
   ---
-  duration_ms: 15.821556
+  duration_ms: 14.679891
   ...
 # Subtest: every recorded parameter conflict is still genuinely unresolved
-ok 156 - every recorded parameter conflict is still genuinely unresolved
+ok 157 - every recorded parameter conflict is still genuinely unresolved
   ---
-  duration_ms: 3.732132
+  duration_ms: 5.270304
   ...
 # Subtest: RATE_TO_OUTPUT: 1pp of policy rate, held a year
-ok 157 - RATE_TO_OUTPUT: 1pp of policy rate, held a year
+ok 158 - RATE_TO_OUTPUT: 1pp of policy rate, held a year
   ---
-  duration_ms: 19.013692
+  duration_ms: 19.51726
   ...
 # Subtest: AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
-ok 158 - AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
+ok 159 - AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
   ---
-  duration_ms: 15.25898
+  duration_ms: 13.172682
   ...
 # Subtest: a tax cut RAISES output, and does it through consumption
-ok 159 - a tax cut RAISES output, and does it through consumption
+ok 160 - a tax cut RAISES output, and does it through consumption
   ---
-  duration_ms: 27.157913
+  duration_ms: 29.583934
   ...
 # Subtest: QE_TO_GDP: bond buying reaches output through the yield, and how much
-not ok 160 - QE_TO_GDP: bond buying reaches output through the yield, and how much # TODO FELL BELOW ITS PUBLISHED RANGE WHEN 3.1 FIXED THE ASSET-PRICE UNITS. The model delivers 0.019% of GDP per 1% of GDP purchased against a published 0.02-0.15 — just under the bottom, where it used to sit inside. QE reaches output through the long yield and then through asset prices, and the asset leg was overshooting its own sourced semi-elasticity by 4.6x, so part of what used to satisfy this range was the unit error. QE_TO_GDP is `weak` in parameters.py, with the note that the real-economy effect is genuinely contested and some argue near-zero outside market dysfunction — 0.019 is comfortably inside that judgement even though it is outside the stated band. Recorded rather than closed: raising it means raising QE_TO_YIELD or the wealth channel, and the wealth channel has just been shown to have been wrong in the other direction.
+not ok 161 - QE_TO_GDP: bond buying reaches output through the yield, and how much # TODO FELL BELOW ITS PUBLISHED RANGE WHEN 3.1 FIXED THE ASSET-PRICE UNITS. The model delivers 0.019% of GDP per 1% of GDP purchased against a published 0.02-0.15 — just under the bottom, where it used to sit inside. QE reaches output through the long yield and then through asset prices, and the asset leg was overshooting its own sourced semi-elasticity by 4.6x, so part of what used to satisfy this range was the unit error. QE_TO_GDP is `weak` in parameters.py, with the note that the real-economy effect is genuinely contested and some argue near-zero outside market dysfunction — 0.019 is comfortably inside that judgement even though it is outside the stated band. Recorded rather than closed: raising it means raising QE_TO_YIELD or the wealth channel, and the wealth channel has just been shown to have been wrong in the other direction.
   ---
-  duration_ms: 11.98947
+  duration_ms: 12.140507
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:153:1'
   failureType: 'testCodeFailure'
   error: 'model 0.019, literature 0.02-0.15'
@@ -1874,9 +1880,9 @@ not ok 160 - QE_TO_GDP: bond buying reaches output through the yield, and how mu
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: RATE_TO_INFLATION: the model is about half the published estimate
-not ok 161 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
+not ok 162 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
   ---
-  duration_ms: 13.517341
+  duration_ms: 9.484013
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:180:1'
   failureType: 'testCodeFailure'
   error: 'model 0.080, literature 0.2-0.4'
@@ -1896,14 +1902,14 @@ not ok 161 - RATE_TO_INFLATION: the model is about half the published estimate #
   ...
 #   a 3pp hike, default rate: m1 0.00125pp, m12 0.23397, m36 0.53521, m60 0.66026. Impact is 0.19% of the five-year response (0.67538pp before 5.2, off the DIAL and the whole stock). Repricing switched off: 0.03160pp, 25.4x.
 # Subtest: CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
-ok 162 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
+ok 163 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
   ---
-  duration_ms: 16.723885
+  duration_ms: 16.408543
   ...
 # Subtest: TAX_SHOCK_TO_GDP: the model is far below Romer-Romer
-not ok 163 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.487% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it; the model has been at 0.487 since 3.1 and was 0.492 before, so 0.33 was never right in this pass.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
+not ok 164 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.487% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it; the model has been at 0.487 since 3.1 and was 0.492 before, so 0.33 was never right in this pass.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
   ---
-  duration_ms: 10.357371
+  duration_ms: 12.181835
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:249:1'
   failureType: 'testCodeFailure'
   error: 'model 0.484, literature 2-3'
@@ -1922,22 +1928,22 @@ not ok 163 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: private debt reprices over YEARS, and the burden lands late
-ok 164 - private debt reprices over YEARS, and the burden lands late
+ok 165 - private debt reprices over YEARS, and the burden lands late
   ---
-  duration_ms: 13.274514
+  duration_ms: 11.093395
   ...
 # Subtest: the debt-service burden reads the transmitted rate, not the dial
-ok 165 - the debt-service burden reads the transmitted rate, not the dial
+ok 166 - the debt-service burden reads the transmitted rate, not the dial
   ---
-  duration_ms: 2.415742
+  duration_ms: 3.123175
   ...
-1..165
-# tests 165
+1..166
+# tests 166
 # suites 0
-# pass 149
+# pass 150
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 16
-# duration_ms 929.842725
+# duration_ms 847.535189
 ```

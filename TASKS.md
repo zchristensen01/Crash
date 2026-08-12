@@ -15,7 +15,7 @@ numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3�
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
 B8→5.14, A7→11.5, E7→5.15. The entries with no task are the ones that want none: `FIXED` (A4,
-A5, B1, D1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
+A5, B1, D1, D2, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
 `docs/13`'s "As built" block next to the change. See 10.10.
@@ -102,7 +102,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-four** corrections to the
+Recorded here and against the individual tasks. **Twenty-five** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -125,6 +125,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 25 | D2 undercounted: the demand bound was stated **three** times, not twice — the `govt_spending` dial's ceiling is check 8's third band | closed by 5.10 |
 | 24 | D1's own estimate of the rate threshold was wrong — "18–20"; it is **20.00–20.25**. The ceiling of 50 survived a full re-derivation | closed by 5.9 |
 | 23 | **5.1 is blocked on A2.** The obvious diagnosis (a shrinking transfer acting as an inflation tax) was REFUTED by freezing the transfer: 3.17 vs 3.27. It is the one-off propensity cut, and underneath it a −3.9% real rate held 200 months moves investment 0.8pp | **OPEN — open_items A6** |
 
@@ -666,13 +667,29 @@ tasks, not notes — the pass found them and did not fix them.
       the ceiling as the request, producing a max of exactly 20.0/25.0/30.0 at
       each candidate. Plausible and meaningless.
 
-- [ ] 5.10 The two bounds that are stated twice — `open_items` D2
-      `updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8
-      asserts the same band; `updateInvestment` clamps to `[2, 45]` and check 8
-      asserts that too. Deliberate belt-and-braces and the numbers were taken
-      from the invariant so there is one source — but they are still two
-      copies, and 5.3 named them without merging them. Move one and the other
-      must move.
+- [x] 5.10 The bounds stated twice — **there were THREE copies** — `open_items` D2
+      `updateConsumption` clamped to `[10, 95]` and `invariants.js` check 8
+      asserted the same band; `updateInvestment` clamped to `[2, 45]` and check
+      8 asserted that too. **D2 missed the third: the `govt_spending` dial's
+      `min: 0, max: 70` is check 8's `govt_purchases` band**, since
+      `govt_purchases` tracks that dial. Each copy carried a comment saying the
+      numbers were "taken from the invariant so there is one source" — intent
+      with no mechanism. All three now read `DEMAND_BOUNDS`, exported from
+      `invariants.js`.
+      **Not tidiness.** A rule clamp WIDER than its invariant makes the model
+      throw on a state it generated itself; NARROWER and the invariant can
+      never fire, so the saturation it exists to catch is invisible. Equality
+      is the only safe relation and it is now structural.
+      Guarded by a test that exercises it rather than restating it:
+      `stagflation` pins investment at its ceiling for **51 of 96 months** with
+      invariants on every tick. **Both drift modes verified**: a wider rule
+      clamp throws `investment = 45.050 outside [2, 45] at tick 46`; a dial
+      ceiling at 80 fails the equality directly.
+      **`tax_rate`'s dial also runs 0-70 and is deliberately NOT wired in** — a
+      different quantity that coincides on a number, and merging them because
+      they look alike is the class of error B2 and 5.5 both were.
+      Behaviour-neutral: six scenarios x 96 months identical, `docs/11`'s
+      fingerprint unmoved.
 
 - [ ] 5.11 Extend lint check (f) past `src/rules/` — `open_items` E6
       `leverage_max`'s bare `1.35` escaped 5.3 because check (f) walks

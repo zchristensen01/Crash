@@ -6,12 +6,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { newState } from '../src/state.js';
 import { run } from '../src/engine.js';
-import { checkInvariants } from '../src/invariants.js';
+import { checkInvariants, DEMAND_BOUNDS } from '../src/invariants.js';
 import { tick } from '../src/engine.js';
 import { Trace } from '../src/trace.js';
 import { LagPipeline } from '../src/lags.js';
 import { makeRng } from '../src/rng.js';
 import { SCENARIOS } from '../src/game/scenarios.js';
+import { DIALS } from '../src/game/dials.js';
 
 test('invariants hold across 200 quiet ticks', () => {
   const s = newState();
@@ -119,4 +120,49 @@ test('the asset-price bound is on the LEVEL, so a spiral cannot outrun it', () =
     `asset/fundamental reached ${worst.af.toFixed(2)} in ${worst.key}. A clamp on ` +
     `the monthly move does not bound a compounding level — it only sets how fast ` +
     `the spiral runs. The bound is on the deviation for exactly this reason.`);
+});
+
+/**
+ * A RULE'S CLAMP AND THE INVARIANT THAT CHECKS IT ARE ONE NUMBER
+ * [4th audit 5.10, open_items D2].
+ *
+ * `updateConsumption` clamps to [10, 95] and check 8 asserts the same band;
+ * `updateInvestment` clamps to [2, 45] and check 8 asserts that too; and the
+ * `govt_spending` dial's own ceiling is check 8's third band. All three used
+ * to be written out separately, each under a comment saying the numbers were
+ * "taken from the invariant so there is one source" — a description of intent
+ * with no mechanism behind it. They now come from `DEMAND_BOUNDS`.
+ *
+ * WHY IT MATTERS RATHER THAN BEING TIDINESS: if a rule's clamp were ever WIDER
+ * than the invariant that checks it, the rule could produce a value the
+ * invariant rejects, and the model would throw on a state the model itself
+ * generated. If it were NARROWER, the invariant could never fire and the
+ * saturation it exists to catch would be invisible. Equality is the only safe
+ * relation and it is now structural.
+ *
+ * The run below is the one that exercises it: `stagflation` pins investment
+ * against its ceiling for 51 of 96 months with invariants checked every tick,
+ * so a clamp wider than the band would throw here rather than in a later pass.
+ */
+test('the demand clamps and check 8 are the same numbers, and a pinned run proves it', () => {
+  // 1. The dial that feeds govt_purchases carries the same ceiling.
+  const spend = DIALS.find((d) => d.key === 'govt_spending');
+  assert.deepEqual([spend.min, spend.max], DEMAND_BOUNDS.govt_purchases,
+    `the govt_spending dial runs [${spend.min}, ${spend.max}] and check 8 asserts ` +
+    `[${DEMAND_BOUNDS.govt_purchases}]. govt_purchases tracks this dial, so a dial ` +
+    `wider than the invariant lets the player produce a state the model rejects.`);
+
+  // 2. A run that actually reaches a bound, with invariants on every tick.
+  const s = newState(SCENARIOS.stagflation.overrides);
+  let pinned = 0;
+  for (let m = 1; m <= 96; m++) {
+    run(s, 1, { events: false, endings: false });      // assertEveryTick defaults on
+    if (s.investment >= DEMAND_BOUNDS.investment[1] - 1e-9) pinned += 1;
+  }
+  assert.ok(pinned > 20,
+    `investment pinned against its ceiling in only ${pinned} of 96 months of ` +
+    `stagflation, so this test is no longer exercising a clamp at all and the ` +
+    `equality above is unverified by behaviour. Find a run that saturates.`);
+  assert.ok(s.investment <= DEMAND_BOUNDS.investment[1],
+    `investment left its own clamp at ${s.investment}`);
 });

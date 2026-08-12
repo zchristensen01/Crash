@@ -3,6 +3,7 @@
  */
 import { P } from '../params.js';
 import { clamp, lerp } from '../units.js';
+import { DEMAND_BOUNDS } from '../invariants.js';
 
 /**
  * How much of a monetary EASING actually reaches the economy.
@@ -220,7 +221,8 @@ export function updateInvestment(s, trace) {
   // own band so there is one source rather than two (open_items D2). No
   // economy has ever invested 45% of output in a year for long, and none has
   // sustained 2%; both exist so a divergent run stays readable.
-  const INVESTMENT_MIN = 2, INVESTMENT_MAX = 45;   // judgement, see above
+  // ONE COPY, IMPORTED [4th audit 5.10] — see DEMAND_BOUNDS.
+  const [INVESTMENT_MIN, INVESTMENT_MAX] = DEMAND_BOUNDS.investment;
   s.investment = clamp(raw, INVESTMENT_MIN, INVESTMENT_MAX);
   trace.record('investment', { ...terms,
     'bounded to a physically possible range': s.investment - raw,

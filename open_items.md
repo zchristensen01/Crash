@@ -568,14 +568,34 @@ months at a ceiling of 20 against 0/96 at 50, and `stagflation` still ends at
 node --test test/autopilot.test.js 2>&1 | grep "by ceiling"
 ```
 
-### D2. Two bounds are stated twice### D2. Two bounds are stated twice — `WATCH`
-`updateConsumption` clamps to `[10, 95]` and `invariants.js` check 8 asserts the
-same band; `updateInvestment` clamps to `[2, 45]` and check 8 asserts that too.
-Deliberate belt-and-braces, and the numbers were deliberately taken from the
-invariant so there is one source. But they are still two copies: **move one and
-the other must move.** A candidate for Phase 5.3's literal sweep.
+### D2. Two bounds are stated twice### D2. Two bounds were stated twice — `FIXED in 5.10, and it was THREE copies`
+`updateConsumption` clamped to `[10, 95]` and `invariants.js` check 8 asserted
+the same band; `updateInvestment` clamped to `[2, 45]` and check 8 asserted that
+too. **This entry missed a third: the `govt_spending` dial's own `min: 0,
+max: 70` is check 8's `govt_purchases` band**, because `govt_purchases` tracks
+that dial.
 
-### D5. `stagflation` under the Taylor rule now ends OVERHEATING, not GOLDILOCKS — `WATCH`
+Each copy carried a comment saying the numbers were "taken from the invariant
+so there is one source" — **a description of intent with no mechanism behind
+it.** All three now read `DEMAND_BOUNDS`, exported from `invariants.js`.
+
+**Why it is not tidiness.** If a rule's clamp is ever WIDER than the invariant
+that checks it, the rule produces a value the invariant rejects and the model
+throws on a state it generated itself. If it is NARROWER, the invariant can
+never fire and the saturation it exists to catch is invisible. Equality is the
+only safe relation, and it is now structural rather than aspirational.
+
+Guarded by a test that exercises it rather than restating it: `stagflation`
+pins investment against its ceiling for **51 of 96 months** with invariants
+checked every tick. Both drift modes verified to fire — a wider rule clamp
+throws `investment = 45.050 outside [2, 45] at tick 46`, and a dial ceiling
+moved to 80 fails the equality directly.
+
+**`tax_rate`'s dial also runs 0-70 and is deliberately NOT wired to this.** It
+is a different quantity that coincides on a number, and merging them because
+they look alike is the class of error B2 and 5.5 both were.
+
+### D5. `stagflation` under the Taylor rule now ends OVERHEATING### D5. `stagflation` under the Taylor rule now ends OVERHEATING, not GOLDILOCKS — `WATCH`
 5.8 gave the long yield an expected-inflation leg, so the state borrows at a
 higher rate through a disinflation. At month 96 the rule-following arm now
 reads **OVERHEATING at 3.2%** where it read GOLDILOCKS at 2.9%, with debt

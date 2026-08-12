@@ -9,7 +9,7 @@
 >
 > **Each task, as it lands, is annotated in place with an "As built" block:
 > what was measured, what was built, and where the plan turned out to be
-> wrong.** Twenty-four corrections so far. Corrections 4–9 were found while doing the
+> wrong.** Twenty-five corrections so far. Corrections 4–9 were found while doing the
 > work rather than in Phase 0 — including **Correction 7, which invalidates a
 > Phase 0 table**, **Correction 10, in which I made the exact error the
 > standing rule exists to prevent**, and **Correction 12, in which the number
@@ -1453,6 +1453,37 @@ it approximates, so it systematically under-reads persistent booms — the exact
 situation the gauge exists for. Derive, name, document. **A slower trend makes
 the credit gap larger, which strengthens Phase 3's loop — so this comes after
 Phase 3.**
+
+> #### As built — 5.10, and D2 undercounted the copies.
+>
+> ### CORRECTION 25 — the bound was stated three times, not twice.
+>
+> `open_items` D2 recorded two duplications: `updateConsumption`'s `[10, 95]`
+> against check 8, and `updateInvestment`'s `[2, 45]` against check 8. **The
+> third is the `govt_spending` dial's own `min: 0, max: 70`**, which is check
+> 8's `govt_purchases` band, because `govt_purchases` tracks that dial.
+>
+> Every copy carried a comment saying the numbers were *"taken from the
+> invariant so there is one source"*. That is a description of intent with no
+> mechanism behind it, and it is the same shape as `docs/01` describing dead
+> `START` fields in prose (Correction 16) — a true sentence no test enforces.
+> All three now read `DEMAND_BOUNDS`.
+>
+> **The relation matters in both directions and only equality is safe.** A rule
+> clamp WIDER than the invariant that checks it makes the model throw on a
+> state the model generated itself; NARROWER and the invariant can never fire,
+> so the saturation it exists to catch becomes invisible — and saturation reads
+> as stability on every summary statistic, which is check 8's whole reason for
+> existing.
+>
+> Guarded by behaviour rather than by restatement: `stagflation` pins
+> investment against its ceiling for **51 of 96 months** with invariants
+> checked every tick, so a widened clamp throws there. Both drift modes
+> verified to fire.
+>
+> **`tax_rate`'s dial also runs 0-70 and is deliberately left alone.** It is a
+> different quantity that coincides on a number; wiring the two together
+> because they look alike is exactly the error 5.5 refused and B2 made.
 
 **5.5 — Fix the parameter record's two known defects (D4).**
 `CREDIT_GAP_CRISIS_THRESHOLD`'s note claims it *"also serves as `leverage_max`"*

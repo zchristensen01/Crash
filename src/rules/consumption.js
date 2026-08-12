@@ -3,6 +3,7 @@
  */
 import { P } from '../params.js';
 import { quarterlyToMonthly, clamp } from '../units.js';
+import { DEMAND_BOUNDS } from '../invariants.js';
 
 /**
  *   C = APC * permanent income
@@ -92,8 +93,10 @@ export function updateConsumption(s, trace) {
   // labelled as such: 95% of potential leaves 5% for investment, government
   // and trade combined, which no economy has ever managed. It is an absurdity
   // bound, not a calibration — nothing real should come near it.
-  const CONSUMPTION_MIN = 10;    // judgement: subsistence floor
-  const CONSUMPTION_MAX = 95;    // judgement: same band as invariants.js check 8
+  // ONE COPY, IMPORTED [4th audit 5.10]. This used to be two local constants
+  // under a comment saying they were "the same band as invariants.js check 8",
+  // which was true and was not a mechanism — nothing stopped them drifting.
+  const [CONSUMPTION_MIN, CONSUMPTION_MAX] = DEMAND_BOUNDS.consumption;
   const raw = permanent + transitory + wealth + mood;
   s.consumption = clamp(raw, CONSUMPTION_MIN, CONSUMPTION_MAX);
   trace.record('consumption', {

@@ -7,6 +7,7 @@
  * bound is negative, and the fact that it exists at all is one of the lessons.
  */
 import { P } from '../params.js';
+import { DEMAND_BOUNDS } from '../invariants.js';
 
 export const DIALS = [
   {
@@ -85,7 +86,13 @@ export const DIALS = [
   {
     key: 'govt_spending',
     label: 'Spend',
-    min: 0, max: 70, step: 0.25, unit: '% of GDP',
+    // THE THIRD COPY OF THE SAME BOUND, NOW IMPORTED [4th audit 5.10].
+    // `govt_purchases` tracks this dial and invariants.js check 8 asserts the
+    // band, so the dial's ceiling and the invariant's are one claim. NB the
+    // `tax_rate` dial above also runs 0-70 and is deliberately NOT wired to
+    // this — a different quantity that coincides on a number.
+    min: DEMAND_BOUNDS.govt_purchases[0], max: DEMAND_BOUNDS.govt_purchases[1],
+    step: 0.25, unit: '% of GDP',
     neutral: 22.0,
     help: 'Government spending. The FASTEST lever you have — it adds demand ' +
       'almost immediately, which is why it is the crisis tool. Paid for by ' +
