@@ -19,6 +19,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
 | A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose has no check | 5.12 |
+| | | | **E13 `debt_trap`'s policy table** | **5.21** |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
 | B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
@@ -885,7 +886,38 @@ tasks, not notes — the pass found them and did not fix them.
       reading — which is 5.12.
       Model untouched: no rule, no parameter, fingerprint unmoved, 168/152/0/16.
 
+- [ ] 5.21 Give `debt_trap`'s policy table a producer — `open_items` E13
+      **THE LAST NUMERIC BLOCK IN `docs/11` THAT NO TOOL PRODUCES**, and 5.20's
+      sweep is what left it standing alone. Five rows measured by hand for
+      `docs/12`, pasted into §5, flagged in place as not re-run, with the
+      caveat that *"the do-nothing row alone has moved"*. **Four of five have
+      moved and `rate to the floor` has changed OUTCOME** — the row says
+      *survives*, and under every events-off reading of the experiment it ends
+      in DEBT CRISIS between m85 and m95. The prose beneath draws the lesson
+      *"cutting the cost of the debt alone works"* from that row.
+      **Its real defect is having no recorded experiment**, so nobody who was
+      not there can re-run it — which is what `docs/11` exists to not contain.
+      Add a `policy` section to `tools/cause-effect.mjs`, regenerate the table
+      from it, and let 5.20's cell check cover it like everything else.
+      The headline lesson survives and gets stronger: both singles now fail, so
+      *"you cannot consolidate your way out — the answer is both"* holds harder.
+      **Do not re-tune `debt_trap` to restore the old row** (rule 3); 11.4 owns
+      that vector and B6 is the reason.
+
 - [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
+      **THE TWO OBVIOUS SWEEPS ARE MEASURED AND BOTH ARE DEAD ENDS** — see E4's
+      table. Parameter-name-near-a-number over all of `docs/` is 97 sites and
+      **55 disagreements**, almost all month numbers (`TAYLOR_INFLATION` … 48)
+      and dated artefacts `docs/README` permits to describe the past; tightened
+      to the living documents it finds **one** site and it agrees. A checker
+      that fires 55 times on a clean tree trains you to ignore it.
+      **The class that goes stale is MEASURED QUANTITIES, not parameters**, and
+      none of them sits next to a parameter name. The shape that works is in
+      the tree twice already — 5.19's interpolation and 5.20's declared cell
+      keys: a register of headline measurements, each naming the files that
+      quote it, with the test that measures the quantity asserting those files
+      carry the current value. Declared citations, no heuristic, no false
+      positives.
       **Every generated artefact in this project has a `--check` and every
       number re-typed into prose has none**, and Phase 5's verification found
       five stale prose numbers and one inverted claim in an afternoon. The
@@ -918,7 +950,9 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.12–5.15.
+rides on it. **Not started:** 5.12–5.15 and **5.21**, which 5.20's sweep
+uncovered — `debt_trap`'s policy table is the one numeric block in `docs/11`
+with no producer, and a row of it has changed outcome (`open_items` E13).
 
 **Phase 6 was unblocked by the Phase 4 gate and 6.6 by 5.4. But read A7 first**
 — `overheating`'s central lesson sits 0.6pp of demand from a bifurcation at

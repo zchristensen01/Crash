@@ -386,10 +386,18 @@ now does.** See docs/13 Correction 13b.
 - **§7 still called the closed bifurcation "THE BIGGEST HOLE"**, quoted the
   8–9% knife-edge (it is 6–7%) and did not mention the demand block at all.
 
+> **TWO CORRECTIONS TO THIS ENTRY, both made in 5.20 when the cells it
+> describes were finally checked by a tool.** It says §5 now shows the Taylor
+> rule winning `stagflation` at *"7.8% at m48 and GOLDILOCKS at 2.9% by m96"*.
+> Measured: **7.9% at m48, and OVERHEATING at 3.2% at m96** — the m96 cell was
+> stale in the table when this was written, and the rule wins more slowly than
+> either number said. And the claim below that the do-nothing row *alone* has
+> moved is wrong: **four of the five rows have, and one has changed its
+> outcome.** See **E13**.
+
 Re-stamped at `86c1b104fab5561d`. The remaining known-unverified block is
 **`debt_trap`'s five-row policy table in §5**, which was measured for `docs/12`
-and is flagged in place as not re-run — the do-nothing row alone has moved
-(ending month 71 → 73).
+and is flagged in place as not re-run. **E13 re-ran it.**
 
 ### B2. `debt_trap` overflows `govt_debt` to Infinity at month 191 — `DELIBERATE`
 After reaching 7.27e+189. Verified identical before and after Phase 3, so it is
@@ -715,6 +723,75 @@ sound. **What remains uncovered is not a broken guard but an absent one: the
 numbers quoted in PROSE (E4).** Every stale-number defect this audit found was
 in prose, and nothing checks prose.
 
+> **THE INTERROGATION ABOVE ASKED ONE QUESTION AND NOT THE OTHER, AND E12 CAME
+> THROUGH THE GAP.** Every row asks *does this guard fire?* — break the thing,
+> watch it go red. The last row is `cause-effect --check` and it fires
+> perfectly, on a falsified cell, before and after `--stamp`. What no row asks
+> is *does this guard cover what it appears to cover?* The table check fired on
+> every cell it knew about and knew about seven of docs/11's twelve blocks, so
+> the honest entry in that row would have been **✅ for §2 and §4, and nothing
+> at all for §1, §3, §5 and §6**. A guard can be perfectly sound and still be
+> pointed at part of the target. **Both questions have to be asked of every
+> guard**, and the second one is now the reason `cause-effect --check` prints
+> its coverage — 7 fenced tables and 453 cells across 21 pipe tables — instead
+> of a bare count of what it happens to have been given.
+
+### E13. `docs/11`'s `debt_trap` policy table is the last unchecked numeric block, and a row's OUTCOME has flipped — `OPEN`, task 5.21
+The one numeric block E12 did not close, because it is the one block no tool
+produces. Five rows measured for `docs/12`, pasted into §5, and flagged in
+place as *"NOT re-measured against the fourth audit's model"* — with the caveat
+that *"the do-nothing row alone has moved"*. **Four of the five have moved, and
+`rate to the floor` no longer survives.**
+
+Re-run with the convention the rest of §5 uses — no events, policy applied at
+month 0, endings on, 96 months:
+
+| policy | doc: debt m48 | measured | doc: outcome | measured |
+|---|---|---|---|---|
+| nothing | 175 | **174** | DEBT CRISIS m71 | DEBT CRISIS **m73** |
+| austerity, tax +4pp | 165 | **163** | DEBT CRISIS m82 | DEBT CRISIS **m86** |
+| rate to the floor | 157 | **165** | **survives**, 5.1% inflation, +6.8 gap | **DEBT CRISIS m95** |
+| both | 150 | **156** | survives, inflation 2.3, gap +0.8 | survives, **inflation 1.2, gap −5.9** |
+| both, plus 30% QE | 144 | **154** | survives, debt back to **127** by m96 | survives, debt **172** |
+
+**The flip is not a methodology artefact.** `docs/12` never recorded the
+experiment, so it was re-run under every natural reading of "rate to the
+floor", and all of them end in a debt crisis:
+
+| floor | applied | outcome |
+|---|---|---|
+| −0.75 (the dial's min) | m0 / m1 | DEBT CRISIS m95 |
+| −0.75 | m6 | DEBT CRISIS m90 |
+| 0 | m0 / m1 | DEBT CRISIS m87 |
+| 0 | m6 | DEBT CRISIS m85 |
+
+With events ON it is seed-dependent — 4 of 5 seeds survive — but the rest of §5
+is measured with events OFF, so the deterministic reading is the like-for-like
+one and it is unanimous.
+
+**THE PROSE UNDER THE TABLE IS THE PART THAT MISLEADS.** It says *"Cutting the
+cost of the debt alone works but you inflate your way there and everyone can
+see it."* Measured, cutting the rate alone **does not work**, and inflation at
+m96 is **1.9%**, not the 5.1% the row claims. The ordering has also swapped
+between the two middle rows: austerity now leaves less debt at m48 (163) than
+rate-to-the-floor (165), where the document has 165 against 157.
+
+**The headline lesson survives and is stronger.** *"You cannot consolidate your
+way out … the answer is both"* still holds — both singles now fail and only the
+combinations survive. That is why this is a document defect rather than a model
+finding: the conclusion is right and every number under it is wrong.
+
+**THE REAL DEFECT IS THAT IT HAS NO PRODUCER.** Every other number in docs/11
+comes from `tools/cause-effect.mjs` and is now checked cell by cell (E12). This
+one was measured by hand for a previous audit, has no recorded experiment, and
+therefore cannot be re-run by anybody who was not there. **A number with no
+reproduction is the thing this document exists to not contain.** Task 5.21
+gives it a section in the tool so it is generated and checked like the rest.
+
+```
+node tools/cause-effect.mjs policy      # after 5.21
+```
+
 ### E9. `docs/11`'s fingerprint could be defeated by running `--stamp` — `FIXED in 5.17`
 The tripwire hashed **the model's measurements**, not **the document's
 contents**, so it answered *"has the model moved since someone last stamped?"*
@@ -1007,6 +1084,37 @@ Not obviously fixable by a tool: prose numbers have no schema. The cheapest
 partial guard would be a convention — quote a number in prose ONLY with the
 command that regenerates it beside it — which `open_items.md` already claims to
 follow and did not.
+
+**THE TWO OBVIOUS SWEEPS WERE MEASURED BEFORE DESIGNING ANYTHING, AND BOTH ARE
+DEAD ENDS.** Recorded so 5.12 does not re-derive them:
+
+| sweep | sites | disagree | verdict |
+|---|---|---|---|
+| `` `PARAM_NAME` `` followed by a number within 60 chars, all of `docs/` + `README` + `TASKS` + `open_items` | 97 | **55** | unusable — nearly all false positives |
+| the same, restricted to the LIVING documents (`01`, `02`, `09`, `11`, `README`) and requiring the number to be adjacent | **1** | 0 | finds nothing |
+
+The 55 are month numbers and history: `` `TAYLOR_INFLATION` `` followed by 48
+is *"at m48"*, `` `RATE_TO_INFLATION` `` followed by 24 is *"@24m"*, and
+`docs/07`, `08`, `10`, `12` and `13` are dated artefacts that `docs/README`
+explicitly permits to describe the past. **A checker that fires 55 times on a
+clean tree trains you to ignore it**, which is worse than no checker.
+
+**So the class that actually goes stale is not parameter values — it is
+MEASURED QUANTITIES re-typed into prose**, and that is why the heuristic finds
+nothing. Every instance this audit caught is one: the transmitted Taylor
+response (1.83 / 1.80 against 1.96), A2's sacrifice ratio and
+`TAX_SHOCK_TO_GDP` cells, the four `todo` messages `report.mjs` publishes
+verbatim, and the four sentences in `docs/11` §5 that 5.20 had to correct
+alongside the cells they restate. None of them sits next to a parameter name.
+
+**The shape that does work is already in the tree twice.** 5.19 made a
+player-facing gauge interpolate `CREDIT_GAP_WARNING` instead of writing "9pp",
+and 5.20 made `docs/11`'s cells checkable by giving every measurement a
+declared key. The generalisation for prose is the same move: **a register of
+the headline measurements, each naming the files that quote it, with the test
+that measures the quantity asserting those files carry the current value.** It
+needs no heuristic and has no false positives, because the citation is
+declared rather than guessed.
 
 ### E3. Generated artefacts are gitignored, so staleness is local-only — `WATCH`
 `index.html` and `src/params.js` are both generated and both gitignored. That is
