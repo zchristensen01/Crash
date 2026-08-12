@@ -14,7 +14,7 @@ number from any document.
 numbered task here.** Checked at the end of Phase 5 — A1→6.1, A2→11.1, A3→7.3,
 A4→5.8, A5→5.7, B3→11.2, B4→6.3, B5→5.1, B6→11.4, C1→6.5, C2→11.3, D1→5.9,
 D2→5.10, D4→6.3, E4→5.12, E5→7.4, E6→5.11, A6→5.1 (blocked on 11.1), B7→5.13,
-B8→5.14. The entries with no task are the ones that want none: `FIXED` (A4, A5,
+B8→5.14, A7→11.5. The entries with no task are the ones that want none: `FIXED` (A4, A5,
 B1, E1, E2), `WATCH` (D3, D5, E3) and `DELIBERATE` (B2).
 **There are no audit reports.** A finding goes in `open_items.md` with its
 reproduction; the work it implies goes here as a task; the reasoning goes in
@@ -835,6 +835,27 @@ moves too little for the price change that caused it.*
       whether the income-expenditure loop closes at all within a term.
       **Do 5.7 first** — the capital-units defect is in the supply block and
       changes the denominator every one of these is measured against.
+- [ ] 11.5 The capacity ceiling is a hard switch, and a scenario's lesson sits
+      0.6pp from it — `open_items` A7
+      Sweeping a standing demand shift through `overheating`, month-96
+      inflation goes **4.05% at d = −0.51 and 39.20% at d = −0.48**. A 0.03pp
+      change, 35 percentage points of inflation, nothing in between. The
+      isolating experiment names it: peak output gap **2.177 vs 10.348** —
+      the scenario diverges if and only if the gap climbs past
+      `MAX_CAPACITY_OVERHEAT` = 4 inside the term.
+      **This is `docs/12`'s bifurcation in the inflationary direction.** Phase 2
+      closed the disinflationary one and moved it to the Fisher point; nobody
+      has measured this one. It is not the same defect — that was a lag on the
+      wrong quantity, this is a real threshold behaving as designed — but it
+      has the same shape and the same consequence.
+      **The question is whether a hard ceiling is the right shape**, or whether
+      it should be a steep ramp the way `monetaryEasingScale` and the Okun
+      coefficient became after docs/07 L6 established step-in-the-playable-
+      range as a defect class. `docs/02` already calls it the model's only
+      genuine discontinuity, so this is a deliberate design decision to
+      re-open, not an oversight. **Do not close it by moving `overheating`
+      away from the edge** — that is A6's job and it does not remove the
+      bifurcation.
 - [ ] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
       The crash trough is **exactly** on target (−9.0000% against
       `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.86pp against a

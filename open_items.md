@@ -191,6 +191,56 @@ where START solved it — because every quantity it checked was a ratio, a rate,
 or a percent of potential, and all of them are invariant when output and
 potential drift together.
 
+### A7. `overheating`'s central lesson sits 0.6pp of demand from a bifurcation, and the bifurcation is the capacity ceiling — `OPEN`
+Found while diagnosing A6 and it explains it. `overheating`'s design promise is
+that a Taylor-principle violation MUST diverge. Measured, that promise rests on
+a knife-edge. Sweeping a standing demand shift `d` through `net_exports` — which
+is additive in `aggregate.js` and read by nothing else, so it moves the gap and
+nothing else — and reading inflation at month 96, unattended:
+
+| `d` (pp) | −0.57 | −0.54 | −0.51 | **−0.48** | −0.45 | −0.40 | 0 |
+|---|---|---|---|---|---|---|---|
+| inflation @m96 | 3.57 | 3.76 | **4.05** | **39.20** | 76.73 | 137.91 | 380.50 |
+
+**A 0.03pp change in standing demand moves month-96 inflation by 35 percentage
+points, and there is nothing in between.** The scenario opens at an output gap
+of **+0.152**, so its entire margin is about **0.6pp of demand**.
+
+**THE ISOLATING EXPERIMENT NAMES THE MECHANISM: it is `MAX_CAPACITY_OVERHEAT`,
+the one hard switch in the model.** Peak output gap over the term:
+
+```
+d = −0.51   peak gap  2.177   never reaches the ceiling   ->  4.05%
+d = −0.48   peak gap 10.348   through the ceiling         -> 39.20%
+```
+
+`MAX_CAPACITY_OVERHEAT` is 4, and `docs/02` already says this is the model's
+only genuine discontinuity: *"demand above what can physically be produced
+cannot become output at all, so it goes entirely to prices."* The scenario
+diverges if and only if the gap climbs past +4 inside the term.
+
+**This is `docs/12`'s bifurcation in the OTHER DIRECTION, and it is still
+open.** Phase 2 closed the disinflationary one — the policy-rate knife-edge
+that moved from 8–9% to the Fisher point at 6–7% — by splitting the
+transmission lag. Nobody has measured the inflationary one. It is not the same
+defect (that one was a lag applied to the wrong quantity; this one is a real
+threshold behaving as designed), but it has the same shape and the same
+consequence: a scenario that either explodes or converges with nothing between.
+
+**Why it matters beyond `overheating`.** It is why **A6** kills 5.1 — the
+0.57pp of consumption that recycling costs lands almost exactly on the edge —
+and it is the same threshold **A3** sees from the side (*"a rate cut buys LESS
+inflation the hotter the economy, then jumps at the ceiling"*). And **A2** is
+why the margin is so thin: with a demand block this weak, a −3.9% real rate
+takes the whole term to move the gap 2pp, so reaching +4 was always marginal.
+
+**Do not close this by widening the margin.** Re-deriving `overheating`'s
+vector so it opens further from the edge is legitimate and is what rule 6
+requires (A6), but it does not remove the bifurcation — it moves the scenario
+away from it. The bifurcation itself is a modelling question: whether a hard
+ceiling is the right shape, or whether it should be a steep ramp the way
+`monetaryEasingScale` and the Okun coefficient already are after docs/07 L6.
+
 ### A6. 5.1 IS BLOCKED ON THE DEMAND BLOCK, NOT ON THE YIELD — `OPEN`
 Recycling the government's interest bill to households is right, the plan asks
 for it (D1), the arithmetic works and the steady state closes exactly. It was
