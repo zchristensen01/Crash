@@ -2566,6 +2566,61 @@ which is the failure mode `docs/README` already records once.*
 | `parameters.py` | `RATE_PASSTHROUGH_TO_BORROWERS`, the derived trend constant, macropru bounds, every literal promoted in 5.3, the two crisis-constant notes (4.2), and `CREDIT_GAP_CRISIS_THRESHOLD`'s false note. |
 | `docs/14` | The new report. |
 
+> #### As built — 11.5, and the third mechanism claim refuted in three tasks.
+>
+> ### CORRECTION 40 — A7's bifurcation is not `MAX_CAPACITY_OVERHEAT`. Delete the ceiling entirely and the edge does not move to six significant figures. It is the Taylor-principle violation, which is what the scenario exists to teach.
+>
+> A7's sweep reproduces exactly through 5.7, 5.8 and 5.13 — 4.05 → 39.20 across
+> 0.03pp of demand, peak gaps 2.177 against 10.348. The phenomenon is real and
+> robust. The attribution is not, and A7 states it as established: *"the
+> scenario diverges if and only if the gap climbs past
+> `MAX_CAPACITY_OVERHEAT`"*.
+>
+> **First, is it a true bifurcation?** At m96 you cannot tell an explosion from
+> a slow one. To m900: d ≤ −0.52 returns to **2.02 / 1.99**, d ≥ −0.4916 runs
+> away to **8159**, linearly at about 10pp of inflation a month. So yes — and
+> the m96 reading is a lagging indicator, putting the edge at −0.4915 where the
+> long run puts it at **−0.51150**.
+>
+> **The ceiling does not move it.**
+>
+> | ceiling | 2 | 3 | 4 | 6 | 10 | **none** |
+> |---|---|---|---|---|---|---|
+> | edge `d*` | −0.4912 | −0.4915 | −0.4915 | −0.4915 | −0.4915 | **−0.4915** |
+>
+> and on the long-run bisection, as built −0.51150 against **no ceiling at all**
+> −0.51150. A7's claim was a correlation — divergent runs pass through 4 on
+> their way up, and the peak gaps either side straddle 4 so cleanly that it read
+> as a mechanism. **The isolating experiment for "X causes Y" is removing X, and
+> removing the ceiling had never been tried.**
+>
+> **It is the peg.** A fixed nominal rate against rising inflation is a falling
+> real rate; that loop is unstable and it is the scenario's stated design. Let
+> the rate respond and the edge moves from −0.51 to between **+1 and +3**.
+> Un-anchoring widens the unstable region by about 23% of the margin
+> (`d*` −0.51150 → −0.37135 with `PHILLIPS_KAPPA_UNANCHORED` pinned) but does
+> not create it.
+>
+> **SO THE TASK'S QUESTION IS AIMED AT THE WRONG OBJECT.** Softening the ceiling
+> cannot remove this knife-edge. **An unstable fixed point has a separatrix.
+> That is not a defect class — it is what a Taylor-principle violation is**, and
+> it is the lesson. `MAX_CAPACITY_OVERHEAT` keeps its shape, and **6.1 is
+> unblocked**: the paths its macroprudential dial is calibrated against do not
+> move.
+>
+> What is genuinely wrong is that `overheating` opens 0.6pp from a separatrix,
+> so any change anywhere in the demand block can flip its lesson — which is what
+> killed 5.1 twice. A scenario-vector problem, and A6 owns it. The ceiling
+> remains real: A3's jump in the marginal inflation response at +4 is a genuine
+> ceiling effect, untouched by this.
+>
+> **THREE TASKS, THREE REFUTED MECHANISMS** — A2's "one finding" (11.1), B3's
+> "the same finding from the labour side" (11.2), A7's "the bifurcation is the
+> capacity ceiling" (11.5). Each was a plausible story written beside a correct
+> measurement, and each fell to switching the named cause off.
+>
+> No code changed; measurement only. 175 tests, 159 pass, 0 fail, 16 todo.
+
 ---
 
 ## THE STANDING RULE THIS PASS ADDS
@@ -2575,3 +2630,13 @@ cannot switch a channel off and watch the finding change, you have found a
 symptom, not a cause. `docs/12` measured a real bifurcation and attributed it to
 a channel it had never switched off; the attribution was wrong and it would have
 cost this pass a feature build aimed at the wrong defect.
+
+> **PHASE 11 IS THE RULE'S STRONGEST EVIDENCE, AND IT COST THREE ATTRIBUTIONS
+> IN THREE TASKS.** A2's *"they are not five findings, they are one"* (11.1),
+> B3's *"probably A2 seen from the labour side"* (11.2), and A7's *"the
+> bifurcation IS the capacity ceiling"* (11.5) were each written beside a
+> correct measurement by someone who had done the measuring — and each fell the
+> moment the named cause was switched off. **The measurements were never
+> wrong. The sentence next to them was, every time.** Note also what they have
+> in common: all three attributed a finding to whatever the audit had most
+> recently been thinking about.
