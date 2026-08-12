@@ -25,7 +25,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`** (A4, A5, B1,
-D1, D2, E1, E2, E8, E9, E10, E11), **`WATCH`** (D3, D5, E3) and
+D1, D2, E1, E2, E8, E9, E10, E11, E12), **`WATCH`** (D3, D5, E3) and
 **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
 
 **There are no audit reports.** A finding goes in `open_items.md` with its
@@ -114,7 +114,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Twenty-nine** corrections to the
+Recorded here and against the individual tasks. **Thirty** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -137,6 +137,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 30 | **5.17's scope decision was wrong the same way, one task further on**: "7 tables verified" meant seven ***fenced*** tables and docs/11 has **twelve** measured blocks. The other five were unchecked and **58 cells were stale** while the fingerprint was correct | closed by 5.20 |
 | 29 | **5.11's own scope decision was wrong one task later**: `indicators.js` held copies **five and six**, and named a danger line in prose it did not use | closed by 5.19 |
 | 28 | Check (f)'s blind spot held a **fourth copy** of `CREDIT_GAP_WARNING`, promoted in 5.3 — the promotion left a copy behind and nothing could say so | closed by 5.11 |
 | 27 | **The `SOLVED_FROM_MODEL` guard could not report drift** — its only check lived in a `todo` that fails by design. Third instance of a guard answering a different question from the one it is read as answering | closed by 5.18 |
@@ -828,6 +829,62 @@ tasks, not notes — the pass found them and did not fix them.
       Both modes verified: a seventh copy is caught, and a parameter moving
       while the prose does not is caught.
 
+- [x] 5.20 The table check covered the FENCED tables, and there are five more —
+      `open_items` E12
+      **FOUND BY DOING THE HANDOVER'S OWN SPOT-CHECK AND PICKING A DIFFERENT
+      CELL.** *"Falsify a cell in `docs/11` and confirm `--check` fails."* Pick
+      one in §3 rather than §2 and it does not: `--check` passed, `--stamp`
+      re-blessed the falsified document, `--check` passed again. **That is E9
+      unchanged**, in the tables E9's fix did not reach.
+      **The scope decision was the defect.** 5.17 enumerated the blocks to check
+      as the ones inside ``` fences and reported *"7 tables verified"* — which
+      reads as *docs/11's tables are verified* and means *seven of its twelve
+      are*. The other five are markdown pipe tables: §1's kernel and response
+      tables, §3's three state-dependence tables, §5's six preset paths and §6's
+      shock table. The fingerprint cannot cover them — it hashes the MODEL, so
+      it is silent exactly when the model sits still and the document drifts.
+      **58 CELLS WERE STALE, and the fingerprint `8f20248ce93b453a` was correct
+      and unmoved throughout:** §1's response table **19** (moved by 5.7), §5's
+      presets **31** (5.7, and 5.8's long yield feeding the interest bill), §6's
+      productivity boom and FINANCIAL CRISIS **8**. §1's kernel table and all
+      three of §3's were clean.
+      **The worst is a document that contradicts itself four lines apart.** §5's
+      `stagflation` table said the Taylor arm ends **GOLDILOCKS at 2.9%**; the
+      prose below it said *"the regime box still reads OVERHEATING at 3.2%"*.
+      Both were written in 5.8 — the prose was updated because somebody read it,
+      the table was not because nothing did. Now `OVERH −1.3 / 3.2 / 7.0 / 120
+      / 45`, and the two agree.
+      **THE FIX IS PER-CELL, AND THAT IS THE DESIGN POINT.** These five cannot
+      be fenced and pasted: §5 shows 4–6 of the tool's rows and drops the credit
+      gap where it is not the point, §6 names only the fields worth naming,
+      §3's `money_printed` drops a column. §4's precedent already says NUMBERS
+      go stale and FORMATTING is the document's business. So `docCells()` parses
+      docs/11's own formats and requires the model's value for every cell the
+      document chooses to show; `--write` splices the number and leaves the
+      bold, the `cg` prefixes and the `→ HYPERINFLATION` tails intact.
+      §5's `identical`/`same` is checked as the claim it is — that the two arms
+      agree that month — rather than skipped as prose.
+      **COVERAGE IS DECLARED, BECAUSE AN UNPARSED CELL DISAGREES WITH NOTHING.**
+      The way this guard fails is the parser silently ceasing to match, which is
+      E9/E10/E7's shape again. `PIPE_BLOCKS` lists the 21 blocks the document
+      must state and `PIPE_CELLS` the **453** cells under them; a missing block
+      is named and a changed count says which number to paste in. `--check` now
+      reports *"7 fenced tables and 453 cells across 21 pipe tables verified"*.
+      **NINE failure modes verified to fire**, each broken deliberately and
+      restored, none blessable by `--stamp`: a §1 response cell, a §1 kernel
+      cell, a §3 cell, a §5 number, a §5 REGIME word, a §5 `same` where the arms
+      no longer agree, a §6 cell, a renamed §5 heading that silences a whole
+      table, and a single silenced row. **The sixth did not fire on the first
+      attempt** — the mirror check built the month key as `96mm` and compared
+      nothing — which is this task's own defect one level up, and is why the
+      list is nine rather than seven.
+      **Four prose sentences restated cells this task repaired** and were
+      corrected with them (`overheating`'s "4pp higher than the do-nothing arm"
+      → 3pp; `recession`'s 96m gap +2.5 → +2.4 and credit gap +2.5 → +2.3;
+      `bubble`'s "debt falls from 100 to 72" → 74). Nothing found those but
+      reading — which is 5.12.
+      Model untouched: no rule, no parameter, fingerprint unmoved, 168/152/0/16.
+
 - [ ] 5.12 A tripwire for numbers re-typed into prose — `open_items` E4
       **Every generated artefact in this project has a `--check` and every
       number re-typed into prose has none**, and Phase 5's verification found
@@ -847,12 +904,19 @@ tasks, not notes — the pass found them and did not fix them.
 
 **PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 168 tests, 152
 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
-scope), `index.html` current, `docs/11` current with its **tables verified cell
-by cell** and its fingerprint stamped, `TEST-RESULTS.md` byte-stable, steady
+scope), `index.html` current, `docs/11` current with **all twelve of its
+measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
+tables** — and its fingerprint stamped, `TEST-RESULTS.md` byte-stable, steady
 state exact to 9dp (`0.000000000 / 2.000000000 / 55.500000000`), K/Y 2.999923,
 divergence guard 2/2, 145 parameters.
 
-**Done:** 5.2–5.19 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
+> **THE GATE AS WRITTEN AT THE HANDOFF WAS WRONG, AND 5.20 IS WHY.** It said
+> `docs/11` was "current with its tables verified cell by cell". Seven of its
+> twelve blocks were verified; the other five were unchecked and **58 cells
+> were stale**. The fingerprint was correct the whole time, because it hashes
+> the model and the model had not moved. See Correction 30.
+
+**Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
 rides on it. **Not started:** 5.12–5.15.
 

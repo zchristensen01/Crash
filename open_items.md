@@ -751,7 +751,91 @@ node tools/cause-effect.mjs --write                                          # r
 quoted inline in §2's chains and throughout §5 and §7 are prose. Nothing checks
 them. Every stale-number defect this audit found was in prose.
 
-### E8. `TEST-RESULTS.md` was never byte-stable### E8. `TEST-RESULTS.md` was never byte-stable, and carried a hand-typed count — `FIXED in 5.16`
+> **AND THE SENTENCE ABOVE UNDERSTATED IT BY FIVE TABLES.** "All seven pasted
+> tables" meant all seven ***fenced*** tables. docs/11 has **twelve** measured
+> blocks; the other five are markdown pipe tables and were not prose. They were
+> uncovered, and three of them were stale. See **E12**, found in the Phase 5
+> handoff verification.
+
+### E12. The table check covered the FENCED tables, and docs/11 has five more — `FIXED in 5.20`
+Found by taking the handover's instruction literally — *falsify a cell in
+`docs/11` and confirm `--check` fails* — and picking a cell in §3 rather than
+in §2. **It did not fail.** `--stamp` then re-blessed the falsified document
+and `--check` passed again, which is **E9 exactly, unchanged**, in the tables
+E9's fix did not reach.
+
+```
+sed -i 's/| −3.98% | +2.05 |/| −3.98% | +9.99 |/' docs/11-cause-and-effect.md
+node tools/cause-effect.mjs --check     # passed
+node tools/cause-effect.mjs --stamp
+node tools/cause-effect.mjs --check     # passed again
+```
+
+**The scope decision was the defect, not the mechanism.** 5.17 enumerated the
+blocks to check as the ones inside ``` fences — §2's six dial tables and §4 —
+and reported *"7 tables verified"*, which reads as *docs/11's tables are
+verified* and means *seven of its twelve are*. The other five are markdown pipe
+tables: §1's kernel and response tables, §3's three state-dependence tables,
+§5's six preset paths and §6's shock table. Nothing checked any of them, and
+the fingerprint cannot — it hashes the MODEL, so it is silent whenever the
+model sits still and the document drifts, which is precisely what happened.
+
+**IT WAS NOT HYPOTHETICAL: 58 CELLS WERE STALE.** The fingerprint
+(`8f20248ce93b453a`) was correct and unmoved the whole time.
+
+| block | stale cells | moved by |
+|---|---|---|
+| §1 response table | **19** | 5.7's capital-units fix |
+| §5 `overheating` / `recession` / `stagflation` / `debt_trap` / `bubble` | **31** | 5.7, and 5.8's long yield feeding the interest bill |
+| §6 productivity boom and FINANCIAL CRISIS | **8** | 5.7 |
+| §1 kernel, §3's three tables | 0 | — |
+
+**The worst of them is a document that contradicts itself four lines apart.**
+§5's `stagflation` table said the Taylor arm ends **GOLDILOCKS at 2.9%**; the
+prose immediately below it said *"at month 96 the regime box still reads
+OVERHEATING at 3.2%"*. Both were written in 5.8. The prose was updated because
+somebody read it; the table was not, because nothing did. It is now `OVERH −1.3
+/ 3.2 / 7.0 / 120 / 45`, and the two agree.
+
+**THE FIX IS PER-CELL, NOT PER-TABLE, AND THAT IS THE DESIGN POINT.** These
+five cannot simply be fenced and pasted: §5 shows 4–6 of the tool's rows and
+drops the credit gap where it is not the point, §6 names only the fields worth
+naming per shock, §3's `money_printed` drops a column. That shaping is the
+document's job — §4's precedent already says *numbers* go stale and
+*formatting* is the document's business. So `docCells()` parses docs/11's own
+formats and, for every cell the document chooses to show, requires the model's
+value for that cell. **The document decides what to say; the model decides what
+the numbers are.** `--write` splices the model's value over the stale number
+and leaves the bold, the `cg` prefixes and the `→ HYPERINFLATION` tails intact.
+
+`identical` and `same` in §5 are checked as what they are — a claim that the
+two arms agree at that month — rather than skipped as prose.
+
+**COVERAGE IS NOW DECLARED, BECAUSE AN UNPARSED CELL DISAGREES WITH NOTHING.**
+The obvious way for this guard to fail is for the parser to stop matching, and
+a silent parse reports clean — the same shape as E9, E10 and E7. So
+`PIPE_BLOCKS` lists the 21 blocks the document is expected to state and
+`PIPE_CELLS` records the 453 cells found under them; a missing block is named,
+and a changed count says which number to paste in if the edit was deliberate.
+`--check` now reports *"7 fenced tables and 453 cells across 21 pipe tables
+verified"* rather than a bare table count.
+
+**Nine failure modes verified to fire, each broken deliberately and restored**
+— a §1 response cell, a §1 kernel cell, a §3 cell, a §5 number, a §5 REGIME
+word, a §5 `same` where the arms no longer agree, a §6 cell, a §5 heading
+renamed so a whole table stops parsing, and a single row silenced. None can be
+blessed by `--stamp`. **The sixth of those did not fire on the first attempt**
+— the mirror check derived the month key as `96mm` and so compared nothing —
+which is this entry's own defect one level up, and is why the list is nine and
+not seven.
+
+**STILL UNCOVERED, and now it really is only prose (E4 / 5.12):** four prose
+sentences restated cells this task repaired and were corrected with them
+(`overheating`'s "4pp higher than the do-nothing arm" → 3pp, `recession`'s 96m
+gap and credit gap, `bubble`'s "debt falls from 100 to 72" → 74). Nothing
+found those but reading; that is exactly what 5.12 is for.
+
+### E8. `TEST-RESULTS.md` was never byte-stable, and carried a hand-typed count — `FIXED in 5.16`
 Found when checking whether the committed artefact matched a fresh run, for the
 purpose it exists for: handing the audit record to someone else.
 
@@ -878,7 +962,7 @@ is player-facing layout; `engine`/`rng`/`units` are algorithmic.
 a hardcoded `0.06` in `test/params.test.js` asserting the START vector against
 a depreciation rate the model did not use.
 
-### E5. `updateCreditSpread` is two-thirds judgement### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
+### E5. `updateCreditSpread` is two-thirds judgement, and it is inside the rate borrowers pay — `OPEN`
 Surfaced by 5.3's literal sweep rather than fixed by it. Four of the six terms
 in the credit spread are judgement with no source — the weights on leverage
 (0.8), on collateral (0.5), on realised defaults (0.3) and the 30%/month

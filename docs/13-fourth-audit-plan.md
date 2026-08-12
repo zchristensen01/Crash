@@ -1691,6 +1691,103 @@ not count.**
 > **What is still uncovered is the prose**, and that is where every
 > stale-number defect in this audit actually was. See E4 / task 5.12.
 
+> #### As built — 5.20, and the door was in the other wall.
+>
+> ### CORRECTION 30 — 5.17's scope decision was wrong the same way 5.11's was, one task further on: "seven tables verified" meant seven ***fenced*** tables, and `docs/11` has twelve measured blocks.
+>
+> Found by carrying out the handoff's own spot-check — *falsify a cell in
+> `docs/11` and confirm `--check` fails* — and choosing a cell in §3 rather
+> than §2:
+>
+> ```
+> sed -i 's/| −3.98% | +2.05 |/| −3.98% | +9.99 |/' docs/11-cause-and-effect.md
+> node tools/cause-effect.mjs --check    # PASSED
+> node tools/cause-effect.mjs --stamp
+> node tools/cause-effect.mjs --check    # PASSED AGAIN
+> ```
+>
+> That is Correction 26 reproduced character for character, in the tables
+> Correction 26's fix did not reach. **The mechanism was closed and the scope
+> was not.** `BLOCKS` enumerated the blocks to check as the ones inside ```
+> fences — §2's six dial tables and §4 — and the success message said
+> *"7 tables verified"*. Five measured blocks are markdown PIPE tables and were
+> named nowhere: §1's kernel and response tables, §3's three state-dependence
+> tables, §5's six preset paths, §6's shock table. The fingerprint cannot cover
+> them, and not by accident: it hashes the MODEL, so it is silent precisely
+> when the model sits still and the document drifts.
+>
+> **The document had drifted 58 cells while the fingerprint was correct.**
+> `8f20248ce93b453a` was the right hash for the model on every day of it.
+>
+> | block | stale cells | moved by |
+> |---|---|---|
+> | §1 response table | **19** | 5.7's capital-units fix |
+> | §5's five preset paths | **31** | 5.7, and 5.8's long yield feeding the interest bill |
+> | §6 productivity boom and FINANCIAL CRISIS | **8** | 5.7 |
+> | §1 kernel, §3's three tables | 0 | — |
+>
+> **The sharpest instance is a document contradicting itself four lines apart.**
+> §5's `stagflation` table said the Taylor arm ends **GOLDILOCKS at 2.9%**; the
+> prose immediately below said *"at month 96 the regime box still reads
+> OVERHEATING at 3.2%"*. **Both sentences were written by 5.8.** The prose was
+> updated because a human was reading it; the table was not, because nothing
+> was. That is the whole argument for this task in one page of the document it
+> is about.
+>
+> **WHY NOT JUST FENCE THE OTHER FIVE.** Because they are shaped: §5 shows four
+> to six of the tool's rows and drops the credit gap where it is not the point,
+> §6 names only the fields worth naming per shock, §3's `money_printed` drops a
+> column. Pasting tool output over them would rewrite the document's editorial
+> judgement in order to fix an arithmetic error. §4's precedent already draws
+> the line in the right place — *the comparison is on NUMBERS, which go stale,
+> not formatting, which is the document's business* — and this generalises it:
+> **the document decides what to say, the model decides what the numbers are.**
+> `docCells()` parses docs/11's own formats and requires the model's value for
+> every cell the document chooses to show. `--write` splices the number over
+> the stale token and leaves the bold, the `cg ` prefixes and the
+> `→ HYPERINFLATION` tails exactly as written.
+>
+> §5's `identical` and `same` cells are checked as the claim they make — that
+> the two arms agree at that month — rather than skipped for not being numbers.
+>
+> **COVERAGE IS DECLARED, BECAUSE AN UNPARSED CELL DISAGREES WITH NOTHING.**
+> Ask the standing question of the new guard and the answer is immediate: it
+> passes while the document is stale if the parser stops matching. A renamed
+> heading, `| 24m |` becoming `| month 24 |`, and the cells beneath go unread —
+> and unread cells report clean. That is E9, E10 and E7's shape for the fourth
+> time. So `PIPE_BLOCKS` names the 21 blocks the document must state and
+> `PIPE_CELLS` records the **453** cells found under them; a missing block is
+> reported by name, a changed count reports the number to paste in if the edit
+> was deliberate. The success line now reads *"7 fenced tables and 453 cells
+> across 21 pipe tables verified"*, because a count nobody can see is a count
+> nobody checks.
+>
+> **Nine failure modes, each broken deliberately and restored, none blessable
+> by `--stamp`:** a §1 response cell, a §1 kernel cell, a §3 cell, a §5 number,
+> a §5 REGIME word, a §5 `same` where the arms no longer agree, a §6 cell, a
+> renamed §5 heading silencing a whole table, and a single silenced row.
+>
+> **The sixth did not fire on the first attempt, and it is the same defect one
+> level up.** The mirror check derived its month key with
+> `c.key.split('m /')[0]` from a key that is the bare month, producing `96mm`,
+> so it filtered to nothing and every `identical`/`same` cell in §5 was
+> silently unchecked — a guard reporting clean because it compared nothing.
+> Caught only because the list of failure modes was actually executed rather
+> than reasoned about. **That is the fourth time in this audit that writing the
+> falsification down and running it found something reading the code did not.**
+>
+> **Four prose sentences restated cells this task repaired**, and were
+> corrected with them rather than left to contradict the tables one line away:
+> `overheating`'s *"debt is 4pp higher than the do-nothing arm at two years"*
+> (3pp), `recession`'s 96m gap `+2.5 → +2.4` and credit gap `+2.5 → +2.3`, and
+> `bubble`'s *"debt falls from 100 to 72"* (74). Nothing found those but
+> reading them, which is precisely what E4 / task 5.12 is for — and 5.12 now
+> has a mechanism to copy, because a per-cell check against a declared key is
+> what a prose check would also have to be.
+>
+> **No rule and no parameter moved.** The fingerprint is unchanged, `npm test`
+> is 168/152/0/16, and the steady state is exact to 9dp.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

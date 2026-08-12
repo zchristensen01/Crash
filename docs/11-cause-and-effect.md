@@ -90,11 +90,11 @@ month N:
 
 | lever | 1 | 3 | 6 | 9 | 12 | 18 | 24 | 36 | 48 |
 |---|---|---|---|---|---|---|---|---|---|
-| `policy_rate` −1pp | 0.00 | 0.03 | 0.13 | 0.22 | 0.30 | 0.44 | 0.56 | 0.79 | 1.00 |
+| `policy_rate` −1pp | 0.00 | 0.03 | 0.12 | 0.22 | 0.30 | 0.43 | 0.56 | 0.78 | 1.00 |
 | `tax_rate` −1pp | 0.00 | 0.07 | 0.25 | 0.40 | 0.50 | 0.61 | 0.69 | 0.85 | 1.00 |
-| `govt_spending` +1pp | **0.64** | 0.75 | 0.78 | 0.80 | 0.82 | 0.85 | 0.87 | 0.93 | 1.00 |
-| `money_printed` 2pp | **0.45** | 0.53 | 0.58 | 0.63 | 0.68 | 0.77 | 0.85 | 0.97 | 1.00 |
-| `qe` 10pp | 0.00 | 0.02 | 0.11 | 0.20 | 0.29 | 0.43 | 0.56 | 0.79 | 1.00 |
+| `govt_spending` +1pp | **0.63** | 0.74 | 0.77 | 0.80 | 0.81 | 0.84 | 0.87 | 0.93 | 1.00 |
+| `money_printed` 2pp | **0.44** | 0.53 | 0.58 | 0.62 | 0.67 | 0.76 | 0.84 | 0.96 | 1.00 |
+| `qe` 10pp | 0.00 | 0.02 | 0.10 | 0.20 | 0.28 | 0.42 | 0.55 | 0.78 | 1.00 |
 
 The two fiscal levers that *buy things* deliver most of their effect in the
 first month. Everything that works through a price — the rate, the tax rate, QE
@@ -433,16 +433,16 @@ trap is boredom: you stimulate for no reason and create the next problem.
 | | no input | Taylor |
 |---|---|---|
 | 12m | OVERH +1.3 / 5.1 / 4.6 / 95 / 60 / +1.6 | OVERH +0.2 / 4.3 / 4.9 / 96 / 60 / +0.7 |
-| 24m | OVERH +2.2 / 6.7 / 4.3 / 89 / 63 / +4.0 | OVERH −0.5 / 3.4 / 5.2 / 93 / 61 / −0.3 |
-| 48m | OVERH +8.0 / **29.5** / 3.6 / 64 / 52 / +16.2 | GOLDI −0.6 / 2.4 / 5.2 / 92 / 63 / −3.0 |
-| 96m | +54.6 / **380.5** → **HYPERINFLATION** | GOLDI −0.2 / 2.0 / 5.1 / 93 / 65 / −4.9 |
+| 24m | OVERH +2.2 / 6.7 / 4.3 / 90 / 63 / +4.0 | OVERH −0.5 / 3.4 / 5.2 / 93 / 61 / −0.3 |
+| 48m | OVERH +8.0 / **29.5** / 3.6 / 67 / 52 / +16.2 | GOLDI −0.6 / 2.4 / 5.2 / 92 / 63 / −3.0 |
+| 96m | +54.6 / **380.5** → **HYPERINFLATION** | GOLDI −0.2 / 2.0 / 5.1 / 92 / 65 / −4.9 |
 
 Left alone this is a Taylor-principle violation and it must diverge: a fixed
 nominal rate against rising inflation means a falling real rate, which feeds
 demand, which feeds inflation. **The scenario is a countdown, not a state.**
 
 The benchmark fixes it — and note the cost: unemployment rises from 4.4% to
-5.2%, debt is 4pp higher than the do-nothing arm at two years, and it takes
+5.2%, debt is 3pp higher than the do-nothing arm at two years, and it takes
 four years. Inflation is still 4.3% at a year, when unemployment has already
 started climbing. The trap is exactly that: you will be told you failed long
 before it works.
@@ -459,9 +459,9 @@ before it works.
 |---|---|---|
 | 1m | RECES −8.9 / 0.2 / 7.3 / 100 / 64 / −0.1 | same |
 | 12m | RECES −8.9 / 0.4 / 6.8 / 105 / 59 / −0.7 | RECES −8.9 / 0.4 / 6.8 / 105 / 59 / −0.5 |
-| 24m | RECES −6.5 / 0.7 / 6.4 / 109 / 64 / −1.3 | RECES −6.5 / 0.7 / 6.4 / 109 / 64 / −0.6 |
-| 48m | GOLDI −2.3 / 1.4 / 5.7 / 114 / 68 / −1.3 | GOLDI −2.3 / 1.4 / 5.7 / 114 / 68 / +0.4 |
-| 96m | GOLDI +2.5 / 2.9 / 4.3 / 111 / 68 / **cg +2.5** | GOLDI +1.1 / 2.5 / 4.6 / 112 / 66 / −0.2 |
+| 24m | RECES −6.5 / 0.7 / 6.4 / 110 / 64 / −1.3 | RECES −6.5 / 0.7 / 6.4 / 110 / 64 / −0.6 |
+| 48m | GOLDI −2.3 / 1.4 / 5.7 / 115 / 68 / −1.3 | GOLDI −2.3 / 1.4 / 5.7 / 115 / 68 / +0.4 |
+| 96m | GOLDI +2.4 / 2.9 / 4.3 / 116 / 67 / **cg +2.3** | GOLDI +1.0 / 2.5 / 4.6 / 117 / 66 / −0.4 |
 
 **The Taylor rule is almost useless here and that is the trap working.** The
 two arms are nearly identical for four years, because the rate is already at
@@ -470,15 +470,15 @@ zero. The economy heals on its own over five years — through mean reversion in
 asset prices, the crisis drag decaying, and banks rebuilding capital — and it
 costs 15pp of debt to do it.
 
-**And then look at 96 months with no input:** the gap is +2.5, inflation 2.9%
-and the credit gap +2.5 and still climbing, against a Taylor arm that holds
+**And then look at 96 months with no input:** the gap is +2.4, inflation 2.9%
+and the credit gap +2.3 and still climbing, against a Taylor arm that holds
 both near zero. *Do nothing after a recession for long enough and you start
 building the next bubble.* Nobody designed that; it falls out of cheap money
 held too long.
 
 > **This used to end the term in OVERHEATING at a +8.3 credit gap.** Phase 3's
 > asset-price fix took most of it out — 4.3 measured the new ending as
-> GOLDILOCKS at +3.15, and 5.4's slower credit trend brought it back to +2.5.
+> GOLDILOCKS at +3.15, and 5.4's slower credit trend brought it back to +2.3.
 > The direction survives; the size does not, and open_items A2 is the reason
 > to expect more of that.
 
@@ -490,8 +490,8 @@ held too long.
 | 6m | OVERH −2.5 / 16.6 / 7.4 / 97 / 37 | OVERH −2.9 / 16.5 / 7.4 / 97 / 37 |
 | 12m | OVERH +0.3 / 21.2 / 6.7 / 91 / 31 | OVERH −2.0 / 19.9 / 7.2 / 92 / 32 |
 | 24m | +6.8 / **30.9** → **HYPERINFLATION** | OVERH −3.4 / 18.5 / 7.3 / 84 / 35 |
-| 48m | — | STAGF −5.5 / **7.8** / 7.6 / 88 / 32 |
-| 96m | — | **GOLDI −1.6 / 2.9 / 7.1 / 128 / 45** |
+| 48m | — | STAGF −5.4 / **7.9** / 7.6 / 87 / 32 |
+| 96m | — | **OVERH −1.3 / 3.2 / 7.0 / 120 / 45** |
 
 > **THE BENCHMARK USED TO LOSE THIS ONE AND NOW WINS IT, AND THAT IS THE
 > LARGEST SINGLE CHANGE IN THIS DOCUMENT.** This table said HYPERINFLATION in
@@ -524,8 +524,8 @@ costs politically: 43 → 32 while inflation is still rising.
 |---|---|---|
 | 12m | GOLDI −1.1 / 1.9 / 5.4 / 146 / 62 | GOLDI −1.0 / 1.9 / 5.4 / 146 / 62 |
 | 24m | GOLDI −1.8 / 1.8 / 5.6 / 154 / 62 | GOLDI −1.5 / 1.8 / 5.5 / 154 / 63 |
-| 48m | GOLDI −3.0 / 1.6 / 5.8 / 174 / 62 | GOLDI −2.0 / 1.7 / 5.6 / 172 / 63 |
-| 96m | RECES −7.3 / 1.1 / 6.4 / **246** → **DEBT CRISIS** | GOLDI −4.0 / 1.5 / 5.8 / **228** → **DEBT CRISIS** |
+| 48m | GOLDI −3.0 / 1.6 / 5.8 / 174 / 62 | GOLDI −2.0 / 1.7 / 5.7 / 172 / 63 |
+| 96m | RECES −7.2 / 1.1 / 6.4 / **245** → **DEBT CRISIS** | GOLDI −4.3 / 1.4 / 5.9 / **234** → **DEBT CRISIS** |
 
 **REBUILT IN `docs/12` M2, and it used to be provably inert:** the Taylor arm
 was byte-identical to doing nothing over 48 months — max |debt difference|
@@ -570,12 +570,12 @@ both, and that is a real decision with a real price.
 | 1m | GOLDI +1.3 / 2.5 / 4.4 / 100 / 72 / **cg +6.0** |
 | 12m | GOLDI +1.3 / 2.6 / 4.5 / 95 / 68 / **cg +7.2** |
 | 24m | GOLDI +1.0 / 2.6 / 4.6 / 90 / 70 / **cg +9.2** |
-| 48m | GOLDI +0.1 / 2.2 / 5.0 / 81 / 71 / **cg +11.7** |
-| 96m | GOLDI −3.9 / 1.5 / 5.8 / 72 / 69 / **cg +7.1** |
+| 48m | GOLDI +0.1 / 2.2 / 5.0 / 82 / 71 / **cg +11.7** |
+| 96m | GOLDI −3.9 / 1.5 / 5.8 / 74 / 69 / **cg +7.1** |
 
 **Eight years in GOLDILOCKS.** Inflation never leaves the 1.5–2.6 band,
 unemployment stays between 4.4% and 5.8%, approval never drops below 68, and
-debt *falls* from 100 to 72. Every gauge on the headline row says you are doing
+debt *falls* from 100 to 74. Every gauge on the headline row says you are doing
 a wonderful job.
 
 The credit gap goes 6.0 → 11.7 by year four, past the 9pp BIS line and into
@@ -608,9 +608,9 @@ noted.
 | Shock | 1m | 6m | 12m | 24m |
 |---|---|---|---|---|
 | **Oil price spike** | π +2.4, appr −4 | out −0.3, π +1.7, appr −6 | out −0.2, π +1.1, appr −5 | π +0.5, appr +1 |
-| **Productivity boom** | out +1.6, appr +3 | out +1.6 | out +1.6, appr +4 | out +1.6 |
+| **Productivity boom** | out +1.6, appr +3 | out +1.6 | out +1.6, appr +5 | out +1.7 |
 | **Bank wobble** (bubble) | out −0.1, appr −5 | out −0.4, appr −4 | out −0.4, u +0.2 | out −0.5 |
-| **FINANCIAL CRISIS** (bubble) | out −6.0, u +0.8 | out −8.6, u +1.6, appr −18 | out −10.1, u +1.7 | out −10.0, u +1.3 |
+| **FINANCIAL CRISIS** (bubble) | out −6.4, u +0.8 | out −9.0, u +1.6, appr −18 | out −10.5, u +1.8 | out −10.4, u +1.4 |
 | **Export slump** | out −1.2, u +0.3 | out −1.1, u +0.4 | out −0.9, u +0.3 | out −0.6 |
 
 `confidence_slump` was **deleted** in `docs/12` and its confidence leg folded

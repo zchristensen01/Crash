@@ -357,6 +357,315 @@ function measuredTables() {
   return out;
 }
 
+/* ===================================================================
+ * THE SECOND HOLE, AND IT IS THE SAME HOLE [4th audit 5.20, open_items E12].
+ *
+ * 5.17 closed E9 for the tables docs/11 pastes inside ``` fences: six dial
+ * tables in §2 and the stabiliser table in §4. It then reported "7 tables
+ * verified", which reads as "docs/11's tables are verified" and means "seven
+ * of docs/11's twelve are". The other five are markdown PIPE tables — §1's
+ * kernel and response tables, §3's three state-dependence tables, §5's six
+ * preset paths and §6's shock table — and nothing checked them at all.
+ *
+ * ASK OF EVERY GUARD WHAT WOULD HAVE TO BE TRUE FOR IT TO PASS WHILE THE THING
+ * IT GUARDS IS BROKEN. For the table check the answer was: the stale number is
+ * in a table that is not fenced. Verified end to end — falsify a cell in §3,
+ * run --stamp, and --check is green, which is Correction 26 unchanged.
+ *
+ * It was not hypothetical either. When this was written §1's response table,
+ * §5's presets and §6's shocks were between them **56 cells stale**, and §5's
+ * `stagflation` row said the Taylor arm ends GOLDILOCKS at 2.9% four lines
+ * above prose saying it ends OVERHEATING at 3.2%. 5.8 updated the prose and
+ * left the table, because only one of the two had a reader.
+ *
+ * WHY THIS IS NOT JUST "FENCE THE OTHER FIVE". The five are hand-shaped: §5
+ * picks 4-6 of the tool's rows and drops the credit gap where it is not the
+ * point, §6 picks the fields worth naming per shock, §3's `money_printed`
+ * drops a column. That shaping is the document's job — §4's precedent already
+ * says formatting is the document's business and NUMBERS are what go stale.
+ * So the comparison is per CELL: parse the document's own format, and for
+ * every cell it chooses to show, require the model's value for that cell.
+ * The document decides what to say; the model decides what the numbers are.
+ *
+ * Both halves parse the tool's PRINTED OUTPUT rather than a parallel
+ * machine-readable emitter, for the reason measuredTables() does: the doc's
+ * contract is "re-run this and paste the output back in", and a second source
+ * of truth is a second thing that can drift.
+ * =================================================================== */
+
+/** Unicode minus, markdown bold and backticks are decoration, not content. */
+const plain = (t) => String(t).replace(/[−–—]/g, '-').replace(/[*`]/g, '');
+const label = (t) => plain(t).replace(/\s+/g, ' ').trim();
+/** A cell's numeric value, or NaN if it is prose (`identical`, `—`). */
+const num = (t) => parseFloat(plain(t).replace(/\s+/g, ''));
+
+/** Split a `a | b | c` row into trimmed fields, ignoring the outer pipes. */
+const pipes = (l) => l.replace(/^\s*\|?/, '').replace(/\|?\s*$/, '').split('|').map((c) => c.trim());
+
+/**
+ * Every measured cell the tool prints, as `block -> key -> value`.
+ * Keys are stable and human-readable, because they are what a failure names.
+ */
+function measuredCells() {
+  const captured = [];
+  const real = console.log;
+  console.log = (...a) => captured.push(a.join(' '));
+  try { for (const fn of Object.values(SECTIONS)) fn(); } finally { console.log = real; }
+  const lines = captured.join('\n').split('\n');
+  const out = {};
+  const put = (b, k, v) => { (out[b] ??= {})[k] = v; };
+
+  for (let i = 0; i < lines.length; i++) {
+    const L = lines[i];
+
+    // §1 response — `   lever                |    1    3 ...` then one row per lever.
+    let m = L.match(/^\s*lever\s*\|(.*)$/);
+    if (m) {
+      const months = m[1].trim().split(/\s+/);
+      for (let j = i + 2; j < lines.length; j++) {
+        const r = lines[j].match(/^\s{3}(\S.*?)\s*\|\s*(\S.*)$/);
+        if (!r) break;
+        const vals = r[2].trim().split(/\s+/);
+        months.forEach((mo, k) => put('lags.response', `${label(r[1])} @ ${mo}m`, vals[k]));
+      }
+    }
+
+    // §1 kernel — `   mo   |    1    3 ...  (pp of a 1.00pp cut)` then real/mkts.
+    m = L.match(/^\s*mo\s+\|(.*)$/);
+    if (m) {
+      const months = (m[1].split('(')[0].match(/\d+/g) || []);
+      for (const row of ['real', 'mkts']) {
+        const r = lines.find((l) => l.startsWith(`   ${row} |`));
+        if (!r) continue;
+        const vals = r.split('|')[1].trim().split(/\s+/);
+        months.forEach((mo, k) => put('lags.kernel', `${row} @ ${mo}m`, vals[k]));
+      }
+    }
+
+    // §3 — `-- rate −1pp`, a header row, a rule, then one row per starting gap.
+    m = L.match(/^-- (rate|spend|print|tax) (.+?)\s*$/);
+    if (m) {
+      const block = `state.${label(m[1] + ' ' + m[2])}`;
+      const cols = ['gap', 'output', 'inflation', 'unemp', 'share'];
+      for (let j = i + 3; j < lines.length; j++) {
+        const cells = lines[j].includes('|') ? pipes(lines[j]) : null;
+        if (!cells || cells.length !== cols.length) break;
+        const gap = num(cells[0]).toFixed(2);
+        cols.slice(1).forEach((c, k) => put(block, `gap ${gap} / ${c}`, cells[k + 1]));
+      }
+    }
+
+    // §5 — `recession — Taylor-rule central bank`, then `  24m RECES gap-6.5 ...`.
+    m = L.match(/^(\w+) — (you touch nothing|Taylor-rule central bank)\s*$/);
+    if (m) {
+      const block = `preset.${m[1]}.${m[2].startsWith('you') ? 'no input' : 'Taylor'}`;
+      out[block] ??= {};
+      for (let j = i + 1; j < lines.length; j++) {
+        const r = lines[j].match(
+          /^\s+(\d+)m (\w+) gap([-+][\d.]+) pi([-\d.]+) u([-\d.]+) d([-\d.]+) a([-\d.]+) cg([-+][\d.]+)/);
+        if (!r) { if (/^\s+ENDED:/.test(lines[j])) continue; break; }
+        const mo = r[1];
+        put(block, `${mo}m / regime`, r[2]);
+        ['gap', 'inflation', 'unemployment', 'debt', 'approval', 'credit gap']
+          .forEach((f, k) => put(block, `${mo}m / ${f}`, r[k + 3]));
+      }
+    }
+
+    // §6 — `Oil price spike  (calm baseline, …)`, then every month on one line.
+    m = L.match(/^([A-Z][^(]*?)\s+\((calm|bubble) baseline/);
+    if (m) {
+      const block = `shock.${label(m[1])}`;
+      out[block] ??= {};
+      const re = /(\d+)m out([-+][\d.]+) pi([-+][\d.]+) u([-+][\d.]+) appr([-+]\d+)/g;
+      for (const r of (lines[i + 1] || '').matchAll(re)) {
+        ['out', 'pi', 'u', 'appr'].forEach((f, k) => put(block, `${r[1]}m / ${f}`, r[k + 2]));
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * WHAT WOULD HAVE TO BE TRUE FOR THE CELL CHECK TO PASS WHILE docs/11 IS
+ * STALE? The parser would have to stop matching. Rename a §5 heading, change
+ * `| 24m |` to `| month 24 |`, and every cell under it goes unparsed — and an
+ * unparsed cell disagrees with nothing, so the run reports clean.
+ *
+ * So coverage is declared, not inferred, exactly as BLOCKS is: these are the
+ * pipe-table blocks docs/11 is expected to state, and the count of cells found
+ * under them. Both are asserted. A deliberate edit that adds or drops a row
+ * fails with the new number to paste in; an accidental one that silences the
+ * parser fails by name.
+ */
+const PIPE_BLOCKS = [
+  'lags.kernel', 'lags.response',
+  'state.rate -1pp', 'state.spend +1pp', 'state.print 2pp',
+  'preset.calm.no input', 'preset.calm.Taylor',
+  'preset.overheating.no input', 'preset.overheating.Taylor',
+  'preset.recession.no input', 'preset.recession.Taylor',
+  'preset.stagflation.no input', 'preset.stagflation.Taylor',
+  'preset.debt_trap.no input', 'preset.debt_trap.Taylor',
+  'preset.bubble.no input',
+  'shock.Oil price spike', 'shock.Productivity boom', 'shock.Bank wobble',
+  'shock.FINANCIAL CRISIS', 'shock.Export slump',
+];
+/** Cells found under those blocks. Update deliberately when the doc gains a row. */
+const PIPE_CELLS = 453;
+
+/** Which tool block each of §3's headings and §5's presets belongs to. */
+const LEVER_SHORT = { policy_rate: 'rate', govt_spending: 'spend', money_printed: 'print', tax_rate: 'tax' };
+/** §5's cell format, declared in the document itself, in order. */
+const PRESET_FIELDS = ['gap', 'inflation', 'unemployment', 'debt', 'approval', 'credit gap'];
+/** §6 names its fields inline; `π` is the document's spelling of `pi`. */
+const SHOCK_FIELDS = { out: 'out', 'π': 'pi', pi: 'pi', u: 'u', appr: 'appr' };
+
+/**
+ * The number tokens inside [from, to) of a line, in order.
+ * Locating by TOKEN rather than by the cell's own text is what lets a cell
+ * carry decoration: `**246**`, `cg +2.5` and `−7.3` all yield one token, and
+ * --write can splice the number without touching the bold or the prefix.
+ */
+function numTokens(line, from, to) {
+  const re = /[+\-\u2212]?\d+(?:\.\d+)?/g;
+  re.lastIndex = from;
+  const out = [];
+  let m;
+  while ((m = re.exec(line)) !== null && m.index < to) {
+    out.push({ text: m[0], start: m.index, end: m.index + m[0].length });
+  }
+  return out;
+}
+
+/**
+ * Every cell docs/11 states in a pipe table, with where its number sits.
+ * @returns {{block:string,key:string,text:string,line:number,
+ *            start:number,end:number,mirror?:string}[]}
+ */
+function docCells(docLines) {
+  const found = [];
+  let section = 0, preset = null, lever = null;
+  const at = (block, key, line, tok) => {
+    if (tok) found.push({ block, key, text: tok.text, line, start: tok.start, end: tok.end });
+  };
+  /** Where a row's k-th cell begins and ends in the raw line. */
+  const spanOf = (line, cell, from) => {
+    const start = line.indexOf(cell, from);
+    return start < 0 ? null : { start, end: start + cell.length };
+  };
+
+  for (let i = 0; i < docLines.length; i++) {
+    const L = docLines[i];
+    let m = L.match(/^## (\d+)\./);
+    if (m) { section = +m[1]; preset = lever = null; continue; }
+    m = L.match(/^### `(\w+)`\s*(\S*)/);
+    if (m) {
+      preset = section === 5 ? m[1] : null;
+      // §3's heading carries the move as well as the dial: "### `qe` 10pp".
+      lever = section === 3 && LEVER_SHORT[m[1]] ? `${LEVER_SHORT[m[1]]} ${plain(m[2])}` : null;
+    }
+
+    // §1 — two transposed tables: each row is a series, each column a month.
+    if (section === 1 && /^\|\s*(lever|month)\s*\|/.test(L)) {
+      const kernel = /month/.test(L);
+      const block = kernel ? 'lags.kernel' : 'lags.response';
+      const months = pipes(L).slice(1);
+      for (let j = i + 2; j < docLines.length && docLines[j].startsWith('|'); j++) {
+        const cells = pipes(docLines[j]);
+        if (cells.length !== months.length + 1) continue;   // the |---|---| rule
+        const name = label(cells[0]);
+        const row = kernel ? (name.startsWith('real') ? 'real' : 'mkts') : name;
+        let cursor = 0;
+        months.forEach((mo, k) => {
+          const sp = spanOf(docLines[j], cells[k + 1], cursor);
+          if (!sp) return;
+          cursor = sp.end;
+          at(block, `${row} @ ${mo}m`, j, numTokens(docLines[j], sp.start, sp.end)[0]);
+        });
+      }
+    }
+
+    // §3 — rows keyed by starting gap, columns named in the header.
+    if (section === 3 && lever && /^\|\s*start gap\s*\|/.test(L)) {
+      const cols = pipes(L).slice(1).map((c) => label(c).replace(/^\u0394/, '').replace('output share', 'share'));
+      for (let j = i + 2; j < docLines.length && docLines[j].startsWith('|'); j++) {
+        const cells = pipes(docLines[j]);
+        if (cells.length !== cols.length + 1) continue;
+        const gap = num(cells[0]).toFixed(2);
+        let cursor = spanOf(docLines[j], cells[0], 0)?.end ?? 0;
+        cols.forEach((c, k) => {
+          const sp = spanOf(docLines[j], cells[k + 1], cursor);
+          if (!sp) return;
+          cursor = sp.end;
+          at(`state.${lever}`, `gap ${gap} / ${c}`, j, numTokens(docLines[j], sp.start, sp.end)[0]);
+        });
+      }
+    }
+
+    // §5 — `| 24m | <no input> | <Taylor> |`, the cell format declared in the
+    //      section's own preamble: regime gap/inflation/unemp/debt/approval/cg.
+    if (section === 5 && preset && /^\|\s*\|/.test(L)) {
+      const arms = pipes(L).slice(1).map((a) => label(a));
+      for (let j = i + 2; j < docLines.length && docLines[j].startsWith('|'); j++) {
+        const cells = pipes(docLines[j]);
+        const mo = (cells[0].match(/^(\d+)m$/) || [])[1];
+        if (!mo) continue;
+        let cursor = spanOf(docLines[j], cells[0], 0)?.end ?? 0;
+        arms.forEach((arm, a) => {
+          const cell = cells[a + 1];
+          const sp = cell === undefined ? null : spanOf(docLines[j], cell, cursor);
+          if (sp) cursor = sp.end;
+          if (!cell || !sp || /^[\u2014\u2013-]$/.test(cell.trim())) return;
+          const block = `preset.${preset}.${arm}`;
+          // `identical` / `same` is a claim about the MODEL — that the two arms
+          // agree at this month — so it is checked, not skipped.
+          if (/^\W*(identical|same)\W*$/i.test(cell)) {
+            found.push({ block, key: `${mo}m`, text: cell, line: j, start: -1, end: -1,
+              mirror: `preset.${preset}.${arms[1 - a]}` });
+            return;
+          }
+          // Everything before the `→ ENDING` tail; fields are slash-separated
+          // and positional, and the document may stop early.
+          const head = cell.split('\u2192')[0];
+          const headEnd = sp.start + head.length;
+          const regime = head.match(/\b[A-Z]{5}\b/);
+          if (regime) {
+            const rs = docLines[j].indexOf(regime[0], sp.start);
+            found.push({ block, key: `${mo}m / regime`, text: regime[0], line: j,
+              start: rs, end: rs + regime[0].length });
+          }
+          numTokens(docLines[j], sp.start, headEnd)
+            .forEach((tok, k) => at(block, `${mo}m / ${PRESET_FIELDS[k]}`, j, tok));
+        });
+      }
+    }
+
+    // §6 — one table, rows are shocks, and each cell names its own fields.
+    if (section === 6 && /^\|\s*Shock\s*\|/.test(L)) {
+      const months = pipes(L).slice(1).map((c) => c.replace(/\D/g, ''));
+      for (let j = i + 2; j < docLines.length && docLines[j].startsWith('|'); j++) {
+        const cells = pipes(docLines[j]);
+        if (cells.length !== months.length + 1) continue;
+        const block = `shock.${label(cells[0]).replace(/\s*\([^)]*\)\s*$/, '')}`;
+        let cursor = spanOf(docLines[j], cells[0], 0)?.end ?? 0;
+        months.forEach((mo, k) => {
+          const sp = spanOf(docLines[j], cells[k + 1], cursor);
+          if (!sp) return;
+          cursor = sp.end;
+          let inner = sp.start;
+          for (const part of cells[k + 1].split(',')) {
+            const f = part.trim().match(/^(out|\u03c0|pi|u|appr)\s/);
+            const ps = spanOf(docLines[j], part.trim(), inner);
+            if (!ps) continue;
+            inner = ps.end;
+            if (f) at(block, `${mo}m / ${SHOCK_FIELDS[f[1]]}`, j, numTokens(docLines[j], ps.start, ps.end)[0]);
+          }
+        });
+      }
+    }
+  }
+  return found;
+}
+
 /**
  * Find the fenced block that follows a heading, and return its span.
  * Returns null if the heading is absent — which is itself a failure, because
@@ -417,10 +726,104 @@ function tables(mode) {
   return problems;
 }
 
+/**
+ * Compare, or repair, every cell docs/11 states in a pipe table.
+ *
+ * REPAIR IS PER-TOKEN, NOT PER-TABLE. The fenced tables above are rewritten
+ * wholesale because they are verbatim tool output; these are not, so a write
+ * splices the model's value over the stale NUMBER and leaves the bold, the
+ * `cg` prefixes, the `→ HYPERINFLATION` tails and the row selection exactly as
+ * the author left them. Anything else would rewrite the document's editorial
+ * choices to fix an arithmetic error.
+ *
+ * @returns {string[]} human-readable descriptions of what disagreed
+ */
+function cells(mode) {
+  const { readFileSync, writeFileSync } = fsSync;
+  const measured = measuredCells();
+  const docLines = readFileSync(DOC, 'utf8').split('\n');
+  const problems = [];
+  const edits = [];
+  const seen = docCells(docLines);
+  // COVERAGE IS PART OF THE RESULT. A cell check that silently parses nothing
+  // reports "clean", which is the failure mode this whole task is about, so the
+  // count of cells actually compared is printed on success and asserted by
+  // test/docs.test.js. Silence has to mean "checked and agreed".
+  cells.checked = seen.length;
+  const got = new Set(seen.map((c) => c.block));
+  cells.blocks = got.size;
+  for (const b of PIPE_BLOCKS) {
+    if (!got.has(b)) {
+      problems.push(`§ ${b} — docs/11 states this table and the check found NO cells in it. ` +
+        `The document's format has moved away from what docCells() parses, which means ` +
+        `every cell under it is now unchecked.`);
+    }
+  }
+  if (seen.length !== PIPE_CELLS && got.size === PIPE_BLOCKS.length) {
+    problems.push(`the pipe tables hold ${seen.length} cells and PIPE_CELLS says ${PIPE_CELLS}. ` +
+      `If you added or removed a row on purpose, set PIPE_CELLS to ${seen.length}; ` +
+      `if you did not, a row has stopped parsing and is no longer checked.`);
+  }
+
+  for (const c of seen) {
+    const want = measured[c.block];
+    if (!want) { problems.push(`§ '${c.block}' — the tool no longer measures this block`); continue; }
+    // `identical` / `same` is a claim about the MODEL: the two arms agree.
+    if (c.mirror) {
+      const other = measured[c.mirror] || {};
+      // c.key is the month alone ("96m"); the cells under it are "96m / debt".
+      const differs = Object.keys(want).filter((k) => k.startsWith(`${c.key} / `) && want[k] !== other[k]);
+      if (differs.length) {
+        problems.push(`§ ${c.block} — ${c.key} says '${c.text.trim()}' (docs/11 line ${c.line + 1}) ` +
+          `but the arms no longer agree: ` +
+          differs.map((k) => `${k.split(' / ')[1]} ${other[k]} vs ${want[k]}`).join(', '));
+      }
+      continue;
+    }
+    if (!(c.key in want)) { problems.push(`§ ${c.block} — the tool no longer measures '${c.key}'`); continue; }
+    const model = want[c.key];
+    const a = parseFloat(plain(model)), b = parseFloat(plain(c.text));
+    // Numbers compare NUMERICALLY, so `-0.00` and `+0.00` agree: at the
+    // document's own precision those are the same measurement, and requiring
+    // the sign glyph to match would make the guard noisy about nothing.
+    const same = Number.isFinite(a) && Number.isFinite(b) ? a === b : label(model) === label(c.text);
+    if (same) continue;
+    problems.push(`§ ${c.block} — ${c.key} (docs/11 line ${c.line + 1}): ` +
+      `document ${c.text.trim()}, model ${model}`);
+    edits.push({ ...c, model });
+  }
+
+  if (mode === 'write' && edits.length) {
+    // Right to left within a line, so one splice cannot move the next one's span.
+    edits.sort((a2, b2) => (b2.line - a2.line) || (b2.start - a2.start));
+    for (const e of edits) {
+      // Keep the document's own minus glyph; the tool prints ASCII.
+      const out = /−/.test(e.text) ? String(e.model).replace(/-/g, '−') : String(e.model);
+      const L = docLines[e.line];
+      docLines[e.line] = L.slice(0, e.start) + out + L.slice(e.end);
+    }
+    writeFileSync(DOC, docLines.join('\n'));
+    console.log(`cause-effect: repaired ${edits.length} stale cells in docs/11's pipe tables`);
+    return [];
+  }
+  return problems;
+}
+
 const fsSync = await import('node:fs');
+
+if (process.argv.includes('--cells')) {
+  // What SHOULD a cell say? The failure names the key; this prints the value.
+  const measured = measuredCells();
+  for (const [block, kv] of Object.entries(measured)) {
+    console.log(`\n-- ${block}`);
+    for (const [k, v] of Object.entries(kv)) console.log(`   ${k.padEnd(34)} ${v}`);
+  }
+  process.exit(0);
+}
 
 if (process.argv.includes('--write')) {
   tables('write');
+  cells('write');
   // Re-stamp, since rewriting the tables is exactly when the fingerprint moves.
   process.argv.push('--stamp');
 }
@@ -454,7 +857,7 @@ if (process.argv.includes('--check') || process.argv.includes('--stamp')) {
     // since somebody stamped; it says nothing about whether the document
     // contains the model's numbers, so --stamp could bless a falsified table.
     // The tables are checked directly.
-    const bad = tables('check');
+    const bad = [...tables('check'), ...cells('check')];
     if (bad.length) {
       console.error(
         `\ncause-effect: docs/11's TABLES disagree with the model.\n\n` +
@@ -468,7 +871,8 @@ if (process.argv.includes('--check') || process.argv.includes('--stamp')) {
       process.exit(1);
     }
     console.log(`cause-effect: docs/11 is current (${hash}, ${count} numbers, ` +
-                `${BLOCKS.length} tables verified)`);
+                `${BLOCKS.length} fenced tables and ${cells.checked} cells ` +
+                `across ${cells.blocks} pipe tables verified)`);
   }
 } else {
   const only = process.argv[2];
