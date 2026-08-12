@@ -2249,6 +2249,52 @@ not count.**
 > 175 tests, 159 pass, 0 fail, 16 todo. Behaviour hash `7e517207065edb1c`
 > unmoved; `index.html` rebuilt.
 
+> ### CORRECTION 39 — completing 11.2: the UK sacrifice ratio is the Okun ramp too, so two of A2's five sightings are one labour-block mechanism and none of it is the demand block.
+>
+> 11.2's first write-up asserted a blast radius for the fix without measuring
+> it. Measured, with the ramp off model-wide:
+>
+> | | as built | ramp off | wanted |
+> |---|---|---|---|
+> | crash unemployment peak | +1.910pp | **+3.862pp** | 2–5 ✅ in band |
+> | UK 1979-83 sacrifice ratio | 0.36 | **0.61** | 2–4 ✅ **+69%** |
+> | post-crisis rebound | 38.7% | 35.2% | lower ✅ |
+> | endogenous propagation | 3.82 | **2.98** | higher ❌ |
+> | steady state | exact | exact (0 / 2.0 / 5.0) | — |
+>
+> **The sacrifice ratio moves 69% on one switch**, further and in the right
+> direction than the whole of 11.1's demand-block sweep managed — that sweep
+> moved it 0.38 → 0.33, the wrong way. Obvious once said: the sacrifice ratio
+> is *excess unemployment point-years per point of disinflation*, so a labour
+> market that does not follow output into a hole cannot produce one.
+>
+> **The map after 11.1 and 11.2 is three groups, not one finding and not two:**
+>
+> | axis | sightings | lever |
+> |---|---|---|
+> | HORIZON | `TAX_SHOCK_TO_GDP`, austerity paradox | the demand block's speed |
+> | OKUN | UK sacrifice ratio, crash unemployment | the hoarding ramp |
+> | unexplained | endogenous crisis propagation | worsens under both |
+>
+> A2 began this audit as "one finding seen five ways". It is now two mechanisms
+> covering four sightings, and one sighting with no mechanism at all — which is
+> a better place to stand, and it took two isolating experiments rather than
+> any argument.
+>
+> **It is a trade, not a free win**: propagation gets worse, the behaviour hash
+> moves `7e517207065edb1c → 912f980c1cdbeab8`, and
+> `CRISIS_IMPULSE_AMPLIFICATION` must be re-solved because the trough moves.
+> That is why 11.7 is a decision and not a patch.
+>
+> **AND A STALE CLAIM 11.2 LEFT STANDING FOR ONE COMMIT.**
+> `crisis.test.js`'s unemployment `todo` still said *"That is Okun, and it is
+> the same demand-block finding recorded on the five-year loss below"* — the
+> attribution 11.2 refuted, in a message `report.mjs` publishes verbatim into
+> `TEST-RESULTS.md`. Rewritten with the mechanism and the switch. The same
+> class as the four stale claims 11.1 left behind: **a diagnosis invalidates
+> prose that nothing checks, and the prose is where the diagnosis was written
+> down.**
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

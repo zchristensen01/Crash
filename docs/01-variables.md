@@ -247,7 +247,7 @@ decision each time:
 | `dial_truncated` | The most recent dial request the dial's own bounds refused — `{key, requested, applied, at}` — or null. Cleared at the END of each tick, after the trace has noted it: the player moves a dial *between* ticks, so clearing at the start would throw their truncation away before anything could record it. **It has exactly one reader, `engine.js`'s trace note, and it is `null` the moment `tick()` returns** — measuring anything from it afterwards silently reads nothing (4th audit 5.15). Task 8.5 is the one that would add a UI read |
 | `dial_truncated_count` | How many requests have been refused over the run. The count is the load-bearing half: one truncation is a player pushing a slider into its stop, 87 of them is a benchmark that spent 91% of the game against its own ceiling, and nothing else in the run says so |
 | `history` | Capped ring buffers for the charts and year-over-year |
-| `labour_hoarding_policy` | Optional override: `false` disables the Okun hoarding ramp |
+| `labour_hoarding_policy` | `true`. Set `false` to disable the Okun hoarding ramp, which is the only way to isolate it — 11.2's diagnosis of B3 needed exactly that. **It was read by `updateEmployment` and declared by nothing until 11.2**, so this row documented a control that could not be set; lint check (a) missed it because it counted `s.field === x` as a declaration (`open_items` E15) |
 | `current_account`, `fx_change` | Carried in START for the deferred open economy. No rule reads them, and **5.6 put both in `START_DEFERRED` so a test says so** — neither was named by the task; they were found by counting the dead fields |
 
 ---

@@ -204,6 +204,15 @@ that this parameter trades off against each other:
   demand block **slower**, not faster. **This is A2's live half and it is now
   task 11.6.**
 
+> **11.2 THEN SPLIT THE PERSISTENCE AXIS AGAIN.** The UK sacrifice ratio is not
+> a demand-block finding at all: it is the **Okun hoarding ramp**, and turning
+> that off moves it **0.36 → 0.61**, a 69% improvement, where the entire
+> demand-block sweep moved it 0.38 → 0.33 the wrong way. Two of A2's five
+> sightings — the sacrifice ratio and the crash unemployment of B3 — are one
+> mechanism in the labour block. **Endogenous propagation is now the only
+> sighting with no identified mechanism**; it gets worse under both levers. See
+> **B3** for the table and task **11.7** for the decision.
+
 They are in tension through the one parameter that most obviously governs
 "how much does the demand block move". **So there is no single demand-block
 fix, and the next pass should stop looking for one.** The remaining candidates
@@ -572,11 +581,39 @@ without bound. That is rule 6: a regime driven by nothing, asserted by a
 magnitude. And `OKUN_HOARDING_GAP` is `judgement`, sourced *"Shape assumption,
 not an estimate"*, and its own note ends **"TUNING DIAL."**
 
+**AND IT IS NOT ONLY B3 — THE UK SACRIFICE RATIO IS THE SAME MECHANISM.**
+Measured with the ramp off model-wide:
+
+| | as built | ramp off | wanted |
+|---|---|---|---|
+| crash unemployment peak | +1.910pp | **+3.862pp** | 2–5 ✅ **in band** |
+| UK 1979-83 sacrifice ratio | 0.36 | **0.61** | 2–4 ✅ **+69%** |
+| post-crisis rebound | 38.7% | **35.2%** | lower ✅ |
+| endogenous propagation | 3.82 | **2.98** | higher ❌ |
+| steady state | exact | **exact** (0 / 2.0 / 5.0) | — |
+
+**The sacrifice ratio moves 69% on this one switch** — further, and in the
+RIGHT direction, than the whole of 11.1's demand-block sweep managed (which
+moved it 0.38 → 0.33, the wrong way). That makes sense the moment it is said
+out loud: the sacrifice ratio is *excess unemployment point-years per point of
+disinflation*, so a labour market that does not follow output cannot produce
+one. **Two of A2's five sightings are the Okun hoarding ramp, and neither is
+the demand block.**
+
+So the map after 11.1 and 11.2 is three groups, not one finding and not two:
+
+| axis | sightings | lever |
+|---|---|---|
+| HORIZON | `TAX_SHOCK_TO_GDP`, austerity paradox | the demand block's speed (11.1) |
+| **OKUN** | **UK sacrifice ratio, crash unemployment** | **the hoarding ramp (11.2)** |
+| unexplained | endogenous propagation | worsens under both |
+
 **NOT FIXED HERE, AND DELIBERATELY.** Reshaping the ramp so unemployment lands
-in 2–5 is rule 3. The fix is a decision with a blast radius: the trough itself
-moves (−9.000 → −8.660), so **`CRISIS_IMPULSE_AMPLIFICATION` would have to be
-re-solved** (`SOLVED_FROM_MODEL`), and every scenario's labour path moves.
-Tracked as task **11.7**.
+in 2–5 is rule 3. The fix is a decision with a measured blast radius: the
+trough moves (−9.000 → −8.660), so **`CRISIS_IMPULSE_AMPLIFICATION` must be
+re-solved** (`SOLVED_FROM_MODEL`); the six-scenario behaviour hash moves
+`7e517207065edb1c → 912f980c1cdbeab8`; and **propagation gets worse**, so this
+is a trade and not a free win. Tracked as task **11.7**.
 
 `TEST-RESULTS.md`'s OPEN on the output→employment lag is related.
 
@@ -985,6 +1022,18 @@ So the three failures above are the whole of it, and the estate is otherwise
 sound. **What remains uncovered is not a broken guard but an absent one: the
 numbers quoted in PROSE (E4).** Every stale-number defect this audit found was
 in prose, and nothing checks prose.
+
+> **AND A THIRD QUESTION, WHICH E15 CAME THROUGH [11.2].** Every row asks *does
+> this guard fire?* and the note below adds *does it cover what it appears to
+> cover?* Lint check (a) passes both: it fires on an injected undeclared field,
+> and it walks every rule file. **Its declared-set was wrong** — it counted
+> `s.field === x` as a declaration of `field`, so a field the model only ever
+> compared was declared by the act of reading it. No firing test can reveal
+> that, because the guard fires correctly on every input it classifies
+> correctly. **So: does it fire, does it cover the target, and IS ITS OWN INPUT
+> RIGHT?** The third is the one that needs the guard's subject exercised rather
+> than the guard inspected — E15 was found by using `labour_hoarding_policy`,
+> not by reading `lint.mjs`.
 
 > **THE INTERROGATION ABOVE ASKED ONE QUESTION AND NOT THE OTHER, AND E12 CAME
 > THROUGH THE GAP.** Every row asks *does this guard fire?* — break the thing,

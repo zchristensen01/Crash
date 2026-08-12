@@ -126,7 +126,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-eight** corrections to the
+Recorded here and against the individual tasks. **Thirty-nine** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -149,6 +149,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 39 | **The UK sacrifice ratio is the Okun ramp too, not the demand block** — off, it moves 0.36 → 0.61 (+69%) where the demand-block sweep moved it the wrong way. Two of A2's five sightings are one labour-block mechanism, and propagation is the only sighting left with no mechanism | 11.2, fix is 11.7 |
 | 38 | **B3 is not A2 from the labour side** — it is the Okun hoarding ramp, saturated at its flattest value from month one of a crash, and asserted by the gap when its own source requires a job-retention policy the model does not have | closed by 11.2, fix is 11.7 |
 | 37 | **A2 is not one finding.** Its sightings respond to the demand block's own principal speed in OPPOSITE directions — the tax multiplier improves as it speeds up, the sacrifice ratio and rebound improve as it slows, and propagation peaks at the shipped value. Two axes, not one cause | closed by 11.1 |
 | 36 | **A comment described a design that was never built** — `s.dial_truncated`'s "both paths have to work" promised a UI read that does not exist. Corrected, and a test now pins the field to its three legitimate sites so 8.5 cannot add the read without fixing the comment | closed by 5.15 |
@@ -1425,6 +1426,16 @@ caused it* — and this section used to call them **one finding seen five ways**
       answer constrains the others. **Do not re-tune `CRISIS_SCAR_AMPLIFICATION`
       to absorb this** — that is C2's whole argument and rule 4.
       **11.3 waits on this, not on 11.1.**
+      **11.2 HAS RUN AND TOOK TWO OF THE THREE WITH IT.** The Okun hoarding
+      ramp accounts for the crash unemployment (B3) **and the UK sacrifice
+      ratio** — 0.36 → **0.61** with the ramp off, a 69% improvement, against a
+      demand-block sweep that moved it the wrong way. Neither is a demand-block
+      finding. **What is left of this task is ONE sighting: endogenous crisis
+      propagation**, which gets worse under both levers (3.82 → 2.98 with the
+      ramp off, 3.82 → 2.76 with the smoothing gone) and is the only one with no
+      identified mechanism. It is a hysteresis question, and `docs/02` says the
+      model has none except the exogenous `CRISIS_HYSTERESIS_SCAR`.
+      **Blocked behind 11.7**, which decides the ramp and moves the same axis.
 - [x] 11.2 Okun: unemployment does not follow output into a crash — `open_items` B3
       The crash trough is **exactly** on target (−9.0000% against
       `CRISIS_OUTPUT_TROUGH`) while unemployment peaks at **+1.91pp against a
@@ -1482,11 +1493,21 @@ caused it* — and this section used to call them **one finding seen five ways**
       and not a decade — but needs a source for where it breaks;
       (c) leave it and record that the model's crashes are structurally
       Japanese.
-      **Whichever wins, `CRISIS_IMPULSE_AMPLIFICATION` must be re-solved** (the
-      trough moves −9.000 → −8.660 with the ramp off) and 11.6's other two
-      sightings must be re-measured, because this is the persistence axis and
-      they sit on it. **Do not pick the option that lands 2–5** — pick the one
-      with a mechanism, then report where it lands.
+      **THE BLAST RADIUS IS MEASURED, NOT ASSERTED.** With the ramp off
+      model-wide: crash unemployment **+1.910 → +3.862pp** (into the published
+      2–5); **the UK sacrifice ratio 0.36 → 0.61**, a 69% improvement toward
+      Ball's 2–4; the post-crisis rebound 38.7% → 35.2%; and **endogenous
+      propagation 3.82 → 2.98, which is WORSE**. The steady state is exact
+      either way (0 / 2.0 / 5.0). The six-scenario hash moves
+      `7e517207065edb1c → 912f980c1cdbeab8`, and
+      `CRISIS_IMPULSE_AMPLIFICATION` must be re-solved because the trough moves
+      −9.000 → −8.660.
+      **SO THIS IS A TRADE, NOT A FREE WIN**, and the stake is larger than B3:
+      **two of A2's five sightings are this ramp** — the sacrifice ratio is
+      excess unemployment point-years per point of disinflation, so a labour
+      market that does not follow output cannot produce one. **Do not pick the
+      option that lands 2–5** — pick the one with a mechanism, then report where
+      everything lands, including propagation getting worse.
 - [ ] 11.3 Re-solve `CRISIS_SCAR_AMPLIFICATION` — `open_items` C2
       **Only after 11.1**, and 4.2's `SOLVED_FROM_MODEL` register is what makes
       that safe: the constant is DEFINED by a solve, so it must be re-solved

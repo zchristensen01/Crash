@@ -94,7 +94,7 @@ who wants to judge whether the model is behaving correctly.**
 
 *`test/crisis.test.js`*
 
-STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. That is Okun, and it is the same demand-block finding recorded on the five-year loss below. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
+STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. DIAGNOSED IN 11.2, AND THIS MESSAGE USED TO CALL IT "the same demand-block finding recorded on the five-year loss below". IT IS NOT. It is the Okun hoarding ramp: beta lerps toward OKUN_LABOUR_HOARDING (0.20) over |output_gap| / OKUN_HOARDING_GAP, and OKUN_HOARDING_GAP is 4 while the crash gap is -5.24 at m1 and -8.48 by m18, so beta is pinned at its FLATTEST value for the entire episode. Switch the ramp off (s.labour_hoarding_policy = false) and unemployment peaks +3.862pp, inside the published band, against +1.910 as built. None of it is the demand block: 11.1 swept the demand block's principal speed across a factor of 40 and this barely moved. See open_items B3; the fix is 11.7 and it must re-solve CRISIS_IMPULSE_AMPLIFICATION, because the trough moves -9.000 to -8.660 with the ramp off. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
 
 **Measured on this run:**
 
@@ -993,7 +993,7 @@ ok 32 - THE CRASH ARC: every published magnitude at once
   ---
   ...
 # Subtest: THE CRASH ARC: the unemployment cost of a banking crisis
-not ok 33 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. That is Okun, and it is the same demand-block finding recorded on the five-year loss below. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
+not ok 33 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STILL SHORT AFTER 4.1 RE-SOLVED THE IMPULSE CONSTANT. Unemployment peaks +1.91pp against a published 2-5 for a banking crisis, having been +1.93 before the re-solve and inside the band before Phase 2. Note the trough itself is now EXACTLY on target at -9.000% — so the output hole is the right depth and the labour market does not follow it down. DIAGNOSED IN 11.2, AND THIS MESSAGE USED TO CALL IT "the same demand-block finding recorded on the five-year loss below". IT IS NOT. It is the Okun hoarding ramp: beta lerps toward OKUN_LABOUR_HOARDING (0.20) over |output_gap| / OKUN_HOARDING_GAP, and OKUN_HOARDING_GAP is 4 while the crash gap is -5.24 at m1 and -8.48 by m18, so beta is pinned at its FLATTEST value for the entire episode. Switch the ramp off (s.labour_hoarding_policy = false) and unemployment peaks +3.862pp, inside the published band, against +1.910 as built. None of it is the demand block: 11.1 swept the demand block's principal speed across a factor of 40 and this barely moved. See open_items B3; the fix is 11.7 and it must re-solve CRISIS_IMPULSE_AMPLIFICATION, because the trough moves -9.000 to -8.660 with the ramp off. The four other magnitudes in the crash arc — peak-to-trough, the month of the trough, the five-year loss against trend and the absence of a rebound — all still hold, which is why this is one assertion rather than the whole test. CRISIS_IMPULSE_AMPLIFICATION and CRISIS_SCAR_AMPLIFICATION are solved FROM this model to make the realised trough equal CRISIS_OUTPUT_TROUGH, so they absorb exactly this kind of change and Phase 4.1 re-solves them after Phases 2 and 3. Re-solving them before the demand block has stopped moving would mean doing it twice and believing the first answer. Note the shortfall is 0.09pp: this is a band edge, not a collapse.
   ---
   location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:265:1'
   failureType: 'testCodeFailure'
@@ -1004,7 +1004,7 @@ not ok 33 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STIL
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:284:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:294:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1015,7 +1015,7 @@ not ok 33 - THE CRASH ARC: the unemployment cost of a banking crisis # TODO STIL
 # Subtest: THE CRASH ARC: the five-year loss against trend
 not ok 34 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN, AND THIS IS WHAT IT FOUND. Output is -6.60% below trend at five years against CRISIS_HYSTERESIS_SCAR = 10, after CRISIS_IMPULSE_AMPLIFICATION was re-solved to 2.0461 (2.59 in the third audit, 2.1855 in 4.1, and again in 5.7 when the capital-units fix moved the trend this is measured against). It CANNOT be closed by re-solving CRISIS_SCAR_AMPLIFICATION: that lands at 1.06-1.26, outside its published [2.0, 4.5], and would make the exogenous capacity cut supply 7.9-9.5 of the 10 while the model supplies almost nothing — destroying the deconvolution the constant exists to be. Measured with no exogenous scar at all, the model used to produce 8.4% of the loss endogenously and now produces 3.82%. THE MODEL NO LONGER PROPAGATES A CRISIS; IT GETS HIT AND RECOVERS. That is a demand-block finding, it is the same one as the UK sacrifice ratio and TAX_SHOCK_TO_GDP, and it is not a calibration problem. Do not nudge either constant to move it — 4.2 records what they are. THE SECOND ASSERTION HERE IS OPEN \#1, AND IT MOVED THE OPPOSITE WAY TO THE PLAN'S HYPOTHESIS. docs/13 4.4 expects the too-fast rebound to be downstream of Section B, so fixing B should have slowed it. Measured, it sped up: output is back to -5.16% of trend by month 96 against a required -5. That is not a new defect — it is the same shallower crisis, since a crash that digs a 5.97% hole instead of a 10% one has less to climb out of. Both numbers should move together when the constant is re-solved, and if they do not, OPEN \#1 is a real finding about the demand block rather than a calibration artefact.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:288:1'
+  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:298:1'
   failureType: 'testCodeFailure'
   error: 'output is -6.60% below trend at five years, against CRISIS_HYSTERESIS_SCAR = 10'
   code: 'ERR_ASSERTION'
@@ -1024,7 +1024,7 @@ not ok 34 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:315:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:325:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1035,7 +1035,7 @@ not ok 34 - THE CRASH ARC: the five-year loss against trend # TODO PHASE 4.1 RAN
 # Subtest: THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them
 not ok 35 - THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures them # TODO HALF RE-SOLVED IN 4.1, AND THE HALF THAT WOULD NOT SOLVE IS THE FINDING. CRISIS_IMPULSE_AMPLIFICATION was re-solved 2.59 -> 2.1855 in 4.1 and 2.1855 -> 2.0461 in 5.7, and it reconciles: the realised trough is -9.000% against CRISIS_OUTPUT_TROUGH exactly, at month 12. CRISIS_SCAR_AMPLIFICATION was left at 3.14 on purpose. Re-solved against Cerra & Saxena it lands at 1.06-1.26, outside its published [2.0, 4.5], which would make the exogenous capacity cut 7.9 to 9.5 of the 10 and leave the model supplying almost nothing. THE POINT OF THIS CONSTANT IS A DECONVOLUTION — the model generates most of the observed loss endogenously and the exogenous cut is only the remainder — and forcing it there would load the missing propagation onto an exogenous constant, which is rule 4 and is the defect the deconvolution was built to remove. MEASURED, with CRISIS_HYSTERESIS_SCAR set to 0 so there is no exogenous scar at all: the model used to produce 8.4% of the 10 by itself and now produces 3.82% (this message said 3.22% until Phase 5 verification re-ran it, when both were 3.65 and had disagreed for four commits; 5.7 moved them together to 3.82). That is a demand-block finding and the fourth independent sighting of it, alongside the UK sacrifice ratio, TAX_SHOCK_TO_GDP and the missing austerity paradox. Re-solve when the demand block has been addressed.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:323:1'
+  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:333:1'
   failureType: 'testCodeFailure'
   error: 'the model now turns a 3.27pp exogenous capacity cut into a 6.60% loss against trend (2.30x), but CRISIS_SCAR_AMPLIFICATION says 3.14'
   code: 'ERR_ASSERTION'
@@ -1044,7 +1044,7 @@ not ok 35 - THE DECONVOLUTION CONSTANTS ARE MEASUREMENTS, and this re-measures t
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:352:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:362:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)
@@ -1063,7 +1063,7 @@ ok 37 - the scar PHASES IN rather than landing on month one
 # Subtest: MEASURED: the model rebounds after year five and Cerra-Saxena say it should not
 not ok 38 - MEASURED: the model rebounds after year five and Cerra-Saxena say it should not # TODO RE-MEASURED IN PHASE 4.4, AND THE PLAN'S HYPOTHESIS FOR IT IS WRONG. docs/13 expected this to be downstream of Section B — "the 10-year recovery coincides with the credit/asset loop re-inflating" — so fixing B should have slowed it. THE CREDIT GAP IS NEGATIVE THROUGHOUT THE RECOVERY once the boom has unwound: +5.71 at m24, -0.79 at m60, -3.83 at m96, -4.61 at m120. It is a depressed credit stock closing on its trend from BELOW, not a new boom. Output against the pre-crisis trend now reads -10.00 (m12), -10.39 (m24), -6.60 (m60), -5.16 (m96), -4.51 (m120), troughing at -10.40 in month 22 and recovering 5.89pp. THE ISOLATING EXPERIMENT: switch OFF both the collateral channel and the wealth effect and the crisis is shallower (trough -6.43) but 2.49pp of it still comes back — 39% of the trough recovered with both amplifiers gone. So the rebound is not Section B at all. It is the demand block closing an output gap faster than the data says it should, which is the same finding as the UK 1979-83 sacrifice ratio, TAX_SHOCK_TO_GDP, the missing austerity paradox and the crisis propagation that would not re-solve in 4.1. One finding, five sightings. See open_items.md A2.
   ---
-  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:417:1'
+  location: '/home/ztchr/personal_projects/Crash/test/crisis.test.js:427:1'
   failureType: 'testCodeFailure'
   error: 'output recovered to -4.51% of trend at ten years, from -6.60% at five. That is a rebound.'
   code: 'ERR_ASSERTION'
@@ -1072,7 +1072,7 @@ not ok 38 - MEASURED: the model rebounds after year five and Cerra-Saxena say it
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:438:10)
+    TestContext.<anonymous> (file:///home/ztchr/personal_projects/Crash/test/crisis.test.js:448:10)
     Test.runInAsyncScope (node:async_hooks:211:14)
     Test.run (node:internal/test_runner/test:934:25)
     Test.processPendingSubtests (node:internal/test_runner/test:633:18)

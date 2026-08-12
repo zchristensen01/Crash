@@ -267,9 +267,19 @@ test('THE CRASH ARC: the unemployment cost of a banking crisis', {
     'peaks +1.91pp against a published 2-5 for a banking crisis, having been ' +
     '+1.93 before the re-solve and inside the band before Phase 2. Note the ' +
     'trough itself is now EXACTLY on target at -9.000% — so the output hole is ' +
-    'the right depth and the labour market does not follow it down. That is ' +
-    'Okun, and it is the same demand-block finding recorded on the five-year ' +
-    'loss below. The four other ' +
+    'the right depth and the labour market does not follow it down. ' +
+    'DIAGNOSED IN 11.2, AND THIS MESSAGE USED TO CALL IT "the same demand-block ' +
+    'finding recorded on the five-year loss below". IT IS NOT. It is the Okun ' +
+    'hoarding ramp: beta lerps toward OKUN_LABOUR_HOARDING (0.20) over ' +
+    '|output_gap| / OKUN_HOARDING_GAP, and OKUN_HOARDING_GAP is 4 while the ' +
+    'crash gap is -5.24 at m1 and -8.48 by m18, so beta is pinned at its ' +
+    'FLATTEST value for the entire episode. Switch the ramp off ' +
+    '(s.labour_hoarding_policy = false) and unemployment peaks +3.862pp, ' +
+    'inside the published band, against +1.910 as built. None of it is the ' +
+    'demand block: 11.1 swept the demand block\'s principal speed across a ' +
+    'factor of 40 and this barely moved. See open_items B3; the fix is 11.7 ' +
+    'and it must re-solve CRISIS_IMPULSE_AMPLIFICATION, because the trough ' +
+    'moves -9.000 to -8.660 with the ramp off. The four other ' +
     'magnitudes in the crash arc — peak-to-trough, the month of the trough, ' +
     'the five-year loss against trend and the absence of a rebound — all still ' +
     'hold, which is why this is one assertion rather than the whole test. ' +
