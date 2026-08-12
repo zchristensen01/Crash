@@ -63,7 +63,14 @@ export function updateConfidence(s, trace) {
   const BIZ_W_USER_COST = 2.0;      // judgement, see above
   s.business_confidence = clamp(BIZ_NEUTRAL + BIZ_W_OUTPUT_GAP * s.output_gap
     - BIZ_W_SPREAD * (s.credit_spread - s.credit_spread_ss)
-    - BIZ_W_USER_COST * (s.user_cost - s.market_real_rate_ss), 0, 100);
+    // AGAINST THE STEADY-STATE USER COST, not against a real interest rate
+    // (4th audit 5.13, open_items B7). `user_cost` carries depreciation and
+    // `market_real_rate_ss` does not, so this term used to read a permanent
+    // -2.0 x DEPRECIATION_RATE x 100 = -12 points and the gauge settled at
+    // 48.000 forever while `consumer_confidence` settled at its declared 60.
+    // `s.user_cost_ss` is the same anchor updateInvestment measures its
+    // stance against, so the two cannot drift apart.
+    - BIZ_W_USER_COST * (s.user_cost - s.user_cost_ss), 0, 100);
 
   // The misery index, as docs/01 defines it. NOT what approval is driven off:
   // Di Tella, MacCulloch & Oswald reject the 1:1 weighting, so approval uses

@@ -1950,6 +1950,53 @@ not count.**
 >
 > 170 → **172 tests**, 156 pass, 0 fail, 16 todo. No rule or parameter moved.
 
+> #### As built — 5.13, and the correct anchor was already in the tree.
+>
+> ### CORRECTION 34 — B7's proposed repair ("compare against a steady-state user cost, or drop depreciation") describes a CORRECTION; what the model needed was one ANCHOR, because it already held two.
+>
+> The gauge is declared 60 and settled at exactly **48.000** forever, the whole
+> 12-point wedge being `2.0 × (user_cost − market_real_rate_ss)` where the
+> difference is precisely `DEPRECIATION_RATE × 100` — a user cost OF CAPITAL
+> against a real INTEREST RATE, B2's class of error again.
+>
+> **The entry offers two repairs and both are corrections to one expression.**
+> Measured, the model did not need a new expression: `updateInvestment` had
+> **always** compared against a correct steady-state user cost, built from
+> neutral, as a local called `userCostSS`. So there were two anchors for one
+> quantity, one right and one wrong, and the gauge happened to read the wrong
+> one. Correcting `sentiment.js` in place would have left two anchors that
+> merely agreed — which is exactly the state D2 was in when the demand bound
+> was written out three times, each copy carrying a comment claiming it was
+> taken from the invariant *"so there is one source"*: intent with no
+> mechanism.
+>
+> So `s.user_cost_ss` was hoisted into `state.js` beside `market_real_rate_ss`
+> and `policy_rate_ss`, and both rules read it. **The fix is that there is now
+> one number**, and 5.10's `DEMAND_BOUNDS` is the precedent.
+>
+> **Behaviour-neutral everywhere but the gauge, and measured rather than
+> argued:** six scenarios × 96 months × 22 fields hash `7e517207065edb1c`
+> before and after — investment is bit-identical, because it reads the same
+> expression it always computed. `business_confidence` now reads exactly
+> **60.000000000** at rest.
+>
+> **The guard checks the control as well as the defect.** `consumer_confidence`
+> settling on its own declared neutral is what made 48 legible as an error
+> rather than a design choice, so the test asserts both, plus the structural
+> fact underneath: `user_cost == user_cost_ss` at rest. Verified to fire.
+>
+> **FOUND ON THE WAY, AND THE SWEEP WAS RUN BEFORE THE CONCLUSION.** `docs/01`
+> — a LIVING document — gave `user_cost` a default of 8.5%, the pre-5.7
+> depreciation rate. Rather than fix the row and move on, the whole column was
+> checked against `newState()`: **98 numeric defaults, 5 disagree, and 4 of the
+> 5 are legitimate rounding** (`tfp` 0.68 against 0.6799943). One real
+> staleness, four false positives. **No guard was built**, for the same
+> arithmetic that made 5.12 reject its sweep — a checker whose false-positive
+> rate exceeds its yield trains you to ignore it.
+>
+> 172 → **173 tests**, 157 pass, 0 fail, 16 todo. `index.html` rebuilt;
+> `docs/11`'s fingerprint unmoved.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

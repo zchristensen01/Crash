@@ -147,7 +147,8 @@ reproduce the published 9-month investment peak rather than assuming it.
 | Variable | Kind | Start | Notes |
 |---|---|---|---|
 | `market_rate` | RATE | 4.0% | What firms actually pay = transmitted rate + spread − QE relief |
-| `user_cost` | RATE | 8.5% | `market_rate − expected_inflation + depreciation`. What investment responds to |
+| `user_cost` | RATE | 8.0% | `market_rate − expected_inflation + depreciation`. What investment responds to |
+| `user_cost_ss` | RATE | 8.0% | The cost of capital the model treats as NORMAL, built from neutral: `policy_rate_ss + credit_spread_ss − inflation_target + depreciation`. Both `updateInvestment` and `updateBusinessConfidence` measure their stance against this one number (4th audit 5.13) |
 | `credit_spread` | RATE | 1.5pp | Over the policy rate. Widens in fear, collapses in booms |
 | `neutral_real_rate` | RATE | 0.5% | r\*. Neutral NOMINAL is r\* + target = 2.5% |
 | `term_premium` | RATE | 0.75pp | |

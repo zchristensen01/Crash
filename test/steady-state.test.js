@@ -104,3 +104,47 @@ test('the credit gap does not open on its own', () => {
   assert.ok(Math.abs(s.credit_to_gdp_gap) < 0.1,
     `credit gap reached ${s.credit_to_gdp_gap}pp with no player input`);
 });
+
+/**
+ * A GAUGE MUST NOT LIE AT REST [4th audit 5.13, open_items B7].
+ *
+ * `business_confidence` is declared 60 in `state.js` and in `docs/01`, and it
+ * settled at exactly 48.000 on tick one of a flawless steady state and stayed
+ * there for two hundred months. The whole 12-point gap was one term comparing
+ * `user_cost` — a user cost OF CAPITAL, carrying depreciation — against
+ * `market_real_rate_ss`, a real INTEREST RATE that does not. They are not the
+ * same kind of quantity, so the wedge was exactly `DEPRECIATION_RATE * 100`
+ * and was pure units, the same class of error as B2 and 5.5.
+ *
+ * `consumer_confidence` settling at exactly its neutral 60 is what made the 48
+ * legible as an error rather than a design choice, and it is why this test
+ * checks BOTH: one gauge agreeing with its own declaration is the control.
+ *
+ * Nothing read `business_confidence` when this was found — but task 8.10
+ * exists to put it on screen, and a gauge that reads 48 in a perfect economy
+ * is the `price_level` invariant's own argument one file over.
+ *
+ * The repair was one anchor, not one correction: `s.user_cost_ss` now lives in
+ * `state.js` beside the other steady-state anchors, and `updateInvestment` —
+ * which had always compared against the right thing — reads it too, so the two
+ * cannot drift apart. That is 5.10's `DEMAND_BOUNDS` pattern.
+ */
+test('the confidence gauges read their declared neutral at rest', () => {
+  const start = newState();
+  const s = newState();
+  run(s, 200, QUIET);
+  for (const k of ['business_confidence', 'consumer_confidence']) {
+    assert.ok(Math.abs(s[k] - start[k]) < 1e-9,
+      `${k} is declared ${start[k]} and reads ${s[k].toFixed(6)} after 200 calm ticks. ` +
+      `A gauge that does not sit at its own neutral in a flawless economy is ` +
+      `reporting a units error, not an economy — business_confidence read 48.000 ` +
+      `for the life of the model because it compared a user cost of capital ` +
+      `against a real interest rate.`);
+  }
+  // The structural reason, asserted rather than implied: at rest the cost of
+  // capital IS its steady-state value, so the term must contribute nothing.
+  assert.ok(Math.abs(s.user_cost - s.user_cost_ss) < 1e-9,
+    `user_cost ${s.user_cost} and user_cost_ss ${s.user_cost_ss} disagree at rest, ` +
+    `so every rule that measures a stance against the steady-state cost of ` +
+    `capital — investment and business confidence — starts from a false zero.`);
+});

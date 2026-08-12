@@ -35,8 +35,8 @@ that only showed the passing parts would be marketing.
 
 | | |
 |---|---|
-| Tests | **172** |
-| Passing | **156** |
+| Tests | **173** |
+| Passing | **157** |
 | Failing (regressions) | **0** |
 | Open disagreements (`OPEN`) | **16** |
 | Linter | **clean** |
@@ -398,45 +398,46 @@ with its number in the section above. `FAIL` = a regression.
 | 127 | THE LEVEL: potential grows at potential_growth, and K/Y stays put | PASS |
 | 128 | credibility rises when the target is hit, and slowly | PASS |
 | 129 | the credit gap does not open on its own | PASS |
-| 130 | a rate cut does more for OUTPUT with slack than at capacity | PASS |
-| 131 | a cut is weaker than the equivalent hike | PASS |
-| 132 | a cut-then-hike round trip leaves the stance where it started | PASS |
-| 133 | THE LOWER BOUND: easing stops working as the rate approaches it | PASS |
-| 134 | QE still works when the rate dial has run out of room | PASS |
-| 135 | unemployment rises faster than it falls | PASS |
-| 136 | SWEEP: more spending never raises unemployment, at any starting gap | PASS |
-| 137 | SWEEP: no step changes in the response to a rate cut | PASS |
-| 138 | the ONE cliff in the model is the capacity ceiling, and it is where it says | PASS |
-| 139 | L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT | PASS |
-| 140 | L3: the fiscal multiplier has no step in it as the rate falls to the bound | PASS |
-| 141 | investment.js reads the rate DIAL only to display it | PASS |
-| 142 | A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it | PASS |
-| 144 | A-TABLE: the A1 split made the response curve measurably smoother | PASS |
-| 145 | the TRANSMITTED Taylor response clears unity, not just the dial one | PASS |
-| 146 | the whole UI boots without throwing | PASS |
-| 147 | every shell container the app needs exists | PASS |
-| 148 | a gauge mounts for every indicator | PASS |
-| 149 | a dial mounts for every dial | PASS |
-| 150 | every gauge can open a why panel with real terms | PASS |
-| 151 | every gauge has a history series to draw | PASS |
-| 152 | moving a dial schedules an effect instead of applying it | PASS |
-| 153 | a session runs a full term without throwing | PASS |
-| 154 | restarting on the same seed keeps the previous run as a ghost | PASS |
-| 155 | the game starts paused, at 1x, with play as the visible action | PASS |
-| 156 | pausing does not throw away the chosen speed | PASS |
-| 157 | every gauge and every dial has a plain-English definition | PASS |
-| 158 | every gauge can say whether it is getting worse | PASS |
-| 159 | a passive calm run reaches the end of the term and is scored | PASS |
-| 160 | a losing run reaches a named ending with a lesson | PASS |
-| 161 | the DEFERRED register matches the code, in both directions | PASS |
-| 162 | every recorded parameter conflict is still genuinely unresolved | PASS |
-| 163 | RATE_TO_OUTPUT: 1pp of policy rate, held a year | PASS |
-| 164 | AUTO_STABILISER_ABSORPTION: share of an income shock that never lands | PASS |
-| 165 | a tax cut RAISES output, and does it through consumption | PASS |
-| 168 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
-| 170 | CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere | PASS |
-| 171 | private debt reprices over YEARS, and the burden lands late | PASS |
-| 172 | the debt-service burden reads the transmitted rate, not the dial | PASS |
+| 130 | the confidence gauges read their declared neutral at rest | PASS |
+| 131 | a rate cut does more for OUTPUT with slack than at capacity | PASS |
+| 132 | a cut is weaker than the equivalent hike | PASS |
+| 133 | a cut-then-hike round trip leaves the stance where it started | PASS |
+| 134 | THE LOWER BOUND: easing stops working as the rate approaches it | PASS |
+| 135 | QE still works when the rate dial has run out of room | PASS |
+| 136 | unemployment rises faster than it falls | PASS |
+| 137 | SWEEP: more spending never raises unemployment, at any starting gap | PASS |
+| 138 | SWEEP: no step changes in the response to a rate cut | PASS |
+| 139 | the ONE cliff in the model is the capacity ceiling, and it is where it says | PASS |
+| 140 | L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT | PASS |
+| 141 | L3: the fiscal multiplier has no step in it as the rate falls to the bound | PASS |
+| 142 | investment.js reads the rate DIAL only to display it | PASS |
+| 143 | A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it | PASS |
+| 145 | A-TABLE: the A1 split made the response curve measurably smoother | PASS |
+| 146 | the TRANSMITTED Taylor response clears unity, not just the dial one | PASS |
+| 147 | the whole UI boots without throwing | PASS |
+| 148 | every shell container the app needs exists | PASS |
+| 149 | a gauge mounts for every indicator | PASS |
+| 150 | a dial mounts for every dial | PASS |
+| 151 | every gauge can open a why panel with real terms | PASS |
+| 152 | every gauge has a history series to draw | PASS |
+| 153 | moving a dial schedules an effect instead of applying it | PASS |
+| 154 | a session runs a full term without throwing | PASS |
+| 155 | restarting on the same seed keeps the previous run as a ghost | PASS |
+| 156 | the game starts paused, at 1x, with play as the visible action | PASS |
+| 157 | pausing does not throw away the chosen speed | PASS |
+| 158 | every gauge and every dial has a plain-English definition | PASS |
+| 159 | every gauge can say whether it is getting worse | PASS |
+| 160 | a passive calm run reaches the end of the term and is scored | PASS |
+| 161 | a losing run reaches a named ending with a lesson | PASS |
+| 162 | the DEFERRED register matches the code, in both directions | PASS |
+| 163 | every recorded parameter conflict is still genuinely unresolved | PASS |
+| 164 | RATE_TO_OUTPUT: 1pp of policy rate, held a year | PASS |
+| 165 | AUTO_STABILISER_ABSORPTION: share of an income shock that never lands | PASS |
+| 166 | a tax cut RAISES output, and does it through consumption | PASS |
+| 169 | CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range | PASS |
+| 171 | CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere | PASS |
+| 172 | private debt reprices over YEARS, and the burden lands late | PASS |
+| 173 | the debt-service burden reads the transmitted rate, not the dial | PASS |
 
 ### `test/crisis.test.js`
 
@@ -491,7 +492,7 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 143 | A-TABLE: the knife-edge is the wealth channel, and it is still there | **OPEN** |
+| 144 | A-TABLE: the knife-edge is the wealth channel, and it is still there | **OPEN** |
 
 ### `test/validation.test.js`
 
@@ -499,9 +500,9 @@ with its number in the section above. `FAIL` = a regression.
 
 | | test | result |
 |---|---|---|
-| 166 | QE_TO_GDP: bond buying reaches output through the yield, and how much | **OPEN** |
-| 167 | RATE_TO_INFLATION: the model is about half the published estimate | **OPEN** |
-| 169 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
+| 167 | QE_TO_GDP: bond buying reaches output through the yield, and how much | **OPEN** |
+| 168 | RATE_TO_INFLATION: the model is about half the published estimate | **OPEN** |
+| 170 | TAX_SHOCK_TO_GDP: the model is far below Romer-Romer | **OPEN** |
 
 ---
 
@@ -1581,64 +1582,68 @@ ok 128 - credibility rises when the target is hit, and slowly
 ok 129 - the credit gap does not open on its own
   ---
   ...
+# Subtest: the confidence gauges read their declared neutral at rest
+ok 130 - the confidence gauges read their declared neutral at rest
+  ---
+  ...
 #   disinflation curve @m60: 5%:73.9 6%:36.5 7%:6.4 8%:3.6 9%:1.9 10%:0.6 12%:-1.9
 #   steepest -40.4pp of inflation per pp of policy, at 5%
 #   steepest slope: as built -40.4 at 5%; wealth channel off -20.9 at 5.75%
 #   stagflation m3->m12: inflation +6.10pp; response on the DIAL 1.99, TRANSMITTED 1.94 (0.37 before the A1 split); real rate felt at m12 -1.81% (-14.50 before)
 # Subtest: a rate cut does more for OUTPUT with slack than at capacity
-ok 130 - a rate cut does more for OUTPUT with slack than at capacity
+ok 131 - a rate cut does more for OUTPUT with slack than at capacity
   ---
   ...
 # Subtest: a cut is weaker than the equivalent hike
-ok 131 - a cut is weaker than the equivalent hike
+ok 132 - a cut is weaker than the equivalent hike
   ---
   ...
 # Subtest: a cut-then-hike round trip leaves the stance where it started
-ok 132 - a cut-then-hike round trip leaves the stance where it started
+ok 133 - a cut-then-hike round trip leaves the stance where it started
   ---
   ...
 # Subtest: THE LOWER BOUND: easing stops working as the rate approaches it
-ok 133 - THE LOWER BOUND: easing stops working as the rate approaches it
+ok 134 - THE LOWER BOUND: easing stops working as the rate approaches it
   ---
   ...
 # Subtest: QE still works when the rate dial has run out of room
-ok 134 - QE still works when the rate dial has run out of room
+ok 135 - QE still works when the rate dial has run out of room
   ---
   ...
 # Subtest: unemployment rises faster than it falls
-ok 135 - unemployment rises faster than it falls
+ok 136 - unemployment rises faster than it falls
   ---
   ...
 # Subtest: SWEEP: more spending never raises unemployment, at any starting gap
-ok 136 - SWEEP: more spending never raises unemployment, at any starting gap
+ok 137 - SWEEP: more spending never raises unemployment, at any starting gap
   ---
   ...
 # Subtest: SWEEP: no step changes in the response to a rate cut
-ok 137 - SWEEP: no step changes in the response to a rate cut
+ok 138 - SWEEP: no step changes in the response to a rate cut
   ---
   ...
 # Subtest: the ONE cliff in the model is the capacity ceiling, and it is where it says
-ok 138 - the ONE cliff in the model is the capacity ceiling, and it is where it says
+ok 139 - the ONE cliff in the model is the capacity ceiling, and it is where it says
   ---
   ...
 # Subtest: L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
-ok 139 - L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
+ok 140 - L5: HIKING AT THE LOWER BOUND MUST NOT RAISE OUTPUT
   ---
   ...
 # Subtest: L3: the fiscal multiplier has no step in it as the rate falls to the bound
-ok 140 - L3: the fiscal multiplier has no step in it as the rate falls to the bound
+ok 141 - L3: the fiscal multiplier has no step in it as the rate falls to the bound
   ---
   ...
 # Subtest: investment.js reads the rate DIAL only to display it
-ok 141 - investment.js reads the rate DIAL only to display it
+ok 142 - investment.js reads the rate DIAL only to display it
   ---
   ...
 # Subtest: A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
-ok 142 - A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
+ok 143 - A-TABLE: the disinflation response is monotone and its threshold is where Fisher puts it
   ---
   ...
 # Subtest: A-TABLE: the knife-edge is the wealth channel, and it is still there
-not ok 143 - A-TABLE: the knife-edge is the wealth channel, and it is still there # TODO PHASE 3 CLOSES THIS. Measured as the steepest local sensitivity on a 0.25pp grid, |d inflation@m60 / d policy rate|: pre-A1 as built -366.7 at 7.75% (slope ratio 138x); post-A1 as built -149.2 at 6.25% (slope ratio 80x); post-A1 with no wealth channel -22.5 at 5.50% (slope ratio 19x). Splitting the transmission lag halved the knife-edge and moved it toward the Fisher point, but did not remove it. Switching WEALTH_EFFECT off removes 85% of what is left, which is the isolating experiment: the residual bifurcation is the asset-wealth channel, and that is Section B. The target below is not a picked number — it is what the model itself does with the offending channel switched off, re-measured on every run.
+not ok 144 - A-TABLE: the knife-edge is the wealth channel, and it is still there # TODO PHASE 3 CLOSES THIS. Measured as the steepest local sensitivity on a 0.25pp grid, |d inflation@m60 / d policy rate|: pre-A1 as built -366.7 at 7.75% (slope ratio 138x); post-A1 as built -149.2 at 6.25% (slope ratio 80x); post-A1 with no wealth channel -22.5 at 5.50% (slope ratio 19x). Splitting the transmission lag halved the knife-edge and moved it toward the Fisher point, but did not remove it. Switching WEALTH_EFFECT off removes 85% of what is left, which is the isolating experiment: the residual bifurcation is the asset-wealth channel, and that is Section B. The target below is not a picked number — it is what the model itself does with the offending channel switched off, re-measured on every run.
   ---
   location: '/home/ztchr/personal_projects/Crash/test/transmission.test.js:371:1'
   failureType: 'testCodeFailure'
@@ -1658,95 +1663,95 @@ not ok 143 - A-TABLE: the knife-edge is the wealth channel, and it is still ther
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: A-TABLE: the A1 split made the response curve measurably smoother
-ok 144 - A-TABLE: the A1 split made the response curve measurably smoother
+ok 145 - A-TABLE: the A1 split made the response curve measurably smoother
   ---
   ...
 # Subtest: the TRANSMITTED Taylor response clears unity, not just the dial one
-ok 145 - the TRANSMITTED Taylor response clears unity, not just the dial one
+ok 146 - the TRANSMITTED Taylor response clears unity, not just the dial one
   ---
   ...
 # Subtest: the whole UI boots without throwing
-ok 146 - the whole UI boots without throwing
+ok 147 - the whole UI boots without throwing
   ---
   ...
 # Subtest: every shell container the app needs exists
-ok 147 - every shell container the app needs exists
+ok 148 - every shell container the app needs exists
   ---
   ...
 # Subtest: a gauge mounts for every indicator
-ok 148 - a gauge mounts for every indicator
+ok 149 - a gauge mounts for every indicator
   ---
   ...
 # Subtest: a dial mounts for every dial
-ok 149 - a dial mounts for every dial
+ok 150 - a dial mounts for every dial
   ---
   ...
 # Subtest: every gauge can open a why panel with real terms
-ok 150 - every gauge can open a why panel with real terms
+ok 151 - every gauge can open a why panel with real terms
   ---
   ...
 # Subtest: every gauge has a history series to draw
-ok 151 - every gauge has a history series to draw
+ok 152 - every gauge has a history series to draw
   ---
   ...
 # Subtest: moving a dial schedules an effect instead of applying it
-ok 152 - moving a dial schedules an effect instead of applying it
+ok 153 - moving a dial schedules an effect instead of applying it
   ---
   ...
 # Subtest: a session runs a full term without throwing
-ok 153 - a session runs a full term without throwing
+ok 154 - a session runs a full term without throwing
   ---
   ...
 # Subtest: restarting on the same seed keeps the previous run as a ghost
-ok 154 - restarting on the same seed keeps the previous run as a ghost
+ok 155 - restarting on the same seed keeps the previous run as a ghost
   ---
   ...
 # Subtest: the game starts paused, at 1x, with play as the visible action
-ok 155 - the game starts paused, at 1x, with play as the visible action
+ok 156 - the game starts paused, at 1x, with play as the visible action
   ---
   ...
 # Subtest: pausing does not throw away the chosen speed
-ok 156 - pausing does not throw away the chosen speed
+ok 157 - pausing does not throw away the chosen speed
   ---
   ...
 # Subtest: every gauge and every dial has a plain-English definition
-ok 157 - every gauge and every dial has a plain-English definition
+ok 158 - every gauge and every dial has a plain-English definition
   ---
   ...
 # Subtest: every gauge can say whether it is getting worse
-ok 158 - every gauge can say whether it is getting worse
+ok 159 - every gauge can say whether it is getting worse
   ---
   ...
 # Subtest: a passive calm run reaches the end of the term and is scored
-ok 159 - a passive calm run reaches the end of the term and is scored
+ok 160 - a passive calm run reaches the end of the term and is scored
   ---
   ...
 # Subtest: a losing run reaches a named ending with a lesson
-ok 160 - a losing run reaches a named ending with a lesson
+ok 161 - a losing run reaches a named ending with a lesson
   ---
   ...
 # Subtest: the DEFERRED register matches the code, in both directions
-ok 161 - the DEFERRED register matches the code, in both directions
+ok 162 - the DEFERRED register matches the code, in both directions
   ---
   ...
 # Subtest: every recorded parameter conflict is still genuinely unresolved
-ok 162 - every recorded parameter conflict is still genuinely unresolved
+ok 163 - every recorded parameter conflict is still genuinely unresolved
   ---
   ...
 # Subtest: RATE_TO_OUTPUT: 1pp of policy rate, held a year
-ok 163 - RATE_TO_OUTPUT: 1pp of policy rate, held a year
+ok 164 - RATE_TO_OUTPUT: 1pp of policy rate, held a year
   ---
   ...
 # Subtest: AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
-ok 164 - AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
+ok 165 - AUTO_STABILISER_ABSORPTION: share of an income shock that never lands
   ---
   ...
 # Subtest: a tax cut RAISES output, and does it through consumption
-ok 165 - a tax cut RAISES output, and does it through consumption
+ok 166 - a tax cut RAISES output, and does it through consumption
   ---
   ...
 # Subtest: QE_TO_GDP: bond buying reaches output through the yield, and how much
-not ok 166 - QE_TO_GDP: bond buying reaches output through the yield, and how much # TODO FELL BELOW ITS PUBLISHED RANGE WHEN 3.1 FIXED THE ASSET-PRICE UNITS. The model delivers 0.019% of GDP per 1% of GDP purchased against a published 0.02-0.15 — just under the bottom, where it used to sit inside. QE reaches output through the long yield and then through asset prices, and the asset leg was overshooting its own sourced semi-elasticity by 4.6x, so part of what used to satisfy this range was the unit error. QE_TO_GDP is `weak` in parameters.py, with the note that the real-economy effect is genuinely contested and some argue near-zero outside market dysfunction — 0.019 is comfortably inside that judgement even though it is outside the stated band. Recorded rather than closed: raising it means raising QE_TO_YIELD or the wealth channel, and the wealth channel has just been shown to have been wrong in the other direction.
+not ok 167 - QE_TO_GDP: bond buying reaches output through the yield, and how much # TODO FELL BELOW ITS PUBLISHED RANGE WHEN 3.1 FIXED THE ASSET-PRICE UNITS. The model delivers 0.019% of GDP per 1% of GDP purchased against a published 0.02-0.15 — just under the bottom, where it used to sit inside. QE reaches output through the long yield and then through asset prices, and the asset leg was overshooting its own sourced semi-elasticity by 4.6x, so part of what used to satisfy this range was the unit error. QE_TO_GDP is `weak` in parameters.py, with the note that the real-economy effect is genuinely contested and some argue near-zero outside market dysfunction — 0.019 is comfortably inside that judgement even though it is outside the stated band. Recorded rather than closed: raising it means raising QE_TO_YIELD or the wealth channel, and the wealth channel has just been shown to have been wrong in the other direction.
   ---
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:154:1'
   failureType: 'testCodeFailure'
@@ -1766,7 +1771,7 @@ not ok 166 - QE_TO_GDP: bond buying reaches output through the yield, and how mu
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: RATE_TO_INFLATION: the model is about half the published estimate
-not ok 167 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
+not ok 168 - RATE_TO_INFLATION: the model is about half the published estimate # TODO RE-MEASURED IN PHASE 4.4. THE RESPONSE IS SLOW, NOT ABSENT, AND THE PLAN EXPECTED THE WRONG THING. docs/13 4.4 says the shortfall is "partly the lag burying the response beyond the 24-month window", so the A1 transmission split should have moved it. It did not: 0.1227pp at 24 months against the 0.122 recorded before. RE-MEASURED AFTER 5.7, AND IT HALVED: 0.0413 at 12 months, 0.0797 at 24, 0.1069 at 36, 0.1271 at 48, where 4.4 measured 0.0586 / 0.1227 / 0.1756 / 0.2192 and the 48-month figure was INSIDE the published band. That is not a regression in the rate channel. 5.7 fixed a unit error in the capital law of motion, so potential output now grows at the rate it is told to rather than decaying toward 0.93%/yr — a hike used to be measured against a ceiling that was itself sagging, which flattered the disinflation. AND THE HIKE ARM IS NOT THE CUT ARM: a 1pp CUT buys 0.0996 at 12 months and 0.4182 at 48, comfortably inside 0.2-0.4. monetaryEasingScale is why they differ and the published range is estimated across both directions, so this test measures the weaker half of an asymmetry on purpose. The window is doing as much of the disagreement as the model is. What is left is the anchored Phillips slope doing exactly what docs/02 says it should: with kappa at 0.05 the demand channel barely moves prices, and real surges are supposed to come from supply shocks and unanchoring. The published range is estimated across regimes that include the unanchored 1970s. The slowness no longer lives in the RATE — that arrives in a quarter now — it lives in the investment partial adjustment and the Phillips curve. Do not raise kappa to close this.
   ---
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:181:1'
   failureType: 'testCodeFailure'
@@ -1787,11 +1792,11 @@ not ok 167 - RATE_TO_INFLATION: the model is about half the published estimate #
   ...
 #   a 3pp hike, default rate: m1 0.00125pp, m12 0.23397, m36 0.53521, m60 0.66026. Impact is 0.19% of the five-year response (0.67538pp before 5.2, off the DIAL and the whole stock). Repricing switched off: 0.03160pp, 25.4x.
 # Subtest: CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
-ok 168 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
+ok 169 - CRISIS_OUTPUT_TROUGH: the realised peak-to-trough lands in the published range
   ---
   ...
 # Subtest: TAX_SHOCK_TO_GDP: the model is far below Romer-Romer
-not ok 169 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.484% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it and 0.487 until 5.12 did: it was 0.487 from 3.1 until 5.7 fixed the capital law of motion, 0.492 before that, and 0.33 was never right in this pass. The assertion three lines below printed 0.484 while this message said 0.487 — one test, one measurement, two numbers, which is what the citation register now prevents.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
+not ok 170 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. A 1% of GDP tax rise costs 0.484% of output over 30 months against a published 2.0-3.0. (This message said ~0.33% until Phase 5 verification re-ran it and 0.487 until 5.12 did: it was 0.487 from 3.1 until 5.7 fixed the capital law of motion, 0.492 before that, and 0.33 was never right in this pass. The assertion three lines below printed 0.484 while this message said 0.487 — one test, one measurement, two numbers, which is what the citation register now prevents.) The Romer-Romer narrative multiplier is the largest in the literature and famously larger than structural models produce; the model also has a responding central bank and a crowding-out term that works in the opposite direction on a tax rise. Recorded rather than closed: reproducing 2.5 would mean roughly tripling the consumption response to disposable income, which the MPC evidence does not support.
   ---
   location: '/home/ztchr/personal_projects/Crash/test/validation.test.js:250:1'
   failureType: 'testCodeFailure'
@@ -1811,21 +1816,21 @@ not ok 169 - TAX_SHOCK_TO_GDP: the model is far below Romer-Romer # TODO KNOWN. 
     async Test.processPendingSubtests (node:internal/test_runner/test:633:7)
   ...
 # Subtest: CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
-ok 170 - CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
+ok 171 - CITED: TAX_SHOCK_TO_GDP's model value says the same thing everywhere
   ---
   ...
 # Subtest: private debt reprices over YEARS, and the burden lands late
-ok 171 - private debt reprices over YEARS, and the burden lands late
+ok 172 - private debt reprices over YEARS, and the burden lands late
   ---
   ...
 # Subtest: the debt-service burden reads the transmitted rate, not the dial
-ok 172 - the debt-service burden reads the transmitted rate, not the dial
+ok 173 - the debt-service burden reads the transmitted rate, not the dial
   ---
   ...
-1..172
-# tests 172
+1..173
+# tests 173
 # suites 0
-# pass 156
+# pass 157
 # fail 0
 # cancelled 0
 # skipped 0

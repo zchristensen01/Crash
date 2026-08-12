@@ -229,6 +229,17 @@ export function newState(overrides = {}) {
   // every scenario and the steady state is unmoved.
   s.private_debt_rate = s.market_rate;
   s.user_cost = s.market_rate - s.expected_inflation + P.DEPRECIATION_RATE.value * 100;
+  // THE USER COST THE MODEL TREATS AS NORMAL, and there is one of it (4th
+  // audit 5.13). `updateInvestment` computed this expression as a local and
+  // `updateBusinessConfidence` compared `user_cost` against
+  // `market_real_rate_ss` instead — a user cost OF CAPITAL against a real
+  // INTEREST RATE, which are not the same kind of quantity. The difference is
+  // exactly `DEPRECIATION_RATE * 100`, so the gauge read a permanent 12-point
+  // wedge that was pure units and sat at 48.000 at a flawless steady state.
+  // Hoisted here so both read one number, the way DEMAND_BOUNDS made one
+  // number of the clamp stated three times (5.10).
+  s.user_cost_ss = s.policy_rate_ss + s.credit_spread_ss - s.inflation_target +
+                   P.DEPRECIATION_RATE.value * 100;
   s.okun_beta_effective = P.OKUN_BETA.value;
   s.risk_premium = 0;
   s.interest_cost = s.govt_debt * s.average_coupon / 100;

@@ -125,10 +125,7 @@ export function updateInvestment(s, trace) {
   s.user_cost = s.market_rate - s.expected_inflation +
                 P.DEPRECIATION_RATE.value * 100;
 
-  const userCostSS = s.policy_rate_ss + s.credit_spread_ss -
-                     s.inflation_target + P.DEPRECIATION_RATE.value * 100;
-
-  const stance = s.user_cost - userCostSS;
+  const stance = s.user_cost - s.user_cost_ss;
   const scale = stance < 0 ? monetaryEasingScale(s) : 1;
   const rateTerm = -s.investment_share *
     (P.INVESTMENT_RATE_ELASTICITY.value / 100) * stance * scale;

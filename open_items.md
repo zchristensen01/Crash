@@ -450,7 +450,7 @@ tightening caught what it was aimed at and nothing else. The recipe above is
 copied verbatim into its `DEFERRED` entry, so it travels with the parameter
 rather than only with this file.
 
-### B7. `business_confidence` compares a user cost against a real interest rate — `OPEN`, and 8.10 would ship it
+### B7. `business_confidence` compared a user cost against a real interest rate — `FIXED in 5.13`
 Found while labelling the sentiment weights in 5.3 and measured in 5.8's
 follow-up. The gauge is declared `60` in `state.js` and in `docs/01`, and it
 settles at **exactly 48.000** on tick one of a perfect steady state and stays
@@ -479,6 +479,32 @@ at a flawless steady state would be a gauge that lies at rest, which is the
 `price_level` invariant's whole argument one file over. Fix before 8.10, not
 after: either compare `user_cost` against a steady-state USER COST, or drop
 depreciation from the term.
+
+**FIXED in 5.13, AND THE RIGHT ANCHOR ALREADY EXISTED ONE FILE OVER.**
+`updateInvestment` had always measured its stance against a local `userCostSS`
+built from neutral — so the model held **two anchors for one quantity** and the
+gauge used the wrong one. The repair is not a corrected expression but a single
+number: **`s.user_cost_ss`** now sits in `state.js` beside `market_real_rate_ss`
+and `policy_rate_ss`, and both rules read it. 5.10's `DEMAND_BOUNDS` pattern —
+equality made structural rather than intended.
+
+`business_confidence` now reads **exactly 60.000000000** at rest. Guarded in
+`steady-state.test.js` against BOTH gauges, because `consumer_confidence`
+agreeing with its own declaration is the control that made the 48 legible;
+plus the structural fact underneath, `user_cost == user_cost_ss` at rest.
+Verified to fire — restoring the old comparison reports *"business_confidence
+is declared 60 and reads 48.000000"*.
+
+**Behaviour-neutral everywhere else, measured:** six scenarios × 96 months × 22
+fields hash `7e517207065edb1c` before and after. Investment is bit-identical.
+
+**Found on the way:** `docs/01` gave `user_cost` a default of **8.5%** — the
+pre-5.7 depreciation rate, in a LIVING document. The whole column was checked
+rather than the one row: **98 numeric defaults, 5 disagree, 4 of them
+legitimate rounding** (`tfp` 0.68 vs 0.6799943, `labour_productivity` 1.05 vs
+1.0526, `apc_ss` 0.709 vs 0.70927, `velocity_v0` 0.015 vs 0.014816). One real
+staleness and four false positives, so no guard was built — the same arithmetic
+that made 5.12 reject its sweep.
 
 ### B8. Two monetary validation targets are measured on ONE arm of a deliberately asymmetric channel — `OPEN`
 `MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes, on

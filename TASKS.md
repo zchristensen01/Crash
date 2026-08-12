@@ -16,7 +16,7 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | still open | task | | still open | task |
 |---|---|---|---|---|
 | A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
-| **A2 the demand block** | **11.1** | | B7 `business_confidence` units | 5.13 |
+| **A2 the demand block** | **11.1** | | | |
 | A3 hotter buys less inflation | 7.3 | | B8 one-armed validation | 5.14 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
@@ -25,9 +25,9 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
+A5, B1, B7, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
 E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
-**Fifteen `OPEN`/`PARTIAL` entries, fifteen tasks.** D4 was missing from this
+**Fourteen `OPEN`/`PARTIAL` entries, fourteen tasks.** D4 was missing from this
 accounting until 5.12's handoff check enumerated the statuses rather than
 reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
 legs.
@@ -118,7 +118,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-three** corrections to the
+Recorded here and against the individual tasks. **Thirty-four** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -141,6 +141,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 34 | **B7's proposed repair was a correction where the model needed an ANCHOR** — `updateInvestment` already held the right steady-state user cost as a local, so there were two anchors for one quantity. Hoisted to `s.user_cost_ss`; the gauge reads its declared 60 at rest | closed by 5.13 |
 | 33 | **Two of A2's five cells had no producer** — propagation and the rebound share were quoted in four places each and computed by nothing. Measured: 3.8202% and 38.68%, so nothing had drifted; the point is that nothing could have said so | closed by 5.22 |
 | 32 | **The plan's two candidate prose sweeps were measured and both are dead ends** — 97 sites/55 false positives, or 1 site. The class that rots is MEASURED QUANTITIES, which sit nowhere near a parameter name, so the citation must be declared. It then found TASKS' own Phase 11 table four cells stale | closed by 5.12 |
 | 31 | **`docs/11`'s own flag understated its staleness**: it said the `debt_trap` policy table's "do-nothing row alone has moved" — four of five had, and `rate to the floor` had changed OUTCOME while the prose drew a lesson from it | closed by 5.21 |
@@ -626,7 +627,7 @@ tasks, not notes — the pass found them and did not fix them.
       673%) and the higher long yield makes the win slower. `docs/11` §5
       updated and re-stamped `8f20248ce93b453a`.
 
-- [ ] 5.13 `business_confidence` compares a user cost against a real rate — `open_items` B7
+- [x] 5.13 `business_confidence` compares a user cost against a real rate — `open_items` B7
       **BLOCKS 8.10.** The gauge is declared 60 and settles at exactly
       **48.000** at a flawless steady state, forever. The whole 12-point gap is
       `BIZ_W_USER_COST × (user_cost − market_real_rate_ss)` = 2.0 × 6.000, and
@@ -635,6 +636,34 @@ tasks, not notes — the pass found them and did not fix them.
       exactly its neutral 60, which is what makes the 48 legible as an error.
       Nothing reads it today, and **8.10 exists to display it** — a gauge that
       lies at rest is the `price_level` invariant's own argument one file over.
+      **AS BUILT — ONE ANCHOR, NOT ONE CORRECTION.** Reproduced exactly:
+      `business_confidence` **48.000000**, `consumer_confidence` **60.000000**,
+      `user_cost` 8.000, `market_real_rate_ss` 2.000, wedge **6.000** =
+      `DEPRECIATION_RATE × 100`.
+      **`updateInvestment` HAD ALWAYS COMPARED AGAINST THE RIGHT THING** — a
+      local `userCostSS` built from neutral — so the model held two anchors for
+      one quantity and the gauge used the wrong one. Rather than correcting the
+      expression in `sentiment.js`, the anchor was hoisted to **`s.user_cost_ss`**
+      in `state.js` beside the other steady-state anchors, and BOTH rules read
+      it. That is 5.10's `DEMAND_BOUNDS` pattern: the repair is that there is
+      now one number, so the two cannot drift apart again.
+      **BEHAVIOUR-NEUTRAL EVERYWHERE EXCEPT THE GAUGE, MEASURED:** six scenarios
+      × 96 months × 22 fields hash **`7e517207065edb1c` before and after** —
+      investment is bit-identical because it reads the same expression it always
+      computed. Only `business_confidence` moved, and it now reads **exactly
+      60.000000000** at rest. `docs/11`'s fingerprint is unmoved.
+      **GUARDED BY A TEST THAT CHECKS THE CONTROL TOO.** `steady-state.test.js`
+      asserts both gauges return to their declared neutral after 200 calm ticks —
+      `consumer_confidence` is the control that made the 48 legible as an error —
+      plus the structural fact underneath it, `user_cost == user_cost_ss` at
+      rest. Verified to fire: restoring the old comparison reports
+      *"business_confidence is declared 60 and reads 48.000000"*.
+      **FOUND ON THE WAY:** `docs/01` gave `user_cost` a default of **8.5%**,
+      the pre-5.7 depreciation rate — a living document, stale since the capital
+      fix. Checked the whole column rather than the one row: **98 numeric
+      defaults, 5 disagree, and 4 are legitimate rounding** (0.68 vs 0.6799943).
+      One real staleness, four false positives — so no guard is built here, for
+      the same reason 5.12 rejected its sweep.
 - [ ] 5.14 Measure the monetary validation targets on BOTH arms — `open_items` B8
       `MONETARY_ASYMMETRY_RATIO = 1.5` makes cuts transmit at 1/1.5 of hikes,
       on purpose. Both monetary validation tests shock with a HIKE and negate.
@@ -1035,7 +1064,7 @@ tasks, not notes — the pass found them and did not fix them.
       170 → **172 tests**, 156 pass, 0 fail, 16 todo.
 
 
-**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 172 tests, 156
+**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 173 tests, 157
 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
 scope), `index.html` current, `docs/11` current with **all twelve of its
 measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
@@ -1051,7 +1080,7 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.13, 5.14, 5.15.
+rides on it. **Not started:** 5.14, 5.15.
 **5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
 5 handoff, and between them `docs/11` now has **no numeric block that a tool
 does not generate and check**: 8 fenced tables, 453 cells across 21 pipe
