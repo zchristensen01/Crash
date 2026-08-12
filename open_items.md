@@ -1031,7 +1031,7 @@ parameters"*; the model has **145**. In the one file whose own header promises
 node tools/report.mjs && cp TEST-RESULTS.md /tmp/a && node tools/report.mjs && diff /tmp/a TEST-RESULTS.md
 ```
 
-### E7. `s.dial_truncated` is null everywhere anything could read it, and a comment says otherwise — `OPEN`
+### E7. `s.dial_truncated` is null everywhere anything could read it, and a comment said otherwise — `FIXED in 5.15`
 Found by 5.9's re-derivation, which it caught out first. Two halves.
 
 **The claim is false.** `engine.js` says of the truncation record: *"The state
@@ -1063,6 +1063,31 @@ correct approach is to wrap the autopilot and record `taylorRate(s)` at source.
 
 Anyone measuring a truncation needs to know this before they start, which is
 why it is here and not only in a commit message.
+
+**FIXED in 5.15 — the comment is corrected, and a TEST keeps it corrected.**
+Reproduced first: the field holds `{key, requested: 999, applied: 50, at: 0}`
+immediately after `applyDialChange` and is **`null` the moment `tick()`
+returns**, with `engine.js`'s trace note the only reader anywhere in `src/`.
+
+This entry asked for "the comment or the read, but not neither". **The read is
+8.5's job and remains 8.5's job**; `engine.js` now says what is true — one
+reader, `dial_truncated_count` as the durable half, and the measurement trap
+spelled out with 5.9's sweep as the worked example.
+
+**The structural half is what stops it recurring.** A test walks all of `src/`
+and asserts the transient field has exactly THREE sites: `state.js` declares
+it, `dials.js` writes it (rule 7 — only `applyDialChange` may apply a bound),
+`engine.js` reads it. Anything else fails, and the failure says: *if this is
+8.5 adding the UI read, that is the right change — correct `engine.js`'s
+comment and delete this test in the same commit.* So the comment and the code
+cannot drift apart again, which was the whole complaint.
+
+```
+node --test test/autopilot.test.js 2>&1 | grep "transient truncation"
+```
+
+Verified to fire by adding a read to `src/ui/app.js`. `dial_truncated_count` is
+deliberately NOT covered — the UI reading that is the point of it existing.
 
 ### E11. A player-facing gauge held copies FIVE and SIX of a promoted parameter, and named a threshold it did not use — `FIXED in 5.19`
 **5.11's scope decision was wrong for this file, one task after making it.**

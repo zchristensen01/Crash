@@ -2051,6 +2051,50 @@ not count.**
 > `7e517207065edb1c` unmoved — this is a measurement protocol, not a model
 > change.
 
+> #### As built — 5.15, and Phase 5 has nothing left that is not blocked.
+>
+> ### CORRECTION 36 — a comment described a design that was never built, and correcting prose was not the fix; tying the prose to the code was.
+>
+> `engine.js` said of `s.dial_truncated`: *"The state field is what the UI
+> reads on the spot; this is what the why panel reads afterwards, and both
+> paths have to work."* Measured, the field holds its record immediately after
+> `applyDialChange` and is **`null` the moment `tick()` returns**, and the only
+> reader anywhere in `src/` is the trace note four lines below the comment.
+> There was one path, not two, and the sentence described an intention.
+>
+> E7 asked for *"the comment or the read, but not neither"*, and the read is
+> 8.5's. So the comment now states what is true — one reader,
+> `dial_truncated_count` as the durable half, and the measurement trap written
+> down with 5.9's ceiling sweep as the worked example: it read the field after
+> the tick, got null, fell back to the APPLIED rate, and reported a maximum
+> request of exactly 20.0 / 25.0 / 30.0 at each candidate ceiling. Plausible,
+> meaningless, and caught only because the numbers were too round.
+>
+> **BUT A CORRECTED COMMENT IS THE SAME KIND OF OBJECT AS THE ONE THAT WAS
+> WRONG.** This audit has spent most of its effort on documents that were once
+> true, and the whole lesson of E9, E10, E12 and 5.12 is that a claim needs a
+> mechanism, not better wording. So the comment is now tied to the code: a test
+> walks `src/` and asserts the transient field has exactly three sites —
+> `state.js` declares it, `dials.js` writes it (rule 7: only `applyDialChange`
+> may apply a bound), `engine.js` reads it. Anything else fails, and the
+> failure message names the comment to change and tells 8.5's implementer to
+> delete the test in the same commit.
+>
+> **The exceptions are named individually rather than by directory**, because
+> the first version excluded `engine.js` and `dials.js` and immediately caught
+> `state.js` declaring the field — which is the guard working, and the reason
+> to list three justified sites instead of a wildcard.
+>
+> `dial_truncated_count` is deliberately outside the guard: the UI reading it
+> is the point of it existing.
+>
+> 174 → **175 tests**, 159 pass, 0 fail, 16 todo. Behaviour hash
+> `7e517207065edb1c` unmoved.
+>
+> **PHASE 5 IS NOW COMPLETE EXCEPT 5.1**, which cannot close inside the phase —
+> it is blocked on 11.1 (A2), and re-attempting it before that is explicitly
+> forbidden by its own entry.
+
 **5.6 — `participation` and `gdp_growth_annual` (D5).** Confirmed: zero reads
 anywhere in `src/`. Wire or defer.
 

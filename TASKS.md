@@ -15,19 +15,17 @@ numbered task here.** Re-checked at the Phase 5 handoff.
 
 | still open | task | | still open | task |
 |---|---|---|---|---|
-| A1 `bubble` deflates on its own | 6.1 | | B6 `debt_trap` is fragile | 11.4 |
-| **A2 the demand block** | **11.1** | | | |
-| A3 hotter buys less inflation | 7.3 | | | |
+| A1 `bubble` deflates on its own | 6.1 | | B4 one mean-reversion speed | 6.3 |
+| **A2 the demand block** | **11.1** | | B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 |
+| A3 hotter buys less inflation | 7.3 | | B6 `debt_trap` is fragile | 11.4 |
 | **A6 5.1's real blocker** | **5.1**, after 11.1 | | E4 prose | 5.12 (partial) |
 | **A7 the capacity cliff** | **11.5** | | E5 the spread is judgement | 7.4 |
 | B3 Okun in a crash | 11.2 | | E6 check (f)'s scope | 5.11 (partial) |
-| B4 one mean-reversion speed | 6.3 | | E7 `dial_truncated` | 5.15 |
-| B5 `HAND_TO_MOUTH_SHARE` | rides on 5.1 | | | |
 
 The entries with no task are the ones that want none: **`FIXED`/`CLOSED`** (A4,
-A5, B1, B7, B8, D1, D2, E1, E2, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
+A5, B1, B7, B8, D1, D2, E1, E2, E7, E8, E9, E10, E11, E12, E13, E14), **`WATCH`** (D3, D4, D5,
 E3) and **`DELIBERATE`** (B2, C1, C2 — C2 re-solves under 11.3 when A2 lands).
-**Thirteen `OPEN`/`PARTIAL` entries, thirteen tasks.** D4 was missing from this
+**Twelve `OPEN`/`PARTIAL` entries, twelve tasks.** D4 was missing from this
 accounting until 5.12's handoff check enumerated the statuses rather than
 reading them; it is `WATCH` and 6.3 picks it up if that task splits the asset
 legs.
@@ -118,7 +116,7 @@ reproduction; the work it implies goes here as a task; the reasoning goes in
 
 ## Carried findings — things later phases must not rediscover
 
-Recorded here and against the individual tasks. **Thirty-five** corrections to the
+Recorded here and against the individual tasks. **Thirty-six** corrections to the
 plan so far; all live in `docs/13` as "As built" blocks under the task that
 produced them.
 
@@ -141,6 +139,7 @@ produced them.
 | 20 | **The plan has no task for the bond yield at all**, and 5.1 cannot ship without one. The repair is an expected AVERAGE short rate, not a Fisher term — which is why the steady state needed no re-solve | closed by 5.8 |
 | 21 | Two tests were asserting the yield defect; one **conflated speed with size**, requiring near one-for-one pass-through under a comment about markets repricing *fast* | closed |
 | 22 | **5.8 did not unblock 5.1 and A4 was never the blocker** — `overheating` stops hyperinflating with the old yield (3.13%) and the new one (3.83%) alike | closed |
+| 36 | **A comment described a design that was never built** — `s.dial_truncated`'s "both paths have to work" promised a UI read that does not exist. Corrected, and a test now pins the field to its three legitimate sites so 8.5 cannot add the read without fixing the comment | closed by 5.15 |
 | 35 | **B8 named the wrong mechanism for its own finding** — the arms differ because of the WAGE KINK, not `monetaryEasingScale`. Remove the kink and the cut arm falls 0.2230 → 0.0616 and the asymmetry flips. The arm that PASSES was one kink crossing | closed by 5.14 |
 | 34 | **B7's proposed repair was a correction where the model needed an ANCHOR** — `updateInvestment` already held the right steady-state user cost as a local, so there were two anchors for one quantity. Hoisted to `s.user_cost_ss`; the gauge reads its declared 60 at rest | closed by 5.13 |
 | 33 | **Two of A2's five cells had no producer** — propagation and the rebound share were quoted in four places each and computed by nothing. Measured: 3.8202% and 38.68%, so nothing had drifted; the point is that nothing could have said so | closed by 5.22 |
@@ -745,7 +744,7 @@ tasks, not notes — the pass found them and did not fix them.
       been raised. Tables in `dials.js`, `autopilot.js` and the autopilot test
       all replaced; the stale 1020.91% / 29.55% / 5.49% figures are gone.
 
-- [ ] 5.15 `s.dial_truncated` is unreadable outside the tick, and a comment
+- [x] 5.15 `s.dial_truncated` is unreadable outside the tick, and a comment
       claims otherwise — `open_items` E7
       `engine.js` says *"the state field is what the UI reads on the spot; this
       is what the why panel reads afterwards, and both paths have to work."*
@@ -758,6 +757,28 @@ tasks, not notes — the pass found them and did not fix them.
       ceiling sweep read the applied rate as a fallback and silently reported
       the ceiling as the request, producing a max of exactly 20.0/25.0/30.0 at
       each candidate. Plausible and meaningless.
+      **AS BUILT — THE COMMENT IS CORRECTED, AND A TEST KEEPS IT CORRECTED.**
+      Reproduced first: the field holds `{key, requested: 999, applied: 50,
+      at: 0}` immediately after `applyDialChange` and is **`null` the moment
+      `tick()` returns**, and the only reader anywhere is `engine.js`'s trace
+      note. The comment described a design that was never built.
+      **8.5 IS THE TASK THAT WOULD BUILD IT, so this is not a decision to make
+      here** — E7 asked for "the comment or the read, but not neither", and the
+      comment now says what is true, names `dial_truncated_count` as the
+      durable half, and carries the measurement trap with 5.9's failure as the
+      worked example.
+      **THE PART THAT IS STRUCTURAL RATHER THAN PROSE:** a test walks all of
+      `src/` and asserts the transient field has **exactly three sites** —
+      `state.js` declares it, `dials.js` writes it (rule 7: only
+      `applyDialChange` may apply a bound), `engine.js` reads it. Anything else
+      fails, and the message says: *if this is 8.5 adding the UI read, that is
+      the right change — correct `engine.js`'s comment and delete this test in
+      the same commit.* **So the comment and the code cannot drift apart again**,
+      which is the whole of E7. Verified to fire by adding a read to
+      `src/ui/app.js`; `dial_truncated_count` is deliberately not covered,
+      because the UI reading THAT is the point of it existing.
+      174 → **175 tests**, 159 pass, 0 fail, 16 todo. Behaviour hash
+      `7e517207065edb1c` unmoved — a comment, a test and a docs row.
 
 - [x] 5.10 The bounds stated twice — **there were THREE copies** — `open_items` D2
       `updateConsumption` clamped to `[10, 95]` and `invariants.js` check 8
@@ -1103,8 +1124,8 @@ tasks, not notes — the pass found them and did not fix them.
       170 → **172 tests**, 156 pass, 0 fail, 16 todo.
 
 
-**PHASE 5 GATE: GREEN, WITH TWO TASKS BLOCKED AND SAID SO.** 174 tests, 158
-pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
+**PHASE 5 GATE: GREEN. ONE TASK REMAINS AND IT IS BLOCKED OUTSIDE THE PHASE.**
+175 tests, 159 pass, **0 fail**, 16 todo. lint clean (6 checks, 15 files in the literal
 scope), `index.html` current, `docs/11` current with **all twelve of its
 measured blocks verified** — 7 fenced tables and **453 cells across 21 pipe
 tables** — and its fingerprint stamped, `TEST-RESULTS.md` byte-stable, steady
@@ -1119,7 +1140,8 @@ divergence guard 2/2, 145 parameters.
 
 **Done:** 5.2–5.20 except the two below. **Blocked:** 5.1 on **11.1 (A2)**, not
 on A4 as recorded — see `open_items` A6, and 5.5's `HAND_TO_MOUTH_SHARE` wiring
-rides on it. **Not started:** 5.15.
+rides on it. **Nothing is left unstarted.** 5.1 is the only open item in the phase and it
+cannot close inside it: it is blocked on **11.1 (A2)**, a Phase 11 task.
 **5.20 and 5.21 were not in the plan** — they were found by verifying the Phase
 5 handoff, and between them `docs/11` now has **no numeric block that a tool
 does not generate and check**: 8 fenced tables, 453 cells across 21 pipe

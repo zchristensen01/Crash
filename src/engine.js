@@ -54,8 +54,27 @@ export function tick(s, trace, pipeline, rng, opts = {}) {
   // and cleared at the END of the tick rather than the start — the player
   // moves a dial BETWEEN ticks, so clearing first threw their truncation away
   // before the trace could ever see it and only the autopilot's was ever
-  // recorded. The state field is what the UI reads on the spot; this is what
-  // the why panel reads afterwards, and both paths have to work.
+  // recorded.
+  //
+  // THIS IS THE ONLY READER OF `s.dial_truncated`, and this comment used to
+  // claim otherwise [4th audit 5.15, open_items E7]. It said "the state field
+  // is what the UI reads on the spot; this is what the why panel reads
+  // afterwards, and both paths have to work" — describing a design that was
+  // never built. Measured: nothing in `src/ui/` or `src/game/` reads the field
+  // at all, and it is `null` the moment `tick()` returns. There is one path,
+  // not two. The durable half of the record is `dial_truncated_count`, which
+  // is cumulative and never cleared.
+  //
+  // THE TRANSIENT FIELD IS A MEASUREMENT TRAP AND IT HAS ALREADY WORKED ONCE:
+  // 5.9's first rate-ceiling sweep read it after the tick, got null, fell back
+  // to the APPLIED rate and so reported the ceiling as the request — a maximum
+  // of exactly 20.0 / 25.0 / 30.0 at each candidate ceiling, plausible and
+  // meaningless. Anything measuring what the rule ASKED FOR has to capture it
+  // at source, by wrapping the autopilot.
+  //
+  // Task 8.5 is the one that would give the UI the read this comment used to
+  // promise. `test/autopilot.test.js` fails until this comment is corrected
+  // with it, so the two cannot drift apart again.
   if (s.dial_truncated) {
     const t = s.dial_truncated;
     trace.note(`${t.key} request truncated by the dial's own bound`,

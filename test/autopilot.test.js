@@ -8,6 +8,7 @@
  * comment instead of measuring it (A4).
  */
 import { test } from 'node:test';
+import { readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { newState } from '../src/state.js';
@@ -314,4 +315,55 @@ test('a truncation reaches the trace whether the player or the autopilot caused 
   assert.equal(player.cleared, null,
     'dial_truncated survived the tick that reported it, so next month it would ' +
     'be reported a second time');
+});
+
+/**
+ * THE COMMENT AND THE CODE, TIED TOGETHER [4th audit 5.15, open_items E7].
+ *
+ * `engine.js` claimed that `s.dial_truncated` had two readers — "the state
+ * field is what the UI reads on the spot; this is what the why panel reads
+ * afterwards, and both paths have to work". Measured, there was one: the trace
+ * note inside the tick. Nothing in `src/ui/` or `src/game/` read the field,
+ * and it is null the moment `tick()` returns. The comment described a design
+ * that was never built, and nothing could say so.
+ *
+ * E7's instruction was "either give the UI the read the comment promises (that
+ * is 8.5's job) or correct the comment — but not neither". The comment is
+ * corrected. THIS TEST IS WHAT KEEPS IT CORRECTED: the moment 8.5 adds the UI
+ * read, this fails and names the comment that has to change with it.
+ *
+ * `dial_truncated_count` is deliberately NOT covered — it is the durable half
+ * of the record, it survives the tick, and the UI reading it is the whole
+ * point of it existing.
+ */
+test('nothing outside the tick reads the transient truncation field', () => {
+  const dir = new URL('../src/', import.meta.url);
+  const files = [];
+  (function walk(d) {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const u = new URL(e.name + (e.isDirectory() ? '/' : ''), d);
+      if (e.isDirectory()) walk(u);
+      else if (e.name.endsWith('.js')) files.push(u);
+    }
+  })(dir);
+
+  const offenders = files
+    // Three named sites, each of which has to touch it: state.js DECLARES it,
+    // dials.js WRITES it — `applyDialChange` is the only place a bound may be
+    // applied at all (rule 7) — and engine.js is the single READER.
+    .filter((u) => !['/state.js', '/engine.js', '/game/dials.js']
+      .some((keep) => u.pathname.endsWith(keep)))
+    .filter((u) => /dial_truncated(?!_count)/.test(readFileSync(u, 'utf8')))
+    .map((u) => u.pathname.split('/src/')[1]);
+
+  assert.deepEqual(offenders, [],
+    `these files read s.dial_truncated, which is null everywhere except inside ` +
+    `the tick that set it:\n        ${offenders.join('\n        ')}\n\n` +
+    `      If this is task 8.5 giving the UI the read that engine.js's comment ` +
+    `used to promise, that is the right change — but engine.js now says "THIS IS ` +
+    `THE ONLY READER", so correct that comment and delete this test in the same ` +
+    `commit. If it is anything else, the field is null by the time you read it: ` +
+    `use dial_truncated_count, or capture the request at source. 5.9's first ` +
+    `ceiling sweep made exactly this mistake and silently reported the ceiling ` +
+    `as the request.`);
 });
